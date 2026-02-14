@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SÉLECTIONNEZ VOTRE CLASSE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F8FAFC;
+            overflow-x: hidden;
+        }
+
+        /* Animation d'entrée globale */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-card {
+            opacity: 0;
+            animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* Effet de survol ultra-propre */
+        .class-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .class-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 60px -12px rgba(99, 102, 241, 0.15);
+            background-color: white;
+        }
+
+        /* Petit reflet brillant au survol */
+        .class-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: rotate(45deg);
+            transition: 0.8s;
+            opacity: 0;
+        }
+
+        .class-card:hover::after {
+            opacity: 1;
+            left: 100%;
+            top: 100%;
+        }
+
+        /* Délais d'animation pour l'effet de cascade (10 cartes) */
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.15s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-4 {
+            animation-delay: 0.25s;
+        }
+
+        .delay-5 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-6 {
+            animation-delay: 0.35s;
+        }
+
+        .delay-7 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-8 {
+            animation-delay: 0.45s;
+        }
+
+        .delay-9 {
+            animation-delay: 0.5s;
+        }
+
+        .delay-10 {
+            animation-delay: 0.55s;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen pb-20">
+
+    <nav
+        class="p-6 px-12 flex justify-between items-center bg-white/40 backdrop-blur-md sticky top-0 z-50 border-b border-white/20">
+        <div class="flex items-center gap-2 cursor-pointer group" onclick="location.href='index.html'">
+            <div class="bg-indigo-600 p-1.5 rounded-lg shadow-md transition-transform group-hover:rotate-12">
+                <i data-lucide="layout-grid" class="text-white w-4 h-4"></i>
+            </div>
+            <span class="text-xl font-black italic uppercase tracking-tighter">ÉCOLE<span
+                    class="text-indigo-600">NUM</span></span>
+        </div>
+
+        <div class="flex gap-4">
+            <button onclick="launch('ADMIN', 'Administration')"
+                class="p-2.5 bg-white text-slate-400 hover:text-indigo-600 hover:scale-110 rounded-full transition-all border border-slate-100 shadow-sm"><i
+                    data-lucide="shield" class="w-4 h-4"></i></button>
+            <button onclick="launch('PROFESSEUR', 'Espace Professeur')"
+                class="p-2.5 bg-white text-slate-400 hover:text-purple-600 hover:scale-110 rounded-full transition-all border border-slate-100 shadow-sm"><i
+                    data-lucide="book-marked" class="w-4 h-4"></i></button>
+            <button onclick="launch('PARENT', 'Espace Parent')"
+                class="p-2.5 bg-white text-slate-400 hover:text-rose-600 hover:scale-110 rounded-full transition-all border border-slate-100 shadow-sm"><i
+                    data-lucide="users" class="w-4 h-4"></i></button>
+            <button onclick="launch('ANCIENS', 'Espace Anciens')"
+                class="p-2.5 bg-white text-slate-400 hover:text-amber-500 hover:scale-110 rounded-full transition-all border border-slate-100 shadow-sm"><i
+                    data-lucide="history" class="w-4 h-4"></i></button>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto pt-10 px-6">
+        <div class="text-center mb-12 animate-card">
+            <div
+                class="bg-indigo-600 text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] mb-4 inline-block shadow-lg shadow-indigo-100">
+                Identification Requise</div>
+            <h1 class="text-5xl font-black italic tracking-tighter text-slate-900 uppercase">SÉLECTIONNEZ <span
+                    class="text-indigo-600">VOTRE CLASSE</span></h1>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 mt-16">
+
+            <div class="space-y-8">
+                <div class="flex items-center gap-3 ml-4 animate-card delay-1">
+                    <i data-lucide="layers" class="text-indigo-600 w-5 h-5"></i>
+                    <h3 class="font-bold text-indigo-900 uppercase text-xs tracking-[0.2em]">1er Cycle <span
+                            class="text-slate-300 ml-2 font-normal italic">| COLLÈGE</span></h3>
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <button onclick="launch('ELEVE', '6ème')"
+                        class="class-card bg-white py-12 rounded-[3rem] border border-slate-50 flex flex-col items-center animate-card delay-2 hover:border-indigo-200">
+                        <span class="text-4xl font-black text-indigo-600 italic">6ème</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase mt-3 tracking-widest">Sixième</span>
+                    </button>
+                    <button onclick="launch('ELEVE', '5ème')"
+                        class="class-card bg-white py-12 rounded-[3rem] border border-slate-50 flex flex-col items-center animate-card delay-3 hover:border-indigo-200">
+                        <span class="text-4xl font-black text-indigo-600 italic">5ème</span>
+                        <span
+                            class="text-[10px] font-bold text-slate-400 uppercase mt-3 tracking-widest">Cinquième</span>
+                    </button>
+                    <button onclick="launch('ELEVE', '4ème')"
+                        class="class-card bg-white py-12 rounded-[3rem] border border-slate-50 flex flex-col items-center animate-card delay-4 hover:border-indigo-200">
+                        <span class="text-4xl font-black text-indigo-600 italic">4ème</span>
+                        <span
+                            class="text-[10px] font-bold text-slate-400 uppercase mt-3 tracking-widest">Quatrième</span>
+                    </button>
+                    <button onclick="launch('ELEVE', '3ème')"
+                        class="class-card bg-white py-12 rounded-[3rem] border border-slate-50 flex flex-col items-center animate-card delay-5 hover:border-indigo-200">
+                        <span class="text-4xl font-black text-indigo-600 italic">3ème</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase mt-3 tracking-widest">Brevet</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-8">
+                <div class="flex items-center gap-3 ml-4 animate-card delay-5">
+                    <i data-lucide="graduation-cap" class="text-amber-500 w-5 h-5"></i>
+                    <h3 class="font-bold text-amber-600 uppercase text-xs tracking-[0.2em]">2nd Cycle <span
+                            class="text-slate-300 ml-2 font-normal italic">| LYCÉE</span></h3>
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <button onclick="launch('ELEVE', '2nde A')"
+                        class="class-card bg-white py-10 rounded-[3rem] border border-slate-50 flex flex-col items-center animate-card delay-6 hover:border-amber-200">
+                        <span class="text-3xl font-black text-amber-500 italic">2nde A</span>
+                        <span
+                            class="text-[9px] font-bold text-slate-400 uppercase mt-3 tracking-widest">Littéraire</span>
+                    </button>
+                    <button onclick="launch('ELEVE', '2nde C')"
+                        class="class-card bg-white py-10 rounded-[3rem] border border-slate-50 flex flex-col items-center animate-card delay-7 hover:border-amber-200">
+                        <span class="text-3xl font-black text-amber-500 italic">2nde C</span>
+                        <span
+                            class="text-[9px] font-bold text-slate-400 uppercase mt-3 tracking-widest">Scientifique</span>
+                    </button>
+                    <button onclick="launch('ELEVE', '1ère A')"
+                        class="class-card bg-white py-10 rounded-[3rem] border border-slate-50 flex flex-col items-center animate-card delay-8 hover:border-amber-200">
+                        <span class="text-3xl font-black text-amber-500 italic">1ère A</span>
+                        <span
+                            class="text-[9px] font-black text-slate-400 uppercase mt-3 tracking-widest">Littérature</span>
+                    </button>
+                    <button onclick="launch('ELEVE', '1ère D')"
+                        class="class-card bg-white py-10 rounded-[3rem] border border-slate-50 flex flex-col items-center animate-card delay-9 hover:border-amber-200">
+                        <span class="text-3xl font-black text-amber-500 italic">1ère D</span>
+                        <span
+                            class="text-[9px] font-black text-slate-400 uppercase mt-3 tracking-widest">Scientifique</span>
+                    </button>
+                    <button onclick="launch('ELEVE', 'Tle A')"
+                        class="class-card bg-white py-10 rounded-[3rem] border border-slate-50 flex flex-col items-center animate-card delay-10 hover:border-amber-200">
+                        <span class="text-3xl font-black text-amber-500 italic">Tle A</span>
+                        <span
+                            class="text-[9px] font-black text-slate-400 uppercase mt-3 tracking-widest">Littérature</span>
+                    </button>
+                    <button onclick="launch('ELEVE', 'Tle D')"
+                        class="class-card bg-white py-10 rounded-[3rem] border border-slate-50 flex flex-col items-center animate-card delay-10 hover:border-amber-200">
+                        <span class="text-3xl font-black text-amber-500 italic">Tle D</span>
+                        <span
+                            class="text-[9px] font-black text-slate-400 uppercase mt-3 tracking-widest">Scientifique</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>
