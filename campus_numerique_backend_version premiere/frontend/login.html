@@ -147,9 +147,22 @@
 
                     if (data.activated) activationMsg.classList.remove('hidden');
 
+                    // Stocker le token aussi
+                    if (data.token) {
+                        const userWithToken = { ...data.user, token: data.token };
+                        localStorage.setItem('user_session', JSON.stringify(userWithToken));
+                    }
+
                     setTimeout(() => {
-                        // On utilise replace au lieu de href pour éviter les retours arrière buggés
-                        const finalUrl = `index.html?auth=success&role=${role}&context=${encodeURIComponent(context)}`;
+                        // Rediriger selon le rôle
+                        let finalUrl = 'index.html?auth=success&role=' + role + '&context=' + encodeURIComponent(context);
+
+                        if (role === 'DIRECTION') {
+                            finalUrl = 'direction.html';
+                        } else if (role === 'SURVEILLANT') {
+                            finalUrl = 'surveillant.html';
+                        }
+
                         window.location.replace(finalUrl);
                     }, redirectDelay);
 

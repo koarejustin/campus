@@ -7,9 +7,10 @@ exports.login = async (req, res) => {
     const { code_unique, mot_de_passe, role } = req.body;
     try {
         const query = `
-            SELECT c.*, p.classe_actuelle 
+            SELECT c.*, p.classe_actuelle, pa.poste_occupe
             FROM authentification.comptes c
             LEFT JOIN vie_scolaire.profils_eleves p ON c.id_user = p.id_user
+            LEFT JOIN authentification.profils_administratifs pa ON c.id_user = pa.id_user
             WHERE c.code_unique = $1`;
         const result = await db.query(query, [code_unique]);
 
@@ -32,8 +33,12 @@ exports.login = async (req, res) => {
         }
 
         // Vérification du rôle
+        if (!user.role_actuel) {
+            return res.status(403).json({ success: false, message: "Rôle non défini pour cet utilisateur. Contactez l'administration." });
+        }
+
         if (role && user.role_actuel !== role) {
-            return res.status(403).json({ success: false, message: "Rôle non autorisé pour ce portail." });
+            return res.status(403).json({ success: false, message: `Rôle non autorisé. Vous êtes ${user.role_actuel}, accès ${role} demandé.` });
         }
 
         // Comparaison Bcrypt
@@ -54,9 +59,10 @@ exports.login = async (req, res) => {
             user: {
                 nom: user.nom,
                 prenom: user.prenom,
-                code_unique: user.code_unique, // Clé synchronisée avec le script du dashboard
+                code_unique: user.code_unique,
                 role_actuel: user.role_actuel,
-                classe_actuelle: user.classe_actuelle || (user.role_actuel === 'DIRECTION' ? 'DIRECTION' : 'N/A')
+                classe_actuelle: user.classe_actuelle || (user.role_actuel === 'DIRECTION' ? 'DIRECTION' : 'N/A'),
+                poste_occupe: user.poste_occupe || null
             }
         });
     } catch (err) {

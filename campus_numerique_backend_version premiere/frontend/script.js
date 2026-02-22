@@ -17,7 +17,7 @@ const MATIERES_STYLE = {
 };
 
 // --- 2. BASE DE DONNÉES DYNAMIQUE & NOTES ---
-const NOTES_ELEVE = { // Base de données des notes
+const NOTES_ELEVE = {
     'Maths': 14, 'Mathématiques': 14, 'Français': 12, 'Anglais': 15.5,
     'SVT': 13, 'Physique-Chimie': 11, 'Hist-Géo': 10, 'Philosophie': 14,
     'ECM': 16, 'EPS': 18, 'Informatique': 17, 'Immersion Patriotique': 19
@@ -78,64 +78,6 @@ function showView(viewId) {
 function launch(role, context) {
     if (role === 'ELEVE') localStorage.setItem('classe_cliquee', context);
     window.location.href = `login.html?role=${role}&context=${encodeURIComponent(context)}`;
-}
-
-// --- 5. PAGE BULLETINS DYNAMIQUE ---
-function showBulletins() {
-    const userData = JSON.parse(localStorage.getItem('user_session')) || { classe: "3e" };
-    const content = document.getElementById('app-content');
-    const stats = document.getElementById('app-stats');
-    if (stats) stats.classList.add('hidden');
-
-    const maClasse = userData.classe || "3e";
-    const prog = PROGRAMMES_BF[maClasse] || [];
-    const moyenneG = calculerMoyenne(maClasse);
-
-    content.innerHTML = `
-        <div class="animate-in zoom-in duration-500 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-2xl max-w-5xl mx-auto mb-20 font-sans">
-            <div class="flex justify-between items-center border-b-4 border-slate-900 pb-6 mb-8">
-                <div class="text-left">
-                    <h1 class="text-3xl font-black uppercase tracking-tighter">Bulletin de Notes</h1>
-                    <p class="text-indigo-600 font-bold italic uppercase text-xs">Burkina Faso • Premier Trimestre</p>
-                </div>
-                <div class="text-right text-[10px] font-black uppercase">
-                    <p>Année Scolaire 2025-2026</p>
-                    <p class="text-slate-400 italic font-medium">Original certifié</p>
-                </div>
-            </div>
-
-            <table class="w-full border-collapse border border-slate-300">
-                <thead class="bg-slate-900 text-white text-[10px] uppercase">
-                    <tr>
-                        <th class="p-3 border border-slate-400 text-left">Matières</th>
-                        <th class="p-3 border border-slate-400">Coef</th>
-                        <th class="p-3 border border-slate-400">Note /20</th>
-                        <th class="p-3 border border-slate-400">Rang</th>
-                        <th class="p-3 border border-slate-400">Appréciations</th>
-                        <th class="p-3 border border-slate-400">Signature</th>
-                    </tr>
-                </thead>
-                <tbody class="text-[11px] font-bold">
-                    ${prog.map(m => `
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="p-3 border border-slate-200">${m.t}</td>
-                            <td class="p-3 border border-slate-200 text-center text-slate-400">${m.c}</td>
-                            <td class="p-3 border border-slate-200 text-center text-indigo-700 font-black">${NOTES_ELEVE[m.t] || '10'}</td>
-                            <td class="p-3 border border-slate-200 text-center uppercase">1er</td>
-                            <td class="p-3 border border-slate-200 italic text-slate-500 font-medium">Excellent travail.</td>
-                            <td class="p-3 border border-slate-200 text-center opacity-20 text-[8px] italic tracking-tighter">Certifié par Prof</td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-                <tfoot class="bg-slate-100 text-slate-900 font-black">
-                    <tr>
-                        <td colspan="2" class="p-4 text-right uppercase tracking-widest text-xs">Moyenne Générale</td>
-                        <td class="p-4 text-center text-xl text-indigo-700 font-black border-r border-slate-300">${moyenneG}</td>
-                        <td colspan="3" class="p-4 text-center italic text-emerald-600 uppercase text-[10px]">Tableau d'Honneur</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>`;
 }
 
 // --- 6. PAGE SCOLARITÉ ---
@@ -339,7 +281,7 @@ function renderAdaptiveCourses(classe) {
     if (window.lucide) lucide.createIcons();
 }
 
-// --- 9. DASHBOARD HOME (Animation Mince Incluse) ---
+// --- 9. DASHBOARD HOME ---
 function showDashboardHome() {
     const userData = JSON.parse(localStorage.getItem('user_session')) || { prenom: "Élève" };
     const content = document.getElementById('app-content');
@@ -364,7 +306,6 @@ function showDashboardHome() {
             </div>`;
     }
 
-    // Animation de bienvenue mince
     content.innerHTML = `
         <div id="welcome-box" class="flex flex-col items-center justify-center py-20 text-center animate-in fade-in slide-in-from-top-4 duration-1000">
             <h3 class="text-3xl font-light italic text-slate-400 tracking-tighter">
@@ -381,7 +322,6 @@ function showDashboardHome() {
             </div>
         </div>`;
 
-    // Disparition du message de bienvenue après 3 secondes
     setTimeout(() => {
         const welcome = document.getElementById('welcome-box');
         const main = document.getElementById('dash-main-content');
@@ -405,7 +345,21 @@ function exitAcademicSpace() {
     showDashboardHome();
 }
 
+// --- 10. INITIALISATION DU DASHBOARD ---
 function initDashboard(role, context, userData) {
+    // 🛡️ DÉTECTION ADMIN (Source I.3 : Cloisonnement strict)
+    if (role === 'DIRECTION' || role === 'SURVEILLANT') {
+        showView('view-app'); // On affiche le conteneur principal
+
+        // On vérifie que admin.js est chargé
+        if (typeof initAdminInterface === "function") {
+            initAdminInterface(role);
+        } else {
+            console.error("Fichier admin.js manquant !");
+        }
+        return; // ON ARRÊTE LA LOGIQUE ÉLÈVE ICI
+    }
+
     const classeVoulue = localStorage.getItem('classe_cliquee');
     const classeReelle = userData.classe || userData.classe_actuelle;
 
