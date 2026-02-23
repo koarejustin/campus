@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cockpit Direction | Campus Numérique</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #FAFBFC 0%, #F5F7FA 100%);
+            letter-spacing: 0.3px;
+        }
+
+        /* ULTRA MINIMALISTE */
+        .card-elegant {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease;
+        }
+
+        .card-elegant:hover {
+            border-color: #D1D5DB;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            background: rgba(79, 70, 229, 0.08);
+            border-left-color: #4F46E5;
+        }
+
+        .menu-item.active {
+            background: rgba(79, 70, 229, 0.12);
+            border-left-color: #4F46E5;
+            color: #4F46E5;
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-icon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .sparkline-container {
+            height: 24px;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748B;
+            margin-bottom: 8px;
+        }
+
+        .metric-change {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .metric-change.positive {
+            color: #10B981;
+        }
+
+        .metric-change.negative {
+            color: #EF4444;
+        }
+
+        .badge-subtle {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background: #ECFDF5;
+            color: #047857;
+        }
+
+        .badge-warning {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        .message-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #F3F4F6;
+            transition: all 0.2s ease;
+        }
+
+        .message-item:last-child {
+            border-bottom: none;
+        }
+
+        .message-item:hover {
+            background: #FAFBFC;
+            padding: 12px 8px;
+            border-radius: 8px;
+        }
+
+        .signature-document {
+            padding: 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 10px;
+            background: #F9FAFB;
+            transition: all 0.2s ease;
+        }
+
+        .signature-document:hover {
+            background: #F3F4F6;
+            border-color: #D1D5DB;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        .health-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #F0FDF4;
+            border: 1px solid #DCFCE7;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .health-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #E5E7EB, transparent);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <div class="flex h-screen bg-gray-50">
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar w-56 flex flex-col border-r border-slate-700/20">
+            <!-- Logo & Branding -->
+            <div class="p-8 border-b border-slate-700/10">
+                <div class="flex items-center gap-3 mb-2">
+                    <div
+                        class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-black text-white italic tracking-tight">CAMPUS<span
+                                class="text-indigo-400">NUM</span></h1>
+                        <p class="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Direction</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="flex-1 p-6 space-y-1 overflow-y-auto">
+                <div onclick="switchView('dashboard')"
+                    class="menu-item active p-3 rounded-lg flex items-center gap-3 text-slate-300 cursor-pointer text-sm font-medium">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i>
+                    <span>Tableau de Bord</span>
+                </div>
+
+                <div onclick="switchView('students')"
+                    class="menu-item p-3 rounded-lg flex items-center gap-3 text-slate-400 cursor-pointer text-sm font-medium hover:text-slate-300">
+                    <i data-lucide="users" class="w-4 h-4"></i>
+                    <span>Gestion Élèves</span>
+                </div>
+
+                <div onclick="switchView('staff', this)"
+                    class="menu-item p-3 rounded-lg flex items-center gap-3 text-slate-400 cursor-pointer text-sm font-medium hover:text-slate-300">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    <span>Corps Enseignant</span>
+                </div>
+
+                <div onclick="switchView('watchmen', this)"
+                    class="menu-item p-3 rounded-lg flex items-center gap-3 text-slate-400 cursor-pointer text-sm font-medium hover:text-slate-300">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                    <span>Surveillants</span>
+                </div>
+
+                <div class="my-4 section-divider"></div>
+
+                <div onclick="switchView('finance', this)"
+                    class="menu-item p-3 rounded-lg flex items-center gap-3 text-slate-400 cursor-pointer text-sm font-medium hover:text-slate-300">
+                    <i data-lucide="wallet-2" class="w-4 h-4"></i>
+                    <span>Comptabilité</span>
+                </div>
+
+                <div onclick="switchView('documents', this)"
+                    class="menu-item p-3 rounded-lg flex items-center gap-3 text-slate-400 cursor-pointer text-sm font-medium hover:text-slate-300">
+                    <i data-lucide="file-check" class="w-4 h-4"></i>
+                    <span>Signatures</span>
+                </div>
+            </nav>
+
+            <!-- Server Health Footer -->
+            <div class="p-6 border-t border-slate-700/10 space-y-4">
+                <div class="health-indicator">
+                    <span class="health-dot"></span>
+                    <span class="text-emerald-700">Système Actif</span>
+                </div>
+                <button onclick="logout()"
+                    class="w-full px-4 py-2.5 bg-slate-700/50 hover:bg-slate-600 text-slate-200 rounded-lg font-medium text-sm transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    Déconnexion
+                </button>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <main class="flex-1 overflow-y-auto">
+            <div class="p-12 space-y-12 max-w-7xl mx-auto pb-20">
+
+                <!-- HEADER -->
+                <div class="flex justify-between items-start fade-in">
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-900 mb-2">Cockpit Direction</h1>
+                        <p class="text-sm text-slate-500 font-medium">Gestion centralisée de l'établissement scolaire
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-slate-500 mb-2" id="current-date"></p>
+                        <div class="badge-subtle badge-success">
+                            <i data-lucide="check-circle" class="w-3 h-3 inline mr-1"></i>
+                            Opérationnel
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== KPI CARDS ===== -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 fade-in" style="animation-delay: 0.1s">
+                    <!-- Card 1: Effectif Total -->
+                    <div class="card-elegant stat-card p-6 cursor-pointer" onclick="onCardClick('effectif')">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex-1">
+                                <p class="metric-label">Effectif Total</p>
+                                <div class="metric-value text-indigo-600" id="total-students">852</div>
+                                <p class="metric-change positive">
+                                    <i data-lucide="arrow-up" class="w-3 h-3"></i>
+                                    12% vs année 2025
+                                </p>
+                            </div>
+                            <div class="stat-icon bg-indigo-100">
+                                <i data-lucide="users-2" class="w-5 h-5 text-indigo-600"></i>
+                            </div>
+                        </div>
+                        <div class="sparkline-container">
+                            <canvas id="sparkline1"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Présence Moyenne -->
+                    <div class="card-elegant stat-card p-6 cursor-pointer" onclick="onCardClick('presence')">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex-1">
+                                <p class="metric-label">Présence</p>
+                                <div class="metric-value text-emerald-600" id="attendance-rate">92%</div>
+                                <p class="metric-change positive">
+                                    <i data-lucide="arrow-up" class="w-3 h-3"></i>
+                                    Excellent
+                                </p>
+                            </div>
+                            <div class="stat-icon bg-emerald-100">
+                                <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>
+                            </div>
+                        </div>
+                        <div class="sparkline-container">
+                            <canvas id="sparkline2"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Professeurs -->
+                    <div class="card-elegant stat-card p-6 cursor-pointer" onclick="onCardClick('teachers')">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex-1">
+                                <p class="metric-label">Professeurs</p>
+                                <div class="metric-value text-blue-600" id="total-teachers">42</div>
+                                <p class="metric-change positive">
+                                    <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                    Tous présents
+                                </p>
+                            </div>
+                            <div class="stat-icon bg-blue-100">
+                                <i data-lucide="book-open" class="w-5 h-5 text-blue-600"></i>
+                            </div>
+                        </div>
+                        <div class="sparkline-container">
+                            <canvas id="sparkline3"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Surveillants -->
+                    <div class="card-elegant stat-card p-6 cursor-pointer" onclick="onCardClick('watchmen')">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex-1">
+                                <p class="metric-label">Surveillants</p>
+                                <div class="metric-value text-green-600" id="total-watchmen">8</div>
+                                <p class="metric-change positive">
+                                    <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                    Cadre de vie
+                                </p>
+                            </div>
+                            <div class="stat-icon bg-green-100">
+                                <i data-lucide="shield-alert" class="w-5 h-5 text-green-600"></i>
+                            </div>
+                        </div>
+                        <div class="sparkline-container">
+                            <canvas id="sparkline-watchmen"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== ESPACE SURVEILLANTS (GESTION ABSENCES & CONVOCATIONS) ===== -->
+                <div id="watchmen-section" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6 fade-in"
+                    style="animation-delay: 0.25s">
+                    <!-- Gestion des Absences (Cahier des charges: Surveillants) -->
+                    <div class="card-elegant p-8">
+                        <div class="flex items-center gap-2 mb-6">
+                            <i data-lucide="clipboard-list" class="w-5 h-5 text-red-600"></i>
+                            <h3 class="font-bold text-slate-900">Gestion des Absences</h3>
+                            <span class="ml-auto text-xs bg-red-100 text-red-700 px-2 py-1 rounded">8
+                                non-justifiées</span>
+                        </div>
+                        <div class="space-y-3">
+                            <button onclick="openModal('modal-absence')"
+                                class="w-full py-2.5 px-4 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white text-sm font-bold rounded-lg transition-all">
+                                <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                                Enregistrer une Absence
+                            </button>
+                            <button onclick="openModal('modal-absences-list')"
+                                class="w-full py-2.5 px-4 bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm font-bold rounded-lg transition-all">
+                                <i data-lucide="file-text" class="w-4 h-4 inline mr-2"></i>
+                                Consulter les Absences
+                            </button>
+                            <button
+                                class="w-full py-2.5 px-4 bg-orange-50 hover:bg-orange-100 text-orange-700 text-sm font-bold rounded-lg transition-all">
+                                <i data-lucide="alert-triangle" class="w-4 h-4 inline mr-2"></i>
+                                Justifications en Attente
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Convocations & Communications Privées (Cahier des charges: Surveillants) -->
+                    <div class="card-elegant p-8">
+                        <div class="flex items-center gap-2 mb-6">
+                            <i data-lucide="send" class="w-5 h-5 text-indigo-600"></i>
+                            <h3 class="font-bold text-slate-900">Convocations Privées</h3>
+                            <span class="ml-auto text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">Visibles
+                                seulement élève + parent</span>
+                        </div>
+                        <div class="space-y-3">
+                            <button onclick="openModal('modal-convocation')"
+                                class="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white text-sm font-bold rounded-lg transition-all">
+                                <i data-lucide="edit" class="w-4 h-4 inline mr-2"></i>
+                                Créer une Convocation
+                            </button>
+                            <button
+                                class="w-full py-2.5 px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 text-sm font-bold rounded-lg transition-all">
+                                <i data-lucide="history" class="w-4 h-4 inline mr-2"></i>
+                                Historique Convocations
+                            </button>
+                            <button
+                                class="w-full py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-slate-700 text-sm font-bold rounded-lg transition-all">
+                                <i data-lucide="inbox" class="w-4 h-4 inline mr-2"></i>
+                                En Attente d'Accusé (5)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modération & Cohésion Scolaire (Cahier des charges: Section II) -->
+                    <div class="card-elegant p-8 lg:col-span-2">
+                        <div class="flex items-center gap-2 mb-6">
+                            <i data-lucide="heart-handshake" class="w-5 h-5 text-emerald-600"></i>
+                            <h3 class="font-bold text-slate-900">Cohésion Scolaire & Prévention</h3>
+                            <span class="ml-auto text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded">Messages de
+                                sensibilisation</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <button onclick="openModal('modal-prevention')"
+                                class="py-2.5 px-4 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-sm font-bold rounded-lg transition-all">
+                                <i data-lucide="send" class="w-4 h-4 inline mr-2"></i>
+                                Envoyer Message de Prévention
+                            </button>
+                            <button onclick="openModal('modal-incident')"
+                                class="py-2.5 px-4 bg-rose-50 hover:bg-rose-100 text-rose-700 text-sm font-bold rounded-lg transition-all">
+                                <i data-lucide="alert-circle" class="w-4 h-4 inline mr-2"></i>
+                                Signaler une Tension/Incident
+                            </button>
+                            <button
+                                class="py-2.5 px-4 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 text-sm font-bold rounded-lg transition-all">
+                                <i data-lucide="users" class="w-4 h-4 inline mr-2"></i>
+                                Médiation & Résolution
+                            </button>
+                            <button onclick="openModal('modal-activite')"
+                                class="py-2.5 px-4 bg-violet-50 hover:bg-violet-100 text-violet-700 text-sm font-bold rounded-lg transition-all">
+                                <i data-lucide="calendar" class="w-4 h-4 inline mr-2"></i>
+                                Planifier Activités Cohésion
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== SECTIONS DYNAMIQUES (ÉLÈVES / STAFF / COMPTA / DOCS) ===== -->
+                <div id="students-section" class="hidden p-6">
+                    <div class="card-elegant p-6">
+                        <h3 class="font-bold text-slate-900 mb-2">Gestion des Élèves</h3>
+                        <p class="text-sm text-slate-500">Accédez aux listes, profils et actions (création,
+                            modification).</p>
+                        <div class="mt-4"><button onclick="loadStudents()"
+                                class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Charger les élèves</button></div>
+                        <div id="students-results" class="mt-4"></div>
+                    </div>
+                </div>
+
+                <div id="staff-section" class="hidden p-6">
+                    <div class="card-elegant p-6">
+                        <h3 class="font-bold text-slate-900 mb-2">Corps Enseignant</h3>
+                        <p class="text-sm text-slate-500">Liste des enseignants et gestion des affectations.</p>
+                        <div id="staff-results" class="mt-4"></div>
+                    </div>
+                </div>
+
+                <div id="finance-section" class="hidden p-6">
+                    <div class="card-elegant p-6">
+                        <h3 class="font-bold text-slate-900 mb-2">Comptabilité</h3>
+                        <p class="text-sm text-slate-500">Espace comptable indépendant — pas de données du dashboard
+                            ici.</p>
+                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 bg-slate-50 rounded-lg">Solde du Trésor: <strong>125 000 FCFA</strong></div>
+                            <div class="p-4 bg-slate-50 rounded-lg">Paiements en Attente: <strong>12</strong></div>
+                        </div>
+                        <div class="mt-4"><button onclick="openFinanceUI()"
+                                class="px-4 py-2 bg-emerald-600 text-white rounded-lg">Ouvrir Comptabilité</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="documents-section" class="hidden p-6">
+                    <div class="card-elegant p-6">
+                        <h3 class="font-bold text-slate-900 mb-2">Signatures & Documents</h3>
+                        <p class="text-sm text-slate-500">Validez et signez les documents officiels ici.</p>
+                        <div id="documents-results" class="mt-4"></div>
+                    </div>
+                </div>
+
+                <!-- ===== SECTION ORIGINALE (TABLEAU DE BORD ET AUTRES) ===== -->
+                <div id="main-dashboard-section">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in" style="animation-delay: 0.2s">
+                        <!-- Area Chart - Perfs Académiques -->
+                        <div class="lg:col-span-2 card-elegant p-8">
+                            <div class="flex justify-between items-center mb-8">
+                                <div>
+                                    <h2 class="text-base font-bold text-slate-900 mb-1">Performances Académiques</h2>
+                                    <p class="text-sm text-slate-500">Comparaison 2025 vs 2026</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button
+                                        class="px-3 py-1.5 text-xs font-600 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200">Trimestre
+                                        1</button>
+                                    <button
+                                        class="px-3 py-1.5 text-xs font-600 text-slate-600 rounded-lg hover:bg-slate-100">Année</button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Signature Rapide -->
+                        <div class="card-elegant p-8 flex flex-col cursor-pointer" onclick="onCardClick('signatures')">
+                            <div class="flex items-center gap-2 mb-6">
+                                <i data-lucide="file-signature" class="w-5 h-5 text-indigo-600"></i>
+                                <h3 class="font-bold text-slate-900">Signatures Rapides</h3>
+                            </div>
+                            <div class="space-y-2 flex-1 overflow-y-auto">
+                                <div class="signature-document">
+                                    <p class="text-xs font-bold text-slate-900 mb-1">📄 Bulletins validés</p>
+                                    <p class="text-[11px] text-slate-600 mb-2">8 documents en attente</p>
+                                    <button
+                                        class="w-full px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-all">
+                                        Signer
+                                    </button>
+                                </div>
+                                <div class="signature-document">
+                                    <p class="text-xs font-bold text-slate-900 mb-1">📋 Certificats de scolarité</p>
+                                    <p class="text-[11px] text-slate-600 mb-2">3 documents en attente</p>
+                                    <button
+                                        class="w-full px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-all">
+                                        Signer
+                                    </button>
+                                </div>
+                                <div class="signature-document">
+                                    <p class="text-xs font-bold text-slate-900 mb-1">✅ Autres</p>
+                                    <p class="text-[11px] text-slate-600 mb-2">Aucun document</p>
+                                    <button
+                                        class="w-full px-3 py-1.5 bg-slate-200 text-slate-500 text-xs font-bold rounded-lg cursor-not-allowed">
+                                        Terminé
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== FLUX DE COMMUNICATION ===== -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 fade-in" style="animation-delay: 0.3s">
+                        <!-- Messages Canal Officiel -->
+                        <div class="card-elegant p-8">
+                            <div class="flex items-center gap-2 mb-6">
+                                <i data-lucide="message-square" class="w-5 h-5 text-indigo-600"></i>
+                                <h3 class="font-bold text-slate-900">Flux de Communication</h3>
+                            </div>
+                            <div class="space-y-0">
+                                <div class="message-item">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <p class="text-sm font-bold text-slate-900">📢 Réunion APE Confirmée</p>
+                                        <span class="text-xs text-slate-400">Il y a 2h</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 line-clamp-2">La réunion avec le bureau APE est
+                                        confirmée pour samedi 15h en salle de conférence.</p>
+                                </div>
+                                <div class="message-item">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <p class="text-sm font-bold text-slate-900">📅 Calendrier Académique</p>
+                                        <span class="text-xs text-slate-400">Il y a 1j</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 line-clamp-2">Mise à jour des dates importantes du
+                                        calendrier scolaire 2026.</p>
+                                </div>
+                                <div class="message-item">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <p class="text-sm font-bold text-slate-900">✅ Audits Qualité</p>
+                                        <span class="text-xs text-slate-400">Il y a 3j</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 line-clamp-2">Les rapports d'audits du trimestre
+                                        sont maintenant disponibles.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 mt-6">
+                                <button id="btn-new-message"
+                                    class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-lg transition-all">
+                                    Nouveau Message
+                                </button>
+                                <button id="btn-new-message-surveillant"
+                                    class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-all hidden">
+                                    Nouvelle Annonce (Surveillant)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Classes & Répartition -->
+                        <div class="card-elegant p-8">
+                            <div class="flex items-center gap-2 mb-6">
+                                <i data-lucide="layers" class="w-5 h-5 text-indigo-600"></i>
+                                <h3 class="font-bold text-slate-900">Classes Actives</h3>
+                            </div>
+                            <div class="space-y-2">
+                                <div
+                                    class="flex items-center justify-between py-2.5 px-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-all">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-indigo-600 rounded-full"></div>
+                                        <span class="text-sm font-medium text-slate-900">6e - 5e - 4e</span>
+                                    </div>
+                                    <span class="text-xs font-bold text-indigo-600">156 élèves</span>
+                                </div>
+                                <div
+                                    class="flex items-center justify-between py-2.5 px-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-all">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-purple-600 rounded-full"></div>
+                                        <span class="text-sm font-medium text-slate-900">3e</span>
+                                    </div>
+                                    <span class="text-xs font-bold text-purple-600">89 élèves</span>
+                                </div>
+                                <div
+                                    class="flex items-center justify-between py-2.5 px-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-all">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-cyan-600 rounded-full"></div>
+                                        <span class="text-sm font-medium text-slate-900">2nde (A/C)</span>
+                                    </div>
+                                    <span class="text-xs font-bold text-cyan-600">102 élèves</span>
+                                </div>
+                                <div
+                                    class="flex items-center justify-between py-2.5 px-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-all">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-rose-600 rounded-full"></div>
+                                        <span class="text-sm font-medium text-slate-900">1ère (A/D)</span>
+                                    </div>
+                                    <span class="text-xs font-bold text-rose-600">98 élèves</span>
+                                </div>
+                                <div
+                                    class="flex items-center justify-between py-2.5 px-3 bg-gray-50 rounded-lg hover:bg-indigo-50 transition-all">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-orange-600 rounded-full"></div>
+                                        <span class="text-sm font-medium text-slate-900">Terminale (A/D)</span>
+                                    </div>
+                                    <span class="text-xs font-bold text-orange-600">87 élèves</span>
+                                </div>
+                            </div>
+                            <div class="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p class="text-xs text-blue-900 font-medium">Total : <strong>532 élèves</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== AGENDA ===== -->
+                    <div class="card-elegant p-8 fade-in" style="animation-delay: 0.4s">
+                        <div class="flex items-center gap-2 mb-6">
+                            <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
+                            <h3 class="font-bold text-slate-900">Agenda Direction</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="p-4 border-l-4 border-indigo-600 bg-indigo-50 rounded-lg">
+                                <p class="text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2">Aujourd'hui
+                                </p>
+                                <p class="text-sm font-bold text-slate-900">Réunion Bureau APE</p>
+                                <p class="text-xs text-slate-600 mt-1">15h00 - Salle Direction</p>
+                            </div>
+                            <div class="p-4 border-l-4 border-amber-400 bg-amber-50 rounded-lg">
+                                <p class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-2">Demain</p>
+                                <p class="text-sm font-bold text-slate-900">Conseil Pédagogique</p>
+                                <p class="text-xs text-slate-600 mt-1">10h30 - Salle Conf</p>
+                            </div>
+                            <div class="p-4 border-l-4 border-emerald-600 bg-emerald-50 rounded-lg">
+                                <p class="text-xs font-bold text-emerald-900 uppercase tracking-wider mb-2">22 février
+                                </p>
+                                <p class="text-sm font-bold text-slate-900">Visite Inspection</p>
+                                <p class="text-xs text-slate-600 mt-1">Ensemble établissement</p>
+                            </div>
+                            <div class="p-4 border-l-4 border-slate-300 bg-slate-50 rounded-lg">
+                                <p class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">25 février</p>
+                                <p class="text-sm font-bold text-slate-900">Jury Compositions</p>
+                                <p class="text-xs text-slate-600 mt-1">Délibérations trimestrielles</p>
+                            </div>
+                        </div>
+                        <!-- Module Médiation & Tensions (Cahier des charges II) -->
+                        <div class="mt-6 card-elegant p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <div>
+                                    <h4 class="text-sm font-bold">Médiation & Tensions</h4>
+                                    <p class="text-xs text-slate-500">Messages de prévention et actions de cohésion
+                                        sociale</p>
+                                </div>
+                                <button onclick="openMediation()"
+                                    class="px-3 py-1.5 text-xs bg-indigo-50 text-indigo-700 rounded-lg">Ouvrir</button>
+                            </div>
+                            <div class="text-xs text-slate-600">
+                                <p class="mb-2">• Sensibilisation : Harcèlement scolaire — 12/02</p>
+                                <p class="mb-0">• Charte de bonne conduite — 05/02</p>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- FIN main-dashboard-section -->
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        if (window.lucide) lucide.createIcons();
+
+        // Date actuelle
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('fr-FR', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric'
+        });
+
+        // Charger les données du backend
+        async function loadDashboardData() {
+            try {
+                const user = JSON.parse(localStorage.getItem('user_session') || '{}');
+                const token = user && user.token ? user.token : null;
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+
+                const res = await fetch('/api/admin/stats', { headers });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.stats) {
+                        // Remplacer les valeurs par défaut par les statistiques réelles du lycée
+                        // NB: Ne pas exposer ces mêmes métriques dans l'espace Comptabilité
+                        document.getElementById('total-students').textContent = data.stats.users || 852;
+                        document.getElementById('total-teachers').textContent = data.stats.professors || 42;
+                        // Finances (Cotisations APE)
+                        const financesEl = document.getElementById('total-finances');
+                        if (financesEl) financesEl.textContent = (data.stats.finances && data.stats.finances.toLocaleString) ? data.stats.finances.toLocaleString() + ' FCFA' : '1.250.000 FCFA';
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur chargement stats:', error);
+            }
+        }
+
+        // Créer les Sparklines (Mini graphiques)
+        function createSparkline(chartId, data) {
+            const ctx = document.getElementById(chartId);
+            if (ctx && ctx.getContext) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
+                        datasets: [{
+                            data: data,
+                            borderColor: '#4F46E5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.05)',
+                            borderWidth: 1.5,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            pointBackgroundColor: '#4F46E5'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { display: false, beginAtZero: true, max: 100 },
+                            x: { display: false }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Créer l'Area Chart Double (Perfs académiques)
+        function createPerformanceChart() {
+            const ctx = document.getElementById('performanceChart');
+            if (ctx && ctx.getContext) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['6e', '5e', '4e', '3e', '2A', '2C', '1A', '1D', 'TA', 'TD'],
+                        datasets: [
+                            {
+                                label: 'Année 2026',
+                                data: [78, 82, 75, 79, 85, 88, 84, 86, 81, 79],
+                                borderColor: '#4F46E5',
+                                backgroundColor: 'rgba(79, 70, 229, 0.15)',
+                                borderWidth: 2.5,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 4,
+                                pointBackgroundColor: '#4F46E5',
+                                pointBorderWidth: 2,
+                                pointBorderColor: '#fff'
+                            },
+                            {
+                                label: 'Année 2025',
+                                data: [72, 76, 70, 74, 78, 80, 76, 78, 75, 73],
+                                borderColor: '#94A3B8',
+                                backgroundColor: 'rgba(148, 163, 184, 0.08)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 3,
+                                pointBackgroundColor: '#94A3B8',
+                                pointBorderWidth: 2,
+                                pointBorderColor: '#fff'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: { font: { size: 11, weight: 600 }, usePointStyle: true, padding: 16 }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { font: { size: 11, weight: 600 }, color: '#64748B' },
+                                grid: { color: 'rgba(0, 0, 0, 0.04)', drawBorder: false }
+                            },
+                            x: {
+                                ticks: { font: { size: 11, weight: 600 }, color: '#64748B' },
+                                grid: { display: false, drawBorder: false }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Gestion des menus et vues
+        function switchView(view, menuEl) {
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            if (menuEl) menuEl.classList.add('active');
+
+            // Cacher toutes les sections d'abord
+            const sections = ['main-dashboard-section', 'watchmen-section', 'students-section', 'staff-section', 'finance-section', 'documents-section'];
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+
+            // Afficher la section demandée
+            if (view === 'watchmen') {
+                document.getElementById('watchmen-section').classList.remove('hidden');
+            } else if (view === 'students') {
+                document.getElementById('students-section').classList.remove('hidden');
+            } else if (view === 'staff') {
+                document.getElementById('staff-section').classList.remove('hidden');
+            } else if (view === 'finance') {
+                // Comptabilité séparée: n'affiche rien du dashboard ici
+                document.getElementById('finance-section').classList.remove('hidden');
+            } else if (view === 'documents') {
+                document.getElementById('documents-section').classList.remove('hidden');
+            } else {
+                // default -> dashboard
+                document.getElementById('main-dashboard-section').classList.remove('hidden');
+            }
+        }
+
+        // Placeholder: charge la liste des élèves via l'API
+        async function loadStudents() {
+            const resEl = document.getElementById('students-results');
+            if (!resEl) return;
+            resEl.innerHTML = '<em>Chargement...</em>';
+            try {
+                const user = JSON.parse(localStorage.getItem('user_session') || 'null');
+                const token = user?.token;
+                const r = await fetch('/api/eleves', { headers: token ? { 'Authorization': 'Bearer ' + token } : {} });
+                if (!r.ok) throw new Error('Erreur API ' + r.status);
+                const data = await r.json();
+                if (!Array.isArray(data) || data.length === 0) {
+                    resEl.innerHTML = '<div class="text-sm text-slate-500">Aucun élève trouvé.</div>';
+                    return;
+                }
+                resEl.innerHTML = '<ul class="list-disc pl-6">' + data.slice(0, 50).map(e => `<li>${e.nom_complet || e.nom || 'Élève'} ${e.matricule ? '- ' + e.matricule : ''}</li>`).join('') + '</ul>';
+            } catch (err) {
+                resEl.innerHTML = `<div class="text-sm text-red-600">Erreur: ${err.message}</div>`;
+            }
+        }
+
+        function openFinanceUI() {
+            // UI de comptabilité basique placeholder
+            alert('Ouvrir l\'interface Comptabilité — à implémenter');
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('user_session');
+            window.location.href = 'login.html';
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardData();
+            // Sparklines data
+            createSparkline('sparkline1', [65, 70, 75, 78, 82, 85, 88]);
+            createSparkline('sparkline2', [88, 89, 91, 90, 92, 94, 92]);
+            createSparkline('sparkline3', [20, 22, 21, 24, 24, 24, 24]);
+            createSparkline('sparkline-watchmen', [8, 8, 8, 7, 8, 8, 8]);
+            createPerformanceChart();
+        });
+
+        // Gestion des clics sur les cartes KPI
+        function onCardClick(card) {
+            if (card === 'watchmen') {
+                switchView('watchmen');
+            }
+        }
+    </script>
+
+    <!-- ===== MODALES & FORMULAIRES - ESPACE SURVEILLANCE ===== -->
+    <script src="surveillance-forms.js"></script>
+</body>
+
+</html>
