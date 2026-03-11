@@ -1,0 +1,335 @@
+/* ================================================================
+   CAMPUS NUMÉRIQUE FASO — responsive.css
+   Fichier global à importer dans TOUS les HTML du projet
+   <link rel="stylesheet" href="responsive.css">
+   
+   Breakpoints :
+   Mobile  : max-width 639px
+   Tablet  : 640px – 1023px
+   Desktop : 1024px+ (déjà géré dans chaque fichier)
+   ================================================================ */
+
+/* ── HAMBURGER BUTTON (mobile uniquement) ──────────────────────── */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 200;
+  width: 38px;
+  height: 38px;
+  background: #0D1020;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.25);
+}
+.hamburger span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transition: all .25s;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Overlay sombre derrière le menu mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 98;
+  backdrop-filter: blur(2px);
+}
+.sidebar-overlay.visible { display: block; }
+
+/* ── TABLET : 640px – 1023px ───────────────────────────────────── */
+@media (max-width: 1023px) {
+
+  /* Sidebar réduite en largeur */
+  .sidebar {
+    width: 200px !important;
+    min-width: 200px !important;
+  }
+
+  main {
+    margin-left: 200px !important;
+  }
+
+  /* KPI grid : 2 colonnes */
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Grilles 3 colonnes → 2 */
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Tableau des notes → scroll */
+  .tbl-wrap, .card > div > table {
+    overflow-x: auto;
+    display: block;
+  }
+
+  /* En-tête de page → colonne */
+  .pg-hd {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  /* Titre plus petit */
+  .pg-title {
+    font-size: 1.2rem !important;
+  }
+}
+
+/* ── MOBILE : max 639px ────────────────────────────────────────── */
+@media (max-width: 639px) {
+
+  /* ── Hamburger visible ── */
+  .hamburger {
+    display: flex !important;
+  }
+
+  /* ── Sidebar : cachée par défaut, glisse depuis la gauche ── */
+  .sidebar {
+    transform: translateX(-100%) !important;
+    transition: transform .28s cubic-bezier(.4,0,.2,1) !important;
+    width: 240px !important;
+    min-width: 240px !important;
+    z-index: 99 !important;
+  }
+  .sidebar.open {
+    transform: translateX(0) !important;
+  }
+
+  /* ── Main : pleine largeur ── */
+  main {
+    margin-left: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* ── Pages : padding réduit + décalage pour le hamburger ── */
+  .pg {
+    padding: 58px 14px 20px !important;
+  }
+
+  /* ── KPI grid : 2 colonnes compactes ── */
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+  .kpi {
+    padding: 11px 13px !important;
+  }
+  .kpi-val {
+    font-size: 1.4rem !important;
+  }
+  .kpi-icon {
+    display: none !important;
+  }
+
+  /* ── Toutes les grilles → 1 colonne ── */
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* ── Tableau → scroll horizontal ── */
+  .tbl {
+    min-width: 520px;
+  }
+  .card {
+    overflow-x: auto;
+  }
+
+  /* ── Page header → colonne ── */
+  .pg-hd {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  .pg-title {
+    font-size: 1.1rem !important;
+  }
+  .pg-sub {
+    font-size: .7rem !important;
+  }
+
+  /* ── Tabs → wrap ── */
+  .tabs {
+    width: 100% !important;
+    flex-wrap: wrap !important;
+    gap: 3px !important;
+  }
+  .tab {
+    font-size: .68rem !important;
+    padding: 5px 10px !important;
+  }
+
+  /* ── Cards ── */
+  .card {
+    padding: 13px 14px !important;
+    border-radius: 11px !important;
+  }
+  .card-hd {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* ── Post cards (Grand Élèves, Vie Scolaire) ── */
+  .post-actions {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  /* ── Formulaires / inputs ── */
+  .compose-bar {
+    flex-wrap: wrap !important;
+  }
+  .compose-input {
+    width: 100% !important;
+    flex: none !important;
+  }
+
+  /* ── Orientation → 1 col ── */
+  #ori-content {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Dashboard accès rapide → 2 cols ── */
+  .kpi-grid + div + div .card > div[style*="grid-template-columns:repeat(4"] {
+    grid-template-columns: repeat(2,1fr) !important;
+  }
+
+  /* ── Ressources prof : form upload ── */
+  .res-upload-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── Selects & buttons ── */
+  .tri-sel {
+    font-size: .7rem !important;
+    padding: 5px 8px !important;
+  }
+  .btn-primary, .btn-ghost, .btn-sm {
+    font-size: .7rem !important;
+    padding: 7px 12px !important;
+  }
+
+  /* ── Chart plus compact ── */
+  .chart-wrap {
+    height: 120px !important;
+  }
+
+  /* ── Forum de classe ── */
+  #pg-forum-classe .card {
+    height: calc(100vh - 140px) !important;
+  }
+  .msg-body {
+    max-width: 82% !important;
+  }
+
+  /* ── Emploi du temps programme ── */
+  .prog-week {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+  .prog-day.weekend {
+    display: none; /* cacher samedi/dimanche vides sur mobile */
+  }
+
+  /* ── Scrollbar discrète ── */
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+  ::-webkit-scrollbar-thumb { background: #DDE0F0; border-radius: 3px; }
+
+  /* ── Sidebar footer ── */
+  .sb-foot .sys-pill span {
+    font-size: .55rem !important;
+  }
+
+  /* ── Login page ── */
+  .login-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    min-height: 100vh !important;
+    padding: 30px 20px !important;
+  }
+  .login-bg-side {
+    display: none !important;
+  }
+
+  /* ── Direction dashboard ── */
+  .stats-grid {
+    grid-template-columns: repeat(2,1fr) !important;
+  }
+}
+
+/* ── TRÈS PETIT MOBILE : 380px et moins ───────────────────────── */
+@media (max-width: 380px) {
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .pg {
+    padding: 55px 10px 16px !important;
+  }
+  .pg-title {
+    font-size: 1rem !important;
+  }
+  .prog-week {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ================================================================
+   RÈGLES SPÉCIFIQUES parent.html (.sb = sidebar parent)
+   parent.html utilise class="sb" au lieu de class="sidebar"
+   Ces règles étendent le responsive à .sb
+   ================================================================ */
+
+/* Tablet */
+@media (max-width: 1023px) {
+  .sb {
+    width: 210px !important;
+    min-width: 210px !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 639px) {
+  .sb {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100vh !important;
+    z-index: 99 !important;
+    transform: translateX(-100%) !important;
+    transition: transform .28s cubic-bezier(.4,0,.2,1) !important;
+    width: 260px !important;
+    min-width: 260px !important;
+  }
+  .sb.open {
+    transform: translateX(0) !important;
+  }
+
+  /* Le contenu flex:1 à côté du .sb prend toute la largeur */
+  body > div > div:not(.sb):last-child,
+  body > div:not(.sb):last-child {
+    margin-left: 0 !important;
+  }
+}

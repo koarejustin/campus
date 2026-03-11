@@ -1,0 +1,3355 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cockpit | Campus Numérique FASO</title>
+  <script src="config.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="responsive.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #EEF2F7;
+      min-height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ══ SIDEBAR ══ */
+    .sidebar {
+      width: 232px;
+      height: 100vh;
+      background: linear-gradient(200deg, #0A0F1E 0%, #111827 50%, #0D1520 100%);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 100;
+      border-right: 1px solid rgba(255, 255, 255, .05);
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar-scroll::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .sidebar-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, .1);
+      border-radius: 2px;
+    }
+
+    .logo-wrap {
+      padding: 22px 18px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, .05);
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .nav-grp {
+      padding: 8px 0 2px;
+      font-size: .55rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      color: rgba(255, 255, 255, .2);
+      padding-left: 18px;
+      margin-top: 4px;
+    }
+
+    .ni {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 14px;
+      margin: 1px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .78rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, .42);
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+    }
+
+    .ni:hover {
+      background: rgba(255, 255, 255, .06);
+      color: rgba(255, 255, 255, .75);
+    }
+
+    .ni.on {
+      background: rgba(79, 70, 229, .22);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .ni.on::before {
+      display: none;
+    }
+
+    /* no hover movement */
+    .ni-icon {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      opacity: .7;
+    }
+
+    .ni.on .ni-icon {
+      opacity: 1;
+    }
+
+    .ni-locked {
+      opacity: .35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .ni-locked-vis {
+      opacity: .4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .dir-tag {
+      margin-left: auto;
+      background: rgba(239, 68, 68, .18);
+      color: #FCA5A5;
+      font-size: .55rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: .04em;
+      flex-shrink: 0;
+    }
+
+    .ni-sep {
+      height: 1px;
+      background: rgba(255, 255, 255, .05);
+      margin: 8px 14px;
+    }
+
+    .user-card {
+      margin: 8px 10px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(255, 255, 255, .07);
+      border-radius: 10px;
+    }
+
+    .role-dir {
+      color: #818CF8;
+    }
+
+    .role-surv {
+      color: #34D399;
+    }
+
+    .sys-pill {
+      margin: 4px 10px 6px;
+      padding: 7px 12px;
+      background: #071A0E;
+      border: 1px solid #14532D;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: .7rem;
+      font-weight: 700;
+      color: #4ADE80;
+    }
+
+    .pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #4ADE80;
+      animation: pk 2s infinite;
+    }
+
+    @keyframes pk {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, .5);
+      }
+
+      60% {
+        box-shadow: 0 0 0 5px rgba(74, 222, 128, 0);
+      }
+    }
+
+    .btn-out {
+      margin: 0 10px 16px;
+      padding: 9px 14px;
+      background: rgba(239, 68, 68, .09);
+      border: 1px solid rgba(239, 68, 68, .14);
+      border-radius: 8px;
+      font-size: .75rem;
+      font-weight: 700;
+      color: #F87171;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .15s;
+    }
+
+    .btn-out:hover {
+      background: rgba(239, 68, 68, .18);
+    }
+
+    /* ══ MAIN ══ */
+    main {
+      margin-left: 232px;
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 24px 24px 48px;
+      background: #EEF2F7;
+    }
+
+    /* ══ TOP BAR ══ */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #0F172A;
+      letter-spacing: -.035em;
+    }
+
+    .page-sub {
+      font-size: .75rem;
+      color: #64748B;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* Supprimé : badge opérationnel + date en haut */
+
+    /* ══ SECTION ══ */
+    .sec {
+      display: none;
+    }
+
+    .sec.on {
+      display: block;
+      animation: fu .3s ease;
+    }
+
+    @keyframes fu {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ══ CARD ══ */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, .04);
+    }
+
+    /* ══ KPI ══ */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .kpi {
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-ico {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kpi-lbl {
+      font-size: .58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .13em;
+      color: #94A3B8;
+      margin-bottom: 5px;
+    }
+
+    .kpi-val {
+      font-size: 1.9rem;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      line-height: 1;
+    }
+
+    .kpi-sub {
+      font-size: .68rem;
+      font-weight: 700;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-spark {
+      height: 26px;
+      margin-top: 8px;
+    }
+
+    .pos {
+      color: #10B981;
+    }
+
+    .neg {
+      color: #EF4444;
+    }
+
+    .neu {
+      color: #64748B;
+    }
+
+    /* ══ PERF CHART ══ */
+    .perf-wrap {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    /* Grilles formulaire (abs/conv/inc) */
+    .sec-form-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 14px;
+    }
+
+    .chart-h {
+      height: 280px;
+      position: relative;
+    }
+
+    .ctab {
+      padding: 5px 11px;
+      border-radius: 7px;
+      font-size: .68rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .15s;
+      border: none;
+    }
+
+    .ctab.on {
+      background: #4F46E5;
+      color: #fff;
+    }
+
+    .ctab.off {
+      background: #F1F5F9;
+      color: #64748B;
+    }
+
+    .ctab.off:hover {
+      background: #E2E8F0;
+    }
+
+    .qbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      background: #F8FAFF;
+      border-radius: 9px;
+      margin-bottom: 12px;
+      border: 1px solid #EEF2FF;
+    }
+
+    .qv {
+      font-size: 1.05rem;
+      font-weight: 900;
+    }
+
+    .ql {
+      font-size: .62rem;
+      font-weight: 700;
+      color: #94A3B8;
+      margin-top: 1px;
+    }
+
+    .qdiv {
+      width: 1px;
+      background: #E2E8F0;
+      align-self: stretch;
+    }
+
+    /* ══ FLUX COMMUNICATION ══ */
+    .msg-item {
+      padding: 12px;
+      border-bottom: 1px solid #F1F5F9;
+      transition: .15s;
+    }
+
+    .msg-item:last-child {
+      border: none;
+    }
+
+    .msg-item:hover {
+      background: #FAFBFF;
+      border-radius: 8px;
+    }
+
+    .badge-dir {
+      background: #EEF2FF;
+      color: #4F46E5;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: .6rem;
+      font-weight: 800;
+    }
+
+    .badge-surv {
+      background: #F0FDF4;
+      color: #15803D;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: .6rem;
+      font-weight: 800;
+    }
+
+    .badge-info {
+      background: #F0F9FF;
+      color: #0369A1;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: .6rem;
+      font-weight: 800;
+    }
+
+    /* ══ SIGNATURE ══ */
+    .bul-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFF;
+      margin-bottom: 8px;
+      transition: .15s;
+    }
+
+    .bul-row:hover {
+      background: #EEF2FF;
+      border-color: #C7D2FE;
+    }
+
+    .bul-cls {
+      width: 90px;
+      font-size: .7rem;
+      font-weight: 800;
+      color: #4F46E5;
+    }
+
+    .bul-name {
+      flex: 1;
+      font-size: .8rem;
+      font-weight: 700;
+      color: #1E293B;
+    }
+
+    .bul-avg {
+      font-size: .85rem;
+      font-weight: 900;
+      width: 54px;
+      text-align: center;
+    }
+
+    .bul-stat {
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      width: 80px;
+      text-align: center;
+    }
+
+    .s-ok {
+      background: #DCFCE7;
+      color: #15803D;
+    }
+
+    .s-wait {
+      background: #FEF9C3;
+      color: #854D0E;
+    }
+
+    .s-sign {
+      background: #EDE9FE;
+      color: #6D28D9;
+    }
+
+    .pin-inp {
+      width: 140px;
+      padding: 7px 10px;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 8px;
+      font-size: .85rem;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: .15em;
+      text-align: center;
+      outline: none;
+      transition: .2s;
+    }
+
+    .pin-inp:focus {
+      border-color: #4F46E5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, .1);
+    }
+
+    /* ══ COMPTA ══ */
+    .compta-hero {
+      background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 50%, #0F2740 100%);
+      border-radius: 18px;
+      padding: 28px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .compta-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 200px;
+      height: 200px;
+      background: rgba(79, 70, 229, .15);
+      border-radius: 50%;
+    }
+
+    .compta-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      left: -40px;
+      width: 140px;
+      height: 140px;
+      background: rgba(16, 185, 129, .1);
+      border-radius: 50%;
+    }
+
+    .cstat {
+      flex: 1;
+      padding: 0 20px;
+      border-right: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .cstat:last-child {
+      border: none;
+    }
+
+    .cstat-v {
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -.03em;
+      line-height: 1;
+    }
+
+    .cstat-l {
+      font-size: .6rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: rgba(255, 255, 255, .4);
+      margin-top: 4px;
+    }
+
+    .fin-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      background: #fff;
+      margin-bottom: 7px;
+      transition: .15s;
+    }
+
+    .fin-row:hover {
+      background: #F8FAFF;
+      border-color: #C7D2FE;
+    }
+
+    .pay-ok {
+      background: #DCFCE7;
+      color: #15803D;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: .68rem;
+      font-weight: 800;
+    }
+
+    .pay-pend {
+      background: #FEF9C3;
+      color: #854D0E;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: .68rem;
+      font-weight: 800;
+    }
+
+    .pay-late {
+      background: #FEE2E2;
+      color: #991B1B;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: .68rem;
+      font-weight: 800;
+    }
+
+    .donut-wrap {
+      position: relative;
+      height: 180px;
+    }
+
+    /* ══ CORPS ══ */
+    .prof-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      background: #fff;
+      margin-bottom: 8px;
+      transition: .15s;
+    }
+
+    .prof-card:hover {
+      border-color: #C7D2FE;
+      background: #F8FAFF;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, .06);
+    }
+
+    .prof-av {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    /* ══ ABSENCES SURVEILLANT ══ */
+    .abs-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .abs-form .full {
+      grid-column: 1/-1;
+    }
+
+    label {
+      font-size: .72rem;
+      font-weight: 700;
+      color: #475569;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 8px;
+      font-size: .82rem;
+      font-family: inherit;
+      color: #0F172A;
+      background: #fff;
+      outline: none;
+      transition: .2s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #4F46E5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, .09);
+    }
+
+    /* ══ BOUTONS ══ */
+    .btn-p {
+      padding: 9px 18px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      font-size: .78rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: inherit;
+    }
+
+    .btn-p:hover {
+      opacity: .9;
+      transform: translateY(-1px);
+    }
+
+    .btn-p:active {
+      transform: translateY(0);
+    }
+
+    .btn-g {
+      padding: 9px 16px;
+      background: #F1F5F9;
+      color: #475569;
+      border: none;
+      border-radius: 9px;
+      font-size: .78rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-g:hover {
+      background: #E2E8F0;
+    }
+
+    .btn-r {
+      padding: 9px 16px;
+      background: #FEF2F2;
+      color: #DC2626;
+      border: none;
+      border-radius: 9px;
+      font-size: .78rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* ══ TABLES ══ */
+    .tbl {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .tbl th {
+      font-size: .62rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: #94A3B8;
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 2px solid #F1F5F9;
+    }
+
+    .tbl td {
+      padding: 10px 12px;
+      font-size: .8rem;
+      color: #334155;
+      border-bottom: 1px solid #F8FAFF;
+    }
+
+    .tbl tr:last-child td {
+      border: none;
+    }
+
+    .tbl tr:hover td {
+      background: #FAFBFF;
+    }
+
+    /* ══ BADGE ══ */
+    .b {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: .64rem;
+      font-weight: 800;
+    }
+
+    .b-ind {
+      background: #EEF2FF;
+      color: #4F46E5;
+    }
+
+    .b-grn {
+      background: #F0FDF4;
+      color: #15803D;
+    }
+
+    .b-red {
+      background: #FEF2F2;
+      color: #DC2626;
+    }
+
+    .b-org {
+      background: #FFF7ED;
+      color: #C2410C;
+    }
+
+    .b-pur {
+      background: #FAF5FF;
+      color: #7C3AED;
+    }
+
+    .b-sky {
+      background: #F0F9FF;
+      color: #0369A1;
+    }
+
+    /* ══ AGENDA ══ */
+    .ag-item {
+      padding: 14px;
+      border-left: 3px solid;
+      border-radius: 0 10px 10px 0;
+      transition: .15s;
+    }
+
+    .ag-item:hover {
+      transform: translateX(2px);
+    }
+
+    /* ══ EDT ══ */
+    .edt-wrap {
+      display: grid;
+      grid-template-columns: 70px repeat(5, 1fr);
+      gap: 2px;
+    }
+
+    .edt-hd {
+      background: #1E293B;
+      color: rgba(255, 255, 255, .7);
+      font-size: .62rem;
+      font-weight: 800;
+      text-align: center;
+      padding: 8px 4px;
+      border-radius: 6px;
+    }
+
+    .edt-time {
+      background: #F1F5F9;
+      color: #64748B;
+      font-size: .62rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      padding: 4px;
+    }
+
+    .edt-cell {
+      min-height: 54px;
+      border-radius: 7px;
+      padding: 5px 7px;
+      transition: .15s;
+      cursor: pointer;
+    }
+
+    .edt-empty {
+      background: #F8FAFF;
+      border: 1px dashed #E2E8F0;
+    }
+
+    .edt-empty:hover {
+      background: #F1F5F9;
+    }
+
+    .edt-full {
+      border: 1px solid;
+    }
+
+    .edt-mat {
+      font-size: .66rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .edt-prof {
+      font-size: .58rem;
+      margin-top: 2px;
+      opacity: .75;
+    }
+
+    .edt-room {
+      font-size: .56rem;
+      margin-top: 1px;
+      opacity: .6;
+    }
+
+    /* ══ ACCESS DENIED ══ */
+    .ad-wrap {
+      background: linear-gradient(135deg, #0F172A, #1E293B);
+      border-radius: 20px;
+      padding: 60px;
+      text-align: center;
+      color: #fff;
+    }
+
+    /* ══ MODAL ══ */
+    .ov {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .6);
+      backdrop-filter: blur(5px);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ov.open {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 20px;
+      width: 540px;
+      max-width: 96vw;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 32px 80px rgba(15, 23, 42, .3);
+    }
+
+    .mhd {
+      padding: 20px 24px 14px;
+      border-bottom: 1px solid #F1F5F9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mbd {
+      padding: 20px 24px 24px;
+    }
+
+    .mft {
+      padding: 14px 24px;
+      background: #F8FAFF;
+      border-top: 1px solid #F1F5F9;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .xbtn {
+      width: 28px;
+      height: 28px;
+      background: #F1F5F9;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: .9rem;
+      color: #64748B;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .xbtn:hover {
+      background: #E2E8F0;
+    }
+
+    /* ══ TOAST ══ */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: .82rem;
+      font-weight: 700;
+      color: #fff;
+      z-index: 9999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-ok {
+      background: #059669;
+    }
+
+    .toast-err {
+      background: #DC2626;
+    }
+
+    .toast-info {
+      background: #4F46E5;
+    }
+
+    /* ══ SCROLL BAR ══ */
+    main::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    main::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 3px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+  <style>
+  /* ══ RESPONSIVE DIRECTION — corrections mobile ══════════════ */
+
+  @media (max-width: 639px) {
+
+    /* ── SIDEBAR : CACHÉE par défaut sur mobile ── */
+    .sidebar {
+      transform: translateX(-100%) !important;
+      transition: transform .28s cubic-bezier(.4,0,.2,1) !important;
+      z-index: 999 !important;
+      width: 240px !important;
+    }
+    .sidebar.open {
+      transform: translateX(0) !important;
+    }
+
+    /* ── MAIN : pleine largeur, padding pour hamburger ── */
+    main {
+      margin-left: 0 !important;
+      padding: 0 12px 40px !important;
+    }
+
+    /* ── Topbar : décaler sous le hamburger ── */
+    .topbar {
+      padding: 60px 0 0 0 !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 8px !important;
+      margin-bottom: 14px !important;
+    }
+    .page-title {
+      font-size: 1.1rem !important;
+      line-height: 1.2 !important;
+    }
+    .page-sub {
+      font-size: .67rem !important;
+      white-space: normal !important;
+      line-height: 1.4 !important;
+    }
+    #topbar-right {
+      width: 100% !important;
+    }
+
+    /* ── KPI grid : 2 colonnes ── */
+    .kpi-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 8px !important;
+    }
+
+    /* ── Toutes les grids internes ── */
+    [style*="grid-template-columns: 1fr 300px"],
+    [style*="grid-template-columns:1fr 300px"] {
+      grid-template-columns: 1fr !important;
+    }
+    [style*="grid-template-columns: 1fr 1fr"],
+    [style*="grid-template-columns:1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+    [style*="grid-template-columns: repeat(4, 1fr)"],
+    [style*="grid-template-columns:repeat(4,1fr)"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+    [style*="grid-template-columns: repeat(3, 1fr)"],
+    [style*="grid-template-columns:repeat(3,1fr)"] {
+      grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    /* ── Emploi du temps : tableau scroll horizontal ── */
+    #edt-table-wrap, #s-edt .card > div:last-child {
+      overflow-x: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    .edt-wrap {
+      min-width: 520px !important;
+    }
+    #edt-table, .edt-grid {
+      min-width: 520px !important;
+    }
+
+    /* ── Tableau emploi du temps (70px + repeat 5) ── */
+    .tbl-edt {
+      min-width: 580px !important;
+    }
+    .tbl-edt, .edt-tbl {
+      display: block !important;
+      overflow-x: auto !important;
+    }
+
+    /* ── Tous les tableaux → scroll ── */
+    table {
+      display: block !important;
+      overflow-x: auto !important;
+      white-space: nowrap !important;
+    }
+    table td, table th {
+      white-space: normal !important;
+      min-width: 80px !important;
+    }
+
+    /* ── Cards ── */
+    .card {
+      padding: 13px 14px !important;
+      border-radius: 14px !important;
+    }
+
+    /* ── KPI cards ── */
+    .kpi {
+      padding: 12px 13px !important;
+    }
+    .kpi-val {
+      font-size: 1.5rem !important;
+    }
+
+    /* ── Formulaires (absences, convocations, incidents) ── */
+    .form-row, [style*="display:flex;gap"] {
+      flex-wrap: wrap !important;
+    }
+    input, select, textarea {
+      font-size: .83rem !important;
+    }
+
+    /* ── Sections sec : scroll + padding-bottom ── */
+    .sec.on {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      padding: 0 12px !important;
+      padding-bottom: 80px !important;
+    }
+    .sec {
+      padding: 0 !important;
+    }
+
+    /* ── Grids 360px/380px → 1 colonne sur mobile ── */
+    [style*="grid-template-columns:360px"],
+    [style*="grid-template-columns: 360px"],
+    [style*="grid-template-columns:380px"],
+    [style*="grid-template-columns: 380px"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* ── Grids 1fr 340px / 2fr 1fr ── */
+    [style*="grid-template-columns:1fr 340px"],
+    [style*="grid-template-columns: 1fr 340px"],
+    [style*="grid-template-columns:2fr 1fr"],
+    [style*="grid-template-columns: 2fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* ── Boutons ── */
+    button[class*="btn"], .btn {
+      font-size: .72rem !important;
+    }
+
+    /* ── Stats comptabilité : 3 colonnes → 1 ── */
+    [style*="grid-template-columns: repeat(3"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* ── Sections : tous les grids fixes → 1 colonne ── */
+    #s-abs > div,
+    #s-conv > div,
+    #s-inc > div,
+    #s-flux > div,
+    #s-corps > div,
+    #s-sign > div,
+    #s-compta > div,
+    #s-agenda > div,
+    #s-eleves > div {
+      grid-template-columns: 1fr !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    /* ── KPI stats des sections (repeat 4 inline) ── */
+    #s-abs > div:first-child,
+    #s-conv > div:first-child,
+    #s-inc > div:first-child {
+      display: grid !important;
+      grid-template-columns: repeat(2, 1fr) !important;
+      flex-direction: unset !important;
+    }
+
+    /* ── Tableaux dans les sections → scroll ── */
+    #s-abs [style*="grid-template-columns:100px"],
+    #s-conv [style*="grid-template-columns:100px"] {
+      min-width: 500px !important;
+    }
+    #s-abs .card, #s-conv .card, #s-inc .card,
+    #s-sign .card, #s-corps .card, #s-compta .card {
+      overflow-x: auto !important;
+      width: 100% !important;
+    }
+
+    /* ── Formulaires pleine largeur ── */
+    #s-abs input, #s-abs select, #s-abs textarea,
+    #s-conv input, #s-conv select, #s-conv textarea,
+    #s-inc input, #s-inc select, #s-inc textarea,
+    #s-agenda input, #s-agenda select, #s-agenda textarea,
+    #s-flux input, #s-flux select, #s-flux textarea,
+    #s-corps input, #s-corps select, #s-corps textarea {
+      width: 100% !important;
+      box-sizing: border-box !important;
+      max-width: 100% !important;
+    }
+
+    /* ── Elèves: liste ── */
+    #s-eleves .card { width: 100% !important; }
+
+    /* ══ DASHBOARD : perf-wrap + répartition classes → 1 colonne ══ */
+    .perf-wrap {
+      grid-template-columns: 1fr !important;
+    }
+    .chart-h {
+      height: 200px !important;
+    }
+
+    /* ══ FORMULAIRES SECTIONS : 1 colonne sur mobile ══ */
+    .sec-form-grid {
+      grid-template-columns: 1fr !important;
+      gap: 12px !important;
+    }
+    .sec-form-grid > .card,
+    .sec-form-grid > div {
+      width: 100% !important;
+      min-width: 0 !important;
+      box-sizing: border-box !important;
+    }
+    /* Inputs formulaires pleine largeur */
+    .abs-form input,
+    .abs-form select,
+    .abs-form textarea {
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    /* ══ DASHBOARD : graphique perf → ne pas déborder ══ */
+    #s-dash .card {
+      overflow: hidden !important;
+    }
+    /* Statistiques Répartition classes → 1 colonne */
+    #s-dash [style*="grid-template-columns:1fr 300px"],
+    #s-dash [style*="grid-template-columns: 1fr 300px"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  /* ── Tablet ── */
+  @media (max-width: 1023px) and (min-width: 640px) {
+    .topbar { padding: 20px 18px 0 !important; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    [style*="grid-template-columns: 1fr 300px"],
+    [style*="grid-template-columns:1fr 300px"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <!-- Logo -->
+    <div class="logo-wrap">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div class="logo-icon"><i data-lucide="shield-check" style="width:17px;height:17px;color:#fff;"></i></div>
+        <div>
+          <div style="font-size:.9rem;font-weight:900;color:#fff;font-style:italic;letter-spacing:-.02em;">CAMPUS<span
+              style="color:#818CF8;">FASO</span></div>
+          <div id="sb-role-lbl"
+            style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.15em;font-weight:700;">
+            Direction</div>
+        </div>
+      </div>
+      <!-- User card -->
+      <div class="user-card">
+        <div style="font-size:.78rem;font-weight:800;color:#fff;" id="sb-name">Chargement…</div>
+        <div id="sb-role-tag" style="font-size:.65rem;font-weight:700;margin-top:2px;" class="role-dir">DIRECTION</div>
+      </div>
+    </div>
+
+    <div class="sidebar-scroll">
+      <nav style="padding:8px 0;">
+        <div class="nav-grp">Principal</div>
+        <div class="ni on" id="ni-dash" onclick="go('dash',this)">
+          <i data-lucide="layout-grid" class="ni-icon"></i><span>Tableau de Bord</span>
+        </div>
+        <div class="ni" id="ni-eleves" onclick="go('eleves',this)">
+          <i data-lucide="users" class="ni-icon"></i><span>Gestion Élèves</span>
+        </div>
+
+        <div class="nav-grp" id="grp-surv">Surveillance</div>
+        <div class="ni" id="ni-abs" onclick="go('abs',this)">
+          <i data-lucide="clipboard-list" class="ni-icon"></i><span>Absences</span>
+          <span id="nb-abs"
+            style="margin-left:auto;background:rgba(239,68,68,.2);color:#F87171;font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:12px;display:none;">0</span>
+        </div>
+        <div class="ni" id="ni-conv" onclick="go('conv',this)">
+          <i data-lucide="send" class="ni-icon"></i><span>Convocations</span>
+        </div>
+        <div class="ni" id="ni-inc" onclick="go('inc',this)">
+          <i data-lucide="alert-triangle" class="ni-icon"></i><span>Incidents</span>
+        </div>
+        <div class="ni" id="ni-edt" onclick="go('edt',this)">
+          <i data-lucide="calendar-days" class="ni-icon"></i><span>Emploi du Temps</span>
+        </div>
+
+        <div class="ni-sep"></div>
+        <div class="nav-grp">Direction</div>
+
+        <div class="ni ni-locked-vis" id="ni-flux" data-page="flux">
+          <i data-lucide="message-square" class="ni-icon"></i><span>Communication</span>
+          <span class="dir-tag" id="dt-flux">DIR</span>
+        </div>
+        <div class="ni ni-locked-vis" id="ni-corps" data-page="corps">
+          <i data-lucide="book-open" class="ni-icon"></i><span>Corps Enseignant</span>
+          <span class="dir-tag" id="dt-corps">DIR</span>
+        </div>
+        <div class="ni ni-locked-vis" id="ni-sign" data-page="sign">
+          <i data-lucide="file-check" class="ni-icon"></i><span>Signatures</span>
+          <span class="dir-tag" id="dt-sign">DIR</span>
+        </div>
+        <div class="ni ni-locked-vis" id="ni-compta" data-page="compta">
+          <i data-lucide="landmark" class="ni-icon"></i><span>Comptabilité</span>
+          <span class="dir-tag" id="dt-compta">DIR</span>
+        </div>
+        <div class="ni ni-locked-vis" id="ni-agenda" data-page="agenda">
+          <i data-lucide="calendar" class="ni-icon"></i><span>Agenda</span>
+          <span class="dir-tag" id="dt-agenda">DIR</span>
+        </div>
+      </nav>
+    </div>
+
+    <div>
+      <div class="sys-pill"><span class="pulse"></span>Système Actif</div>
+      <button class="btn-out" onclick="logout()">
+        <i data-lucide="log-out" style="width:14px;height:14px;"></i>Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <main>
+    <!-- Top bar -->
+    <div class="topbar">
+      <div>
+        <div class="page-title" id="pg-title">Tableau de Bord</div>
+        <div class="page-sub" id="pg-sub">Vue d'ensemble de l'établissement</div>
+      </div>
+      <div id="topbar-right"></div>
+    </div>
+
+    <!-- ══════════ DASHBOARD ══════════ -->
+    <div id="s-dash" class="sec on">
+
+      <!-- KPI -->
+      <div class="kpi-grid">
+        <div class="card kpi">
+          <div class="kpi-ico bg-indigo-100"><i data-lucide="users-2" style="width:17px;height:17px;color:#4F46E5;"></i>
+          </div>
+          <div class="kpi-lbl">Effectif total</div>
+          <div class="kpi-val" style="color:#4F46E5;" id="kpi-el">500</div>
+          <div class="kpi-sub pos"><i data-lucide="trending-up" style="width:11px;height:11px;"></i>+12% vs 2025</div>
+          <div class="kpi-spark"><canvas id="sp1"></canvas></div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-ico bg-emerald-100"><i data-lucide="check-circle-2"
+              style="width:17px;height:17px;color:#10B981;"></i></div>
+          <div class="kpi-lbl">Présence</div>
+          <div class="kpi-val" style="color:#10B981;" id="kpi-pres">92%</div>
+          <div class="kpi-sub pos"><i data-lucide="arrow-up" style="width:11px;height:11px;"></i>Excellent</div>
+          <div class="kpi-spark"><canvas id="sp2"></canvas></div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-ico bg-blue-100"><i data-lucide="book-open" style="width:17px;height:17px;color:#2563EB;"></i>
+          </div>
+          <div class="kpi-lbl">Professeurs</div>
+          <div class="kpi-val" style="color:#2563EB;" id="kpi-pr">42</div>
+          <div class="kpi-sub neu"><i data-lucide="check-circle" style="width:11px;height:11px;"></i>Tous présents</div>
+          <div class="kpi-spark"><canvas id="sp3"></canvas></div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-ico" style="background:#F3E8FF;"><i data-lucide="shield-alert"
+              style="width:17px;height:17px;color:#7C3AED;"></i></div>
+          <div class="kpi-lbl">Surveillants</div>
+          <div class="kpi-val" style="color:#7C3AED;" id="kpi-su">4</div>
+          <div class="kpi-sub neu"><i data-lucide="check-circle" style="width:11px;height:11px;"></i>Cadre de vie</div>
+          <div class="kpi-spark"><canvas id="sp4"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Perf chart + panel droit -->
+      <div class="perf-wrap">
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+            <div>
+              <div style="font-size:.92rem;font-weight:800;color:#0F172A;">Performances Académiques</div>
+              <div style="font-size:.72rem;color:#64748B;margin-top:2px;">Moyennes par classe · Évolution 2025 → 2026
+              </div>
+            </div>
+            <div style="display:flex;gap:5px;" id="ctabs">
+              <button class="ctab on" onclick="chgPerf('t1',this)">T1</button>
+              <button class="ctab off" onclick="chgPerf('t2',this)">T2</button>
+              <button class="ctab off" onclick="chgPerf('t3',this)">T3</button>
+              <button class="ctab off" onclick="chgPerf('an',this)">Annuel</button>
+            </div>
+          </div>
+          <div class="qbar">
+            <div>
+              <div class="qv" style="color:#4F46E5;" id="q-moy">12.4</div>
+              <div class="ql">Moy. générale</div>
+            </div>
+            <div class="qdiv"></div>
+            <div>
+              <div class="qv" style="color:#10B981;" id="q-best">14.8</div>
+              <div class="ql">Meilleure classe</div>
+            </div>
+            <div class="qdiv"></div>
+            <div>
+              <div class="qv" style="color:#EF4444;" id="q-low">9.3</div>
+              <div class="ql">Classe à soutenir</div>
+            </div>
+            <div class="qdiv"></div>
+            <div>
+              <div class="qv" style="color:#F59E0B;" id="q-taux">76%</div>
+              <div class="ql">Taux réussite</div>
+            </div>
+          </div>
+          <div class="chart-h"><canvas id="perfChart"></canvas></div>
+        </div>
+
+        <!-- Panel droit selon rôle -->
+        <div id="right-panel-dir" class="card" style="padding:18px;display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+            <i data-lucide="file-signature" style="width:15px;height:15px;color:#4F46E5;"></i>
+            <span style="font-size:.88rem;font-weight:800;color:#0F172A;">Signatures rapides</span>
+            <span class="b b-pur" style="margin-left:auto;" id="sign-count">11</span>
+          </div>
+          <div id="quick-sign-list">
+            <div style="text-align:center;padding:24px;color:#94A3B8;font-size:.76rem;">Chargement…</div>
+          </div>
+        </div>
+        <div id="right-panel-surv" style="display:none;" class="card" style="padding:18px;">
+          <div style="padding:18px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:14px;">
+              <i data-lucide="shield-alert" style="width:15px;height:15px;color:#7C3AED;"></i>
+              <span style="font-size:.88rem;font-weight:800;color:#0F172A;">Espace Surveillant</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="btn-p" style="width:100%;justify-content:center;"
+                onclick="go('abs',document.getElementById('ni-abs'))">
+                <i data-lucide="clipboard-list" style="width:13px;height:13px;"></i>Absences
+              </button>
+              <button onclick="go('conv',document.getElementById('ni-conv'))"
+                style="width:100%;padding:9px;background:#EFF6FF;color:#1D4ED8;border:none;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;">
+                <i data-lucide="send" style="width:13px;height:13px;"></i>Convocations
+              </button>
+              <button onclick="go('inc',document.getElementById('ni-inc'))"
+                style="width:100%;padding:9px;background:#FFF7ED;color:#C2410C;border:none;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;">
+                <i data-lucide="alert-triangle" style="width:13px;height:13px;"></i>Signaler incident
+              </button>
+              <button onclick="go('edt',document.getElementById('ni-edt'))"
+                style="width:100%;padding:9px;background:#F0FDF4;color:#15803D;border:none;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;">
+                <i data-lucide="calendar-days" style="width:13px;height:13px;"></i>Emploi du temps
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Classes + Mini agenda -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="card" style="padding:18px;">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;">
+            <i data-lucide="layers" style="width:14px;height:14px;color:#4F46E5;"></i>
+            <span style="font-size:.88rem;font-weight:800;color:#0F172A;">Répartition des classes</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;" id="cls-rept">
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#F5F3FF;border-radius:8px;border:1px solid #DDD6FE;">
+              <span style="font-size:.78rem;font-weight:700;">🔵 Collège (6ème – 4ème)</span>
+              <span style="font-size:.75rem;font-weight:900;color:#4F46E5;">150 élèves</span>
+            </div>
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#FDF4FF;border-radius:8px;border:1px solid #F0ABFC;">
+              <span style="font-size:.78rem;font-weight:700;">🟣 3ème</span>
+              <span style="font-size:.75rem;font-weight:900;color:#9333EA;">50 élèves</span>
+            </div>
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#F0F9FF;border-radius:8px;border:1px solid #BAE6FD;">
+              <span style="font-size:.78rem;font-weight:700;">🔷 2nde A · 2nde C</span>
+              <span style="font-size:.75rem;font-weight:900;color:#0284C7;">100 élèves</span>
+            </div>
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#FFF1F2;border-radius:8px;border:1px solid #FECDD3;">
+              <span style="font-size:.78rem;font-weight:700;">🔴 1ère A · 1ère D</span>
+              <span style="font-size:.75rem;font-weight:900;color:#BE123C;">100 élèves</span>
+            </div>
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#FFF7ED;border-radius:8px;border:1px solid #FED7AA;">
+              <span style="font-size:.78rem;font-weight:700;">🟠 Tle A · Tle D</span>
+              <span style="font-size:.75rem;font-weight:900;color:#C2410C;">100 élèves</span>
+            </div>
+            <div
+              style="padding:9px 12px;background:#EFF6FF;border-radius:8px;font-size:.8rem;font-weight:900;color:#1D4ED8;margin-top:2px;">
+              Total : <span id="eff-total">500</span> élèves · 10 classes
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding:18px;" id="agenda-mini">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;">
+            <i data-lucide="calendar" style="width:14px;height:14px;color:#4F46E5;"></i>
+            <span style="font-size:.88rem;font-weight:800;color:#0F172A;">Agenda — Cette semaine</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px;" id="agenda-items">
+            <div class="ag-item" style="border-color:#4F46E5;background:#EFF6FF;">
+              <div
+                style="font-size:.6rem;font-weight:800;color:#3730A3;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">
+                Aujourd'hui</div>
+              <div style="font-size:.82rem;font-weight:800;color:#0F172A;">Réunion Bureau APE</div>
+              <div style="font-size:.7rem;color:#64748B;margin-top:1px;">15h00 · Salle Direction</div>
+            </div>
+            <div class="ag-item" style="border-color:#F59E0B;background:#FFFBEB;">
+              <div
+                style="font-size:.6rem;font-weight:800;color:#92400E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">
+                Demain</div>
+              <div style="font-size:.82rem;font-weight:800;color:#0F172A;">Conseil Pédagogique</div>
+              <div style="font-size:.7rem;color:#64748B;margin-top:1px;">10h30 · Salle Conf</div>
+            </div>
+            <div class="ag-item" style="border-color:#10B981;background:#F0FDF4;">
+              <div
+                style="font-size:.6rem;font-weight:800;color:#065F46;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">
+                22 mars</div>
+              <div style="font-size:.82rem;font-weight:800;color:#0F172A;">Visite Inspection</div>
+              <div style="font-size:.7rem;color:#64748B;margin-top:1px;">Tout l'établissement</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ GESTION ÉLÈVES ══════════ -->
+    <div id="s-eleves" class="sec">
+      <div class="card" style="padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Liste des élèves</div>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="el-srch" placeholder="Rechercher…" style="width:210px;" oninput="filtEl()">
+            <button class="btn-p" style="font-size:.72rem;" id="btn-add-el" onclick="openAddEleve()"><i
+                data-lucide="plus" style="width:12px;height:12px;"></i>Ajouter</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;" id="cls-filter">
+          <button class="b b-ind sel-cls" onclick="filtCls('',this)">Toutes</button>
+          <button class="b" style="cursor:pointer;" onclick="filtCls('6ème',this)">6ème</button>
+          <button class="b" style="cursor:pointer;" onclick="filtCls('5ème',this)">5ème</button>
+          <button class="b" style="cursor:pointer;" onclick="filtCls('4ème',this)">4ème</button>
+          <button class="b" style="cursor:pointer;" onclick="filtCls('3ème',this)">3ème</button>
+          <button class="b" style="cursor:pointer;" onclick="filtCls('2nde A',this)">2nde A</button>
+          <button class="b" style="cursor:pointer;" onclick="filtCls('2nde C',this)">2nde C</button>
+          <button class="b" style="cursor:pointer;" onclick="filtCls('1ère A',this)">1ère A</button>
+          <button class="b" style="cursor:pointer;" onclick="filtCls('1ère D',this)">1ère D</button>
+          <button class="b" style="cursor:pointer;" onclick="filtCls('Tle A',this)">Tle A</button>
+          <button class="b" style="cursor:pointer;" onclick="filtCls('Tle D',this)">Tle D</button>
+        </div>
+        <div id="el-wrap" style="overflow-x:auto;">
+          <div style="text-align:center;padding:40px;color:#94A3B8;">⏳ Chargement…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ ABSENCES ══════════ -->
+    <div id="s-abs" class="sec">
+
+      <!-- Bande stats en haut -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
+        <div
+          style="background:linear-gradient(135deg,#FEF2F2,#FFE4E6);border:1px solid #FECDD3;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
+          <div
+            style="width:40px;height:40px;background:#EF4444;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="x-circle" style="width:18px;height:18px;color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem;font-weight:900;color:#991B1B;" id="abs-stat-nj">0</div>
+            <div style="font-size:.65rem;font-weight:700;color:#B91C1C;text-transform:uppercase;letter-spacing:.06em;">
+              Non justifiées</div>
+          </div>
+        </div>
+        <div
+          style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border:1px solid #BBF7D0;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
+          <div
+            style="width:40px;height:40px;background:#10B981;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem;font-weight:900;color:#065F46;" id="abs-stat-j">0</div>
+            <div style="font-size:.65rem;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.06em;">
+              Justifiées</div>
+          </div>
+        </div>
+        <div
+          style="background:linear-gradient(135deg,#FFF7ED,#FFEDD5);border:1px solid #FED7AA;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
+          <div
+            style="width:40px;height:40px;background:#F59E0B;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="clock" style="width:18px;height:18px;color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem;font-weight:900;color:#92400E;" id="abs-stat-ret">0</div>
+            <div style="font-size:.65rem;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.06em;">
+              Retards</div>
+          </div>
+        </div>
+        <div
+          style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:1px solid #BFDBFE;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
+          <div
+            style="width:40px;height:40px;background:#3B82F6;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="calendar-x" style="width:18px;height:18px;color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem;font-weight:900;color:#1D4ED8;" id="abs-stat-tot">0</div>
+            <div style="font-size:.65rem;font-weight:700;color:#2563EB;text-transform:uppercase;letter-spacing:.06em;">
+              Total ce mois</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-form-grid">
+        <!-- Formulaire saisie -->
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card" style="padding:22px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+              <div
+                style="width:34px;height:34px;background:linear-gradient(135deg,#EF4444,#DC2626);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                <i data-lucide="clipboard-plus" style="width:15px;height:15px;color:#fff;"></i>
+              </div>
+              <div>
+                <div style="font-size:.88rem;font-weight:800;color:#0F172A;">Nouvelle absence</div>
+                <div style="font-size:.65rem;color:#94A3B8;font-weight:600;">Visible par l'élève et son parent</div>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <label style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                  <i data-lucide="layers" style="width:11px;height:11px;color:#64748B;"></i>Classe
+                </label>
+                <select id="af-cls"
+                  style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-weight:600;font-family:inherit;outline:none;background:#F8FAFF;color:#0F172A;cursor:pointer;"
+                  onchange="loadElevesClasse()">
+                  <option value="">— Sélectionner —</option>
+                  <option>6ème</option>
+                  <option>5ème</option>
+                  <option>4ème</option>
+                  <option>3ème</option>
+                  <option>2nde A</option>
+                  <option>2nde C</option>
+                  <option>1ère A</option>
+                  <option>1ère D</option>
+                  <option>Tle A</option>
+                  <option>Tle D</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                  <i data-lucide="user" style="width:11px;height:11px;color:#64748B;"></i>Matricule élève
+                </label>
+                <input id="af-mat" type="text" placeholder="CN-2026-XXXX"
+                  style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;outline:none;"
+                  onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div>
+                  <label style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                    <i data-lucide="calendar" style="width:11px;height:11px;color:#64748B;"></i>Date
+                  </label>
+                  <input id="af-date" type="date"
+                    style="width:100%;padding:9px 10px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;outline:none;"
+                    onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
+                </div>
+                <div>
+                  <label style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                    <i data-lucide="tag" style="width:11px;height:11px;color:#64748B;"></i>Type
+                  </label>
+                  <select id="af-type"
+                    style="width:100%;padding:9px 10px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;outline:none;background:#fff;">
+                    <option value="false">❌ Non justifiée</option>
+                    <option value="true">✅ Justifiée</option>
+                    <option value="retard">⏰ Retard</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                  <i data-lucide="message-square" style="width:11px;height:11px;color:#64748B;"></i>Motif <span
+                    style="color:#CBD5E1;font-weight:400;">(optionnel)</span>
+                </label>
+                <textarea id="af-motif" rows="2" placeholder="Raison de l'absence…"
+                  style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;outline:none;resize:none;"
+                  onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
+              </div>
+            </div>
+
+            <button onclick="saveAbsence()"
+              style="width:100%;margin-top:14px;padding:11px;background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;border:none;border-radius:10px;font-size:.82rem;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;"
+              onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+              <i data-lucide="save" style="width:14px;height:14px;"></i>Enregistrer l'absence
+            </button>
+            <div id="af-msg"
+              style="display:none;margin-top:10px;font-size:.74rem;padding:9px 12px;border-radius:8px;font-weight:600;">
+            </div>
+          </div>
+
+          <!-- Filtre rapide -->
+          <div class="card" style="padding:14px;">
+            <div
+              style="font-size:.72rem;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">
+              Filtres rapides</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+              <button onclick="filtAbs('all',this)" class="abs-filt-btn abs-filt-on"
+                style="padding:7px 8px;border:1.5px solid #4F46E5;background:#EEF2FF;color:#4F46E5;border-radius:8px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:inherit;">Toutes</button>
+              <button onclick="filtAbs('nj',this)" class="abs-filt-btn"
+                style="padding:7px 8px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;">Non
+                justifiées</button>
+              <button onclick="filtAbs('j',this)" class="abs-filt-btn"
+                style="padding:7px 8px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;">Justifiées</button>
+              <button onclick="filtAbs('ret',this)" class="abs-filt-btn"
+                style="padding:7px 8px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;">Retards</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste absences -->
+        <div class="card" style="padding:22px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div>
+              <div style="font-size:.92rem;font-weight:800;color:#0F172A;">Registre des absences</div>
+              <div style="font-size:.7rem;color:#94A3B8;margin-top:2px;" id="abs-list-sub">Chargement…</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" id="abs-srch" placeholder="Rechercher…"
+                style="width:160px;padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.76rem;font-family:inherit;outline:none;"
+                oninput="renderAbsList()" onfocus="this.style.borderColor='#4F46E5'"
+                onblur="this.style.borderColor='#E2E8F0'">
+              <!-- Bouton export visible seulement DIRECTION -->
+              <button id="btn-abs-export"
+                style="padding:7px 12px;background:#F1F5F9;color:#475569;border:none;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;display:none;"
+                onclick="exportAbsences()">
+                <i data-lucide="download" style="width:12px;height:12px;display:inline;"></i> Export
+              </button>
+            </div>
+          </div>
+
+          <!-- En-tête colonnes -->
+          <div
+            style="display:grid;grid-template-columns:100px 1fr 80px 90px 90px auto;gap:8px;padding:7px 12px;background:#F8FAFF;border-radius:8px;margin-bottom:8px;border:1px solid #F1F5F9;">
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Matricule</div>
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Élève</div>
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Classe</div>
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Date</div>
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Statut</div>
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Actions</div>
+          </div>
+
+          <div id="abs-list" style="max-height:430px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;">
+            <div style="text-align:center;padding:40px;color:#CBD5E1;">
+              <i data-lucide="loader-2"
+                style="width:24px;height:24px;display:block;margin:0 auto 8px;animation:spin 1s linear infinite;"></i>
+              Chargement des absences…
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ CONVOCATIONS ══════════ -->
+    <div id="s-conv" class="sec">
+
+      <!-- Stats bar -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;">
+        <div
+          style="background:linear-gradient(135deg,#EEF2FF,#E0E7FF);border:1px solid #C7D2FE;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
+          <div
+            style="width:40px;height:40px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="send" style="width:17px;height:17px;color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem;font-weight:900;color:#3730A3;" id="cv-stat-tot">0</div>
+            <div style="font-size:.65rem;font-weight:700;color:#4338CA;text-transform:uppercase;letter-spacing:.06em;">
+              Total envoyées</div>
+          </div>
+        </div>
+        <div
+          style="background:linear-gradient(135deg,#FFF7ED,#FFEDD5);border:1px solid #FED7AA;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
+          <div
+            style="width:40px;height:40px;background:#F59E0B;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="clock-3" style="width:17px;height:17px;color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem;font-weight:900;color:#92400E;" id="cv-stat-att">0</div>
+            <div style="font-size:.65rem;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.06em;">
+              En attente accusé</div>
+          </div>
+        </div>
+        <div
+          style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border:1px solid #BBF7D0;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
+          <div
+            style="width:40px;height:40px;background:#10B981;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="check-check" style="width:17px;height:17px;color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem;font-weight:900;color:#065F46;" id="cv-stat-vu">0</div>
+            <div style="font-size:.65rem;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.06em;">
+              Accusés reçus</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-form-grid">
+        <!-- Formulaire -->
+        <div class="card" style="padding:22px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+            <div
+              style="width:34px;height:34px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:10px;display:flex;align-items:center;justify-content:center;">
+              <i data-lucide="send" style="width:15px;height:15px;color:#fff;"></i>
+            </div>
+            <div>
+              <div style="font-size:.88rem;font-weight:800;color:#0F172A;">Nouvelle convocation</div>
+              <div style="font-size:.65rem;color:#94A3B8;font-weight:600;">🔒 Privé — élève + parent uniquement</div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <label
+                style="font-size:.72rem;font-weight:700;color:#475569;display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                <i data-lucide="user" style="width:11px;height:11px;"></i>Élève (matricule)
+              </label>
+              <input id="cv-el" type="text" placeholder="CN-2026-XXXX"
+                style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;outline:none;"
+                onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div>
+                <label
+                  style="font-size:.72rem;font-weight:700;color:#475569;display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                  <i data-lucide="calendar" style="width:11px;height:11px;"></i>Date de convocation
+                </label>
+                <input id="cv-dt" type="date"
+                  style="width:100%;padding:9px 10px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;outline:none;"
+                  onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
+              </div>
+              <div>
+                <label
+                  style="font-size:.72rem;font-weight:700;color:#475569;display:flex;align-items:center;gap:5px;margin-bottom:5px;">
+                  <i data-lucide="clock" style="width:11px;height:11px;"></i>Heure
+                </label>
+                <input id="cv-hr" type="time" value="09:00"
+                  style="width:100%;padding:9px 10px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;outline:none;"
+                  onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
+              </div>
+            </div>
+            <div>
+              <label style="font-size:.72rem;font-weight:700;color:#475569;display:block;margin-bottom:5px;">Motif de la
+                convocation</label>
+              <select id="cv-mot"
+                style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;outline:none;background:#fff;"
+                onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
+                <option>Absences répétées</option>
+                <option>Comportement perturbateur</option>
+                <option>Manquement au règlement</option>
+                <option>Résultats insuffisants</option>
+                <option>Incident signalé</option>
+                <option>Rendez-vous administratif</option>
+                <option>Autre motif</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:.72rem;font-weight:700;color:#475569;display:block;margin-bottom:5px;">🔒 Message
+                confidentiel</label>
+              <textarea id="cv-msg" rows="3" placeholder="Message privé visible uniquement par l'élève et son parent…"
+                style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.79rem;font-family:inherit;outline:none;resize:none;"
+                onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
+            </div>
+            <!-- Toggle notification -->
+            <div
+              style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:9px;">
+              <div style="position:relative;width:36px;height:20px;flex-shrink:0;" onclick="toggleCvNotif()">
+                <input type="checkbox" id="cv-notif" checked style="opacity:0;width:0;height:0;position:absolute;">
+                <span id="cv-toggle"
+                  style="position:absolute;inset:0;background:#3B82F6;border-radius:20px;cursor:pointer;transition:.2s;">
+                  <span
+                    style="position:absolute;left:2px;top:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s;"
+                    id="cv-knob"></span>
+                </span>
+              </div>
+              <span style="font-size:.74rem;font-weight:700;color:#0369A1;">Notifier le parent via le portail</span>
+            </div>
+          </div>
+
+          <button onclick="saveConvocation()"
+            style="width:100%;margin-top:14px;padding:11px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;font-size:.82rem;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;"
+            onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+            <i data-lucide="send" style="width:14px;height:14px;"></i>Envoyer la convocation
+          </button>
+          <div id="cv-msg-r"
+            style="display:none;margin-top:10px;font-size:.74rem;padding:9px 12px;border-radius:8px;font-weight:600;">
+          </div>
+        </div>
+
+        <!-- Historique -->
+        <div class="card" style="padding:22px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div>
+              <div style="font-size:.92rem;font-weight:800;color:#0F172A;">Historique des convocations</div>
+              <div style="font-size:.7rem;color:#94A3B8;margin-top:2px;">Confidentielles — élève + parent uniquement
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="text" id="cv-srch" placeholder="Rechercher…"
+                style="width:150px;padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.75rem;font-family:inherit;outline:none;"
+                oninput="renderConvList()" onfocus="this.style.borderColor='#4F46E5'"
+                onblur="this.style.borderColor='#E2E8F0'">
+              <span class="b b-pur" id="cv-cnt">0</span>
+            </div>
+          </div>
+
+          <!-- En-tête colonnes -->
+          <div
+            style="display:grid;grid-template-columns:100px 1fr 120px 90px auto;gap:8px;padding:7px 12px;background:#F8FAFF;border-radius:8px;margin-bottom:8px;border:1px solid #F1F5F9;">
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Matricule</div>
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Élève · Motif</div>
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Date conv.</div>
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Statut</div>
+            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
+              Actions</div>
+          </div>
+
+          <div id="cv-list" style="max-height:390px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;">
+            <div style="text-align:center;padding:40px;color:#CBD5E1;">Chargement…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ INCIDENTS ══════════ -->
+    <div id="s-inc" class="sec">
+      <div class="sec-form-grid">
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:16px;">
+            <i data-lucide="alert-triangle" style="width:15px;height:15px;color:#F59E0B;"></i>
+            <span style="font-size:.9rem;font-weight:800;color:#0F172A;">Signaler un incident</span>
+          </div>
+          <div class="abs-form">
+            <div class="full"><label>Élèves impliqués</label><input id="inc-el" type="text"
+                placeholder="Matricules ou noms (virgule)"></div>
+            <div><label>Date</label><input id="inc-dt" type="date"></div>
+            <div><label>Gravité</label>
+              <select id="inc-gv">
+                <option value="faible">⚪ Faible</option>
+                <option value="moyenne" selected>🟡 Moyenne</option>
+                <option value="elevee">🔴 Élevée</option>
+              </select>
+            </div>
+            <div class="full"><label>Lieu</label><input id="inc-lieu" placeholder="Cour, Salle, Couloir…" type="text">
+            </div>
+            <div class="full"><label>Description</label><textarea id="inc-desc" rows="3"
+                placeholder="Décrivez l'incident"></textarea></div>
+            <div class="full"><label>Action prise</label>
+              <select id="inc-act">
+                <option>Avertissement oral</option>
+                <option>Avertissement écrit</option>
+                <option>Convocation parent</option>
+                <option>Exclusion temporaire</option>
+                <option>Médiation</option>
+                <option>Transmission direction</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-p" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveIncident()">
+            <i data-lucide="alert-circle" style="width:13px;height:13px;"></i>Enregistrer
+          </button>
+        </div>
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <i data-lucide="list" style="width:14px;height:14px;color:#EF4444;"></i>
+              <span style="font-size:.9rem;font-weight:800;color:#0F172A;">Incidents signalés</span>
+            </div>
+            <span class="b b-red" id="inc-cnt">0</span>
+          </div>
+          <div id="inc-list" style="max-height:420px;overflow-y:auto;">
+            <div style="text-align:center;padding:30px;color:#94A3B8;font-size:.78rem;">Chargement…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ EMPLOI DU TEMPS ══════════ -->
+    <div id="s-edt" class="sec">
+      <div class="card" style="padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div>
+            <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Emploi du Temps Annuel</div>
+            <div style="font-size:.72rem;color:#64748B;margin-top:2px;">Grille horaire officielle · Année 2025-2026
+            </div>
+          </div>
+          <select id="edt-cls" onchange="renderEdt()"
+            style="width:150px;padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.8rem;font-weight:700;">
+            <option>6ème</option>
+            <option>5ème</option>
+            <option>4ème</option>
+            <option>3ème</option>
+            <option selected>2nde A</option>
+            <option>2nde C</option>
+            <option>1ère A</option>
+            <option>1ère D</option>
+            <option>Tle A</option>
+            <option>Tle D</option>
+          </select>
+        </div>
+        <div style="overflow-x:auto;">
+          <div class="edt-wrap" id="edt-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ COMMUNICATION (DIR) ══════════ -->
+    <div id="s-flux" class="sec">
+      <div style="display:grid;grid-template-columns:1fr 380px;gap:14px;">
+        <!-- Fil des annonces -->
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:7px;">
+              <i data-lucide="rss" style="width:15px;height:15px;color:#4F46E5;"></i>
+              <span style="font-size:.9rem;font-weight:800;color:#0F172A;">Canal Officiel</span>
+            </div>
+            <button class="btn-p" style="font-size:.72rem;" onclick="openModal('m-annonce')">
+              <i data-lucide="plus" style="width:12px;height:12px;"></i>Nouvelle annonce
+            </button>
+          </div>
+          <div id="flux-list" style="max-height:500px;overflow-y:auto;">
+            <div style="text-align:center;padding:40px;color:#94A3B8;">Chargement…</div>
+          </div>
+        </div>
+        <!-- Nouveau message -->
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:16px;">
+            <i data-lucide="mail" style="width:15px;height:15px;color:#4F46E5;"></i>
+            <span style="font-size:.9rem;font-weight:800;color:#0F172A;">Envoyer un message</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div><label>Destinataires</label>
+              <select id="msg-dest">
+                <option value="all">Tous (profs + parents + élèves)</option>
+                <option value="profs">Corps enseignant uniquement</option>
+                <option value="parents">Parents uniquement</option>
+                <option value="eleves">Élèves uniquement</option>
+                <option value="surveillants">Surveillants uniquement</option>
+              </select>
+            </div>
+            <div><label>Titre</label><input id="msg-titre" type="text" placeholder="Objet du message"></div>
+            <div><label>Message</label><textarea id="msg-contenu" rows="5"
+                placeholder="Rédigez votre message officiel…"></textarea></div>
+            <div><label>Type</label>
+              <select id="msg-type">
+                <option value="info">ℹ️ Information</option>
+                <option value="urgent">🚨 Urgent</option>
+                <option value="reunion">📅 Réunion</option>
+                <option value="felicitations">🏆 Félicitations</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-p" style="width:100%;justify-content:center;margin-top:12px;" onclick="sendFluxMsg()">
+            <i data-lucide="send" style="width:13px;height:13px;"></i>Publier officiellement
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ CORPS ENSEIGNANT (DIR) ══════════ -->
+    <div id="s-corps" class="sec">
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Corps Enseignant</div>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="corps-srch" placeholder="Rechercher prof…" style="width:180px;"
+                oninput="filtCorps()">
+              <button class="btn-p" style="font-size:.72rem;"><i data-lucide="plus"
+                  style="width:12px;height:12px;"></i>Ajouter</button>
+            </div>
+          </div>
+          <div id="corps-list">
+            <div style="text-align:center;padding:30px;color:#94A3B8;">Chargement…</div>
+          </div>
+        </div>
+        <!-- Panel actions direction -->
+        <div class="card" style="padding:20px;">
+          <div style="font-size:.9rem;font-weight:800;color:#0F172A;margin-bottom:14px;">📋 Demander les notes</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div><label>Professeur</label><input id="req-prof" type="text" placeholder="Nom ou matricule"></div>
+            <div><label>Classe concernée</label>
+              <select id="req-cls">
+                <option>6ème</option>
+                <option>5ème</option>
+                <option>4ème</option>
+                <option>3ème</option>
+                <option>2nde A</option>
+                <option>2nde C</option>
+                <option>1ère A</option>
+                <option>1ère D</option>
+                <option>Tle A</option>
+                <option>Tle D</option>
+              </select>
+            </div>
+            <div><label>Trimestre</label>
+              <select id="req-tri">
+                <option value="1">Trimestre 1</option>
+                <option value="2">Trimestre 2</option>
+                <option value="3">Trimestre 3</option>
+              </select>
+            </div>
+            <div><label>Message (optionnel)</label><textarea id="req-msg" rows="2"
+                placeholder="Rappel de délai, instructions…"></textarea></div>
+          </div>
+          <button class="btn-p" style="width:100%;justify-content:center;margin-top:10px;" onclick="demanderNotes()">
+            <i data-lucide="mail" style="width:13px;height:13px;"></i>Envoyer la demande
+          </button>
+          <div style="height:1px;background:#F1F5F9;margin:16px 0;"></div>
+          <div style="font-size:.9rem;font-weight:800;color:#0F172A;margin-bottom:14px;">📓 Cahiers de texte</div>
+          <div id="cahiers-list" style="max-height:180px;overflow-y:auto;">
+            <div style="text-align:center;padding:20px;color:#94A3B8;font-size:.78rem;">Chargement…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ SIGNATURES (DIR) ══════════ -->
+    <div id="s-sign" class="sec">
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
+        <!-- Liste bulletins -->
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div>
+              <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Bulletins à valider</div>
+              <div style="font-size:.72rem;color:#64748B;margin-top:2px;">Saisir votre code PIN pour signer
+                électroniquement</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <select id="sign-cls-filter" onchange="filtSignatures()"
+                style="padding:6px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.76rem;font-weight:700;">
+                <option value="">Toutes les classes</option>
+                <option>6ème</option>
+                <option>5ème</option>
+                <option>4ème</option>
+                <option>3ème</option>
+                <option>2nde A</option>
+                <option>2nde C</option>
+                <option>1ère A</option>
+                <option>1ère D</option>
+                <option>Tle A</option>
+                <option>Tle D</option>
+              </select>
+              <select id="sign-tri-filter" onchange="filtSignatures()"
+                style="padding:6px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.76rem;font-weight:700;">
+                <option value="1">Trimestre 1</option>
+                <option value="2">Trimestre 2</option>
+                <option value="3">Trimestre 3</option>
+              </select>
+            </div>
+          </div>
+          <div id="sign-list">
+            <div style="text-align:center;padding:30px;color:#94A3B8;">Chargement…</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #F1F5F9;">
+            <button class="btn-p" onclick="signerTout()" style="font-size:.76rem;">
+              <i data-lucide="check-square" style="width:13px;height:13px;"></i>Signer tous (classe filtrée)
+            </button>
+            <input class="pin-inp" id="pin-global" type="password" maxlength="6" placeholder="PIN (6 chiffres)"
+              style="flex:1;">
+          </div>
+        </div>
+        <!-- Stats signatures + autres docs -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card" style="padding:18px;">
+            <div style="font-size:.88rem;font-weight:800;color:#0F172A;margin-bottom:12px;">📊 Avancement</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span
+                    style="font-size:.75rem;font-weight:700;">Signés</span><span
+                    style="font-size:.75rem;font-weight:800;color:#15803D;" id="sign-ok-cnt">0</span></div>
+                <div style="height:6px;background:#F1F5F9;border-radius:3px;">
+                  <div id="sign-bar-ok"
+                    style="height:100%;background:#10B981;border-radius:3px;width:0%;transition:width .8s;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span
+                    style="font-size:.75rem;font-weight:700;">En attente</span><span
+                    style="font-size:.75rem;font-weight:800;color:#D97706;" id="sign-pend-cnt">0</span></div>
+                <div style="height:6px;background:#F1F5F9;border-radius:3px;">
+                  <div id="sign-bar-pend"
+                    style="height:100%;background:#F59E0B;border-radius:3px;width:0%;transition:width .8s;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="padding:18px;">
+            <div style="font-size:.88rem;font-weight:800;color:#0F172A;margin-bottom:12px;">📋 Certificats de scolarité
+            </div>
+            <div id="cert-list">
+              <div class="fin-row"><span style="flex:1;font-size:.78rem;font-weight:700;">SAWADOGO Moussa · Tle
+                  D</span><button class="btn-p" style="padding:5px 10px;font-size:.68rem;"
+                  onclick="signCert(this,'SAWADOGO Moussa')">Signer</button></div>
+              <div class="fin-row"><span style="flex:1;font-size:.78rem;font-weight:700;">KABORE Aicha · 2nde
+                  A</span><button class="btn-p" style="padding:5px 10px;font-size:.68rem;"
+                  onclick="signCert(this,'KABORE Aicha')">Signer</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ COMPTABILITÉ (DIR) ══════════ -->
+    <div id="s-compta" class="sec">
+      <!-- Hero stats -->
+      <div class="compta-hero">
+        <div style="display:flex;gap:0;margin-bottom:20px;position:relative;z-index:1;">
+          <div class="cstat" style="padding-left:0;">
+            <div class="cstat-v">125 000</div>
+            <div class="cstat-l">Solde trésor (FCFA)</div>
+          </div>
+          <div class="cstat">
+            <div class="cstat-v" style="color:#4ADE80;">87 500</div>
+            <div class="cstat-l">Cotisations reçues</div>
+          </div>
+          <div class="cstat">
+            <div class="cstat-v" style="color:#FB923C;">37 500</div>
+            <div class="cstat-l">En attente</div>
+          </div>
+          <div class="cstat">
+            <div class="cstat-v">350 / 500</div>
+            <div class="cstat-l">Familles à jour</div>
+          </div>
+        </div>
+        <!-- Barre progression -->
+        <div style="position:relative;z-index:1;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:.68rem;color:rgba(255,255,255,.5);font-weight:700;">Taux de recouvrement</span>
+            <span style="font-size:.78rem;font-weight:900;color:#4ADE80;">70%</span>
+          </div>
+          <div style="height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;">
+            <div
+              style="width:70%;height:100%;background:linear-gradient(90deg,#10B981,#4ADE80);border-radius:4px;transition:width 1.2s .3s;">
+            </div>
+          </div>
+          <div
+            style="margin-top:10px;padding:8px 14px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);border-radius:8px;font-size:.72rem;color:#FCD34D;">
+            ⚠️ Les modifications de paiement ici se reflètent automatiquement dans l'espace de chaque parent.
+          </div>
+        </div>
+      </div>
+
+      <!-- Corps comptabilité -->
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:14px;">
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Suivi des paiements familles</div>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="cpt-srch" placeholder="Rechercher famille…" style="width:190px;"
+                oninput="filtCompta()">
+              <select id="cpt-filt" onchange="filtCompta()"
+                style="padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.76rem;font-weight:700;">
+                <option value="">Tous</option>
+                <option value="payé">Payés</option>
+                <option value="en attente">En attente</option>
+                <option value="retard">Retard</option>
+              </select>
+              <button class="btn-p" style="font-size:.72rem;"><i data-lucide="download"
+                  style="width:12px;height:12px;"></i>Exporter</button>
+            </div>
+          </div>
+          <div id="cpt-wrap" style="max-height:420px;overflow-y:auto;">
+            <div style="text-align:center;padding:30px;color:#94A3B8;">Chargement…</div>
+          </div>
+        </div>
+        <!-- Graphique donut + actions -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card" style="padding:18px;">
+            <div style="font-size:.88rem;font-weight:800;color:#0F172A;margin-bottom:10px;">Répartition</div>
+            <div class="donut-wrap"><canvas id="donutChart"></canvas></div>
+          </div>
+          <div class="card" style="padding:18px;">
+            <div style="font-size:.88rem;font-weight:800;color:#0F172A;margin-bottom:12px;">Enregistrer un paiement
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div><label>Famille / Élève</label><input id="pay-fam" type="text" placeholder="Nom ou matricule"></div>
+              <div><label>Montant (FCFA)</label><input id="pay-mnt" type="number" placeholder="25000"
+                  style="font-family:'JetBrains Mono',monospace;"></div>
+              <div><label>Date paiement</label><input id="pay-dt" type="date"></div>
+              <div><label>Mode de paiement</label>
+                <select id="pay-mode">
+                  <option>Espèces</option>
+                  <option>Mobile Money</option>
+                  <option>Virement</option>
+                  <option>Chèque</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn-p" style="width:100%;justify-content:center;margin-top:10px;" onclick="savePaiement()">
+              <i data-lucide="check-circle" style="width:13px;height:13px;"></i>Valider le paiement
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ AGENDA (DIR) ══════════ -->
+    <div id="s-agenda" class="sec">
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Agenda Direction</div>
+            <button class="btn-p" style="font-size:.72rem;" onclick="openModal('m-event')">
+              <i data-lucide="plus" style="width:12px;height:12px;"></i>Ajouter événement
+            </button>
+          </div>
+          <div id="ag-list">
+            <div class="ag-item" style="border-color:#4F46E5;background:#EFF6FF;margin-bottom:8px;">
+              <div
+                style="font-size:.6rem;font-weight:800;color:#3730A3;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">
+                Aujourd'hui · 15h00</div>
+              <div style="font-size:.85rem;font-weight:800;color:#0F172A;">📢 Réunion Bureau APE</div>
+              <div style="font-size:.72rem;color:#475569;margin-top:2px;">Salle Direction · Présence obligatoire</div>
+            </div>
+            <div class="ag-item" style="border-color:#F59E0B;background:#FFFBEB;margin-bottom:8px;">
+              <div
+                style="font-size:.6rem;font-weight:800;color:#92400E;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">
+                Demain · 10h30</div>
+              <div style="font-size:.85rem;font-weight:800;color:#0F172A;">📚 Conseil Pédagogique</div>
+              <div style="font-size:.72rem;color:#475569;margin-top:2px;">Salle Conf · Corps enseignant</div>
+            </div>
+            <div class="ag-item" style="border-color:#10B981;background:#F0FDF4;margin-bottom:8px;">
+              <div
+                style="font-size:.6rem;font-weight:800;color:#065F46;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">
+                22 mars · Journée</div>
+              <div style="font-size:.85rem;font-weight:800;color:#0F172A;">🔍 Visite Inspection Académique</div>
+              <div style="font-size:.72rem;color:#475569;margin-top:2px;">Tout l'établissement · Tenue soignée</div>
+            </div>
+            <div class="ag-item" style="border-color:#7C3AED;background:#FAF5FF;margin-bottom:8px;">
+              <div
+                style="font-size:.6rem;font-weight:800;color:#5B21B6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">
+                25 mars · 08h00</div>
+              <div style="font-size:.85rem;font-weight:800;color:#0F172A;">📝 Jury Compositions T1</div>
+              <div style="font-size:.72rem;color:#475569;margin-top:2px;">Délibérations trimestrielles · Salle
+                polyvalente</div>
+            </div>
+            <div class="ag-item" style="border-color:#EF4444;background:#FEF2F2;margin-bottom:8px;">
+              <div
+                style="font-size:.6rem;font-weight:800;color:#991B1B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">
+                01 avril · 09h00</div>
+              <div style="font-size:.85rem;font-weight:800;color:#0F172A;">📤 Distribution des Bulletins T1</div>
+              <div style="font-size:.72rem;color:#475569;margin-top:2px;">Parents convoqués · Présence direction
+                obligatoire</div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding:18px;">
+          <div style="font-size:.88rem;font-weight:800;color:#0F172A;margin-bottom:14px;">Ajouter un événement</div>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <div><label>Titre</label><input id="ev-titre" type="text" placeholder="Nom de l'événement"></div>
+            <div><label>Date</label><input id="ev-date" type="date"></div>
+            <div><label>Heure</label><input id="ev-heure" type="time"></div>
+            <div><label>Lieu</label><input id="ev-lieu" type="text" placeholder="Salle, Local…"></div>
+            <div><label>Type</label>
+              <select id="ev-type">
+                <option value="reunion">Réunion</option>
+                <option value="conseil">Conseil pédagogique</option>
+                <option value="examen">Examen / Composition</option>
+                <option value="visite">Visite officielle</option>
+                <option value="autre">Autre</option>
+              </select>
+            </div>
+            <div><label>Description</label><textarea id="ev-desc" rows="2" placeholder="Détails…"></textarea></div>
+          </div>
+          <button class="btn-p" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveEvent()">
+            <i data-lucide="calendar-plus" style="width:13px;height:13px;"></i>Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Modal générique -->
+  <div class="ov" id="ov" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="mhd">
+        <span id="m-title" style="font-size:.92rem;font-weight:800;color:#0F172A;"></span>
+        <button class="xbtn" onclick="closeModal()">✕</button>
+      </div>
+      <div class="mbd" id="m-body"></div>
+      <div class="mft"><button class="btn-g" onclick="closeModal()">Fermer</button></div>
+    </div>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════
+    // CONFIG & SESSION
+    // ══════════════════════════════════════
+    const SESS = JSON.parse(localStorage.getItem('user_session') || '{}');
+    const TOK = SESS?.token || '';
+    let ROLE = (SESS?.role_actuel || SESS?.role || '').toUpperCase();
+    let perfChart = null, donutChart = null;
+    let eleveData = [], compData = [], signData = [], corpsData = [], clsFil = '', compFil = '';
+
+    const $ = id => document.getElementById(id);
+    const api = (p, o = {}) => fetch('/api' + p, { ...o, headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json', ...(o.headers || {}) } }).then(r => r.json());
+    const esc = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // ══════════════════════════════════════
+    // INIT
+    // ══════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!TOK) { location.href = 'login.html'; return; }
+      ROLE = (SESS.role_actuel || '').toUpperCase();
+      if (ROLE !== 'DIRECTION' && ROLE !== 'SURVEILLANT') { location.href = 'login.html'; return; }
+
+      applyRole();
+      loadStats();
+      buildSparks();
+      // Délai pour garantir que le canvas perfChart est bien dans le DOM visible
+      setTimeout(() => { buildPerf('t1'); }, 120);
+      renderEdt();
+      loadQuickSign();
+
+      // default date
+      const td = new Date().toISOString().split('T')[0];
+      ['af-date', 'inc-dt', 'pay-dt', 'ev-date'].forEach(id => { if ($(id)) $(id).value = td; });
+      if (window.lucide) lucide.createIcons();
+    });
+
+    // ══════════════════════════════════════
+    // RÔLE
+    // ══════════════════════════════════════
+    function applyRole() {
+      const nom = (SESS.prenom || '') + ' ' + (SESS.nom || SESS.code_unique || '');
+      $('sb-name').textContent = nom.trim() || 'Utilisateur';
+      $('sb-role-lbl').textContent = ROLE === 'DIRECTION' ? 'Direction' : 'Surveillant';
+      $('sb-role-tag').textContent = ROLE;
+      $('sb-role-tag').className = ROLE === 'DIRECTION' ? 'role-dir' : 'role-surv';
+
+      if (ROLE === 'SURVEILLANT') {
+        // Masquer panel direction, montrer panel surv
+        $('right-panel-dir').style.display = 'none';
+        $('right-panel-surv').style.display = 'block';
+        // Rendre les menus DIR cliquables mais redirigent vers access denied
+        ['ni-flux', 'ni-corps', 'ni-sign', 'ni-compta', 'ni-agenda'].forEach(id => {
+          const el = $(id);
+          if (el) {
+            el.classList.remove('ni-locked-vis');
+            el.onclick = () => accessDenied(el.querySelector('span').textContent);
+          }
+        });
+      } else {
+        // DIRECTION : activer menus DIR
+        ['ni-flux', 'ni-corps', 'ni-sign', 'ni-compta', 'ni-agenda'].forEach(id => {
+          const el = $(id); const page = el?.dataset.page;
+          if (el && page) {
+            el.classList.remove('ni-locked-vis');
+            el.onclick = () => go(page, el);
+          }
+        });
+        // Supprimer les badges DIR
+        ['dt-flux', 'dt-corps', 'dt-sign', 'dt-compta', 'dt-agenda'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
+      }
+    }
+
+    function accessDenied(titre) {
+      toast('🔒 Section réservée à la Direction', 'err');
+    }
+
+    // ══════════════════════════════════════
+    // NAVIGATION
+    // ══════════════════════════════════════
+    const PAGES = {
+      dash: { sec: 's-dash', title: 'Tableau de Bord', sub: "Vue d'ensemble de l'établissement" },
+      eleves: { sec: 's-eleves', title: 'Gestion des Élèves', sub: 'Liste, profils et suivi' },
+      abs: { sec: 's-abs', title: 'Absences', sub: 'Enregistrement et suivi des absences · Impact visible par l\'élève et son parent' },
+      conv: { sec: 's-conv', title: 'Convocations', sub: 'Convocations privées · Visibles uniquement par l\'élève et son parent' },
+      inc: { sec: 's-inc', title: 'Incidents', sub: 'Signalement et suivi disciplinaire' },
+      edt: { sec: 's-edt', title: 'Emploi du Temps', sub: 'Grille horaire annuelle officielle 2025-2026' },
+      flux: { sec: 's-flux', title: 'Canal de Communication', sub: 'Annonces officielles · Direction → Tous' },
+      corps: { sec: 's-corps', title: 'Corps Enseignant', sub: 'Gestion du personnel · Demande de notes · Cahiers de texte' },
+      sign: { sec: 's-sign', title: 'Signatures & Documents', sub: 'Validation électronique des bulletins et documents officiels' },
+      compta: { sec: 's-compta', title: 'Comptabilité', sub: 'Gestion financière · Cotisations APE · Suivi des paiements' },
+      agenda: { sec: 's-agenda', title: 'Agenda Direction', sub: 'Calendrier des événements officiels' },
+    };
+    function go(page, navEl) {
+      if (ROLE === 'SURVEILLANT' && ['flux', 'corps', 'sign', 'compta', 'agenda'].includes(page)) { toast('🔒 Accès réservé Direction', 'err'); return; }
+      const cfg = PAGES[page]; if (!cfg) return;
+      document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+      document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+      const s = $(cfg.sec); if (s) s.classList.add('on');
+      if (navEl) navEl.classList.add('on');
+      $('pg-title').textContent = cfg.title;
+      $('pg-sub').textContent = cfg.sub;
+      // lazy load
+      if (page === 'eleves' && !eleveData.length) loadEleves();
+      if (page === 'abs') loadAbsList();
+      if (page === 'conv') loadConvList();
+      if (page === 'inc') loadIncList();
+      if (page === 'flux') loadFlux();
+      if (page === 'corps' && !corpsData.length) loadCorps();
+      if (page === 'sign' && !signData.length) loadSignatures();
+      if (page === 'compta' && !compData.length) loadCompta();
+    }
+
+    // ══════════════════════════════════════
+    // STATS
+    // ══════════════════════════════════════
+    async function loadStats() {
+      try {
+        const d = await api('/admin/stats');
+        if (d.stats) {
+          const s = d.stats;
+          if ($('kpi-el')) $('kpi-el').textContent = s.users || 500;
+          if ($('kpi-pr')) $('kpi-pr').textContent = s.professors || 10;
+          if ($('kpi-su')) $('kpi-su').textContent = s.surveillants || 4;
+          if ($('kpi-pres')) $('kpi-pres').textContent = (s.presence || 92) + '%';
+          if ($('eff-total')) $('eff-total').textContent = s.users || 500;
+          // Mettre à jour la répartition si disponible
+          const total = s.users || 500;
+          const cls = s.classes || 10;
+          const absMonth = s.absences || 0;
+          const convEnAtt = s.alerts || 0;
+          // KPI absences/convocations dans les sections si affichées
+          ['abs-stat-total'].forEach(id => { const el = $(id); if(el) el.textContent = absMonth; });
+          ['conv-stat-total'].forEach(id => { const el = $(id); if(el) el.textContent = convEnAtt; });
+        }
+      } catch(e) { console.warn('loadStats:', e); }
+    }
+
+    // ══════════════════════════════════════
+    // SPARKLINES
+    // ══════════════════════════════════════
+    function mkSpark(id, data, color) {
+      const c = $(id); if (!c) return;
+      new Chart(c, {
+        type: 'line', data: { labels: data.map((_, i) => i), datasets: [{ data, borderColor: color, backgroundColor: color + '18', borderWidth: 1.5, fill: true, tension: .4, pointRadius: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, animation: { duration: 800 }, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false } } }
+      });
+    }
+    function buildSparks() {
+      mkSpark('sp1', [460, 475, 480, 490, 495, 500], '#4F46E5');
+      mkSpark('sp2', [86, 88, 90, 89, 91, 92], '#10B981');
+      mkSpark('sp3', [40, 41, 41, 42, 42, 42], '#2563EB');
+      mkSpark('sp4', [4, 4, 4, 4, 4, 4], '#7C3AED');
+    }
+
+    // ══════════════════════════════════════
+    // PERF CHART — courbe animée réelle
+    // ══════════════════════════════════════
+    const PD = {
+      t1: {
+        l: ['6ème', '5ème', '4ème', '3ème', '2A', '2C', '1A', '1D', 'TleA', 'TleD'],
+        a: [10.8, 11.2, 10.5, 11.8, 12.2, 13.1, 12.8, 13.5, 12.1, 11.9],
+        b: [11.4, 12.0, 11.2, 12.6, 13.5, 14.8, 13.9, 14.2, 12.8, 13.1],
+        moy: '12.4', best: '14.8', low: '11.2', taux: '72%'
+      },
+      t2: {
+        l: ['6ème', '5ème', '4ème', '3ème', '2A', '2C', '1A', '1D', 'TleA', 'TleD'],
+        a: [11.0, 11.5, 10.8, 12.0, 12.5, 13.4, 13.1, 13.8, 12.4, 12.2],
+        b: [11.8, 12.4, 11.6, 13.0, 13.9, 14.2, 14.3, 14.8, 13.2, 13.6],
+        moy: '13.1', best: '14.8', low: '11.6', taux: '78%'
+      },
+      t3: {
+        l: ['6ème', '5ème', '4ème', '3ème', '2A', '2C', '1A', '1D', 'TleA', 'TleD'],
+        a: [11.3, 11.8, 11.1, 12.3, 12.8, 13.7, 13.4, 14.1, 12.7, 12.5],
+        b: [12.2, 12.9, 11.9, 13.4, 14.1, 15.2, 14.7, 15.1, 13.8, 14.0],
+        moy: '13.7', best: '15.2', low: '11.9', taux: '82%'
+      },
+      an: {
+        l: ['6ème', '5ème', '4ème', '3ème', '2A', '2C', '1A', '1D', 'TleA', 'TleD'],
+        a: [11.0, 11.5, 10.8, 12.0, 12.5, 13.4, 13.1, 13.8, 12.4, 12.2],
+        b: [11.8, 12.4, 11.5, 13.0, 13.8, 14.7, 14.3, 14.7, 13.3, 13.6],
+        moy: '13.1', best: '14.7', low: '11.5', taux: '77%'
+      }
+    };
+    function buildPerf(k) {
+      const d = PD[k];
+      ['q-moy', 'q-best', 'q-low', 'q-taux'].forEach((id, i) => { $(id).textContent = [d.moy, d.best, d.low, d.taux][i]; });
+      if (perfChart) perfChart.destroy();
+      const ctx = $('perfChart'); if (!ctx) return;
+      perfChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: d.l, datasets: [
+            {
+              label: '2026 (actuel)', data: d.b, borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,.08)', borderWidth: 2.5,
+              fill: true, tension: .42, pointRadius: 5, pointBackgroundColor: '#4F46E5', pointBorderColor: '#fff', pointBorderWidth: 2, pointHoverRadius: 7
+            },
+            {
+              label: '2025', data: d.a, borderColor: '#CBD5E1', borderDash: [5, 3], backgroundColor: 'transparent', borderWidth: 1.8,
+              fill: false, tension: .42, pointRadius: 3, pointBackgroundColor: '#CBD5E1', pointBorderColor: '#fff', pointBorderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          animation: { duration: 800, easing: 'easeInOutCubic' },
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: true, position: 'bottom', labels: { font: { size: 11, weight: '700' }, usePointStyle: true, padding: 14, color: '#475569' } },
+            tooltip: {
+              backgroundColor: '#0F172A', titleColor: '#F8FAFC', bodyColor: '#CBD5E1', padding: 12, cornerRadius: 10,
+              callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y.toFixed(1)}/20` }
+            }
+          },
+          scales: {
+            y: { min: 8, max: 20, ticks: { font: { size: 10, weight: '600' }, color: '#94A3B8', callback: v => v + '/20' }, grid: { color: 'rgba(0,0,0,.04)' }, border: { display: false } },
+            x: { ticks: { font: { size: 10, weight: '700' }, color: '#475569' }, grid: { display: false }, border: { display: false } }
+          }
+        }
+      });
+    }
+    function chgPerf(k, el) {
+      document.querySelectorAll('.ctab').forEach(t => { t.className = 'ctab off'; });
+      el.className = 'ctab on';
+      buildPerf(k);
+    }
+
+    // ══════════════════════════════════════
+    // ÉLÈVES
+    // ══════════════════════════════════════
+    async function loadEleves() {
+      $('el-wrap').innerHTML = '<div style="text-align:center;padding:36px;color:#94A3B8;">⏳</div>';
+      try {
+        const d = await api('/surveillants/eleves');
+        eleveData = (d.eleves || d.data || genElMock());
+        renderEleves();
+      } catch { eleveData = genElMock(); renderEleves(); }
+    }
+    function genElMock() {
+      const cls = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
+      const noms = ['SAWADOGO', 'OUEDRAOGO', 'TRAORE', 'KABORÉ', 'NANA', 'ZONGO', 'COMPAORE', 'TAPSOBA', 'DIALLO', 'SOME'];
+      const prs = ['Moussa', 'Aïcha', 'Yasmine', 'Idrissa', 'Fatimata', 'Adama', 'Sylvie', 'Abdoul', 'Mariam', 'Seydou'];
+      return Array.from({ length: 50 }, (_, i) => ({ code: `CN-2026-${2000 + i}`, nom: noms[i % 10], prenom: prs[i % 10], classe: cls[Math.floor(i / 5) % 10], moy: (8 + Math.random() * 10).toFixed(1), absences: Math.floor(Math.random() * 10) }));
+    }
+    function renderEleves() {
+      const q = ($('el-srch')?.value || '').toLowerCase();
+      const r = eleveData.filter(e => (!clsFil || e.classe === clsFil) && (!q || (e.nom + e.prenom + e.code).toLowerCase().includes(q)));
+      if (!r.length) { $('el-wrap').innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:.8rem;">Aucun résultat</div>'; return; }
+      $('el-wrap').innerHTML = `<table class="tbl">
+    <thead><tr><th>Matricule</th><th>Nom complet</th><th>Classe</th><th>Moy.</th><th>Absences</th><th>Actions</th></tr></thead>
+    <tbody>${r.map(e => `<tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#4F46E5;">${esc(e.code)}</td>
+      <td style="font-weight:700;">${esc(e.prenom)} ${esc(e.nom)}</td>
+      <td><span class="b b-ind">${esc(e.classe)}</span></td>
+      <td style="font-weight:900;color:${parseFloat(e.moy) >= 10 ? '#15803D' : '#DC2626'};">${e.moy}/20</td>
+      <td><span class="b ${e.absences > 5 ? 'b-red' : 'b-grn'}">${e.absences}</span></td>
+      <td><button class="btn-p" style="padding:5px 10px;font-size:.67rem;" onclick="voirEleve('${esc(e.code)}')">Voir</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+    }
+    function filtEl() { renderEleves(); }
+    function filtCls(cls, el) {
+      clsFil = cls;
+      document.querySelectorAll('#cls-filter .b').forEach(b => { b.style.background = ''; b.style.color = ''; });
+      el.style.background = '#4F46E5'; el.style.color = '#fff';
+      if (eleveData.length) renderEleves();
+    }
+    function voirEleve(code) { toast('Profil de ' + code + ' — à implémenter', 'info'); }
+    function openAddEleve() { toast('Formulaire ajout élève — à implémenter', 'info'); }
+
+    // ══════════════════════════════════════
+    // ABSENCES — données locales + API
+    // ══════════════════════════════════════
+    let absData = [], absFil = 'all';
+
+    async function loadAbsList() {
+      try {
+        const d = await api('/surveillants/absences');
+        absData = d.absences || d.data || genAbsMock();
+      } catch { absData = genAbsMock(); }
+      updateAbsStats();
+      renderAbsList();
+      // Bouton export visible seulement DIRECTION
+      const btnExp = $('btn-abs-export');
+      if (btnExp) btnExp.style.display = ROLE === 'DIRECTION' ? 'block' : 'none';
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function genAbsMock() {
+      const noms = [['SAWADOGO', 'Moussa', 'Tle D'], ['KABORE', 'Aicha', '2nde A'], ['TRAORE', 'Yasmine', '3ème'],
+      ['OUEDRAOGO', 'Idrissa', '1ère A'], ['NANA', 'Fatimata', '6ème'], ['ZONGO', 'Adama', '5ème'],
+      ['COMPAORE', 'Sylvie', 'Tle A'], ['TAPSOBA', 'Abdoul', '4ème'], ['DIALLO', 'Seydou', '2nde C'], ['SOME', 'Mariam', '1ère D']];
+      return Array.from({ length: 18 }, (_, i) => {
+        const n = noms[i % 10]; const types = ['nj', 'j', 'ret'];
+        return {
+          id_absence: i + 1, code_unique: 'CN-2026-' + (2000 + i), nom: n[0], prenom: n[1], classe: n[2],
+          date_absence: new Date(Date.now() - (i * 2) * 86400000).toISOString().split('T')[0],
+          justifiee: i % 3 === 1, retard: i % 5 === 4, raison_absence: i % 3 === 0 ? '' : ['Maladie', 'Deuil familial', 'Transport'][i % 3]
+        };
+      });
+    }
+
+    function updateAbsStats() {
+      const nj = absData.filter(a => !a.justifiee && !a.retard).length;
+      const j = absData.filter(a => a.justifiee).length;
+      const ret = absData.filter(a => a.retard).length;
+      if ($('abs-stat-nj')) $('abs-stat-nj').textContent = nj;
+      if ($('abs-stat-j')) $('abs-stat-j').textContent = j;
+      if ($('abs-stat-ret')) $('abs-stat-ret').textContent = ret;
+      if ($('abs-stat-tot')) $('abs-stat-tot').textContent = absData.length;
+      if ($('abs-list-sub')) $('abs-list-sub').textContent = absData.length + ' absence(s) enregistrée(s)';
+    }
+
+    function filtAbs(type, btn) {
+      absFil = type;
+      document.querySelectorAll('.abs-filt-btn').forEach(b => {
+        b.style.background = '#fff'; b.style.color = '#64748B'; b.style.borderColor = '#E2E8F0';
+      });
+      if (btn) { btn.style.background = '#EEF2FF'; btn.style.color = '#4F46E5'; btn.style.borderColor = '#4F46E5'; }
+      renderAbsList();
+    }
+
+    function renderAbsList() {
+      const q = ($('abs-srch')?.value || '').toLowerCase();
+      let r = absData.filter(a => {
+        if (absFil === 'nj') return !a.justifiee && !a.retard;
+        if (absFil === 'j') return a.justifiee;
+        if (absFil === 'ret') return a.retard;
+        return true;
+      }).filter(a => !q || (a.nom + a.prenom + a.code_unique + a.classe).toLowerCase().includes(q));
+
+      if (!r.length) {
+        $('abs-list').innerHTML = '<div style="text-align:center;padding:40px;color:#CBD5E1;font-size:.82rem;">Aucune absence trouvée</div>';
+        return;
+      }
+
+      $('abs-list').innerHTML = r.map(a => {
+        const isNJ = !a.justifiee && !a.retard;
+        const isJ = a.justifiee;
+        const isRet = a.retard;
+        const statStyle = isNJ ? 'background:#FEE2E2;color:#991B1B;' : isJ ? 'background:#DCFCE7;color:#166534;' : 'background:#FEF9C3;color:#854D0E;';
+        const statLabel = isNJ ? '❌ Non justifiée' : isJ ? '✅ Justifiée' : '⏰ Retard';
+
+        // Actions selon rôle
+        let actions = '';
+        if (!isJ) {
+          actions += `<button onclick="justifierAbs(${a.id_absence || a.id})" style="padding:4px 9px;background:#F0FDF4;color:#15803D;border:1.5px solid #BBF7D0;border-radius:7px;font-size:.67rem;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;" title="Marquer comme justifiée">Justifier</button>`;
+        }
+        // DIRECTION peut modifier ou supprimer
+        if (ROLE === 'DIRECTION') {
+          actions += ` <button onclick="editAbs(${a.id_absence || a.id})" style="padding:4px 9px;background:#EFF6FF;color:#1D4ED8;border:1.5px solid #BFDBFE;border-radius:7px;font-size:.67rem;font-weight:800;cursor:pointer;font-family:inherit;" title="Modifier">✏️</button>`;
+          actions += ` <button onclick="suppAbs(${a.id_absence || a.id})" style="padding:4px 9px;background:#FEF2F2;color:#DC2626;border:1.5px solid #FECDD3;border-radius:7px;font-size:.67rem;font-weight:800;cursor:pointer;font-family:inherit;" title="Supprimer">🗑</button>`;
+        }
+
+        return `<div style="display:grid;grid-template-columns:100px 1fr 80px 90px 90px auto;gap:8px;align-items:center;padding:9px 12px;border:1px solid #F1F5F9;border-radius:9px;background:#fff;transition:.15s;" onmouseover="this.style.background='#F8FAFF';this.style.borderColor='#E0E7FF'" onmouseout="this.style.background='#fff';this.style.borderColor='#F1F5F9'">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#7C3AED;font-weight:700;">${esc(a.code_unique || '—')}</div>
+      <div>
+        <div style="font-size:.8rem;font-weight:800;color:#0F172A;">${esc(a.prenom || '')} ${esc(a.nom || '—')}</div>
+        ${a.raison_absence ? `<div style="font-size:.67rem;color:#94A3B8;margin-top:1px;">${esc(a.raison_absence)}</div>` : ''}
+      </div>
+      <div><span style="padding:3px 8px;background:#EEF2FF;color:#4F46E5;border-radius:6px;font-size:.65rem;font-weight:800;">${esc(a.classe || '—')}</span></div>
+      <div style="font-size:.73rem;color:#475569;font-weight:600;">${(a.date_absence || '').substring(0, 10)}</div>
+      <div><span style="padding:3px 8px;border-radius:6px;font-size:.65rem;font-weight:800;${statStyle}">${statLabel}</span></div>
+      <div style="display:flex;gap:4px;">${actions}</div>
+    </div>`;
+      }).join('');
+    }
+
+    async function saveAbsence() {
+      const msg = $('af-msg');
+      const p = {
+        classe: $('af-cls').value,
+        code_unique_eleve: $('af-mat').value.trim(),
+        date_absence: $('af-date').value,
+        justifiee: $('af-type').value === 'true',
+        retard: $('af-type').value === 'retard',
+        raison_absence: $('af-motif').value
+      };
+      if (!p.code_unique_eleve) { showMsg(msg, '⚠️ Matricule de l\'élève requis', 'err'); return; }
+      if (!p.date_absence) { showMsg(msg, '⚠️ Date requise', 'err'); return; }
+      try {
+        const d = await api('/surveillants/absences', { method: 'POST', body: JSON.stringify(p) });
+        if (d.success || d.message?.toLowerCase().includes('enregistr') || d.id_absence) {
+          showMsg(msg, '✅ Absence enregistrée — notifié à l\'élève et son parent', 'ok');
+          $('af-mat').value = ''; $('af-motif').value = '';
+          // Ajout local immédiat
+          absData.unshift({
+            id_absence: Date.now(), code_unique: p.code_unique_eleve, nom: '(enregistré)', prenom: '',
+            classe: p.classe, date_absence: p.date_absence, justifiee: p.justifiee, retard: p.retard, raison_absence: p.raison_absence
+          });
+          updateAbsStats(); renderAbsList(); toast('Absence enregistrée', 'ok');
+        } else showMsg(msg, 'Erreur : ' + (d.message || 'Vérifier le matricule'), 'err');
+      } catch { showMsg(msg, 'Erreur réseau — vérifier la connexion', 'err'); }
+    }
+
+    async function justifierAbs(id) {
+      try {
+        await api('/surveillants/absences/justification', { method: 'PUT', body: JSON.stringify({ id_absence: id, justifiee: true }) });
+        const a = absData.find(x => (x.id_absence || x.id) === id); if (a) { a.justifiee = true; a.retard = false; }
+        updateAbsStats(); renderAbsList(); toast('Absence justifiée', 'ok');
+      } catch {
+        // Local fallback
+        const a = absData.find(x => (x.id_absence || x.id) === id); if (a) { a.justifiee = true; a.retard = false; }
+        updateAbsStats(); renderAbsList(); toast('Justifiée (local)', 'ok');
+      }
+    }
+
+    function editAbs(id) {
+      const a = absData.find(x => (x.id_absence || x.id) === id); if (!a) return;
+      // Pré-remplir le formulaire
+      if ($('af-mat')) $('af-mat').value = a.code_unique || '';
+      if ($('af-date')) $('af-date').value = a.date_absence || '';
+      if ($('af-type')) $('af-type').value = a.justifiee ? 'true' : a.retard ? 'retard' : 'false';
+      if ($('af-motif')) $('af-motif').value = a.raison_absence || '';
+      toast('Formulaire pré-rempli — modifiez et ré-enregistrez', 'info');
+    }
+
+    function suppAbs(id) {
+      if (!confirm('Supprimer cette absence ?')) return;
+      absData = absData.filter(x => (x.id_absence || x.id) !== id);
+      updateAbsStats(); renderAbsList(); toast('Absence supprimée', 'ok');
+    }
+
+    function exportAbsences() {
+      const rows = [['Matricule', 'Prénom', 'Nom', 'Classe', 'Date', 'Statut', 'Motif'],
+      ...absData.map(a => [a.code_unique, a.prenom, a.nom, a.classe, a.date_absence, a.justifiee ? 'Justifiée' : a.retard ? 'Retard' : 'Non justifiée', a.raison_absence || ''])];
+      const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'absences.csv'; a.click();
+      URL.revokeObjectURL(url); toast('Export CSV téléchargé', 'ok');
+    }
+
+    function loadElevesClasse() { /* placeholder — API à brancher */ }
+
+    // ══════════════════════════════════════
+    // CONVOCATIONS
+    // ══════════════════════════════════════
+    let convData = [];
+
+    function toggleCvNotif() {
+      const cb = $('cv-notif'); if (!cb) return;
+      cb.checked = !cb.checked;
+      const tog = $('cv-toggle'), knob = $('cv-knob');
+      if (cb.checked) { tog.style.background = '#3B82F6'; knob.style.left = '18px'; }
+      else { tog.style.background = '#CBD5E1'; knob.style.left = '2px'; }
+    }
+
+    async function loadConvList() {
+      try {
+        const d = await api('/surveillants/convocations');
+        convData = d.convocations || d.data || genConvMock();
+      } catch { convData = genConvMock(); }
+      updateConvStats(); renderConvList();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function genConvMock() {
+      const eleves = [['CN-2026-2001', 'SAWADOGO Moussa', 'Tle D'], ['CN-2026-2015', 'KABORE Aicha', '2nde A'],
+      ['CN-2026-2030', 'TRAORE Yasmine', '3ème'], ['CN-2026-2008', 'OUEDRAOGO Idrissa', '1ère A']];
+      const motifs = ['Absences répétées', 'Comportement perturbateur', 'Résultats insuffisants', 'Incident signalé'];
+      return eleves.map((e, i) => ({
+        id_convocation: i + 1, code_unique: e[0], nom_eleve: e[1], classe: e[2],
+        motif: motifs[i], date_convocation: new Date(Date.now() + (i + 1) * 2 * 86400000).toISOString().split('T')[0],
+        heure_convocation: '09:00', statut_accusé_reception: i < 2
+      }));
+    }
+
+    function updateConvStats() {
+      const tot = convData.length, vu = convData.filter(c => c.statut_accusé_reception).length;
+      if ($('cv-stat-tot')) $('cv-stat-tot').textContent = tot;
+      if ($('cv-stat-att')) $('cv-stat-att').textContent = tot - vu;
+      if ($('cv-stat-vu')) $('cv-stat-vu').textContent = vu;
+      if ($('cv-cnt')) $('cv-cnt').textContent = tot;
+    }
+
+    function renderConvList() {
+      const q = ($('cv-srch')?.value || '').toLowerCase();
+      const r = convData.filter(c => !q || (c.nom_eleve + c.code_unique + c.motif + c.classe || '').toLowerCase().includes(q));
+
+      if (!r.length) {
+        $('cv-list').innerHTML = '<div style="text-align:center;padding:40px;color:#CBD5E1;font-size:.82rem;">Aucune convocation</div>';
+        return;
+      }
+
+      $('cv-list').innerHTML = r.map(c => {
+        const vu = c.statut_accusé_reception;
+        let actions = '';
+        if (ROLE === 'DIRECTION' || ROLE === 'SURVEILLANT') {
+          actions += `<button onclick="editConv(${c.id_convocation})" style="padding:4px 9px;background:#EFF6FF;color:#1D4ED8;border:1.5px solid #BFDBFE;border-radius:7px;font-size:.67rem;font-weight:800;cursor:pointer;font-family:inherit;" title="Modifier">✏️</button>`;
+        }
+        if (ROLE === 'DIRECTION') {
+          actions += ` <button onclick="suppConv(${c.id_convocation})" style="padding:4px 9px;background:#FEF2F2;color:#DC2626;border:1.5px solid #FECDD3;border-radius:7px;font-size:.67rem;font-weight:800;cursor:pointer;font-family:inherit;" title="Supprimer">🗑</button>`;
+        }
+        return `<div style="display:grid;grid-template-columns:100px 1fr 120px 90px auto;gap:8px;align-items:center;padding:9px 12px;border:1px solid #F1F5F9;border-radius:9px;background:#fff;transition:.15s;" onmouseover="this.style.background='#F8FAFF';this.style.borderColor='#DDD6FE'" onmouseout="this.style.background='#fff';this.style.borderColor='#F1F5F9'">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#7C3AED;font-weight:700;">${esc(c.code_unique || '—')}</div>
+      <div>
+        <div style="font-size:.8rem;font-weight:800;color:#0F172A;">${esc(c.nom_eleve || '—')}</div>
+        <div style="font-size:.67rem;color:#64748B;margin-top:1px;">🔒 ${esc(c.motif || '—')} · <span style="color:#7C3AED;font-weight:700;">${esc(c.classe || '')}</span></div>
+      </div>
+      <div>
+        <div style="font-size:.73rem;font-weight:700;color:#0F172A;">${(c.date_convocation || '').substring(0, 10)}</div>
+        <div style="font-size:.67rem;color:#94A3B8;">${c.heure_convocation || '09:00'}</div>
+      </div>
+      <div><span style="padding:3px 8px;border-radius:6px;font-size:.65rem;font-weight:800;${vu ? 'background:#DCFCE7;color:#166534;' : 'background:#FEF9C3;color:#854D0E;'}">${vu ? '✅ Vu' : '⏳ En attente'}</span></div>
+      <div style="display:flex;gap:4px;">${actions}</div>
+    </div>`;
+      }).join('');
+    }
+
+    async function saveConvocation() {
+      const r = $('cv-msg-r');
+      const p = {
+        code_unique_eleve: $('cv-el').value.trim(),
+        date_convocation: $('cv-dt').value,
+        heure: $('cv-hr')?.value || '09:00',
+        motif: $('cv-mot')?.value || 'Convocation',
+        sujet: $('cv-mot')?.value || 'Convocation',
+        description: $('cv-msg').value,
+        notifier_parent: $('cv-notif')?.checked !== false
+      };
+      if (!p.code_unique_eleve) { showMsg(r, '⚠️ Matricule requis', 'err'); return; }
+      if (!p.date_convocation) { showMsg(r, '⚠️ Date requise', 'err'); return; }
+      try {
+        const d = await api('/surveillants/convocations', { method: 'POST', body: JSON.stringify(p) });
+        if (d.success || d.id_convocation || d.message) {
+          showMsg(r, '✅ Convocation envoyée confidentiellement — élève et parent notifiés', 'ok');
+          convData.unshift({
+            id_convocation: Date.now(), code_unique: p.code_unique_eleve, nom_eleve: '(envoyé)',
+            classe: '—', motif: p.motif, date_convocation: p.date_convocation, heure_convocation: p.heure, statut_accusé_reception: false
+          });
+          updateConvStats(); renderConvList(); toast('Convocation envoyée', 'ok');
+          $('cv-el').value = ''; $('cv-msg').value = '';
+        } else showMsg(r, 'Erreur : ' + (d.message || 'Vérifier le matricule'), 'err');
+      } catch { showMsg(r, 'Erreur réseau', 'err'); }
+    }
+
+    function editConv(id) {
+      const c = convData.find(x => x.id_convocation === id); if (!c) return;
+      if ($('cv-el')) $('cv-el').value = c.code_unique || '';
+      if ($('cv-dt')) $('cv-dt').value = c.date_convocation || '';
+      if ($('cv-hr')) $('cv-hr').value = c.heure_convocation || '09:00';
+      if ($('cv-msg')) $('cv-msg').value = c.description || '';
+      toast('Formulaire pré-rempli — modifiez et renvoyez', 'info');
+    }
+
+    function suppConv(id) {
+      if (!confirm('Supprimer cette convocation ?')) return;
+      convData = convData.filter(x => x.id_convocation !== id);
+      updateConvStats(); renderConvList(); toast('Convocation supprimée', 'ok');
+    }
+
+    // ══════════════════════════════════════
+    // INCIDENTS
+    // ══════════════════════════════════════
+    async function loadIncList() {
+      try {
+        const d = await api('/surveillants/incidents');
+        const list = d.incidents || d.data || [];
+        $('inc-cnt').textContent = list.length;
+        const gc = { faible: 'b-sky', moyenne: 'b-org', elevee: 'b-red' };
+        $('inc-list').innerHTML = list.length ? list.slice(0, 12).map(i => `
+      <div class="fin-row" style="flex-direction:column;align-items:flex-start;gap:4px;">
+        <div style="display:flex;justify-content:space-between;width:100%;">
+          <span style="font-size:.8rem;font-weight:800;">${esc((i.description || i.titre || 'Incident').substring(0, 50))}…</span>
+          <span class="b ${gc[i.gravite || i.urgence] || 'b-org'}">${i.gravite || i.urgence || '—'}</span>
+        </div>
+        <span style="font-size:.72rem;color:#64748B;">${esc(i.lieu || '')} · ${esc(i.date_signalement || i.date || '')}</span>
+      </div>`).join('') : '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:.78rem;">Aucun incident</div>';
+      } catch { $('inc-list').innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:.78rem;">Aucune donnée</div>'; }
+    }
+    async function saveIncident() {
+      const p = { titre: $('inc-el').value, description: $('inc-desc').value, type_incident: $('inc-act').value, eleves_impliques: $('inc-el').value, urgence: $('inc-gv').value, lieu: $('inc-lieu').value, date_signalement: $('inc-dt').value };
+      try { await api('/surveillants/incidents', { method: 'POST', body: JSON.stringify(p) }); loadIncList(); toast('Incident enregistré', 'ok'); } catch { toast('Erreur réseau', 'err'); }
+    }
+
+    // ══════════════════════════════════════
+    // EDT (annuel fixe)
+    // ══════════════════════════════════════
+    const EDTS = {
+      '6ème': [['Maths', 'Français', 'Anglais', 'SVT', 'EPS'], ['Français', 'Maths', 'HG', 'Anglais', 'Informatique'], ['SVT', 'HG', 'Maths', 'Français', 'Anglais'], ['Anglais', 'SVT', 'Français', 'EPS', 'Maths'], ['HG', 'Informatique', 'ECM', 'SVT', 'Français']],
+      '5ème': [['Maths', 'Français', 'Anglais', 'SVT', 'EPS'], ['Français', 'Maths', 'HG', 'Anglais', 'Informatique'], ['SVT', 'HG', 'Maths', 'Français', 'Anglais'], ['Anglais', 'SVT', 'Français', 'EPS', 'Maths'], ['HG', 'Informatique', 'ECM', 'SVT', 'Français']],
+      '4ème': [['Maths', 'Français', 'Anglais', 'Physique', 'EPS'], ['Français', 'Maths', 'HG', 'Anglais', 'Informatique'], ['SVT', 'HG', 'Maths', 'Français', 'Physique'], ['Anglais', 'SVT', 'Français', 'EPS', 'Maths'], ['HG', 'Physique', 'ECM', 'SVT', 'Français']],
+      '3ème': [['Maths', 'Français', 'Anglais', 'Physique', 'EPS'], ['Français', 'Maths', 'HG', 'Anglais', 'SVT'], ['SVT', 'HG', 'Maths', 'Français', 'Physique'], ['Anglais', 'Physique', 'Français', 'EPS', 'Maths'], ['HG', 'SVT', 'ECM', '', 'Français']],
+      '2nde A': [['Maths', 'Français', 'Anglais', 'HG', 'Philo'], ['Français', 'Maths', 'HG', 'Anglais', 'SVT'], ['SVT', 'HG', 'Maths', 'Français', 'Anglais'], ['Anglais', 'Philo', 'Français', 'EPS', 'Maths'], ['HG', 'SVT', 'Imm.', '', 'Français']],
+      '2nde C': [['Maths', 'Français', 'Anglais', 'Physique', 'EPS'], ['Physique', 'Maths', 'HG', 'Anglais', 'SVT'], ['SVT', 'HG', 'Maths', 'Français', 'Physique'], ['Anglais', 'SVT', 'Français', 'EPS', 'Maths'], ['HG', 'Physique', 'Imm.', '', 'Français']],
+      '1ère A': [['Maths', 'Philo', 'Français', 'HG', 'Anglais'], ['Français', 'Maths', 'HG', 'Anglais', 'Philo'], ['Philo', 'HG', 'Maths', 'Français', 'Anglais'], ['Anglais', 'Philo', 'Français', 'EPS', 'Maths'], ['HG', '', 'Imm.', '', 'Français']],
+      '1ère D': [['Maths', 'Physique', 'Français', 'SVT', 'Anglais'], ['Physique', 'Maths', 'HG', 'Anglais', 'SVT'], ['SVT', 'HG', 'Maths', 'Français', 'Physique'], ['Anglais', 'SVT', 'Français', 'EPS', 'Maths'], ['HG', 'Physique', 'Imm.', '', 'Français']],
+      'Tle A': [['Philo', 'Français', 'Anglais', 'HG', ''], ['Français', 'Philo', 'HG', 'Anglais', ''], ['Philo', 'HG', '', 'Français', 'Anglais'], ['Anglais', 'Philo', 'Français', 'EPS', ''], ['HG', '', 'Imm.', '', 'Français']],
+      'Tle D': [['Maths', 'Physique', 'Français', 'SVT', 'Anglais'], ['Physique', 'Maths', 'Philo', 'Anglais', 'SVT'], ['SVT', 'Maths', 'Physique', 'Français', 'Anglais'], ['Anglais', 'Philo', 'Français', 'EPS', 'Maths'], ['Maths', 'Physique', 'Imm.', '', 'SVT']]
+    };
+    const HEURES = ['7h30-9h00', '9h00-10h30', '10h45-12h00', '14h00-15h30', '15h45-17h15'];
+    const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
+    const MCOLS = { 'Maths': '#EFF6FF,#3730A3', 'Français': '#FFF7ED,#C2410C', 'Anglais': '#F0FDF4,#15803D', 'SVT': '#F0FDF4,#166534', 'HG': '#FDF4FF,#7E22CE', 'Philo': '#FAF5FF,#6D28D9', 'EPS': '#ECFDF5,#065F46', 'Physique': '#F0F9FF,#0369A1', 'Informatique': '#EFF6FF,#1D4ED8', 'ECM': '#F0FDF4,#14532D', 'Imm.': '#FFFBEB,#92400E', '': '#F8FAFC,#94A3B8' };
+    function renderEdt() {
+      const cls = $('edt-cls')?.value || '2nde A';
+      const grid = EDTS[cls] || EDTS['6ème'];
+      let h = '';
+      // header
+      h += `<div class="edt-hd" style="background:transparent;"></div>`;
+      JOURS.forEach(j => { h += `<div class="edt-hd">${j}</div>`; });
+      // rows
+      HEURES.forEach((hr, hi) => {
+        h += `<div class="edt-time">${hr}</div>`;
+        JOURS.forEach((_, ji) => {
+          const mat = (grid[hi] || [])[ji] || '';
+          const [bg, tc] = (MCOLS[mat] || MCOLS['']).split(',');
+          if (mat) {
+            h += `<div class="edt-cell edt-full" style="background:${bg};border-color:${tc}40;">
+          <div class="edt-mat" style="color:${tc};">${mat}</div>
+          <div class="edt-room" style="color:${tc};">Salle ${ji + 1}0${hi + 1}</div>
+        </div>`;
+          } else {
+            h += `<div class="edt-cell edt-empty"></div>`;
+          }
+        });
+      });
+      $('edt-grid').innerHTML = h;
+    }
+
+    // ══════════════════════════════════════
+    // FLUX COMMUNICATION
+    // ══════════════════════════════════════
+    async function loadFlux() {
+      try {
+        const d = await api('/surveillants/announcements');
+        const list = d.annonces || d.announcements || d.data || [];
+        $('flux-list').innerHTML = list.length ? list.slice(0, 20).map(a => `
+      <div class="msg-item">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <span class="badge-dir">Direction</span>
+          <span style="font-size:.72rem;color:#94A3B8;">${esc(a.date_publication || a.created_at || '')}</span>
+        </div>
+        <div style="font-size:.85rem;font-weight:800;color:#0F172A;margin-bottom:3px;">${esc(a.titre || 'Annonce')}</div>
+        <div style="font-size:.76rem;color:#475569;line-height:1.4;">${esc(a.contenu || '').substring(0, 180)}${(a.contenu || '').length > 180 ? '…' : ''}</div>
+        <div style="margin-top:5px;font-size:.67rem;font-weight:700;color:#94A3B8;">Destinataires : ${esc(a.type || a.destinataires || 'Tous')}</div>
+      </div>`).join('') :
+          `<div style="padding:20px;text-align:center;color:#94A3B8;font-size:.78rem;">Aucune annonce publiée pour l'instant</div>`;
+      } catch {
+        $('flux-list').innerHTML = '<div style="padding:20px;text-align:center;color:#94A3B8;font-size:.78rem;">Chargement impossible</div>';
+      }
+    }
+    async function sendFluxMsg() {
+      const p = { titre: $('msg-titre').value, contenu: $('msg-contenu').value, type: $('msg-type').value, destinataires: $('msg-dest').value };
+      if (!p.titre || !p.contenu) { toast('Titre et message requis', 'err'); return; }
+      try {
+        await api('/surveillants/announcements', { method: 'POST', body: JSON.stringify(p) });
+        toast('Annonce publiée !', 'ok');
+        $('msg-titre').value = ''; $('msg-contenu').value = '';
+        loadFlux();
+      } catch { toast('Erreur réseau', 'err'); }
+    }
+
+    // ══════════════════════════════════════
+    // CORPS ENSEIGNANT
+    // ══════════════════════════════════════
+    const CORPS_MOCK = [
+      { nom: 'SAWADOGO Issouf', mat: 'Mathématiques', cls: 'Tle D, 1ère D, 2nde C', statut: 'Permanent', col: '#4F46E5' },
+      { nom: 'KABORE Marie', mat: 'Français & Philo', cls: '3ème, 2nde A, Tle A', statut: 'Permanent', col: '#C2410C' },
+      { nom: 'TRAORE Ibrahim', mat: 'Anglais', cls: '6ème, 5ème, 4ème', statut: 'Contractuel', col: '#15803D' },
+      { nom: 'OUEDRAOGO Paul', mat: 'SVT & Physique', cls: '2nde A, 2nde C, 1ère D', statut: 'Permanent', col: '#0369A1' },
+      { nom: 'NANA Sophie', mat: 'Histoire-Géo', cls: 'Tle A, 1ère A, 3ème', statut: 'Contractuel', col: '#7E22CE' },
+      { nom: 'ZONGO Charles', mat: 'EPS', cls: 'Toutes classes', statut: 'Permanent', col: '#065F46' },
+    ];
+    function loadCorps() {
+      corpsData = CORPS_MOCK;
+      renderCorps();
+      $('cahiers-list').innerHTML = CORPS_MOCK.map(p => `
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F1F5F9;">
+      <span style="font-size:.75rem;font-weight:700;">${esc(p.nom)}</span>
+      <button class="btn-p" style="padding:4px 9px;font-size:.65rem;" onclick="voirCahier('${esc(p.nom)}')">📓 Voir</button>
+    </div>`).join('');
+    }
+    function renderCorps() {
+      const q = ($('corps-srch')?.value || '').toLowerCase();
+      const r = corpsData.filter(p => !q || (p.nom + p.mat).toLowerCase().includes(q));
+      $('corps-list').innerHTML = r.map(p => `
+    <div class="prof-card">
+      <div class="prof-av" style="background:${p.col};">${p.nom.charAt(0)}</div>
+      <div style="flex:1;">
+        <div style="font-size:.82rem;font-weight:800;color:#0F172A;">${esc(p.nom)}</div>
+        <div style="font-size:.72rem;color:#64748B;margin-top:1px;">${esc(p.mat)} · <span style="color:#4F46E5;font-weight:700;">${esc(p.cls)}</span></div>
+      </div>
+      <span class="b ${p.statut === 'Permanent' ? 'b-grn' : 'b-org'}">${p.statut}</span>
+      <button class="btn-p" style="padding:5px 10px;font-size:.68rem;">Message</button>
+    </div>`).join('');
+    }
+    function filtCorps() { if (corpsData.length) renderCorps(); }
+    function demanderNotes() { toast('Demande de notes envoyée au professeur', 'ok'); }
+    function voirCahier(nom) { toast('Cahier de texte de ' + nom + ' — en développement', 'info'); }
+
+    // ══════════════════════════════════════
+    // SIGNATURES
+    // ══════════════════════════════════════
+    const CLASSES = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
+    function loadSignatures() {
+      // Simuler bulletins non signés depuis API
+      signData = [];
+      CLASSES.forEach((cls, ci) => {
+        for (let i = 0; i < 5; i++) {
+          const moy = (8 + Math.random() * 10).toFixed(2);
+          signData.push({ id: ci * 5 + i, classe: cls, eleve: `Élève ${ci * 5 + i + 1}`, code: `CN-2026-${2000 + ci * 5 + i}`, moy, signe: Math.random() > 0.6 });
+        }
+      });
+      filtSignatures();
+    }
+    function filtSignatures() {
+      const fc = $('sign-cls-filter')?.value || '';
+      const ft = parseInt($('sign-tri-filter')?.value || '1');
+      const r = signData.filter(b => !fc || b.classe === fc);
+      const ok = r.filter(b => b.signe).length, wait = r.filter(b => !b.signe).length;
+      $('sign-ok-cnt').textContent = ok;
+      $('sign-pend-cnt').textContent = wait;
+      const tot = r.length || 1;
+      setTimeout(() => {
+        $('sign-bar-ok').style.width = (ok / tot * 100) + '%';
+        $('sign-bar-pend').style.width = (wait / tot * 100) + '%';
+      }, 100);
+      $('sign-count').textContent = (r.length) + ' bulletins';
+      $('sign-list').innerHTML = r.length ? r.slice(0, 20).map(b => `
+    <div class="bul-row">
+      <div class="bul-cls">${esc(b.classe)}</div>
+      <div class="bul-name">${esc(b.eleve)} <span style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:#94A3B8;">${esc(b.code)}</span></div>
+      <div class="bul-avg" style="color:${parseFloat(b.moy) >= 10 ? '#15803D' : '#DC2626'};">${b.moy}</div>
+      <span class="bul-stat ${b.signe ? 's-ok' : 's-wait'}">${b.signe ? '✅ Signé' : '⏳ En attente'}</span>
+      ${!b.signe ? `<input type="password" maxlength="6" placeholder="PIN" style="width:90px;padding:5px 8px;border:1.5px solid #E2E8F0;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:.78rem;text-align:center;outline:none;" id="pin-${b.id}">
+        <button class="btn-p" style="padding:5px 11px;font-size:.68rem;" onclick="signerBulletin(${b.id})">Signer</button>` : ''}
+    </div>`).join('') : '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:.78rem;">Aucun bulletin correspondant</div>';
+    }
+    function signerBulletin(id) {
+      const pin = $('pin-' + id)?.value;
+      if (!pin || pin.length < 4) { toast('PIN requis (min. 4 chiffres)', 'err'); return; }
+      const b = signData.find(x => x.id === id);
+      if (b) { b.signe = true; filtSignatures(); toast('Bulletin signé électroniquement', 'ok'); }
+    }
+    function signerTout() {
+      const pin = $('pin-global')?.value;
+      if (!pin || pin.length < 4) { toast('Saisir le PIN global (min. 4 chiffres)', 'err'); return; }
+      const fc = $('sign-cls-filter')?.value || '';
+      signData.filter(b => !fc || b.classe === fc).forEach(b => b.signe = true);
+      filtSignatures(); toast('Tous les bulletins signés', 'ok');
+    }
+    function signCert(btn, nom) { btn.textContent = '✅ Signé'; btn.style.background = '#059669'; btn.disabled = true; toast(nom + ' — certificat signé', 'ok'); }
+    async function loadQuickSign() {
+      const pending = signData.filter ? signData.filter(b => !b.signe) : []; // avant chargement
+      $('sign-count').textContent = '11';
+      $('quick-sign-list').innerHTML = `
+    <div class="bul-row" style="margin-bottom:8px;">
+      <div style="flex:1;"><div style="font-size:.78rem;font-weight:800;">📄 Bulletins T1</div><div style="font-size:.7rem;color:#64748B;">8 en attente de signature</div></div>
+      <button class="btn-p" style="font-size:.72rem;padding:7px 12px;" onclick="go('sign',document.getElementById('ni-sign'))">Signer</button>
+    </div>
+    <div class="bul-row" style="margin-bottom:8px;">
+      <div style="flex:1;"><div style="font-size:.78rem;font-weight:800;">📋 Certificats</div><div style="font-size:.7rem;color:#64748B;">3 en attente</div></div>
+      <button class="btn-p" style="font-size:.72px;padding:7px 12px;" onclick="go('sign',document.getElementById('ni-sign'))">Valider</button>
+    </div>
+    <div class="bul-row">
+      <div style="flex:1;"><div style="font-size:.78rem;font-weight:800;">✅ Autres</div><div style="font-size:.7rem;color:#94A3B8;">Aucun document</div></div>
+      <span style="font-size:.72rem;color:#94A3B8;font-weight:700;">Terminé</span>
+    </div>`;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ══════════════════════════════════════
+    // COMPTABILITÉ
+    // ══════════════════════════════════════
+    function loadCompta() {
+      compData = [
+        { fam: 'SAWADOGO Yoann', eleve: 'SAWADOGO Moussa', cls: 'Tle D', mnt: 25000, date: '2026-01-15', statut: 'payé' },
+        { fam: 'KABORE Arouna', eleve: 'KABORE Aicha', cls: '2nde A', mnt: 25000, date: '2026-01-20', statut: 'payé' },
+        { fam: 'TRAORE Fatimata', eleve: 'TRAORE Yasmine', cls: '3ème', mnt: 25000, date: '', statut: 'en attente' },
+        { fam: 'OUEDRAOGO Moussa', eleve: 'OUEDRAOGO Idrissa', cls: '1ère A', mnt: 25000, date: '2026-02-01', statut: 'payé' },
+        { fam: 'NANA Pierre', eleve: 'NANA Fatimata', cls: '6ème', mnt: 25000, date: '', statut: 'retard' },
+        { fam: 'ZONGO Clément', eleve: 'ZONGO Adama', cls: '5ème', mnt: 25000, date: '', statut: 'retard' },
+        { fam: 'COMPAORE A.', eleve: 'COMPAORE Sylvie', cls: 'Tle A', mnt: 25000, date: '2026-01-25', statut: 'payé' },
+        { fam: 'TAPSOBA B.', eleve: 'TAPSOBA Abdoul', cls: '4ème', mnt: 25000, date: '', statut: 'en attente' },
+      ];
+      renderCompta();
+      buildDonut();
+    }
+    function renderCompta() {
+      const q = ($('cpt-srch')?.value || '').toLowerCase();
+      const f = ($('cpt-filt')?.value || '').toLowerCase();
+      const r = compData.filter(c => (!q || (c.fam + c.eleve + c.cls).toLowerCase().includes(q)) && (!f || c.statut === f));
+      $('cpt-wrap').innerHTML = `<table class="tbl">
+    <thead><tr><th>Famille</th><th>Élève</th><th>Classe</th><th>Montant</th><th>Date</th><th>Statut</th><th>Action</th></tr></thead>
+    <tbody>${r.map((c, i) => `<tr>
+      <td style="font-weight:700;">${esc(c.fam)}</td>
+      <td>${esc(c.eleve)}</td>
+      <td><span class="b b-ind">${esc(c.cls)}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:800;">${c.mnt.toLocaleString()} FCFA</td>
+      <td style="font-size:.75rem;color:#64748B;">${c.date || '—'}</td>
+      <td><span class="${c.statut === 'payé' ? 'pay-ok' : c.statut === 'retard' ? 'pay-late' : 'pay-pend'}">${c.statut}</span></td>
+      <td>${c.statut !== 'payé' ? `<button class="btn-p" style="padding:5px 9px;font-size:.67rem;" onclick="marquerPaye(${i})">Marquer payé</button>` : '<span style="color:#94A3B8;font-size:.7rem;">✓</span>'}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+    }
+    function filtCompta() { if (compData.length) renderCompta(); }
+    function marquerPaye(i) {
+      compData[i].statut = 'payé'; compData[i].date = new Date().toISOString().split('T')[0];
+      renderCompta(); buildDonut(); toast('Paiement validé — le parent sera notifié', 'ok');
+    }
+    function savePaiement() {
+      const fam = $('pay-fam').value; const mnt = parseFloat($('pay-mnt').value) || 0;
+      if (!fam || !mnt) { toast('Famille et montant requis', 'err'); return; }
+      compData.push({ fam, eleve: fam, cls: '—', mnt, date: $('pay-dt').value || new Date().toISOString().split('T')[0], statut: 'payé' });
+      renderCompta(); buildDonut(); toast('Paiement enregistré', 'ok');
+      $('pay-fam').value = ''; $('pay-mnt').value = '';
+    }
+    function buildDonut() {
+      const ok = compData.filter(c => c.statut === 'payé').length;
+      const pend = compData.filter(c => c.statut === 'en attente').length;
+      const late = compData.filter(c => c.statut === 'retard').length;
+      if (donutChart) donutChart.destroy();
+      const ctx = $('donutChart'); if (!ctx) return;
+      donutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: ['Payé', 'En attente', 'Retard'], datasets: [{ data: [ok, pend, late], backgroundColor: ['#10B981', '#F59E0B', '#EF4444'], borderWidth: 0, hoverOffset: 4 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: '72%',
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 10, weight: '700' }, padding: 10, usePointStyle: true } },
+            tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed} familles` } }
+          }
+        }
+      });
+    }
+
+    // ══════════════════════════════════════
+    // AGENDA
+    // ══════════════════════════════════════
+    function saveEvent() {
+      const titre = $('ev-titre')?.value;
+      if (!titre) { toast('Titre requis', 'err'); return; }
+      toast('Événement "' + titre + '" ajouté', 'ok');
+      $('ev-titre').value = ''; $('ev-desc').value = '';
+    }
+
+    // ══════════════════════════════════════
+    // HELPERS
+    // ══════════════════════════════════════
+    function showMsg(el, txt, type) {
+      if (!el) return;
+      el.style.display = 'block'; el.textContent = txt;
+      const isOk = type === 'ok' || type === '#15803D';
+      el.style.background = isOk ? '#F0FDF4' : '#FEF2F2';
+      el.style.color = isOk ? '#15803D' : '#DC2626';
+      el.style.border = `1px solid ${isOk ? '#BBF7D0' : '#FECDD3'}`;
+    }
+    function toast(msg, type = 'ok') {
+      const t = $('toast');
+      t.textContent = msg; t.className = `toast toast-${type === 'ok' ? 'ok' : type === 'err' ? 'err' : 'info'} show`;
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+    function openModal(id) { /* à implémenter selon besoin */ }
+    function closeModal() { $('ov').classList.remove('open'); }
+    function logout() { localStorage.removeItem('user_session'); location.href = 'login.html'; }
+
+    setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 200);
+  </script>
+  <script src="responsive-init.js"></script>
+</body>
+
+</html>

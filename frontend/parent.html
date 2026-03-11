@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ÉcoleNum · Espace Parent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="responsive.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #F0F4FF;
+      margin: 0;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sb {
+      width: 255px;
+      height: 100vh;
+      background: #fff;
+      border-right: 1px solid #E8EDFF;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ni {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 12px;
+      border-radius: 11px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #64748B;
+      transition: all .15s;
+      margin: 1px 0;
+    }
+
+    .ni:hover {
+      background: #EEF2FF;
+      color: #4F46E5;
+    }
+
+    .ni.active {
+      background: #EEF2FF;
+      color: #4F46E5;
+      border-left: 3px solid #4F46E5;
+      padding-left: 9px;
+    }
+
+    .nl {
+      font-size: .56rem;
+      font-weight: 800;
+      color: #CBD5E1;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      padding: 10px 12px 3px;
+    }
+
+    /* SECTIONS */
+    .sec {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+      flex-direction: column;
+    }
+
+    .sec.on {
+      display: flex;
+    }
+
+    /* CARD */
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 1px 4px rgba(79, 70, 229, .06);
+      border: 1px solid #E8EDFF;
+    }
+
+    /* BTN */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 11px;
+      font-weight: 800;
+      font-size: .72rem;
+      border: none;
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    .bp {
+      background: #4F46E5;
+      color: #fff;
+    }
+
+    .bp:hover {
+      background: #4338CA;
+    }
+
+    .bo {
+      background: transparent;
+      border: 1.5px solid #4F46E5;
+      color: #4F46E5;
+    }
+
+    .bo:hover {
+      background: #EEF2FF;
+    }
+
+    .bg {
+      background: #10B981;
+      color: #fff;
+    }
+
+    .bg:hover {
+      background: #059669;
+    }
+
+    .bs {
+      padding: 5px 10px;
+      font-size: .62rem;
+      border-radius: 8px;
+    }
+
+    /* BADGE */
+    .bdg {
+      font-size: .56rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    /* PROFIL BANNER */
+    .banner {
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      border-radius: 22px;
+      padding: 20px 22px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .banner::before {
+      content: '';
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, .06);
+      border-radius: 50%;
+    }
+
+    .banner::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: 38%;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, .04);
+      border-radius: 50%;
+    }
+
+    /* AVATARS */
+    .avc {
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #fff;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .avc img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avc .ov {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, .38);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .avc:hover .ov {
+      display: flex;
+    }
+
+    .ava {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: .72rem;
+      color: #fff;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .ava img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 11px;
+    }
+
+    /* FORUM WHATSAPP */
+    .fw-wrap {
+      flex: 1;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .fw-head {
+      background: #128C7E;
+      color: #fff;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .fw-msgs {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: #ECE5DD;
+    }
+
+    .fw-msgs::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .fw-msgs::-webkit-scrollbar-thumb {
+      background: #b5a99a;
+      border-radius: 4px;
+    }
+
+    .fw-bar {
+      background: #F0F2F5;
+      padding: 7px 12px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+      border-top: 1px solid #ddd;
+    }
+
+    .fw-ta {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 9px 14px;
+      border-radius: 22px;
+      background: #fff;
+      font-family: inherit;
+      font-size: .83rem;
+      resize: none;
+      max-height: 110px;
+      min-height: 38px;
+      line-height: 1.4;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+    }
+
+    .fw-send {
+      width: 40px;
+      height: 40px;
+      background: #128C7E;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+
+    .fw-send:hover {
+      background: #075E54;
+    }
+
+    .mrow {
+      display: flex;
+      align-items: flex-end;
+      gap: 7px;
+      max-width: 72%;
+    }
+
+    .mrow.me {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .mrow.them {
+      align-self: flex-start;
+    }
+
+    .bub {
+      padding: 7px 11px 5px;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .bub.me {
+      background: #DCF8C6;
+      border-bottom-right-radius: 3px;
+    }
+
+    .bub.them {
+      background: #fff;
+      border-bottom-left-radius: 3px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
+    }
+
+    .bub-name {
+      font-size: .62rem;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .bub-txt {
+      font-size: .82rem;
+      color: #111B21;
+      line-height: 1.42;
+      word-break: break-word;
+    }
+
+    .bub-ft {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 3px;
+      margin-top: 2px;
+    }
+
+    .bub-time {
+      font-size: .58rem;
+      color: #667781;
+    }
+
+    .bav {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: .62rem;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .bav img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .dsep {
+      text-align: center;
+      margin: 6px 0;
+    }
+
+    .dsep span {
+      background: #e0d8cc;
+      color: #667781;
+      font-size: .62rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 7px;
+    }
+
+    /* BULLETIN */
+    .bul-doc {
+      background: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 6px 28px rgba(79, 70, 229, .13);
+    }
+
+    .bul-hd {
+      background: linear-gradient(135deg, #1E3A5F, #0F2740);
+      padding: 28px 28px 22px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bul-hd::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 160px;
+      height: 160px;
+      background: rgba(255, 255, 255, .04);
+      border-radius: 50%;
+    }
+
+    .bul-hd::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #4F46E5, #7C3AED, #EC4899);
+    }
+
+    .bul-row {
+      display: grid;
+      grid-template-columns: 1fr 52px 76px 72px 1fr;
+      gap: 0;
+      padding: 12px 24px;
+      border-bottom: 1px solid #F1F5F9;
+      align-items: center;
+      transition: background .12s;
+    }
+
+    .bul-row:hover {
+      background: #FAFBFF;
+    }
+
+    .bul-th {
+      display: grid;
+      grid-template-columns: 1fr 52px 76px 72px 1fr;
+      gap: 0;
+      padding: 9px 24px;
+      background: #F8FAFF;
+      border-bottom: 2px solid #E8EDFF;
+    }
+
+    .bul-th span,
+    .bul-th-s {
+      font-size: .58rem;
+      font-weight: 800;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .nb {
+      height: 5px;
+      border-radius: 3px;
+      background: #F1F5F9;
+      overflow: hidden;
+    }
+
+    .nf {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1.5s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    /* INPUTS */
+    .inp {
+      width: 100%;
+      padding: 9px 13px;
+      border-radius: 11px;
+      border: 1.5px solid #E0E7FF;
+      font-size: .78rem;
+      font-family: inherit;
+      outline: none;
+      transition: border .18s;
+      background: #FAFBFF;
+    }
+
+    .inp:focus {
+      border-color: #4F46E5;
+      background: #fff;
+    }
+
+    textarea.inp {
+      resize: vertical;
+    }
+
+    /* MODAL */
+    .mbg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .42);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mbg.on {
+      display: flex;
+    }
+
+    .mo {
+      background: #fff;
+      border-radius: 22px;
+      padding: 26px;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    /* SPIN */
+    .spin {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #E0E7FF;
+      border-top-color: #4F46E5;
+      border-radius: 50%;
+      animation: sp .65s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes sp {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: .35;
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(7px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* SCROLL */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #C7D2FE;
+      border-radius: 4px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    /* MENU CONTEXTUEL */
+    .ctx-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 13px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: .78rem;
+      font-weight: 700;
+      color: #1E293B;
+      transition: background .12s;
+    }
+
+    .ctx-item:hover {
+      background: #F1F5F9;
+    }
+
+    /* RÉACTIONS FLOTTANTES */
+    .reactions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 3px;
+    }
+
+    .react-chip {
+      background: rgba(255, 255, 255, .9);
+      border: 1px solid #E0E0E0;
+      border-radius: 20px;
+      padding: 2px 7px;
+      font-size: .72rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+      transition: transform .12s;
+    }
+
+    .react-chip:hover {
+      transform: scale(1.15);
+    }
+
+    .react-chip.mine {
+      background: #E3F2FD;
+      border-color: #90CAF9;
+    }
+
+    /* REPLY QUOTE dans bulle */
+    .reply-quote {
+      background: rgba(0, 0, 0, .06);
+      border-left: 3px solid #128C7E;
+      border-radius: 6px;
+      padding: 5px 8px;
+      margin-bottom: 5px;
+    }
+
+    .reply-quote.me {
+      background: rgba(0, 0, 0, .08);
+      border-color: rgba(0, 100, 0, .4);
+    }
+
+    /* MESSAGE SUPPRIMÉ */
+    .msg-deleted {
+      color: #667781;
+      font-style: italic;
+      font-size: .78rem;
+    }
+
+    /* EMOJI PICKER emojis */
+    #fw-emoji div span {
+      font-size: 1.35rem;
+      cursor: pointer;
+      padding: 3px;
+      border-radius: 7px;
+      transition: background .12s;
+      display: inline-block;
+    }
+
+    #fw-emoji div span:hover {
+      background: rgba(0, 0, 0, .08);
+    }
+
+    /* MATIÈRE COULEURS */
+    .mc0 {
+      background: #EF4444;
+    }
+
+    .mc1 {
+      background: #4F46E5;
+    }
+
+    .mc2 {
+      background: #10B981;
+    }
+
+    .mc3 {
+      background: #F59E0B;
+    }
+
+    .mc4 {
+      background: #8B5CF6;
+    }
+
+    .mc5 {
+      background: #0EA5E9;
+    }
+
+    .mc6 {
+      background: #EC4899;
+    }
+
+    .mc7 {
+      background: #14B8A6;
+    }
+
+    .mc8 {
+      background: #F97316;
+    }
+
+    .mc9 {
+      background: #6366F1;
+    }
+
+    .mc10 {
+      background: #84CC16;
+    }
+
+    .mc11 {
+      background: #A78BFA;
+    }
+  </style>
+  <style>
+  /* ══ RESPONSIVE PARENT — corrections mobile ══════════════════ */
+
+  /* ── Fix .fw-wrap manque display:flex ── */
+  .fw-wrap {
+    display: flex !important;
+  }
+
+  /* ── MOBILE < 640px ── */
+  @media (max-width: 639px) {
+
+    /* Titre de page : décaler pour ne pas être caché par le hamburger */
+    .sec-hd, .pg-hd, .sec > .hd, [id^="sec-"] > div:first-child > div:first-child {
+      padding-top: 0 !important;
+    }
+
+    /* Sidebar (sb) sur mobile : pleine hauteur avec overflow */
+    .sb {
+      height: 100vh !important;
+      overflow-y: auto !important;
+    }
+
+    /* ── Profil : 250px+1fr → 1 colonne ── */
+    #sec-profil > div[style*="grid-template-columns:250px"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* ── Bulletin : simplifier le tableau ── */
+    .bul-row, .bul-th {
+      grid-template-columns: 1fr 44px 64px 56px !important;
+      padding: 10px 12px !important;
+      font-size: .7rem !important;
+    }
+    /* Masquer colonne PROGRES sur très petit écran */
+    /* Bul-row last-child géré plus bas */
+
+    /* ── Toutes les grids → adaptées ── */
+    [style*="grid-template-columns:repeat(4,1fr)"] {
+      grid-template-columns: repeat(2,1fr) !important;
+    }
+    [style*="grid-template-columns:repeat(3,1fr)"] {
+      grid-template-columns: repeat(2,1fr) !important;
+    }
+    [style*="grid-template-columns:1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+    [style*="grid-template-columns:1fr auto 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* ── Forum WhatsApp : forcer hauteur correcte ── */
+    #sec-forum.on {
+      height: calc(100vh - 0px) !important;
+      max-height: 100vh !important;
+      overflow: hidden !important;
+    }
+    .fw-msgs {
+      flex: 1 !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+    }
+    .fw-bar {
+      flex-shrink: 0 !important;
+      position: sticky !important;
+      bottom: 0 !important;
+      z-index: 10 !important;
+    }
+    .fw-ta {
+      font-size: .8rem !important;
+    }
+
+    /* ── Bulletin stats ── */
+    [style*="grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px"] {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 8px !important;
+    }
+    [style*="grid-template-columns:repeat(3,1fr);gap:11px"] {
+      grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* ── Résumé bulletin bas de page ── */
+    [style*="grid-template-columns:1fr auto 1fr;gap:16px"] {
+      grid-template-columns: 1fr !important;
+      gap: 8px !important;
+    }
+
+    /* ── Cards ── */
+    .card {
+      padding: 13px 14px !important;
+      border-radius: 14px !important;
+    }
+
+    /* ── Boutons ── */
+    .btn, .bp, .btn.bp {
+      font-size: .72rem !important;
+      padding: 8px 12px !important;
+    }
+
+    /* ── Messages bulles ── */
+    .mrow {
+      max-width: 88% !important;
+    }
+
+    /* ── Profil photo centré ── */
+    #sec-profil [style*="grid-template-columns:250px"] > div:first-child {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+    }
+
+    /* ── Profil : colonne droite visible + phrase complète ── */
+    #sec-profil > div {
+      grid-template-columns: 1fr !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    #sec-profil .card {
+      overflow: visible !important;
+      width: 100% !important;
+    }
+
+    /* ── Annonces : pleine largeur ── */
+    #sec-annonces, #an-list {
+      width: 100% !important;
+      overflow-x: hidden !important;
+    }
+
+    /* ── Bulletin header : 3 boxes → 1 colonne ── */
+    #sec-bulletin [style*="grid-template-columns:repeat(3,1fr)"] {
+      grid-template-columns: 1fr !important;
+    }
+    #sec-bulletin [style*="grid-template-columns: repeat(3"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* ── Forum : barre saisie toujours visible ── */
+    #sec-forum.on {
+      display: flex !important;
+      flex-direction: column !important;
+      height: calc(100vh - 56px) !important;
+      overflow: hidden !important;
+    }
+    #sec-forum:not(.on) {
+      display: none !important;
+    }
+    .fw-wrap {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 !important;
+      min-height: 0 !important;
+      overflow: hidden !important;
+    }
+    .fw-msgs {
+      flex: 1 !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+    }
+    .fw-bar {
+      flex-shrink: 0 !important;
+      background: #F0F2F5 !important;
+      z-index: 10 !important;
+    }
+
+    /* ── Dashboard : header violet pleine largeur ── */
+    #sec-dash [style*="grid-template-columns:1fr 1fr"],
+    #sec-dash [style*="grid-template-columns: 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* ── Sections : padding-bottom pour ne pas être coupé ── */
+    .sec.on {
+      padding-bottom: 70px !important;
+    }
+    /* Sauf le forum qui a sa propre gestion */
+    #sec-forum.on {
+      padding-bottom: 0 !important;
+    }
+
+    /* ── sec-accueil : grille notes+annonces → 1 colonne ── */
+    #sec-accueil [style*="grid-template-columns:1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* ── Bulletin : layout mobile simplifié ── */
+    .bul-row {
+      display: flex !important;
+      flex-direction: column !important;
+      padding: 10px 14px !important;
+      gap: 5px !important;
+      border-bottom: 1px solid #F1F5F9 !important;
+    }
+    .bul-th {
+      display: none !important;
+    }
+    /* Ligne : première div = nom matière (flex row) */
+    .bul-row > div:first-child {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 8px !important;
+    }
+    /* Colonne note (3ème div) → inline à droite du nom */
+    .bul-row > div:nth-child(3) {
+      position: absolute !important;
+      right: 14px !important;
+    }
+    /* Réinitialiser position sur la ligne */
+    .bul-row {
+      position: relative !important;
+    }
+    /* Masquer COEF et PTS */
+    .bul-row > div:nth-child(2),
+    .bul-row > div:nth-child(4) {
+      display: none !important;
+    }
+    /* Barre de progression pleine largeur en bas */
+    .bul-row > div:last-child {
+      display: block !important;
+      padding-right: 60px !important;
+    }
+
+    /* ══ BULLETIN : libérer le overflow pour afficher toutes les matières ══ */
+    .bul-doc {
+      overflow: visible !important;
+    }
+    #sec-bulletin {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+    }
+    /* Tableau des notes : padding réduit sur mobile */
+    .bul-hd {
+      padding: 18px 16px 16px !important;
+    }
+    /* Pied bulletin : 3 colonnes → 1 colonne */
+    #bul-foot {
+      grid-template-columns: 1fr !important;
+      gap: 8px !important;
+      padding: 14px 16px !important;
+    }
+    /* En-tête bulletin info boxes → 1 colonne */
+    .bul-hd [style*="grid-template-columns"] {
+      grid-template-columns: 1fr !important;
+    }
+
+    /* ── Forum : hauteur correcte + fw-bar toujours visible ── */
+    #sec-forum.on {
+      display: flex !important;
+      flex-direction: column !important;
+      height: calc(100dvh - 56px) !important;
+      max-height: calc(100dvh - 56px) !important;
+      overflow: hidden !important;
+    }
+    #fw-msgs {
+      flex: 1 !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+    }
+    .fw-bar {
+      flex-shrink: 0 !important;
+      position: relative !important;
+      z-index: 20 !important;
+      background: #F0F2F5 !important;
+      border-top: 2px solid #ddd !important;
+    }
+    .fw-ta {
+      font-size: .82rem !important;
+    }
+
+    /* ── Profil : phrase complète visible ── */
+    #sec-profil .card {
+      overflow: visible !important;
+      max-width: 100% !important;
+    }
+    #sec-profil [style*="background:#FFF7ED"] {
+      white-space: normal !important;
+      word-break: break-word !important;
+      overflow: visible !important;
+      font-size: .6rem !important;
+      line-height: 1.5 !important;
+    }
+  }
+
+  /* ── Tablet 640–1023px ── */
+  @media (max-width: 1023px) and (min-width: 640px) {
+    [style*="grid-template-columns:repeat(4,1fr)"] {
+      grid-template-columns: repeat(2,1fr) !important;
+    }
+    [style*="grid-template-columns:250px 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+    .bul-row, .bul-th {
+      padding: 10px 16px !important;
+    }
+  }
+  </style>
+</head>
+
+<body style="display:flex;height:100vh;overflow:hidden;">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <div class="sb">
+    <div style="padding:16px 16px 12px;border-bottom:1px solid #E8EDFF;flex-shrink:0;">
+      <div style="font-size:1rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-.03em;">
+        ÉCOLE<span style="color:#4F46E5;">NUM</span></div>
+      <div
+        style="font-size:.54rem;font-weight:800;color:#F43F5E;text-transform:uppercase;letter-spacing:.15em;margin-top:1px;">
+        Espace Parent</div>
+    </div>
+    <!-- Mini profil -->
+    <div onclick="go('profil')" onmouseover="this.style.background='#EEF2FF'"
+      onmouseout="this.style.background='#FAFBFF'"
+      style="padding:11px 13px;border-bottom:1px solid #E8EDFF;background:#FAFBFF;display:flex;align-items:center;gap:9px;cursor:pointer;transition:background .15s;">
+      <div id="sb-av" class="ava" style="background:#4F46E5;width:38px;height:38px;">?</div>
+      <div style="min-width:0;flex:1;">
+        <div id="sb-nom"
+          style="font-weight:800;font-size:.74rem;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          Chargement…</div>
+        <div id="sb-code"
+          style="font-size:.58rem;color:#94A3B8;font-weight:700;text-transform:uppercase;letter-spacing:.07em;">---
+        </div>
+      </div>
+      <i data-lucide="chevron-right" style="width:13px;height:13px;color:#CBD5E1;flex-shrink:0;"></i>
+    </div>
+    <nav style="flex:1;padding:7px 8px;overflow-y:auto;">
+      <div class="nl">Mon enfant</div>
+      <div class="ni active" onclick="go('accueil')" data-s="accueil"><i data-lucide="layout-dashboard"
+          style="width:14px;height:14px;flex-shrink:0;"></i>Tableau de bord</div>
+      <div class="ni" onclick="go('bulletin')" data-s="bulletin"><i data-lucide="file-text"
+          style="width:14px;height:14px;flex-shrink:0;"></i>Bulletin &amp; Notes</div>
+      <div class="ni" onclick="go('absences')" data-s="absences"><i data-lucide="calendar-x"
+          style="width:14px;height:14px;flex-shrink:0;"></i>Absences<span id="babs" class="bdg"
+          style="background:#FEE2E2;color:#DC2626;margin-left:auto;display:none;"></span></div>
+      <div class="ni" onclick="go('convocations')" data-s="convocations"><i data-lucide="bell-ring"
+          style="width:14px;height:14px;flex-shrink:0;"></i>Convocations<span id="bconv" class="bdg"
+          style="background:#FEF3C7;color:#D97706;margin-left:auto;display:none;"></span></div>
+      <div class="ni" onclick="go('orientation')" data-s="orientation"><i data-lucide="compass"
+          style="width:14px;height:14px;flex-shrink:0;"></i>Orientation</div>
+      <div class="nl" style="margin-top:6px;">Communauté APE</div>
+      <div class="ni" onclick="go('forum')" data-s="forum"><i data-lucide="message-circle"
+          style="width:14px;height:14px;flex-shrink:0;"></i>Forum Parents
+        <span style="margin-left:auto;display:flex;align-items:center;gap:3px;"><span
+            style="width:6px;height:6px;background:#25D366;border-radius:50%;animation:pulse 2s infinite;"></span><span
+            style="font-size:.55rem;font-weight:800;color:#25D366;">LIVE</span></span>
+      </div>
+      <div class="ni" onclick="go('cotisations')" data-s="cotisations"><i data-lucide="credit-card"
+          style="width:14px;height:14px;flex-shrink:0;"></i>Cotisations APE</div>
+      <div class="nl" style="margin-top:6px;">École</div>
+      <div class="ni" onclick="go('annonces')" data-s="annonces"><i data-lucide="megaphone"
+          style="width:14px;height:14px;flex-shrink:0;"></i>Annonces</div>
+      <div class="ni" onclick="go('profil')" data-s="profil"><i data-lucide="user-circle"
+          style="width:14px;height:14px;flex-shrink:0;"></i>Mon profil</div>
+    </nav>
+    <div style="padding:7px 8px;border-top:1px solid #E8EDFF;flex-shrink:0;">
+      <div class="ni" style="color:#EF4444;" onclick="deco()"><i data-lucide="log-out"
+          style="width:14px;height:14px;flex-shrink:0;"></i>Se déconnecter</div>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN ═══ -->
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;height:100vh;">
+
+    <!-- ══ ACCUEIL ══ -->
+    <div id="sec-accueil" class="sec on" style="overflow-y:auto;padding:20px;gap:14px;">
+      <!-- BANNER -->
+      <div class="banner">
+        <div style="display:flex;align-items:center;gap:18px;position:relative;z-index:1;flex-wrap:wrap;">
+          <!-- Avatar parent cliquable -->
+          <div style="position:relative;flex-shrink:0;">
+            <div id="av-p" class="avc"
+              style="width:74px;height:74px;font-size:1.7rem;background:#6D28D9;border:3px solid rgba(255,255,255,.42);"
+              onclick="document.getElementById('fp').click()">
+              <span id="av-p-t">?</span>
+              <div class="ov"><i data-lucide="camera" style="width:18px;height:18px;color:#fff;"></i></div>
+            </div>
+            <div onclick="document.getElementById('fp').click()"
+              style="position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;background:#4F46E5;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;">
+              <i data-lucide="camera" style="width:10px;height:10px;color:#fff;"></i>
+            </div>
+            <input type="file" id="fp" accept="image/*" onchange="uploadPhoto(this)">
+          </div>
+
+          <div style="flex:1;min-width:150px;">
+            <div
+              style="font-size:.58rem;font-weight:800;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.12em;margin-bottom:3px;">
+              Parent · Espace Privé</div>
+            <div id="acc-nom" style="font-size:1.35rem;font-weight:900;letter-spacing:-.02em;line-height:1.1;">
+              Chargement…</div>
+            <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap;align-items:center;">
+              <span id="acc-prof"
+                style="font-size:.66rem;color:rgba(255,255,255,.7);font-weight:600;display:none;"></span>
+              <span id="acc-tel"
+                style="font-size:.66rem;color:rgba(255,255,255,.7);font-weight:600;display:none;"></span>
+              <span id="acc-ape"
+                style="font-size:.56rem;font-weight:800;background:rgba(255,255,255,.18);padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.07em;"></span>
+            </div>
+          </div>
+
+          <!-- Enfant card -->
+          <div
+            style="background:rgba(255,255,255,.13);border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:11px;border:1px solid rgba(255,255,255,.14);">
+            <div id="av-e" class="avc"
+              style="width:48px;height:48px;font-size:1rem;background:#7C3AED;border:2px solid rgba(255,255,255,.38);">
+              <span id="av-e-t">?</span>
+            </div>
+            <div>
+              <div
+                style="font-size:.56rem;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.1em;">
+                Mon enfant</div>
+              <div id="acc-en" style="font-size:.88rem;font-weight:900;margin-top:2px;">---</div>
+              <div id="acc-ec" style="font-size:.62rem;color:rgba(255,255,255,.62);margin-top:1px;">---</div>
+            </div>
+          </div>
+
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:.56rem;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;">
+              Matricule</div>
+            <div id="acc-code" style="font-size:.82rem;font-weight:900;font-family:monospace;margin-top:1px;">---</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;">
+        <div class="card" style="text-align:center;">
+          <div id="st-moy" style="font-size:1.55rem;font-weight:900;color:#4F46E5;">—</div>
+          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:3px;">Moyenne
+            /20</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div id="st-abs" style="font-size:1.55rem;font-weight:900;color:#EF4444;">0</div>
+          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:3px;">Absences
+          </div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div id="st-cv" style="font-size:1.55rem;font-weight:900;color:#F59E0B;">0</div>
+          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:3px;">
+            Convocations</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div id="st-rang" style="font-size:1.55rem;font-weight:900;color:#10B981;">—</div>
+          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:3px;">Rang
+            classe</div>
+        </div>
+      </div>
+
+      <!-- Alerte -->
+      <div id="al-cv"
+        style="display:none;background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F59E0B;border-radius:14px;padding:12px 16px;flex-direction:row;align-items:flex-start;gap:10px;">
+        <i data-lucide="alert-triangle" style="width:18px;height:18px;color:#F59E0B;flex-shrink:0;margin-top:1px;"></i>
+        <div>
+          <div style="font-size:.76rem;font-weight:800;color:#92400E;">Convocation en attente</div>
+          <div id="al-cv-t" style="font-size:.68rem;color:#B45309;margin-top:2px;"></div>
+          <button onclick="go('convocations')"
+            style="margin-top:4px;font-size:.6rem;font-weight:800;color:#D97706;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Voir
+            →</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div style="font-size:.74rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;">📊
+              Dernières notes</div>
+            <button onclick="go('bulletin')"
+              style="font-size:.6rem;font-weight:800;color:#4F46E5;background:none;border:none;cursor:pointer;">Bulletin
+              →</button>
+          </div>
+          <div id="ap-n">
+            <div style="text-align:center;padding:14px;">
+              <div class="spin"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div style="font-size:.74rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;">📣
+              Annonces</div>
+            <button onclick="go('annonces')"
+              style="font-size:.6rem;font-weight:800;color:#4F46E5;background:none;border:none;cursor:pointer;">Tout
+              →</button>
+          </div>
+          <div id="ap-a">
+            <div style="text-align:center;padding:14px;">
+              <div class="spin"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BULLETIN PREMIUM ══ -->
+    <div id="sec-bulletin" class="sec" style="overflow-y:auto;padding:20px;gap:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">📊
+          Bulletin de <span id="bul-en" style="color:#4F46E5;">mon enfant</span></h2>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <button class="btn bp bs tri" onclick="selTri(1,this)">Trim. 1</button>
+          <button class="btn bo bs tri" onclick="selTri(2,this)">Trim. 2</button>
+          <button class="btn bo bs tri" onclick="selTri(3,this)">Trim. 3</button>
+          <button class="btn bg bs" id="btn-pdf" onclick="dlPDF()">
+            <i data-lucide="download" style="width:12px;height:12px;"></i>PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- BULLETIN OFFICIEL -->
+      <div class="bul-doc" id="bul-doc">
+        <!-- EN-TÊTE OFFICIEL -->
+        <div class="bul-hd">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;">
+            <div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                <div
+                  style="width:40px;height:40px;background:rgba(255,255,255,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">
+                  🏫</div>
+                <div>
+                  <div style="font-size:1rem;font-weight:900;font-style:italic;letter-spacing:-.02em;">ÉCOLE<span
+                      style="color:#60A5FA;">NUM</span></div>
+                  <div style="font-size:.58rem;color:rgba(255,255,255,.45);font-weight:600;">Campus Numérique · Burkina
+                    Faso</div>
+                </div>
+              </div>
+              <div style="font-size:.56rem;font-weight:700;color:rgba(255,255,255,.35);margin-top:4px;">B.P. 0001 ·
+                Ouagadougou · burkina-faso.ecolenum.bf</div>
+            </div>
+            <div style="text-align:right;">
+              <div
+                style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 14px;">
+                <div
+                  style="font-size:.56rem;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;">
+                  Année scolaire</div>
+                <div style="font-size:.88rem;font-weight:900;margin-top:2px;">2025 — 2026</div>
+                <div id="bul-tri-b"
+                  style="margin-top:5px;background:rgba(255,255,255,.15);border-radius:8px;padding:2px 9px;font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.8);">
+                  1er Trimestre</div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);position:relative;z-index:1;">
+            <div
+              style="font-size:.6rem;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.15em;">
+              Bulletin de Notes</div>
+            <div id="bul-nom-h"
+              style="font-size:1.6rem;font-weight:900;letter-spacing:-.02em;margin-top:4px;line-height:1;">---</div>
+          </div>
+
+          <div
+            style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;position:relative;z-index:1;">
+            <div
+              style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.1);">
+              <div
+                style="font-size:.54rem;font-weight:800;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.09em;">
+                Matricule</div>
+              <div id="bul-mat-h" style="font-size:.82rem;font-weight:800;margin-top:2px;font-family:monospace;">---
+              </div>
+            </div>
+            <div
+              style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.1);">
+              <div
+                style="font-size:.54rem;font-weight:800;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.09em;">
+                Classe</div>
+              <div id="bul-cls-h" style="font-size:.82rem;font-weight:800;margin-top:2px;">---</div>
+            </div>
+            <div
+              style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.1);">
+              <div
+                style="font-size:.54rem;font-weight:800;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.09em;">
+                Établissement</div>
+              <div style="font-size:.82rem;font-weight:800;margin-top:2px;">Lycée ÉcoleNum</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABLEAU NOTES -->
+        <div>
+          <div class="bul-th">
+            <span>Matière</span>
+            <span style="text-align:center;">Coef</span>
+            <span style="text-align:center;">Note /20</span>
+            <span style="text-align:center;">Pts</span>
+            <span>Progression &amp; Appréciation</span>
+          </div>
+          <div id="bul-rows">
+            <div style="text-align:center;padding:36px;">
+              <div class="spin" style="margin:0 auto 8px;"></div>
+              <div style="font-size:.76rem;font-weight:700;color:#94A3B8;">Chargement du bulletin…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PIED BULLETIN -->
+        <div id="bul-foot"
+          style="background:#F8FAFF;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:18px 24px;border-top:2px solid #E8EDFF;">
+          <div style="text-align:center;">
+            <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.09em;">
+              Moyenne générale</div>
+            <div id="bul-moy" style="font-size:2rem;font-weight:900;color:#4F46E5;line-height:1;margin-top:4px;">—</div>
+            <div style="font-size:.62rem;color:#94A3B8;margin-top:1px;">/20</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.09em;">
+              Mention</div>
+            <div id="bul-mention" style="font-size:.96rem;font-weight:900;color:#1E293B;margin-top:4px;">—</div>
+            <div id="bul-appr" style="font-size:.62rem;color:#64748B;margin-top:2px;font-style:italic;"></div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.09em;">
+              Total points</div>
+            <div id="bul-pts" style="font-size:2rem;font-weight:900;color:#10B981;line-height:1;margin-top:4px;">—</div>
+            <div id="bul-coef" style="font-size:.62rem;color:#94A3B8;margin-top:1px;">coef : —</div>
+          </div>
+        </div>
+
+        <!-- SIGNATURES -->
+        <div
+          style="padding:16px 24px 20px;display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;border-top:1px solid #E8EDFF;">
+          <div style="text-align:center;">
+            <div style="height:40px;border-bottom:1px dashed #CBD5E1;margin:0 20px;"></div>
+            <div
+              style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:6px;letter-spacing:.09em;">
+              Signature du parent</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:.62rem;font-weight:700;color:#94A3B8;font-style:italic;">Document officiel numérique
+            </div>
+            <div id="bul-date" style="font-size:.56rem;color:#CBD5E1;margin-top:2px;"></div>
+          </div>
+          <div style="text-align:center;">
+            <div style="height:40px;border-bottom:1px dashed #CBD5E1;margin:0 20px;"></div>
+            <div
+              style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:6px;letter-spacing:.09em;">
+              Cachet de la direction</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ABSENCES ══ -->
+    <div id="sec-absences" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
+      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">📋
+        Absences de <span id="abs-en" style="color:#4F46E5;">mon enfant</span></h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;">
+        <div class="card" style="text-align:center;background:#FEF2F2;border-color:#FECACA;">
+          <div id="ab-inj" style="font-size:1.8rem;font-weight:900;color:#DC2626;">0</div>
+          <div style="font-size:.56rem;font-weight:800;color:#EF4444;text-transform:uppercase;margin-top:3px;">Non
+            justifiées</div>
+        </div>
+        <div class="card" style="text-align:center;background:#F0FDF4;border-color:#BBF7D0;">
+          <div id="ab-jus" style="font-size:1.8rem;font-weight:900;color:#16A34A;">0</div>
+          <div style="font-size:.56rem;font-weight:800;color:#22C55E;text-transform:uppercase;margin-top:3px;">
+            Justifiées</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div id="ab-tot" style="font-size:1.8rem;font-weight:900;color:#1E293B;">0</div>
+          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:3px;">Total
+          </div>
+        </div>
+      </div>
+      <div class="card" id="ab-list"></div>
+    </div>
+
+    <!-- ══ CONVOCATIONS ══ -->
+    <div id="sec-convocations" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
+      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">📩
+        Convocations de <span id="cv-en" style="color:#4F46E5;">mon enfant</span></h2>
+      <div id="cv-list"></div>
+      <div style="font-size:.62rem;color:#94A3B8;font-style:italic;text-align:center;">🔒 Visible uniquement par vous et
+        votre enfant.</div>
+    </div>
+
+    <!-- ══ ORIENTATION ══ -->
+    <div id="sec-orientation" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
+      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">🧭
+        Orientation de <span id="ori-en" style="color:#4F46E5;">mon enfant</span></h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div>
+          <div style="font-size:.68rem;font-weight:800;color:#475569;text-transform:uppercase;margin-bottom:8px;">💡
+            Avis des professeurs</div>
+          <div class="card" style="border-left:3px solid #4F46E5;background:#EEF2FF;margin-bottom:10px;">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
+              <div class="ava" style="background:#4F46E5;width:28px;height:28px;font-size:.6rem;">MC</div>
+              <div>
+                <div style="font-size:.72rem;font-weight:800;">Mme Coulibaly</div><span class="bdg"
+                  style="background:#DBEAFE;color:#1D4ED8;">MATHS</span>
+              </div>
+            </div>
+            <p style="font-size:.7rem;color:#475569;line-height:1.5;margin:0;">Excellent niveau en sciences. Recommande
+              filières scientifiques (MPSI, PCSI) ou Informatique.</p>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.68rem;font-weight:800;color:#475569;text-transform:uppercase;margin-bottom:8px;">✍️ Mon
+            avis de parent</div>
+          <div class="card">
+            <textarea class="inp" id="ori-msg"
+              placeholder="Partagez votre point de vue sur l'orientation de votre enfant…" rows="4"></textarea>
+            <button class="btn bp" style="width:100%;margin-top:10px;justify-content:center;" onclick="envOri()">Publier
+              →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FORUM WHATSAPP AVANCÉ ══ -->
+    <div id="sec-forum" class="sec" style="flex-direction:column;">
+      <!-- Header vert -->
+      <div class="fw-head">
+        <div
+          style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">
+          👨‍👩‍👧</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:800;font-size:.9rem;">Forum Parents APE</div>
+          <div id="fw-st" style="font-size:.64rem;color:rgba(255,255,255,.72);">Connexion…</div>
+        </div>
+        <div id="fw-live" style="display:flex;align-items:center;gap:5px;">
+          <span
+            style="width:7px;height:7px;background:#25D366;border-radius:50%;animation:pulse 2s infinite;display:block;"></span>
+          <span style="font-size:.6rem;font-weight:800;color:rgba(255,255,255,.8);">EN DIRECT</span>
+        </div>
+      </div>
+
+      <!-- Bandeau "en train d'écrire" -->
+      <div id="fw-typing"
+        style="display:none;background:#075E54;padding:5px 16px;font-size:.66rem;color:rgba(255,255,255,.8);font-style:italic;flex-shrink:0;">
+        <span id="fw-typing-txt"></span><span style="animation:pulse 1s infinite;">…</span>
+      </div>
+
+      <!-- Zone reply preview -->
+      <div id="fw-reply-bar"
+        style="display:none;background:#F0F2F5;border-left:4px solid #128C7E;padding:8px 14px 8px 12px;flex-shrink:0;flex-direction:row;align-items:center;gap:10px;">
+        <div style="flex:1;min-width:0;">
+          <div id="fw-reply-nom" style="font-size:.65rem;font-weight:800;color:#128C7E;"></div>
+          <div id="fw-reply-txt"
+            style="font-size:.72rem;color:#667781;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+        </div>
+        <button onclick="cancelReply()"
+          style="background:none;border:none;cursor:pointer;color:#667781;padding:4px;border-radius:50%;display:flex;">
+          <i data-lucide="x" style="width:16px;height:16px;"></i>
+        </button>
+      </div>
+
+      <!-- Messages -->
+      <div id="fw-msgs" class="fw-msgs"></div>
+
+      <!-- Emoji picker -->
+      <div id="fw-emoji"
+        style="display:none;background:#fff;border-top:1px solid #E0E0E0;padding:10px 14px;flex-wrap:wrap;gap:6px;flex-shrink:0;">
+        <span
+          style="font-size:.58rem;font-weight:800;color:#94A3B8;text-transform:uppercase;width:100%;display:block;margin-bottom:4px;">Émojis
+          fréquents</span>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          😀 😂 😍 🥰 😎 🤔 😢 😮 🙏 👍 ❤️ 🔥 👏 🎉 💪 ✅ 🙌 😅 🤣 😭 💯 🚀 ✨ 💬 📚 🏫 👨‍👩‍👧 🇧🇫
+        </div>
+      </div>
+
+      <!-- Barre saisie -->
+      <div class="fw-bar">
+        <div id="fw-av" class="bav" style="background:#4F46E5;border-radius:50%;flex-shrink:0;width:36px;height:36px;">?
+        </div>
+        <div style="flex:1;position:relative;">
+          <textarea id="fw-ta" class="fw-ta" placeholder="Écrire un message…" rows="1" maxlength="2000"
+            oninput="arTa(this);onTyping();"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendPost();}"></textarea>
+          <span id="fw-count"
+            style="position:absolute;bottom:6px;right:10px;font-size:.56rem;color:#CBD5E1;display:none;"></span>
+        </div>
+        <button onclick="toggleEmoji()"
+          style="background:none;border:none;cursor:pointer;padding:6px;border-radius:50%;display:flex;align-items:center;transition:background .15s;"
+          onmouseover="this.style.background='rgba(0,0,0,.06)'" onmouseout="this.style.background='none'">
+          <span style="font-size:1.3rem;line-height:1;">😊</span>
+        </button>
+        <button class="fw-send" onclick="sendPost()"><i data-lucide="send"
+            style="width:17px;height:17px;color:#fff;"></i></button>
+      </div>
+    </div>
+
+    <!-- MENU CONTEXTUEL MESSAGE -->
+    <div id="ctx-menu"
+      style="position:fixed;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);padding:6px;z-index:5000;display:none;min-width:180px;">
+      <div id="ctx-reactions"
+        style="display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid #F1F5F9;flex-wrap:wrap;"></div>
+      <div id="ctx-reply" class="ctx-item" onclick="doReply()"><i data-lucide="corner-up-left"
+          style="width:15px;height:15px;"></i>Répondre</div>
+      <div id="ctx-copy" class="ctx-item" onclick="doCopy()"><i data-lucide="copy"
+          style="width:15px;height:15px;"></i>Copier</div>
+      <div id="ctx-delete" class="ctx-item" style="display:none;color:#EF4444;" onclick="doDelete()"><i
+          data-lucide="trash-2" style="width:15px;height:15px;"></i>Supprimer</div>
+    </div>
+
+    <!-- ══ COTISATIONS ══ -->
+    <div id="sec-cotisations" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
+      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">💰
+        Mes Cotisations APE</h2>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;">
+        <div class="card" style="text-align:center;background:#F0FDF4;border-color:#BBF7D0;">
+          <div style="font-size:.56rem;font-weight:800;color:#16A34A;text-transform:uppercase;margin-bottom:4px;">Payé
+          </div>
+          <div id="cp" style="font-size:1.2rem;font-weight:900;color:#16A34A;">—</div>
+        </div>
+        <div class="card" style="text-align:center;background:#FEF2F2;border-color:#FECACA;">
+          <div style="font-size:.56rem;font-weight:800;color:#DC2626;text-transform:uppercase;margin-bottom:4px;">
+            Restant</div>
+          <div id="cr" style="font-size:1.2rem;font-weight:900;color:#DC2626;">—</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-bottom:4px;">Total
+            annuel</div>
+          <div id="ct" style="font-size:1.2rem;font-weight:900;color:#1E293B;">—</div>
+        </div>
+      </div>
+      <div class="card" id="ch"></div>
+    </div>
+
+    <!-- ══ ANNONCES ══ -->
+    <div id="sec-annonces" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
+      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">📣
+        Annonces officielles</h2>
+      <div id="an-list"></div>
+    </div>
+
+    <!-- ══ PROFIL ══ -->
+    <div id="sec-profil" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
+      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">👤
+        Mon profil</h2>
+      <div style="display:grid;grid-template-columns:250px 1fr;gap:16px;align-items:start;">
+        <div class="card" style="text-align:center;">
+          <div style="position:relative;display:inline-block;margin-bottom:11px;">
+            <div
+              style="width:86px;height:86px;border-radius:50%;margin:0 auto;overflow:hidden;background:#EEF2FF;border:3px solid #E0E7FF;display:flex;align-items:center;justify-content:center;font-size:1.9rem;font-weight:900;color:#4F46E5;cursor:pointer;"
+              id="pr-av" onclick="document.getElementById('fp2').click()">
+              <span id="pr-av-t">?</span>
+            </div>
+            <input type="file" id="fp2" accept="image/*" onchange="uploadPhoto(this)">
+            <div onclick="document.getElementById('fp2').click()"
+              style="position:absolute;bottom:-1px;right:-1px;background:#4F46E5;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;cursor:pointer;">
+              <i data-lucide="pencil" style="width:10px;height:10px;color:#fff;"></i>
+            </div>
+          </div>
+          <div id="pr-nc" style="font-size:.92rem;font-weight:900;color:#1E293B;"></div>
+          <div id="pr-cc" style="font-size:.62rem;color:#94A3B8;font-weight:700;font-family:monospace;margin-top:2px;">
+          </div>
+          <div id="pr-ac" style="margin-top:6px;"></div>
+          <div style="margin-top:10px;background:#EEF2FF;border-radius:11px;padding:9px;">
+            <div style="font-size:.54rem;font-weight:800;color:#6366F1;text-transform:uppercase;margin-bottom:3px;">Mon
+              enfant</div>
+            <div id="pr-en" style="font-size:.78rem;font-weight:800;color:#1E293B;">—</div>
+            <div id="pr-ec" style="font-size:.62rem;color:#6366F1;">—</div>
+          </div>
+          <button class="btn bp" style="width:100%;margin-top:11px;justify-content:center;"
+            onclick="document.getElementById('fp2').click()">📷 Changer la photo</button>
+        </div>
+        <div class="card">
+          <div
+            style="font-size:.74rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin-bottom:14px;">
+            Informations personnelles</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;">
+            <div><label
+                style="font-size:.58rem;font-weight:800;color:#94A3B8;text-transform:uppercase;display:block;margin-bottom:4px;">Prénom</label><input
+                class="inp" id="pr-pn" disabled style="background:#F8FAFF;color:#64748B;"></div>
+            <div><label
+                style="font-size:.58rem;font-weight:800;color:#94A3B8;text-transform:uppercase;display:block;margin-bottom:4px;">Nom</label><input
+                class="inp" id="pr-nn" disabled style="background:#F8FAFF;color:#64748B;"></div>
+            <div><label
+                style="font-size:.58rem;font-weight:800;color:#4F46E5;text-transform:uppercase;display:block;margin-bottom:4px;">Profession
+                ✎</label><input class="inp" id="pr-pf" placeholder="Ex: Enseignant…"></div>
+            <div><label
+                style="font-size:.58rem;font-weight:800;color:#4F46E5;text-transform:uppercase;display:block;margin-bottom:4px;">Téléphone
+                ✎</label><input class="inp" id="pr-tl" placeholder="+226 70 00 00 00"></div>
+            <div style="grid-column:1/-1;"><label
+                style="font-size:.58rem;font-weight:800;color:#4F46E5;text-transform:uppercase;display:block;margin-bottom:4px;">Adresse
+                ✎</label><input class="inp" id="pr-ad" placeholder="Quartier, ville"></div>
+            <div style="grid-column:1/-1;"><label
+                style="font-size:.58rem;font-weight:800;color:#4F46E5;text-transform:uppercase;display:block;margin-bottom:4px;">À
+                propos ✎</label><textarea class="inp" id="pr-bi" rows="2" placeholder="Quelques mots…"></textarea></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:13px;">
+            <button class="btn bp" id="btn-sv" onclick="saveProfil()"
+              style="flex:1;justify-content:center;">Enregistrer</button>
+            <span id="sv-ok" style="font-size:.7rem;font-weight:700;color:#10B981;display:none;">✅ Enregistré !</span>
+          </div>
+          <div
+            style="margin-top:11px;padding:9px 13px;background:#FFF7ED;border-radius:11px;font-size:.62rem;color:#92400E;font-weight:700;">
+            ⚠️ Le prénom et le nom sont gérés par l'administration.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="mbg" id="mod">
+    <div class="mo">
+      <div id="mod-t" style="font-size:.96rem;font-weight:900;margin-bottom:8px;"></div>
+      <div id="mod-m" style="font-size:.78rem;color:#64748B;margin-bottom:18px;"></div>
+      <button class="btn bp" style="width:100%;justify-content:center;"
+        onclick="document.getElementById('mod').classList.remove('on')">OK</button>
+    </div>
+  </div>
+
+  <script>
+    /* ═════════════ CONFIG ═════════════ */
+    const API = '/api';
+    const sess = JSON.parse(localStorage.getItem('user_session') || '{}');
+    const TOK = sess.token || localStorage.getItem('token') || '';
+    if (!sess.code_unique || sess.role_actuel !== 'PARENT')
+      window.location.replace('login.html?role=PARENT&context=Espace%20Parent');
+
+    /* ═════════════ ÉTAT ═════════════ */
+    let P = {}, E = {}, triActif = 1;
+
+    /* ═════════════ COULEURS ═════════════ */
+    const COLS = ['#EF4444', '#4F46E5', '#10B981', '#F59E0B', '#8B5CF6', '#0EA5E9', '#EC4899', '#14B8A6', '#F97316', '#6366F1', '#84CC16', '#A78BFA'];
+    const ICNS = { maths: '🔢', mathematiques: '🔢', francais: '📖', 'français': '📖', anglais: '🌍', svt: '🌿', physique: '⚗️', chimie: '⚗️', histoire: '🗺️', geographie: '🗺️', philosophie: '🧠', informatique: '💻', eps: '⚽', ecm: '🛡️', epm: '⚡', ect: '🔧', iccr: '🔐', immersion: '🇧🇫', arts: '🎨' };
+
+    /* ═════════════ UTILS ═════════════ */
+    const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const ago = d => { const m = Math.floor((Date.now() - new Date(d)) / 60000); if (m < 1) return 'maintenant'; if (m < 60) return m + 'min'; const h = Math.floor(m / 60); if (h < 24) return h + 'h'; return Math.floor(h / 24) + 'j'; };
+    const hm = d => new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const ini = (p = '', n = '') => ((p[0] || '') + (n[0] || '')).toUpperCase() || '?';
+    const clr = s => { let n = 0; for (const c of String(s || '')) n += c.charCodeAt(0); return COLS[n % COLS.length]; };
+    const nCol = v => v >= 15 ? '#10B981' : v >= 12 ? '#4F46E5' : v >= 10 ? '#F59E0B' : '#EF4444';
+    const men = m => m >= 16 ? 'Très Bien 🏆' : m >= 14 ? 'Bien 🌟' : m >= 12 ? 'Assez Bien 👍' : m >= 10 ? 'Passable ✓' : 'Insuffisant ⚠️';
+    const icn = s => { const k = Object.keys(ICNS).find(k => String(s).toLowerCase().includes(k)); return k ? ICNS[k] : '📚'; };
+    const dlg = (t, m) => { document.getElementById('mod-t').textContent = t; document.getElementById('mod-m').textContent = m; document.getElementById('mod').classList.add('on'); };
+    const api = (path, opts = {}) => fetch(API + path, { ...opts, headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json', ...(opts.headers || {}) } }).then(r => r.json());
+
+    /* ═════════════ NAVIGATION ═════════════ */
+    function go(id) {
+      document.querySelectorAll('.sec').forEach(s => { s.classList.remove('on'); });
+      document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+      const sec = document.getElementById('sec-' + id);
+      if (sec) sec.classList.add('on');
+      document.querySelectorAll('[data-s="' + id + '"]').forEach(n => n.classList.add('active'));
+      if (id !== 'forum') stopForum();
+      ({ bulletin: () => loadBulletin(triActif), absences: loadAbs, convocations: loadConv, cotisations: loadCot, annonces: loadAnn, forum: startForum })[id]?.();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    /* ═════════════ PROFIL ═════════════ */
+    async function loadProfil() {
+      try { const d = await api('/parents/profil'); if (d.success) P = d.profil; else throw 0; }
+      catch { P = { prenom: sess.prenom || 'Parent', nom: sess.nom || '', code_unique: sess.code_unique || '---', profession: null, statut_ape: 'MEMBRE', telephone: null, adresse: null, photo_url: null, biographie: null }; }
+      renderProfil();
+      loadEnfant();
+    }
+
+    function setAvEl(el, p, n, photo, size, radius) {
+      const bg = clr((n || '') + (p || ''));
+      el.style.background = photo ? 'transparent' : bg;
+      el.style.borderRadius = radius || '12px';
+      if (photo) { el.innerHTML = `<img src="${photo}" style="width:${size};height:${size};object-fit:cover;border-radius:inherit;" alt="">`; }
+      else { el.innerHTML = ini(p, n); el.style.display = 'flex'; el.style.alignItems = 'center'; el.style.justifyContent = 'center'; }
+    }
+
+    function renderProfil() {
+      const { prenom, nom, code_unique, profession, telephone, statut_ape, photo_url } = P;
+      // Banner
+      document.getElementById('acc-nom').textContent = prenom + ' ' + nom;
+      document.getElementById('acc-code').textContent = code_unique;
+      const avTx = document.getElementById('av-p-t');
+      const avEl = document.getElementById('av-p');
+      if (photo_url) { avTx.innerHTML = `<img src="${photo_url}" style="width:74px;height:74px;object-fit:cover;border-radius:50%;" alt="">`; avEl.style.background = 'transparent'; }
+      else { avTx.textContent = ini(prenom, nom); avEl.style.background = clr(nom + prenom); }
+      if (profession) { const el = document.getElementById('acc-prof'); el.textContent = '💼 ' + profession; el.style.display = 'inline'; }
+      if (telephone) { const el = document.getElementById('acc-tel'); el.textContent = '📞 ' + telephone; el.style.display = 'inline'; }
+      document.getElementById('acc-ape').textContent = statut_ape || 'MEMBRE';
+      // Sidebar
+      const sbAv = document.getElementById('sb-av');
+      if (photo_url) { sbAv.innerHTML = `<img src="${photo_url}" style="width:38px;height:38px;object-fit:cover;border-radius:11px;" alt="">`; sbAv.style.background = 'transparent'; }
+      else { sbAv.textContent = ini(prenom, nom); sbAv.style.background = clr(nom + prenom); }
+      document.getElementById('sb-nom').textContent = prenom + ' ' + nom;
+      document.getElementById('sb-code').textContent = code_unique;
+      // Forum avatar bar
+      const fwAv = document.getElementById('fw-av');
+      if (photo_url) { fwAv.innerHTML = `<img src="${photo_url}" style="width:34px;height:34px;object-fit:cover;border-radius:50%;" alt="">`; fwAv.style.background = 'transparent'; }
+      else { fwAv.textContent = ini(prenom, nom); fwAv.style.background = clr(nom + prenom); }
+      // Page profil
+      const prAvT = document.getElementById('pr-av-t');
+      if (photo_url) { prAvT.innerHTML = `<img src="${photo_url}" style="width:86px;height:86px;object-fit:cover;border-radius:50%;" alt="">`; }
+      else { prAvT.textContent = ini(prenom, nom); }
+      document.getElementById('pr-nc').textContent = prenom + ' ' + nom;
+      document.getElementById('pr-cc').textContent = code_unique;
+      document.getElementById('pr-ac').innerHTML = `<span class="bdg" style="background:#EEF2FF;color:#4F46E5;">${statut_ape || 'MEMBRE APE'}</span>`;
+      document.getElementById('pr-pn').value = prenom || '';
+      document.getElementById('pr-nn').value = nom || '';
+      document.getElementById('pr-pf').value = profession || '';
+      document.getElementById('pr-tl').value = telephone || '';
+      document.getElementById('pr-ad').value = P.adresse || '';
+      document.getElementById('pr-bi').value = P.biographie || P.bio || '';
+      if (window.lucide) lucide.createIcons();
+    }
+
+    /* ═════════════ ENFANT ═════════════ */
+    async function loadEnfant() {
+      try {
+        const d = await api('/parents/mes-enfants');
+        if (d.success && d.enfants?.length > 0) {
+          E = d.enfants[0];
+          // Support nom_complet ou prenom+nom séparément
+          let prenom = E.prenom || '', nom = E.nom || '';
+          if ((!prenom || !nom) && E.nom_complet) {
+            const parts = E.nom_complet.trim().split(' ');
+            prenom = parts[0] || ''; nom = parts.slice(1).join(' ') || parts[0] || '';
+            E.prenom = prenom; E.nom = nom;
+          }
+          const nomE = (prenom + ' ' + nom).trim() || '---';
+          const cls = E.classe || E.classe_actuelle || '---';
+          const moy = E.moyenne_generale && E.moyenne_generale !== 'N/A' ? parseFloat(E.moyenne_generale).toFixed(2) : '—';
+          document.getElementById('acc-en').textContent = nomE;
+          document.getElementById('acc-ec').textContent = cls;
+          // Avatar enfant (initiales)
+          const avE = document.getElementById('av-e-t');
+          avE.textContent = ini(prenom, nom);
+          document.getElementById('av-e').style.background = clr((nom || '') + (prenom || ''));
+          // Mettre à jour partout
+          ['bul-en', 'abs-en', 'cv-en', 'ori-en'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = nomE; });
+          document.getElementById('pr-en').textContent = nomE;
+          document.getElementById('pr-ec').textContent = cls;
+          document.getElementById('bul-nom-h').textContent = nomE;
+          document.getElementById('bul-mat-h').textContent = E.code_unique || '---';
+          document.getElementById('bul-cls-h').textContent = cls;
+          document.getElementById('st-moy').textContent = moy;
+        }
+      } catch(e) {
+        // Garder les --- mais continuer les chargements
+        console.warn('Enfant non chargé:', e);
+      }
+      loadApercu();
+      loadAbsCpt();
+      loadCvCpt();
+      // Si on est déjà sur la page bulletin, recharger avec les vraies données
+      if (document.getElementById('sec-bulletin').classList.contains('on')) {
+        loadBulletin(triActif);
+      }
+    }
+
+    /* ═════════════ APERÇU ═════════════ */
+    const NDEMO = [{ nom_matiere: 'Mathématiques', valeur_note: 16.5, coefficient: 4 }, { nom_matiere: 'Français', valeur_note: 14.0, coefficient: 4 }, { nom_matiere: 'Physique-Chimie', valeur_note: 13.5, coefficient: 3 }, { nom_matiere: 'Anglais', valeur_note: 11.0, coefficient: 2 }, { nom_matiere: 'SVT', valeur_note: 15.0, coefficient: 2 }];
+
+    async function loadApercu() {
+      // Notes
+      try {
+        const id = E.id_enfant;
+        const d = id ? await api(`/parents/bulletin-enfant?enfant_id=${id}&trimestre=1`) : { success: false };
+        const ns = (d.success && d.notes?.length > 0) ? d.notes : NDEMO;
+        document.getElementById('ap-n').innerHTML = ns.slice(0, 3).map(n => {
+          const v = parseFloat(n.valeur_note || n.note || 10);
+          return `<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid #F1F5F9;">
+              <div style="flex:1;min-width:0;"><div style="font-size:.73rem;font-weight:700;color:#1E293B;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${icn(n.nom_matiere)} ${esc(n.nom_matiere || 'Matière')}</div>
+              <div class="nb" style="margin-top:3px;"><div class="nf" style="width:${(v / 20) * 100}%;background:${nCol(v)};"></div></div></div>
+              <span style="font-size:.84rem;font-weight:900;color:${nCol(v)};flex-shrink:0;">${v.toFixed(1)}</span></div>`;
+        }).join('');
+      } catch { document.getElementById('ap-n').innerHTML = '<div style="font-size:.7rem;color:#94A3B8;text-align:center;padding:12px;">Non disponible</div>'; }
+      // Annonces
+      try {
+        const d = await api('/parents/annonces');
+        if (d.success && d.annonces?.length > 0) {
+          document.getElementById('ap-a').innerHTML = d.annonces.slice(0, 2).map(a => `
+              <div style="background:#F8FAFF;border:1px solid #E0E7FF;border-radius:11px;padding:8px 10px;margin-bottom:7px;">
+                <div style="font-size:.73rem;font-weight:800;color:#1E293B;">${esc(a.titre || 'Annonce')}</div>
+                <div style="font-size:.63rem;color:#64748B;margin-top:2px;">${esc((a.contenu || '').substring(0, 65))}…</div>
+              </div>`).join('');
+        } else apADm();
+      } catch { apADm(); }
+    }
+    function apADm() { document.getElementById('ap-a').innerHTML = '<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:11px;padding:8px 10px;margin-bottom:7px;"><div style="font-size:.73rem;font-weight:800;">🔴 Examens — 10 mars</div><div style="font-size:.63rem;color:#64748B;margin-top:2px;">Présence obligatoire.</div></div><div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:11px;padding:8px 10px;"><div style="font-size:.73rem;font-weight:800;">🔵 Réunion parents — 15 mars</div><div style="font-size:.63rem;color:#64748B;margin-top:2px;">Bilan du 1er trimestre.</div></div>'; }
+
+    /* ═════════════ BULLETIN ═════════════ */
+    async function loadBulletin(tri) {
+      triActif = tri;
+      const tn = ['', '1er Trimestre', '2e Trimestre', '3e Trimestre'];
+      document.getElementById('bul-tri-b').textContent = tn[tri];
+      document.getElementById('bul-date').textContent = 'Généré le ' + new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+      document.getElementById('bul-rows').innerHTML = '<div style="text-align:center;padding:36px;"><div class="spin" style="margin:0 auto 8px;"></div><div style="font-size:.74rem;font-weight:700;color:#94A3B8;">Chargement…</div></div>';
+      let notes = null;
+      try {
+        const id = E.id_enfant;
+        if (id) {
+          const d = await api(`/parents/bulletin-enfant?enfant_id=${id}&trimestre=${tri}`);
+          if (d.success) {
+            // Récupérer les notes (compatibilité notes ET notes_par_matiere)
+            const rawNotes = d.notes || d.notes_par_matiere || [];
+            if (rawNotes.length > 0) {
+              notes = rawNotes.map(n => ({
+                nom_matiere: n.nom_matiere || n.matiere || 'Matière',
+                valeur_note: parseFloat(n.valeur_note || n.note_moyenne || n.note || 0),
+                coefficient: parseInt(n.coefficient || 1)
+              }));
+            }
+            // Remplir le header avec les infos de l'enfant
+            if (d.enfant) {
+              const en = d.enfant;
+              const nomE = en.nom_complet || ((en.prenom||'') + ' ' + (en.nom||'')).trim() || '---';
+              document.getElementById('bul-nom-h').textContent = nomE;
+              document.getElementById('bul-mat-h').textContent = en.code_unique || E.code_unique || '---';
+              document.getElementById('bul-cls-h').textContent = en.classe || en.classe_actuelle || E.classe || '---';
+              if (en.moyenne_generale) document.getElementById('st-moy').textContent = parseFloat(en.moyenne_generale).toFixed(2);
+              // Mettre à jour E aussi
+              if (!E.code_unique && en.code_unique) E.code_unique = en.code_unique;
+              if (!E.classe && en.classe) E.classe = en.classe;
+            }
+          }
+        }
+      } catch(e) { console.warn('loadBulletin:', e); }
+      renderBulletin(notes || NDEMO);
+    }
+
+    function renderBulletin(notes) {
+      let tot = 0, ct = 0;
+      const rows = notes.map((n, i) => {
+        const v = parseFloat(n.valeur_note || n.note || 0);
+        const c = parseInt(n.coefficient || 1);
+        const pts = v * c; tot += pts; ct += c;
+        const col = COLS[i % COLS.length];
+        const nc = nCol(v);
+        const app = v >= 15 ? 'Excellent' : v >= 13 ? 'Très bien' : v >= 12 ? 'Bien' : v >= 10 ? 'Assez bien' : v >= 8 ? 'Peut mieux faire' : 'Insuffisant';
+        return `<div class="bul-row">
+          <div style="display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;color:#1E293B;">
+            <span style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0;"></span>
+            ${icn(n.nom_matiere || '')} ${esc(n.nom_matiere || '—')}
+          </div>
+          <div style="text-align:center;font-size:.74rem;font-weight:700;color:#64748B;">${c}</div>
+          <div style="text-align:center;font-size:.98rem;font-weight:900;color:${nc};">${v.toFixed(2)}</div>
+          <div style="text-align:center;font-size:.78rem;font-weight:800;color:#1E293B;">${pts.toFixed(1)}</div>
+          <div>
+            <div class="nb"><div class="nf" style="width:0%;background:${col};" data-w="${(v / 20) * 100}"></div></div>
+            <div style="font-size:.62rem;color:#94A3B8;margin-top:2px;font-style:italic;">${app}</div>
+          </div>
+        </div>`;
+      }).join('');
+      document.getElementById('bul-rows').innerHTML = rows;
+      const moy = ct > 0 ? (tot / ct).toFixed(2) : '—';
+      document.getElementById('bul-moy').textContent = moy;
+      const m = parseFloat(moy);
+      document.getElementById('bul-mention').textContent = men(m).split(' ').slice(0, -1).join(' ');
+      document.getElementById('bul-appr').textContent = m >= 14 ? '"Félicitations du jury"' : m >= 12 ? '"Encouragements du jury"' : '"Des efforts à fournir"';
+      document.getElementById('bul-pts').textContent = tot.toFixed(1);
+      document.getElementById('bul-coef').textContent = 'coef total : ' + ct;
+      document.getElementById('st-moy').textContent = moy;
+      setTimeout(() => { document.querySelectorAll('.nf[data-w]').forEach(el => { el.style.width = el.dataset.w + '%'; }); }, 120);
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function selTri(n, btn) {
+      document.querySelectorAll('.tri').forEach(b => { b.className = 'btn bo bs tri'; });
+      btn.className = 'btn bp bs tri';
+      loadBulletin(n);
+    }
+
+    /* ═════════════ TÉLÉCHARGEMENT PDF ═════════════ */
+    async function dlPDF() {
+      const btn = document.getElementById('btn-pdf');
+      btn.innerHTML = '<div class="spin" style="width:12px;height:12px;border-width:2px;"></div> Génération…';
+      btn.disabled = true;
+      try {
+        const { jsPDF } = window.jspdf;
+        const el = document.getElementById('bul-doc');
+        const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false });
+        const img = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pw = pdf.internal.pageSize.getWidth();
+        const ph = pdf.internal.pageSize.getHeight();
+        const ih = (canvas.height * pw) / canvas.width;
+        let y = 0;
+        while (y < ih) {
+          if (y > 0) pdf.addPage();
+          pdf.addImage(img, 'PNG', 0, -y, pw, ih);
+          y += ph;
+        }
+        const nom = (E.nom || 'enfant').replace(/\s/g, '_');
+        const tri = ['', 'T1', 'T2', 'T3'][triActif] || 'T1';
+        pdf.save(`Bulletin_${nom}_${tri}_2025-2026.pdf`);
+      } catch (e) { dlg('Erreur PDF', 'Impossible de générer le PDF. Essayez avec Chrome ou Firefox à jour.'); }
+      btn.innerHTML = '<i data-lucide="download" style="width:12px;height:12px;"></i>PDF';
+      btn.disabled = false;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    /* ═════════════ ABSENCES ═════════════ */
+    async function loadAbsCpt() {
+      try { const d = await api('/parents/absences-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : '')); if (d.success) { const inj = (d.absences || []).filter(a => !a.justifiee).length, tot = (d.absences || []).length; document.getElementById('st-abs').textContent = tot; if (inj > 0) { const b = document.getElementById('babs'); b.textContent = inj; b.style.display = 'inline'; } } } catch { }
+    }
+    async function loadAbs() {
+      try {
+        const d = await api('/parents/absences-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : ''));
+        if (d.success && d.absences) {
+          const a = d.absences, inj = a.filter(x => !x.justifiee).length, jus = a.filter(x => x.justifiee).length;
+          document.getElementById('ab-inj').textContent = inj; document.getElementById('ab-jus').textContent = jus; document.getElementById('ab-tot').textContent = a.length;
+          document.getElementById('ab-list').innerHTML = a.length ? a.map(ab => `
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;">
+                <div style="width:7px;height:7px;border-radius:50%;background:${ab.justifiee ? '#10B981' : '#EF4444'};flex-shrink:0;"></div>
+                <div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">${esc(ab.date_absence || ab.date)} — ${esc(ab.matiere || 'Cours')}</div>
+                <div style="font-size:.6rem;color:#94A3B8;margin-top:1px;">${esc(ab.motif || ab.raison || 'Non renseigné')}</div></div>
+                <span class="bdg" style="background:${ab.justifiee ? '#D1FAE5' : '#FEE2E2'};color:${ab.justifiee ? '#065F46' : '#991B1B'};">${ab.justifiee ? 'Justifiée' : 'Non justifiée'}</span>
+              </div>`).join('') : '<div style="text-align:center;color:#CBD5E1;padding:22px;font-size:.78rem;font-weight:700;">✅ Aucune absence</div>';
+        } else abDm();
+      } catch { abDm(); }
+    }
+    function abDm() { document.getElementById('ab-inj').textContent = 1; document.getElementById('ab-jus').textContent = 2; document.getElementById('ab-tot').textContent = 3; document.getElementById('ab-list').innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;"><div style="width:7px;height:7px;border-radius:50%;background:#EF4444;"></div><div style="flex:1;font-size:.76rem;font-weight:700;">24 fév. 2026 — Français</div><span class="bdg" style="background:#FEE2E2;color:#991B1B;">Non justifiée</span></div>'; }
+
+    /* ═════════════ CONVOCATIONS ═════════════ */
+    async function loadCvCpt() {
+      try { const d = await api('/parents/convocations-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : '')); if (d.success) { const nb = (d.convocations || []).length; document.getElementById('st-cv').textContent = nb; if (nb > 0) { const b = document.getElementById('bconv'); b.textContent = nb; b.style.display = 'inline'; const c = d.convocations[0]; const al = document.getElementById('al-cv'); al.style.display = 'flex'; document.getElementById('al-cv-t').textContent = (c.motif || c.objet || 'Convocation') + ' — ' + (c.date_convocation || c.date || ''); } } } catch { }
+    }
+    async function loadConv() {
+      try {
+        const d = await api('/parents/convocations-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : ''));
+        if (d.success && d.convocations?.length > 0) {
+          document.getElementById('cv-list').innerHTML = d.convocations.map(c => `
+              <div style="background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F59E0B;border-radius:14px;padding:13px;margin-bottom:9px;">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;"><span class="bdg" style="background:#FDE68A;color:#92400E;">CONVOCATION</span><span style="font-size:.78rem;font-weight:800;">${esc(c.motif || c.objet || 'Convocation')}</span></div>
+                <div style="font-size:.7rem;color:#78350F;line-height:1.5;">${esc(c.description || c.contenu || 'Merci de vous présenter.')}</div>
+                <div style="font-size:.6rem;font-weight:800;color:#D97706;text-transform:uppercase;margin-top:6px;">📅 ${esc(c.date_convocation || c.date || 'À confirmer')}</div>
+              </div>`).join('');
+        } else cvDm();
+      } catch { cvDm(); }
+    }
+    function cvDm() { document.getElementById('cv-list').innerHTML = '<div style="background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F59E0B;border-radius:14px;padding:13px;margin-bottom:9px;"><div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;"><span class="bdg" style="background:#FDE68A;color:#92400E;">CONVOCATION</span><span style="font-size:.78rem;font-weight:800;">Entretien Surveillant Général</span></div><div style="font-size:.7rem;color:#78350F;">Absence non justifiée du 24 fév. Présentez-vous avec votre enfant.</div><div style="font-size:.6rem;font-weight:800;color:#D97706;text-transform:uppercase;margin-top:6px;">📅 Lundi 10 mars 2026 à 10h00</div></div>'; }
+
+    /* ═════════════ FORUM WHATSAPP AVANCÉ ═════════════ */
+    let fInt = null, tInt = null, fPosts = [], replyTo = null, ctxPost = null;
+    const REACT_EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '🔥', '👏', '🙏'];
+
+    function startForum() {
+      // Si on a déjà des posts en mémoire, les afficher immédiatement
+      if (fPosts.length > 0) {
+        renderForum(fPosts);
+      } else {
+        // Sinon afficher spinner discret
+        document.getElementById('fw-msgs').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;"><div style="text-align:center;color:#8A7F74;"><div class="spin" style="margin:0 auto 10px;border-top-color:#128C7E;"></div><div style="font-size:.78rem;font-weight:700;">Chargement des messages...</div></div></div>';
+      }
+      // Charger immédiatement puis démarrer le polling
+      loadPosts().then(() => {
+        loadTyping();
+      });
+      if (!fInt) fInt = setInterval(loadPosts, 4000);
+      if (!tInt) tInt = setInterval(loadTyping, 2500);
+    }
+    function stopForum() { if (fInt) { clearInterval(fInt); fInt = null; } if (tInt) { clearInterval(tInt); tInt = null; } cancelReply(); closeCtx(); }
+
+    async function loadPosts() {
+      try {
+        const d = await api('/parents/forum');
+        if (!d.success) throw 0;
+        const ps = d.posts || [];
+        document.getElementById('fw-st').textContent = ps.length + ' message(s) · en ligne';
+        const sig = ps.map(p => p.id_post + '_' + p.nb_likes + '_' + (p.reactions || []).length + '_' + p.est_supprime).join(',');
+        const old = fPosts.map(p => p.id_post + '_' + p.nb_likes + '_' + (p.reactions || []).length + '_' + p.est_supprime).join(',');
+        if (sig !== old) { fPosts = ps; renderForum(ps); }
+      } catch { if (!fPosts.length) forumDm(); }
+    }
+
+    async function loadTyping() {
+      try {
+        const d = await api('/parents/forum/typing');
+        const el = document.getElementById('fw-typing');
+        const tx = document.getElementById('fw-typing-txt');
+        if (d.typing && d.typing.length > 0) {
+          tx.textContent = d.typing.join(", ") + " ecrit...";
+          el.style.display = 'block';
+        } else { el.style.display = 'none'; }
+      } catch { }
+    }
+
+    let typingTimer = null;
+    function onTyping() {
+      const ta = document.getElementById('fw-ta');
+      const txt = ta.value;
+      // Compteur
+      const cnt = document.getElementById('fw-count');
+      if (txt.length > 1800) { cnt.style.display = 'block'; cnt.textContent = (2000 - txt.length) + ' restants'; cnt.style.color = txt.length > 1950 ? '#EF4444' : '#CBD5E1'; }
+      else cnt.style.display = 'none';
+      // Typing indicator
+      if (!typingTimer) {
+        api('/parents/forum/typing', { method: 'POST', body: JSON.stringify({ nom_affiche: P.prenom + ' ' + P.nom }) }).catch(() => { });
+        typingTimer = setTimeout(() => { typingTimer = null; }, 2500);
+      }
+    }
+
+    function renderForum(posts) {
+      const box = document.getElementById('fw-msgs');
+      const atBot = box.scrollHeight - box.clientHeight - box.scrollTop < 60;
+      const moiCode = sess.code_unique;
+      if (!posts.length) {
+        box.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;"><div style="text-align:center;color:#8A7F74;"><div style="font-size:2.5rem;margin-bottom:10px;">💬</div><div style="font-size:.85rem;font-weight:700;">Aucun message</div><div style="font-size:.72rem;margin-top:4px;color:#aaa;">Lancez la conversation !</div></div></div>';
+        return;
+      }
+      let html = '', lastD = '';
+      [...posts].reverse().forEach(p => {
+        const dd = new Date(p.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+        if (dd !== lastD) { html += `<div class="dsep"><span>${dd}</span></div>`; lastD = dd; }
+        const me = p.code_unique === moiCode;
+        const bg = clr((p.nom || '') + (p.prenom || ''));
+        const avH = p.photo_url ? `<img src="${p.photo_url}" style="width:30px;height:30px;object-fit:cover;border-radius:50%;" alt="">` : ini(p.prenom, p.nom);
+        const avBg = p.photo_url ? 'transparent' : bg;
+
+        // Réactions
+        let reactHtml = '';
+        if (p.reactions && p.reactions.length > 0) {
+          reactHtml = '<div class="reactions-row">';
+          p.reactions.forEach(r => {
+            const mine = p.ma_reaction === r.emoji;
+            reactHtml += `<span class="react-chip${mine ? ' mine' : ''}" onclick="doReact(${p.id_post},'${r.emoji}',event)" title="${r.emoji} ${r.cnt} réaction(s)">${r.emoji} ${r.cnt}</span>`;
+          });
+          reactHtml += '</div>';
+        }
+
+        // Reply quote
+        let replyHtml = '';
+        if (p.reply_to_id && !p.est_supprime) {
+          replyHtml = `<div class="reply-quote${me ? ' me' : ''}">
+              <div style="font-size:.6rem;font-weight:800;color:${me ? '#075E54' : '#128C7E'};">${esc(p.reply_to_nom || '')}</div>
+              <div style="font-size:.7rem;color:#667781;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc((p.reply_to_txt || '').substring(0, 80))}</div>
+            </div>`;
+        }
+
+        // Contenu
+        const contenuHtml = p.est_supprime
+          ? '<span class="msg-deleted">🚫 Ce message a été supprimé.</span>'
+          : `<div class="bub-txt">${esc(p.contenu)}</div>`;
+
+        html += `<div class="mrow ${me ? 'me' : 'them'}" id="msg-${p.id_post}" oncontextmenu="showCtx(event,${p.id_post},${me},${JSON.stringify(esc(p.prenom + ' ' + p.nom))},${JSON.stringify(esc(p.contenu))})">
+          <div class="bav" style="background:${avBg};">${avH}</div>
+          <div style="max-width:calc(100% - 40px);">
+            <div class="bub ${me ? 'me' : 'them'}">
+              ${!me && !p.est_supprime ? `<div class="bub-name" style="color:${bg};">${esc(p.prenom)} ${esc(p.nom)}<span style="font-size:.54rem;color:#94A3B8;font-weight:600;margin-left:5px;">${esc(p.statut_ape || 'MEMBRE')}</span></div>` : ''}
+              ${replyHtml}
+              ${contenuHtml}
+              <div class="bub-ft">
+                <span class="bub-time">${hm(p.created_at)}</span>
+                ${me && !p.est_supprime ? `<svg width="15" height="10" viewBox="0 0 16 11"><path d="M15.854 1.146a.5.5 0 0 0-.708 0L6 10.293 1.854 6.146a.5.5 0 0 0-.708.708l4.5 4.5a.5.5 0 0 0 .708 0L15.854 1.854a.5.5 0 0 0 0-.708z" fill="#34B7F1"/></svg>` : ''}
+              </div>
+            </div>
+            ${reactHtml}
+            ${!p.est_supprime ? `<div style="display:flex;gap:4px;margin-top:2px;${me ? 'justify-content:flex-end;' : ''}">
+              <button onclick="showCtx(event,${p.id_post},${me},${JSON.stringify(esc(p.prenom + ' ' + p.nom))},${JSON.stringify(esc(p.contenu))})" style="font-size:.6rem;color:#aaa;background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:8px;font-family:inherit;display:flex;align-items:center;gap:3px;" title="Options">
+                ••• 
+              </button>
+            </div>`: ''}
+          </div>
+        </div>`;
+      });
+      box.innerHTML = html;
+      if (atBot) box.scrollTop = box.scrollHeight;
+      // Setup emoji picker click
+      document.querySelectorAll('#fw-emoji div span').forEach(sp => {
+        sp.onclick = () => {
+          const ta = document.getElementById('fw-ta');
+          ta.value += sp.textContent.trim();
+          arTa(ta);
+          document.getElementById('fw-emoji').style.display = 'none';
+        };
+      });
+    }
+
+    /* ── Menu contextuel ── */
+    function showCtx(e, id, me, nom, txt) {
+      e.preventDefault(); e.stopPropagation();
+      ctxPost = { id, me, nom, txt };
+      const m = document.getElementById('ctx-menu');
+      // Réactions
+      document.getElementById('ctx-reactions').innerHTML = REACT_EMOJIS.map(em =>
+        `<span onclick="doReact(${id},'${em}',event)" style="font-size:1.3rem;cursor:pointer;padding:3px 4px;border-radius:7px;transition:background .12s;" onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='none'" title="${em}">${em}</span>`
+      ).join('');
+      document.getElementById('ctx-delete').style.display = me ? 'flex' : 'none';
+      m.style.display = 'block';
+      // Position
+      let x = e.clientX, y = e.clientY;
+      if (x + 200 > window.innerWidth) x = window.innerWidth - 210;
+      if (y + 200 > window.innerHeight) y = window.innerHeight - 210;
+      m.style.left = x + 'px'; m.style.top = y + 'px';
+      if (window.lucide) lucide.createIcons();
+    }
+    function closeCtx() { const m = document.getElementById('ctx-menu'); if (m) m.style.display = 'none'; ctxPost = null; }
+    document.addEventListener('click', closeCtx);
+
+    function doReply() {
+      if (!ctxPost) return;
+      replyTo = { id: ctxPost.id, nom: ctxPost.nom, txt: ctxPost.txt };
+      document.getElementById('fw-reply-nom').textContent = ctxPost.nom;
+      document.getElementById('fw-reply-txt').textContent = (ctxPost.txt || '').substring(0, 80);
+      document.getElementById('fw-reply-bar').style.display = 'flex';
+      document.getElementById('fw-ta').focus();
+      closeCtx();
+    }
+    function cancelReply() { replyTo = null; document.getElementById('fw-reply-bar').style.display = 'none'; }
+
+    function doCopy() { if (!ctxPost) return; navigator.clipboard?.writeText(ctxPost.txt || '').then(() => { }).catch(() => { }); closeCtx(); }
+
+    async function doDelete() {
+      if (!ctxPost || !ctxPost.me) return;
+      closeCtx();
+      try { await api('/parents/forum/' + ctxPost.id, { method: 'DELETE' }); await loadPosts(); }
+      catch { dlg('Erreur', 'Impossible de supprimer ce message.'); }
+    }
+
+    async function doReact(id, emoji, e) {
+      e?.stopPropagation(); closeCtx();
+      try { await api('/parents/forum/' + id + '/react', { method: 'POST', body: JSON.stringify({ emoji }) }); await loadPosts(); }
+      catch { }
+    }
+
+    function toggleEmoji() {
+      const el = document.getElementById('fw-emoji');
+      el.style.display = el.style.display === 'none' || !el.style.display ? 'flex' : 'none';
+    }
+
+    async function sendPost() {
+      const ta = document.getElementById('fw-ta');
+      const txt = ta.value.trim();
+      if (!txt) return;
+      const btn = document.querySelector('.fw-send');
+      btn.style.opacity = '.5'; ta.disabled = true;
+      try {
+        const body = { contenu: txt };
+        if (replyTo) { body.reply_to_id = replyTo.id; body.reply_to_nom = replyTo.nom; body.reply_to_txt = replyTo.txt; }
+        await api('/parents/forum', { method: 'POST', body: JSON.stringify(body) });
+        ta.value = ''; ta.style.height = '38px';
+        document.getElementById('fw-count').style.display = 'none';
+        cancelReply();
+        document.getElementById('fw-emoji').style.display = 'none';
+        await loadPosts();
+        const b = document.getElementById('fw-msgs'); b.scrollTop = b.scrollHeight;
+      } catch { dlg('Erreur', 'Impossible d\u0027envoyer.'); }
+      ta.disabled = false; btn.style.opacity = '1'; ta.focus();
+    }
+
+    async function likePost(id) { try { await api('/parents/forum/' + id + '/like', { method: 'POST' }); await loadPosts(); } catch { } }
+
+    function forumDm() {
+      fPosts = [
+        { id_post: 1, prenom: 'KONÉ', nom: 'Mireille', code_unique: 'X1', statut_ape: 'MEMBRE', contenu: 'Bonjour à tous ! La réunion du samedi 15 mars est confirmée à 9h. Qui peut apporter des chaises ? 🙏', nb_likes: 12, j_ai_like: false, created_at: new Date(Date.now() - 7200000).toISOString(), photo_url: null, reactions: [{ emoji: '👍', cnt: 5 }, { emoji: '❤️', cnt: 3 }], ma_reaction: null, est_supprime: false, reply_to_id: null },
+        { id_post: 2, prenom: 'DUBOIS', nom: 'Sixte', code_unique: 'X2', statut_ape: 'TRÉSORIER', contenu: "Cours de soutien pendant les vacances d'avril pour les Terminales ? 📚", nb_likes: 31, j_ai_like: false, created_at: new Date(Date.now() - 18000000).toISOString(), photo_url: null, reactions: [{ emoji: '🔥', cnt: 8 }], ma_reaction: null, est_supprime: false, reply_to_id: null },
+        { id_post: 3, prenom: 'SAWADOGO', nom: 'Fatima', code_unique: 'X3', statut_ape: 'SECRÉTAIRE', contenu: 'Félicitations à tous les élèves qui ont progressé ce trimestre ! 🎉', nb_likes: 24, j_ai_like: false, created_at: new Date(Date.now() - 86400000).toISOString(), photo_url: null, reactions: [{ emoji: '❤️', cnt: 12 }, { emoji: '👏', cnt: 6 }], ma_reaction: null, est_supprime: false, reply_to_id: null },
+      ];
+      renderForum(fPosts);
+      document.getElementById('fw-st').textContent = 'Mode démo · 3 messages';
+    }
+
+    function arTa(ta) { ta.style.height = '38px'; ta.style.height = Math.min(ta.scrollHeight, 110) + 'px'; }
+
+    /* ═════════════ COTISATIONS ═════════════ */
+    /* ═════════════ COTISATIONS ═════════════ */
+    async function loadCot() {
+      try {
+        const d = await api('/parents/cotisations');
+        if (d.success && d.cotisations) {
+          const c = d.cotisations;
+          document.getElementById('cp').textContent = (c.montant_paye || 0).toLocaleString('fr-FR') + ' FCFA';
+          document.getElementById('cr').textContent = (c.montant_restant || 0).toLocaleString('fr-FR') + ' FCFA';
+          document.getElementById('ct').textContent = (c.montant_total || 10000).toLocaleString('fr-FR') + ' FCFA';
+          document.getElementById('ch').innerHTML = (c.historique || []).map(h => `
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;">
+                <i data-lucide="${h.statut === 'payé' ? 'check-circle' : 'clock'}" style="width:16px;height:16px;color:${h.statut === 'payé' ? '#10B981' : '#EF4444'};flex-shrink:0;"></i>
+                <div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">${esc(h.libelle || 'Cotisation')}</div><div style="font-size:.6rem;color:#94A3B8;">${esc(h.date || '')}</div></div>
+                <span style="font-weight:900;font-size:.8rem;color:${h.statut === 'payé' ? '#10B981' : '#EF4444'};">${(h.montant || 0).toLocaleString('fr-FR')} FCFA</span>
+              </div>`).join('');
+          if (window.lucide) lucide.createIcons();
+        } else cotDm();
+      } catch { cotDm(); }
+    }
+    function cotDm() { document.getElementById('cp').textContent = '5 000 FCFA'; document.getElementById('cr').textContent = '5 000 FCFA'; document.getElementById('ct').textContent = '10 000 FCFA'; document.getElementById('ch').innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;"><i data-lucide="check-circle" style="width:16px;height:16px;color:#10B981;flex-shrink:0;"></i><div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">Cotisation 1er semestre</div><div style="font-size:.6rem;color:#94A3B8;">Payé le 15 oct. 2025</div></div><span style="font-weight:900;font-size:.8rem;color:#10B981;">5 000 FCFA</span></div><div style="display:flex;align-items:center;gap:10px;padding:10px 0;"><i data-lucide="clock" style="width:16px;height:16px;color:#EF4444;flex-shrink:0;"></i><div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">Cotisation 2e semestre</div><div style="font-size:.6rem;color:#94A3B8;">Échéance : 15 mars 2026</div></div><span style="font-weight:900;font-size:.8rem;color:#EF4444;">5 000 FCFA</span></div>'; if (window.lucide) lucide.createIcons(); }
+
+    /* ═════════════ ANNONCES ═════════════ */
+    async function loadAnn() {
+      try {
+        const d = await api('/parents/annonces');
+        if (d.success && d.annonces?.length > 0) {
+          document.getElementById('an-list').innerHTML = d.annonces.map(a => {
+            const urg = (a.priorite || '').toLowerCase().includes('urgent') || (a.titre || '').toLowerCase().includes('urgent');
+            return `<div class="card" style="border-left:4px solid ${urg ? '#EF4444' : '#4F46E5'};margin-bottom:10px;">
+                  <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span class="bdg" style="background:${urg ? '#FEE2E2' : '#EEF2FF'};color:${urg ? '#EF4444' : '#4F46E5'};">${urg ? 'URGENT' : 'INFO'}</span><span style="font-size:.78rem;font-weight:800;">${esc(a.titre || 'Annonce')}</span></div>
+                  <div style="font-size:.7rem;color:#475569;line-height:1.5;">${esc(a.contenu || '')}</div>
+                  <div style="font-size:.58rem;color:#CBD5E1;margin-top:6px;font-weight:700;">Direction · ${ago(a.created_at || a.date_publication)}</div>
+                </div>`;
+          }).join('');
+        } else annDm();
+      } catch { annDm(); }
+    }
+    function annDm() { document.getElementById('an-list').innerHTML = '<div class="card" style="border-left:4px solid #EF4444;margin-bottom:10px;"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span class="bdg" style="background:#FEE2E2;color:#EF4444;">URGENT</span><span style="font-size:.78rem;font-weight:800;">Examens de passage — 10 mars</span></div><div style="font-size:.7rem;color:#475569;">Les examens blancs débutent le 10 mars 2026. Présence obligatoire.</div><div style="font-size:.58rem;color:#CBD5E1;margin-top:6px;font-weight:700;">Direction · Il y a 3 jours</div></div>'; }
+
+    /* ═════════════ ORIENTATION ═════════════ */
+    function envOri() { const m = document.getElementById('ori-msg').value.trim(); if (!m) return; dlg('Conseil envoyé', 'Votre avis a été partagé avec les professeurs.'); document.getElementById('ori-msg').value = ''; }
+
+    /* ═════════════ PROFIL SAVE ═════════════ */
+    async function saveProfil() {
+      const btn = document.getElementById('btn-sv'); btn.disabled = true; btn.textContent = 'Enregistrement…';
+      try {
+        await api('/parents/profil', {
+          method: 'PUT', body: JSON.stringify({
+            profession: document.getElementById('pr-pf').value.trim() || null,
+            telephone: document.getElementById('pr-tl').value.trim() || null,
+            adresse: document.getElementById('pr-ad').value.trim() || null,
+            bio: document.getElementById('pr-bi').value.trim() || null,
+          })
+        });
+        const ok = document.getElementById('sv-ok'); ok.style.display = 'block'; setTimeout(() => ok.style.display = 'none', 3000);
+        P.profession = document.getElementById('pr-pf').value.trim();
+        P.telephone = document.getElementById('pr-tl').value.trim();
+        if (P.profession) { const e = document.getElementById('acc-prof'); e.textContent = '💼 ' + P.profession; e.style.display = 'inline'; }
+        if (P.telephone) { const e = document.getElementById('acc-tel'); e.textContent = '📞 ' + P.telephone; e.style.display = 'inline'; }
+      } catch { dlg('Erreur', 'Impossible de sauvegarder.'); }
+      btn.disabled = false; btn.textContent = 'Enregistrer';
+    }
+
+    /* ═════════════ UPLOAD PHOTO ═════════════ */
+    function uploadPhoto(input) {
+      const f = input.files[0]; if (!f) return;
+      if (f.size > 2 * 1024 * 1024) { dlg('Photo trop lourde', 'Maximum 2 Mo.'); return; }
+      const rd = new FileReader();
+      rd.onload = async e => {
+        const url = e.target.result;
+        // Mise à jour instantanée de tous les avatars parent
+        const imgC = s => `<img src="${url}" style="width:${s};height:${s};object-fit:cover;border-radius:50%;" alt="">`;
+        document.getElementById('av-p-t').innerHTML = imgC('74px');
+        document.getElementById('av-p').style.background = 'transparent';
+        document.getElementById('pr-av-t').innerHTML = imgC('86px');
+        document.getElementById('sb-av').innerHTML = `<img src="${url}" style="width:38px;height:38px;object-fit:cover;border-radius:11px;" alt="">`;
+        document.getElementById('sb-av').style.background = 'transparent';
+        document.getElementById('fw-av').innerHTML = `<img src="${url}" style="width:34px;height:34px;object-fit:cover;border-radius:50%;" alt="">`;
+        document.getElementById('fw-av').style.background = 'transparent';
+        P.photo_url = url;
+        try {
+          await api('/parents/profil', { method: 'PUT', body: JSON.stringify({ photo_url: url }) });
+          const s = JSON.parse(localStorage.getItem('user_session') || '{}'); s.photo_url = url; localStorage.setItem('user_session', JSON.stringify(s));
+        } catch { }
+      };
+      rd.readAsDataURL(f);
+    }
+
+    /* ═════════════ DÉCO ═════════════ */
+    function deco() { stopForum(); localStorage.clear(); window.location.replace('login.html?role=PARENT&context=Espace%20Parent'); }
+
+    /* ═════════════ INIT ═════════════ */
+    loadProfil();
+    // Activer bouton T1 sans charger le bulletin (attend que l'enfant soit chargé)
+    const tri1 = document.querySelector('.tri');
+    if (tri1) tri1.className = 'btn bp bs tri';
+    lucide.createIcons();
+  </script>
+  <script src="responsive-init.js"></script>
+</body>
+
+</html>
