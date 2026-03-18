@@ -1,22 +1,110 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
-const db = require('./config/db');
-
-const app = express();
+const http = require('http');
 const path = require('path');
+const fs = require('fs');
+require('dotenv').config();
 
+const db = require('./config/db');
+const app = express();
+const server = http.createServer(app);
+
+// ═══════════════════════════════════════════
+// SOCKET.IO — Messagerie temps réel
+// ═══════════════════════════════════════════
+let io;
+try {
+    const { Server } = require('socket.io');
+    const jwt = require('jsonwebtoken');
+
+    io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
+
+    io.on('connection', (socket) => {
+        // ...
+
+        // Écoute l'événement pour envoyer les messages d'absences aux élèves
+        socket.on('sendAbsence', (data) => {
+            const conv_id = data.conv_id || 'general';
+            // Envoyer les messages d'absences aux élèves
+            io.to('salle-profs').emit('receiveAbsence', {
+                conv_id,
+                message: data.message,
+            });
+        });
+
+        // Écoute l'événement pour envoyer les messages des parents aux élèves
+        socket.on('sendParentMessage', (data) => {
+            const conv_id = data.conv_id || 'general';
+            // Envoyer les messages des parents aux élèves
+            io.to('salle-profs').emit('receiveParentMessage', {
+                conv_id,
+                message: data.message,
+            });
+        });
+
+        // ...
+    });
+
+    console.log('✅ Socket.io initialisé');
+} catch (e) {
+    console.warn('⚠️ Socket.io non disponible:', e.message);
+}
+
+// ...
+
+app.post('/api/absences', (req, res) => {
+    // ...
+
+    // Envoyer les messages d'absences aux élèves via Socket.IO
+    if (io) {
+        io.to('salle-profs').emit('sendAbsence', {
+            conv_id: convId,
+            message: 'Absence enregistrée',
+        });
+    }
+
+    // ...
+});
+
+app.post('/api/parent-messages', (req, res) => {
+    // ...
+
+    // Envoyer les messages des parents aux élèves via Socket.IO
+    if (io) {
+        io.to('salle-profs').emit('sendParentMessage', {
+            conv_id: convId,
+            message: 'Message des parents',
+        });
+    }
+
+    // ...
+});
+
+// ...
+// ═══════════════════════════════════════════
+// MIDDLEWARE
+// ═══════════════════════════════════════════
 app.use(cors());
 app.use(express.json());
 
-// Servir les fichiers statiques du frontend
+// ── Fichiers statiques ──
 app.use(express.static('frontend'));
-// Servir les uploads (photos de profils)
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
-// Chargement des Routes
+// ── UPLOADS : s'assurer que le dossier existe puis le servir ──
+const UPLOAD_DIR = path.join(__dirname, 'public', 'uploads');
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+app.use('/uploads', express.static(UPLOAD_DIR));
+
+// ── Forcer UTF-8 ──
+app.use((req, res, next) => {
+    db.query("SET client_encoding = 'UTF8'").catch(() => { });
+    next();
+});
+
+// ═══════════════════════════════════════════
+// ROUTES API
+// ═══════════════════════════════════════════
 const authRoutes = require('./routes/authRoutes');
-const courseRoutes = require('./routes/courseRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const surveillantRoutes = require('./routes/surveillantRoutes');
 const eleveRoutes = require('./routes/eleveRoutes');
@@ -24,149 +112,149 @@ const parentRoutes = require('./routes/parentRoutes');
 const professeurRoutes = require('./routes/professeurRoutes');
 
 app.use('/api/auth', authRoutes);
-app.use('/api/cours', courseRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/surveillants', surveillantRoutes);
 app.use('/api/eleves', eleveRoutes);
 app.use('/api/parents', parentRoutes);
 app.use('/api/professeurs', professeurRoutes);
 
-// Route racine - Page d'accueil du serveur
-app.get('/', async (req, res) => {
-    try {
-        // Récupérer les stats
-        let stats = { users: 0, courses: 0, usersOnline: 8 };
-
-        try {
-            const r1 = await db.query('SELECT COUNT(*) FROM authentification.comptes');
-            stats.users = r1.rows[0].count || 0;
-        } catch (e) { }
-
-        try {
-            const r2 = await db.query('SELECT COUNT(*) FROM authentification.cours');
-            stats.courses = r2.rows[0].count || 0;
-        } catch (e) { }
-
-        // Récupérer les cours
-        let courses = [];
-        try {
-            const r3 = await db.query('SELECT id, nom, description FROM authentification.cours LIMIT 12');
-            courses = r3.rows || [];
-        } catch (e) { }
-
-        const html = `<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Numérique - Accueil Serveur</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .stat-card { transition: all 0.3s ease; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .course-card { transition: all 0.3s ease; }
-        .course-card:hover { transform: scale(1.05); }
-    </style>
-</head>
-<body class="bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-    <nav class="fixed top-0 w-full h-20 z-50 px-12 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="bg-indigo-600 p-2 rounded-xl shadow-lg">
-                <i data-lucide="layout-grid" class="text-white w-5 h-5"></i>
-            </div>
-            <span class="text-2xl font-black italic uppercase">CAMPUS<span class="text-indigo-600">NUM</span></span>
-        </div>
-        <div class="text-sm text-slate-500 font-bold">🚀 Serveur Actif</div>
-    </nav>
-
-    <main class="pt-32 pb-20 px-6 max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-            <h1 class="text-5xl font-black italic uppercase tracking-tight mb-2">
-                Bienvenue au <span class="text-indigo-600">Campus Numérique</span>
-            </h1>
-            <p class="text-slate-500 font-bold text-sm uppercase tracking-widest">Portail d'Administration Scolaire</p>
-        </div>
-
-        <!-- Statistiques -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div class="stat-card bg-white p-8 rounded-3xl border border-slate-100 shadow-md">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-slate-400 text-sm font-bold uppercase">Utilisateurs</p>
-                        <p class="text-4xl font-black text-slate-900 mt-2">${stats.users}</p>
-                    </div>
-                    <div class="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center">
-                        <i data-lucide="users" class="text-indigo-600 w-8 h-8"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card bg-white p-8 rounded-3xl border border-slate-100 shadow-md">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-slate-400 text-sm font-bold uppercase">En Ligne</p>
-                        <p class="text-4xl font-black text-slate-900 mt-2">${stats.usersOnline}</p>
-                    </div>
-                    <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center">
-                        <i data-lucide="activity" class="text-emerald-600 w-8 h-8"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="stat-card bg-white p-8 rounded-3xl border border-slate-100 shadow-md">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-slate-400 text-sm font-bold uppercase">Cours</p>
-                        <p class="text-4xl font-black text-slate-900 mt-2">${stats.courses}</p>
-                    </div>
-                    <div class="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center">
-                        <i data-lucide="book-open" class="text-purple-600 w-8 h-8"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cours -->
-        <div>
-            <h2 class="text-3xl font-black italic uppercase mb-8">Catalogue des Cours</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                ${courses.map(course => `
-                    <div class="course-card bg-white p-6 rounded-2xl border border-slate-100 shadow-md hover:shadow-xl">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4">
-                            <i data-lucide="book-marked" class="text-indigo-600"></i>
-                        </div>
-                        <h3 class="font-black text-lg mb-2">${course.nom || 'Sans titre'}</h3>
-                        <p class="text-slate-500 text-sm">${course.description || 'Aucune description'}</p>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="mt-16 text-center pt-8 border-t border-slate-200">
-            <p class="text-slate-400 text-sm">
-                ✨ Campus Numérique © 2025 | Plateforme Scolaire Intégrée
-            </p>
-        </div>
-    </main>
-
-    <script>
-        if (window.lucide) lucide.createIcons();
-    </script>
-</body>
-</html>`;
-
-        res.send(html);
-    } catch (error) {
-        console.error('Erreur page accueil:', error);
-        res.send('<h1>Campus Numérique</h1><p>Serveur actif ✓</p>');
+// ── Upload média salle des profs ──
+const multer = require('multer');
+const msgStorage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+    filename: (req, file, cb) => {
+        const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+        cb(null, `msg_${Date.now()}_${safeName}`);
+    }
+});
+const msgUpload = multer({
+    storage: msgStorage,
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo
+    fileFilter: (req, file, cb) => {
+        const allowed = [
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+            'video/mp4', 'video/webm', 'video/quicktime', 'video/ogg',
+            'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/webm', 'audio/mp4',
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        ];
+        cb(null, allowed.includes(file.mimetype));
     }
 });
 
+const jwt = require('jsonwebtoken');
+app.post('/api/messages/upload', (req, res, next) => {
+    // Vérification JWT manuelle (avant multer)
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : auth;
+    if (!token) return res.status(401).json({ success: false, message: 'Non authentifié' });
+    try {
+        req.user = jwt.verify(token, process.env.JWT_SECRET || 'ma_cle_secrete');
+        next();
+    } catch (e) {
+        return res.status(401).json({ success: false, message: 'Token invalide' });
+    }
+}, msgUpload.single('media'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ success: false, message: 'Aucun fichier reçu' });
+
+        const conv_id = req.body.conv_id || 'general';
+        const from_code = req.user.code_unique || req.user.id;
+        const from_nom = req.body.nom || 'Professeur';
+        const type_msg = req.body.type || 'media'; // 'img' | 'audio' | 'video' | 'file'
+        const url = `/uploads/${req.file.filename}`;
+
+        // Sauvegarder en BD
+        let msgId = Date.now();
+        try {
+            const r = await db.query(
+                `INSERT INTO pedagogie.messages_salle
+                 (conv_id, from_code, from_nom, contenu, type_msg)
+                 VALUES ($1,$2,$3,$4,$5)
+                 RETURNING id, date_envoi`,
+                [conv_id, from_code, from_nom, url, type_msg]
+            );
+            msgId = r.rows[0].id;
+        } catch (e) {
+            console.warn('BD insert media msg:', e.message);
+        }
+
+        // Diffuser via Socket.io à toute la salle
+        if (io) {
+            io.to('salle-profs').emit('msg-salle', {
+                id: msgId,
+                from: from_code,
+                nom: from_nom,
+                txt: url,
+                conv_id,
+                type: type_msg,
+                fileName: req.file.originalname,
+                fileSize: req.file.size > 1048576
+                    ? (req.file.size / 1048576).toFixed(1) + ' Mo'
+                    : Math.round(req.file.size / 1024) + ' Ko',
+                time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            });
+        }
+
+        res.json({
+            success: true,
+            url,
+            id: msgId,
+            fileName: req.file.originalname,
+            fileSize: req.file.size > 1048576
+                ? (req.file.size / 1048576).toFixed(1) + ' Mo'
+                : Math.round(req.file.size / 1024) + ' Ko',
+        });
+    } catch (e) {
+        console.error('Upload media msg:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur: ' + e.message });
+    }
+});
+
+// ── Messages salle des profs ──
+app.get('/api/messages/:conv_id', async (req, res) => {
+    try {
+        const { conv_id } = req.params;
+        const limit = Math.min(parseInt(req.query.limit) || 60, 200);
+        const r = await db.query(
+            `SELECT id, conv_id, from_code, from_nom,
+                    contenu AS txt, type_msg AS type, reply_to, date_envoi
+             FROM pedagogie.messages_salle
+             WHERE conv_id = $1
+             ORDER BY date_envoi ASC
+             LIMIT $2`,
+            [conv_id, limit]
+        );
+        res.json({
+            success: true,
+            messages: r.rows.map(m => ({
+                id: m.id,
+                from: m.from_code,
+                nom: m.from_nom,
+                txt: m.txt,
+                conv_id: m.conv_id,
+                type: m.type,
+                time: new Date(m.date_envoi).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                date: new Date(m.date_envoi).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+            }))
+        });
+    } catch (e) {
+        console.warn('GET messages:', e.message);
+        res.json({ success: true, messages: [] });
+    }
+});
+
+// ── Santé du serveur ──
+app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date() }));
+
+// ═══════════════════════════════════════════
+// DÉMARRAGE
+// ═══════════════════════════════════════════
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Serveur lancé sur le port ${PORT}`);
-    console.log(`✅ Prêt pour le laboratoire virtuel [cite: 2025-09-23]`);
+server.listen(PORT, () => {
+    console.log(`🚀 Serveur + WebSocket lancé sur le port ${PORT}`);
+    db.query('SELECT 1').then(() => console.log('✅ Connecté à PostgreSQL')).catch(e => console.error('❌ BD:', e.message));
 });

@@ -16,14 +16,31 @@ const db = require('../config/db');
 // D'abord on récupère l'ID enfant depuis la relation parent-enfant
 const getEnfantsPourParent = async (parentId) => {
     try {
-        const query = `
-            SELECT DISTINCT p.id_user as id_enfant
-            FROM vie_scolaire.profils_eleves p
-            JOIN liaisons_parentales.parent_eleve pe ON p.id_user = pe.id_eleve
-            WHERE pe.id_parent = $1
-        `;
-        const result = await db.query(query, [parentId]);
-        return result.rows.map(r => r.id_enfant);
+        // Essai 1 : table de liaison explicite
+        try {
+            const r = await db.query(`
+                SELECT DISTINCT pe.id_eleve as id_enfant
+                FROM liaisons_parentales.parent_eleve pe
+                WHERE pe.id_parent = $1
+            `, [parentId]);
+            if (r.rows.length > 0) return r.rows.map(r => r.id_enfant);
+        } catch(e1) { /* table n'existe pas */ }
+
+        // Essai 2 : même nom de famille (simulation_ecole crée les familles avec le même nom)
+        const parentInfo = await db.query(
+            `SELECT nom FROM authentification.comptes WHERE id_user = $1`, [parentId]
+        );
+        if (!parentInfo.rows.length) return [];
+        const nomFamille = parentInfo.rows[0].nom;
+
+        const r2 = await db.query(`
+            SELECT c.id_user as id_enfant
+            FROM authentification.comptes c
+            JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
+            WHERE c.nom = $1 AND c.role_actuel = 'ELEVE' AND c.est_actif = true
+            LIMIT 1
+        `, [nomFamille]);
+        return r2.rows.map(r => r.id_enfant);
     } catch (error) {
         console.error('Erreur récupération enfants:', error);
         return [];
@@ -458,38 +475,49 @@ exports.getProfilParent = async (req, res) => {
         }
 
         // Récupérer infos parent
-        const query = `
-            SELECT 
-                c.id_user,
-                c.code_unique,
-                c.nom,
-                c.prenom,
-                c.email,
-                c.est_actif,
-                p.profession,
-                (SELECT COUNT(*) FROM liaisons_parentales.parent_eleve WHERE id_parent = c.id_user) as nb_enfants
+        // Créer la table profils_parents si elle n'existe pas
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS liaisons_parentales.profils_parents (
+                id_user INTEGER PRIMARY KEY,
+                adresse TEXT, profession TEXT, biographie TEXT, photo_url TEXT,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        `).catch(() => {});
+
+        // Récupérer le profil complet depuis toutes les tables
+        const result = await db.query(`
+            SELECT c.id_user, c.code_unique, c.nom, c.prenom, c.email, c.telephone, c.est_actif,
+                   COALESCE(pp.profession, gp.profession) as profession,
+                   COALESCE(pp.adresse, gp.adresse) as adresse,
+                   COALESCE(pp.biographie, gp.biographie) as biographie,
+                   COALESCE(pp.photo_url, gp.photo_url) as photo_url,
+                   COALESCE(gp.statut_ape, 'MEMBRE') as statut_ape
             FROM authentification.comptes c
-            LEFT JOIN gestion_ape.profils_parents p ON c.id_user = p.id_user
+            LEFT JOIN liaisons_parentales.profils_parents pp ON pp.id_user = c.id_user
+            LEFT JOIN gestion_ape.profils_parents gp ON gp.id_user = c.id_user
             WHERE c.id_user = $1
-        `;
+        `, [parentId]);
 
-        const result = await db.query(query, [parentId]);
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'Profil non trouvé' });
-        }
-
-        const parent = result.rows[0];
+        if (!result.rows.length) return res.status(404).json({ message: 'Profil non trouvé' });
+        const p = result.rows[0];
 
         res.json({
             success: true,
             profil: {
-                nom_complet: `${parent.prenom} ${parent.nom}`,
-                code_unique: parent.code_unique,
-                email: parent.email,
-                profession: parent.profession || 'N/A',
-                nb_enfants: parent.nb_enfants,
-                compte_actif: parent.est_actif
+                id: p.id_user,
+                nom: p.nom,
+                prenom: p.prenom,
+                nom_complet: `${p.prenom} ${p.nom}`,
+                code_unique: p.code_unique,
+                email: p.email,
+                telephone: p.telephone,
+                profession: p.profession,
+                adresse: p.adresse,
+                biographie: p.biographie,
+                bio: p.biographie,
+                photo_url: p.photo_url,
+                statut_ape: p.statut_ape,
+                compte_actif: p.est_actif
             }
         });
 
@@ -520,19 +548,34 @@ exports.updateProfilParent = async (req, res) => {
             );
         }
 
-        // Mettre à jour les infos supplémentaires si table existe
+        // Mettre à jour dans liaisons_parentales.profils_parents
         try {
             await db.query(`
                 INSERT INTO liaisons_parentales.profils_parents (id_user, adresse, profession, biographie, photo_url)
                 VALUES ($1, $2, $3, $4, $5)
                 ON CONFLICT (id_user) DO UPDATE SET
-                    adresse = COALESCE($2, adresse),
-                    profession = COALESCE($3, profession),
-                    biographie = COALESCE($4, biographie),
-                    photo_url = COALESCE($5, photo_url)
+                    adresse     = COALESCE(EXCLUDED.adresse, liaisons_parentales.profils_parents.adresse),
+                    profession  = COALESCE(EXCLUDED.profession, liaisons_parentales.profils_parents.profession),
+                    biographie  = COALESCE(EXCLUDED.biographie, liaisons_parentales.profils_parents.biographie),
+                    photo_url   = COALESCE(EXCLUDED.photo_url, liaisons_parentales.profils_parents.photo_url)
             `, [parentId, adresse || null, profession || null, bioFinal || null, photo_url || null]);
-        } catch (e2) {
-            // Table optionnelle - continuer sans erreur
+        } catch (e2) { /* table optionnelle */ }
+
+        // Mettre à jour dans gestion_ape.profils_parents
+        try {
+            await db.query(`
+                UPDATE gestion_ape.profils_parents
+                SET profession  = COALESCE($2, profession)
+                WHERE id_user = $1
+            `, [parentId, profession || null]);
+        } catch (e3) { /* table optionnelle */ }
+
+        // Persister le téléphone dans comptes si fourni
+        if (telephone) {
+            await db.query(
+                `UPDATE authentification.comptes SET telephone = $1 WHERE id_user = $2`,
+                [telephone, parentId]
+            ).catch(() => {});
         }
 
         res.json({ success: true, message: 'Profil mis à jour' });

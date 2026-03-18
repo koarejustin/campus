@@ -45,12 +45,31 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
         if (!isMatch) return res.status(400).json({ success: false, message: "Mot de passe incorrect." });
 
+        // ── Vérifier si déjà connecté (même matricule) ──
+        const activeSessions = req.app?.locals?.activeSessions;
+        if (activeSessions && activeSessions.has(user.code_unique)) {
+            const existing = activeSessions.get(user.code_unique);
+            // Optionnel: refuser ou forcer déconnexion
+            // Pour l'instant: accepter mais invalider l'ancienne session
+            activeSessions.delete(user.code_unique);
+            console.log(`⚠️ Double connexion détectée pour ${user.code_unique} - ancienne session invalidée`);
+        }
+
         // Génération du Token
         const token = jwt.sign(
             { id: user.id_user, role: user.role_actuel, classe: user.classe_actuelle },
             process.env.JWT_SECRET || 'ma_cle_secrete',
             { expiresIn: '24h' }
         );
+
+        // Enregistrer la session active
+        if (activeSessions) {
+            activeSessions.set(user.code_unique, {
+                token,
+                id_user: user.id_user,
+                loginAt: new Date()
+            });
+        }
 
         // --- MODIFICATION ICI : Retourner les clés attendues par le Dashboard ---
         res.status(200).json({

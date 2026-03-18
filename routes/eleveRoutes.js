@@ -27,4 +27,23 @@ router.get('/horaire',      auth, ctrl.getHoraire);
 // Statistiques dashboard
 router.get('/statistiques', auth, ctrl.getStatistiques);
 
+// Forum de classe
+router.get('/forum-classe',    auth, ctrl.getForumClasse);
+router.post('/forum-classe',   auth, ctrl.postForumClasse);
+
+// Inter-classes
+router.get('/inter-classes',   auth, ctrl.getInterClasses);
+router.post('/inter-classes',  auth, ctrl.postInterClasses);
+
+// Grand Élèves
+router.get('/grand-eleves',    auth, ctrl.getGrandEleves);
+router.post('/grand-eleves',   auth, ctrl.postGrandEleves);
+router.post('/grand-eleves/:id/like', auth, ctrl.likePost);
+
+// Vie scolaire
+router.get('/vie-scolaire',    auth, ctrl.getVieScolaire);
+
+// Orientation élève
+router.get('/orientation',     auth, ctrl.getOrientationEleve);
+
 module.exports = router;

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <script src="config.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Espace Élève | Campus Numérique FASO</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap"
@@ -1236,10 +1236,13 @@
 
       <div class="ni" onclick="goPage('programme')" id="ni-programme">
         <svg viewBox="0 0 24 24">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-          <line x1="8" y1="14" x2="8" y2="18"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="16" y1="14" x2="16" y2="18"/>
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+          <line x1="8" y1="14" x2="8" y2="18" />
+          <line x1="12" y1="14" x2="12" y2="18" />
+          <line x1="16" y1="14" x2="16" y2="18" />
         </svg>
         Programme & Devoirs
         <span class="badge-blue" id="badge-prog" style="display:none">0</span>
@@ -1503,11 +1506,13 @@
       </div>
       <!-- Filtres -->
       <div class="tabs" id="res-tabs">
-        <div class="tab on" onclick="filterRes('tous',this)">Tous</div>
-        <div class="tab" onclick="filterRes('COURS',this)">Cours</div>
-        <div class="tab" onclick="filterRes('TD',this)">TD</div>
-        <div class="tab" onclick="filterRes('CORRECTION',this)">Corrections</div>
-        <div class="tab" onclick="filterRes('VIDEO',this)">Vidéos</div>
+        <div class="tab on" onclick="filterRes('tous',this)">📚 Tous</div>
+        <div class="tab" onclick="filterRes('cours',this)">📄 Cours</div>
+        <div class="tab" onclick="filterRes('td',this)">📝 TD</div>
+        <div class="tab" onclick="filterRes('video',this)">🎬 Vidéos</div>
+        <div class="tab" onclick="filterRes('audio',this)">🎵 Audio</div>
+        <div class="tab" onclick="filterRes('image',this)">🖼️ Images</div>
+        <div class="tab" onclick="filterRes('doc',this)">📎 Docs</div>
       </div>
       <div id="res-content" style="display:flex;flex-direction:column;gap:10px;">
         <div class="empty">
@@ -1618,14 +1623,20 @@
       <!-- Devoirs -->
       <div id="prog-devoirs" style="display:none">
         <div id="prog-dev-content">
-          <div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Chargement des devoirs...</div></div>
+          <div class="empty">
+            <div class="empty-icon">📝</div>
+            <div class="empty-txt">Chargement des devoirs...</div>
+          </div>
         </div>
       </div>
 
       <!-- Compositions -->
       <div id="prog-compos" style="display:none">
         <div id="prog-comp-content">
-          <div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Chargement...</div></div>
+          <div class="empty">
+            <div class="empty-icon">📋</div>
+            <div class="empty-txt">Chargement...</div>
+          </div>
         </div>
       </div>
 
@@ -1680,7 +1691,8 @@
           <div class="pg-title">⭐ Vie Scolaire & Animations</div>
           <div class="pg-sub">Clubs, tournois, activités — Publié par le Surveillant</div>
         </div>
-        <div style="font-size:.65rem;background:rgba(123,143,245,.15);color:var(--accent2);padding:5px 10px;border-radius:20px;font-weight:700;">
+        <div
+          style="font-size:.65rem;background:rgba(123,143,245,.15);color:var(--accent2);padding:5px 10px;border-radius:20px;font-weight:700;">
           👁️ Lecture seule · Tu peux liker &amp; commenter
         </div>
       </div>
@@ -1726,7 +1738,22 @@
   <script>
     const API = window.API_BASE || 'http://localhost:5000/api';
     const token = localStorage.getItem('token');
-    let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    let currentUser = (() => {
+      const cu = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      if (!cu.id && cu.id_user) cu.id = cu.id_user;
+      // Décoder le JWT pour récupérer l'id réel
+      if (!cu.id) {
+        try {
+          const tok = localStorage.getItem('token') || '';
+          if (tok) {
+            const payload = JSON.parse(atob(tok.split('.')[1]));
+            if (payload.id) cu.id = payload.id;
+            if (payload.classe && !cu.classe) cu.classe = payload.classe;
+          }
+        } catch (e) { }
+      }
+      return cu;
+    })();
     let allRessources = [];
     let allPosts = [];
     let currentInterClasse = null;
@@ -1750,7 +1777,7 @@
 
       loadDashboard();
       initInterClasses();
-      initGrandEleves();
+      // initGrandEleves() sera appelé au clic sur la section
       initForumClasse();
       loadOrientation();
       loadAnnonces();
@@ -1769,6 +1796,12 @@
       if (id === 'absences') loadAbsences();
       if (id === 'convocations') loadConvocations();
       if (id === 'ressources') loadRessources();
+      if (id === 'forum-classe') initForumClasse();
+      if (id === 'inter-classes') initInterClasses();
+      if (id === 'grand-eleves') initGrandEleves();
+      if (id === 'vie-scolaire') loadVieScolaire();
+      if (id === 'orientation') loadOrientation();
+      if (id === 'annonces') loadAnnonces();
       if (id === 'vie-scolaire') loadVieScolaire();
       if (id === 'programme') loadProgramme();
     }
@@ -1818,54 +1851,60 @@
     }
 
     function loadDashNotes(stats) {
-      const notes = stats.statistiques?.notes_par_matiere || stats.notes_par_matiere || [];
-      const el = document.getElementById('dash-notes-list');
-      if (!notes.length) {
-        el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Notes non disponibles</div></div>';
-        return;
-      }
-      el.innerHTML = notes.slice(0, 5).map(n => {
-        const v = parseFloat(n.note_moyenne || n.moyenne || 0);
-        const pct = Math.min(v / 20 * 100, 100);
-        const color = v >= 14 ? 'var(--green)' : v >= 10 ? 'var(--accent)' : 'var(--red)';
-        return `<div class="mat-row">
+      try {
+        const notes = stats?.statistiques?.notes_par_matiere || stats?.notes_par_matiere || [];
+        const el = document.getElementById('dash-notes-list');
+        if (!el) return;
+        if (!notes.length) {
+          el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Notes non disponibles</div></div>';
+          return;
+        }
+        el.innerHTML = notes.slice(0, 5).map(n => {
+          const v = parseFloat(n.note_moyenne || n.moyenne || 0);
+          const pct = Math.min(v / 20 * 100, 100);
+          const color = v >= 14 ? 'var(--green)' : v >= 10 ? 'var(--accent)' : 'var(--red)';
+          return `<div class="mat-row">
       <div class="mat-name">${n.matiere || n.libelle_matiere || '—'}</div>
       ${n.coefficient ? `<div class="mat-coef">×${n.coefficient}</div>` : ''}
       <div class="mat-bar-wrap"><div class="mat-bar" style="width:${pct}%;background:${color};"></div></div>
       <div class="mat-note" style="color:${color}">${v.toFixed(1)}</div>
     </div>`;
-      }).join('');
+        }).join('');
+      } catch (e) { console.warn('loadDashNotes:', e); }
     }
-
     function loadEvoChart(stats) {
-      const ctx = document.getElementById('chart-evo').getContext('2d');
-      const moys = stats.statistiques?.evolution_trimestrielle || [
-        { tri: 'T1', moy: stats.statistiques?.academique?.moyenne || 0 },
-      ];
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: moys.map(m => m.tri || m.trimestre || 'T?'),
-          datasets: [{
-            label: 'Moyenne',
-            data: moys.map(m => parseFloat(m.moy || m.moyenne || 0)),
-            borderColor: '#3B49DF',
-            backgroundColor: 'rgba(59,73,223,.1)',
-            tension: .4,
-            pointBackgroundColor: '#3B49DF',
-            pointRadius: 4,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { font: { size: 10, weight: 600 }, color: '#5B6494' } },
-            y: { min: 0, max: 20, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 10 }, color: '#5B6494' } }
+      try {
+        const chartEl = document.getElementById('chart-evo');
+        if (!chartEl) return;
+        const ctx = chartEl.getContext('2d');
+        const moys = stats.statistiques?.evolution_trimestrielle || [
+          { tri: 'T1', moy: stats.statistiques?.academique?.moyenne || 0 },
+        ];
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: moys.map(m => m.tri || m.trimestre || 'T?'),
+            datasets: [{
+              label: 'Moyenne',
+              data: moys.map(m => parseFloat(m.moy || m.moyenne || 0)),
+              borderColor: '#3B49DF',
+              backgroundColor: 'rgba(59,73,223,.1)',
+              tension: .4,
+              pointBackgroundColor: '#3B49DF',
+              pointRadius: 4,
+              fill: true
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { font: { size: 10, weight: 600 }, color: '#5B6494' } },
+              y: { min: 0, max: 20, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 10 }, color: '#5B6494' } }
+            }
           }
-        }
-      });
+        });
+      } catch (e) { console.warn("chart:", e); }
     }
 
     // ══ BULLETIN ══
@@ -2020,60 +2059,169 @@
     function filterRes(type, el) {
       document.querySelectorAll('#res-tabs .tab').forEach(t => t.classList.remove('on'));
       el.classList.add('on');
-      const filtered = type === 'tous' ? allRessources : allRessources.filter(r => r.type === type || (r.type || '').includes(type));
+      if (type === 'tous') { renderRessources(allRessources); return; }
+      const filtered = allRessources.filter(r => {
+        const t = (r.type || '').toLowerCase();
+        const url = (r.url || '').toLowerCase();
+        if (type === 'video') return t === 'video' || /\.(mp4|webm|mov|avi|ogv)$/.test(url);
+        if (type === 'audio') return t === 'audio' || /\.(mp3|ogg|wav|m4a)$/.test(url);
+        if (type === 'image') return t === 'image' || /\.(jpg|jpeg|png|gif|webp)$/.test(url);
+        return t === type || t.includes(type);
+      });
       renderRessources(filtered);
     }
 
     function renderRessources(list) {
+      const box = document.getElementById('res-content');
       if (!list.length) {
-        document.getElementById('res-content').innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune ressource disponible</div></div>';
+        box.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune ressource publiée pour votre classe</div></div>';
         return;
       }
-      const icons = { COURS: '📕', TD: '📝', CORRECTION: '✅', VIDEO: '🎬', AUTRE: '📎' };
-      const colors = { COURS: '#EEF2FF', TD: '#FFF7ED', CORRECTION: '#F0FDF4', VIDEO: '#FDF4FF', AUTRE: '#F3F4F6' };
-      document.getElementById('res-content').innerHTML = list.map(r => {
-        const ico = icons[r.type] || '📎';
-        const bg = colors[r.type] || '#F3F4F6';
-        return `<div class="res-card" onclick="openRessource('${r.id_ressource || r.id || ''}','${r.url || ''}')">
-      <div class="res-icon" style="background:${bg}">${ico}</div>
-      <div style="flex:1;min-width:0;">
-        <div class="res-title">${r.titre || 'Sans titre'}</div>
-        <div class="res-meta">${r.matiere || ''} ${r.matiere ? '·' : ''} ${r.type?.replace(/_/g, ' ') || 'Document'} ${r.trimestre ? '· Trim.' + r.trimestre : ''}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-        <span class="badge-blue">${r.type || '—'}</span>
-        <div style="font-size:.6rem;color:var(--muted);">${r.date_ajout ? new Date(r.date_ajout).toLocaleDateString('fr-FR') : ''}</div>
-      </div>
-    </div>`;
-      }).join('');
-    }
 
+      const isVideo = r => r.type === 'video' || /\.(mp4|webm|mov|avi|ogv)$/i.test(r.url || '');
+      const isAudio = r => r.type === 'audio' || /\.(mp3|ogg|wav|m4a)$/i.test(r.url || '');
+      const isImg = r => r.type === 'image' || /\.(jpg|jpeg|png|gif|webp)$/i.test(r.url || '');
+      const vids = list.filter(isVideo);
+      const others = list.filter(r => !isVideo(r));
+
+      const getIcon = r => isVideo(r) ? '🎬' : isAudio(r) ? '🎵' : isImg(r) ? '🖼️' : r.type === 'cours' ? '📕' : r.type === 'td' ? '📝' : r.type === 'exercice' ? '✏️' : '📄';
+      const getBg = r => isVideo(r) ? '#FDF4FF' : isAudio(r) ? '#FFF0F6' : isImg(r) ? '#F0FFF4' : r.type === 'cours' ? '#EEF2FF' : r.type === 'td' ? '#FFF7ED' : '#F3F4F6';
+      const getLabel = r => isVideo(r) ? 'Vidéo' : isAudio(r) ? 'Audio' : isImg(r) ? 'Image' : r.type === 'cours' ? 'Cours' : r.type === 'td' ? 'TD' : r.type === 'exercice' ? 'Exercice' : 'Document';
+      const SERVER = window.SERVER_BASE || 'http://localhost:5000';
+
+      let html = '';
+
+      // ── Section vidéos ──
+      if (vids.length) {
+        html += `<div style="font-size:.72rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;margin:8px 0 8px;">🎬 Vidéos (${vids.length})</div>`;
+        html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px;">';
+        vids.forEach(r => {
+          const fullUrl = r.url ? (r.url.startsWith('http') ? r.url : SERVER + r.url) : '';
+          const date = r.date_ajout ? new Date(r.date_ajout).toLocaleDateString('fr-FR') : '';
+          html += `<div style="border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#fff;cursor:pointer;" onclick="openRessource('${r.id}','${r.url || ''}')">
+            <div style="background:#0D1F14;position:relative;height:110px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+              ${fullUrl ? `<video src="${fullUrl}" preload="metadata" style="width:100%;height:100%;object-fit:cover;opacity:.6;"></video>` : ''}
+              <div style="position:absolute;width:44px;height:44px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+                <svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:white;stroke:none;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+            </div>
+            <div style="padding:8px 10px;">
+              <div style="font-size:.78rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(r.titre)}</div>
+              <div style="font-size:.62rem;color:var(--muted);margin-top:2px;">${escHtml(r.prof || '')}${date ? ' · ' + date : ''}</div>
+            </div>
+          </div>`;
+        });
+        html += '</div>';
+      }
+
+      // ── Docs, audios, images ──
+      if (others.length) {
+        if (vids.length) html += `<div style="font-size:.72rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.08em;margin:8px 0 8px;">📚 Documents & Cours (${others.length})</div>`;
+        others.forEach(r => {
+          const fullUrl = r.url ? (r.url.startsWith('http') ? r.url : SERVER + r.url) : '';
+          const date = r.date_ajout ? new Date(r.date_ajout).toLocaleDateString('fr-FR') : '';
+          const isAud = isAudio(r);
+          html += `<div class="res-card" style="cursor:pointer;" onclick="openRessource('${r.id}','${r.url || ''}')">
+            <div class="res-icon" style="background:${getBg(r)};font-size:1.3rem;">${getIcon(r)}</div>
+            <div style="flex:1;min-width:0;">
+              <div class="res-title">${escHtml(r.titre || 'Sans titre')}</div>
+              <div class="res-meta">${escHtml(r.prof || '')}${date ? ' · ' + date : ''} · ${getLabel(r)}</div>
+              ${isAud && fullUrl ? `<audio controls style="width:100%;height:28px;margin-top:5px;"><source src="${fullUrl}"></audio>` : ''}
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;">
+              <span class="badge-blue" style="font-size:.58rem;">${getLabel(r)}</span>
+              ${fullUrl ? `<span style="font-size:.6rem;color:#059669;font-weight:700;">✓ Dispo</span>` : ''}
+            </div>
+          </div>`;
+        });
+      }
+
+      box.innerHTML = html;
+    }
     function openRessource(id, url) {
       if (!url || url === 'null' || url === '') {
         alert('Aucun fichier attaché à cette ressource.\nContactez votre professeur.');
         return;
       }
-      // Construire l'URL complète si chemin relatif
-      const fullUrl = url.startsWith('http') ? url : (window.SERVER_BASE||'http://localhost:5000') + url;
-      window.open(fullUrl, '_blank');
+      const SERVER = window.SERVER_BASE || 'http://localhost:5000';
+      const fullUrl = url.startsWith('http') ? url : SERVER + url;
+      const ext = url.split('.').pop().toLowerCase();
+
+      // Créer une modale de lecture
+      const old = document.getElementById('res-modal');
+      if (old) old.remove();
+
+      const overlay = document.createElement('div');
+      overlay.id = 'res-modal';
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+      overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+      const box = document.createElement('div');
+      box.style.cssText = 'background:#111;border-radius:14px;overflow:hidden;max-width:860px;width:100%;max-height:90vh;display:flex;flex-direction:column;';
+
+      const hd = document.createElement('div');
+      hd.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#1a1a1a;flex-shrink:0;';
+      hd.innerHTML = `<span style="color:#fff;font-size:.85rem;font-weight:700;">${url.split('/').pop()}</span>
+        <button onclick="document.getElementById('res-modal').remove()" style="background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;">✕</button>`;
+
+      const body = document.createElement('div');
+      body.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;background:#000;min-height:280px;overflow:auto;';
+
+      if (['mp4', 'webm', 'mov', 'avi', 'ogv'].includes(ext)) {
+        body.innerHTML = `<video controls autoplay style="max-width:100%;max-height:72vh;"><source src="${fullUrl}">Navigateur incompatible.</video>`;
+      } else if (['mp3', 'ogg', 'wav', 'm4a'].includes(ext)) {
+        body.innerHTML = `<div style="padding:30px;text-align:center;">
+          <div style="font-size:3rem;margin-bottom:12px;">🎵</div>
+          <audio controls autoplay style="width:300px;"><source src="${fullUrl}"></audio>
+        </div>`;
+      } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+        body.innerHTML = `<img src="${fullUrl}" style="max-width:100%;max-height:72vh;object-fit:contain;">`;
+      } else if (ext === 'pdf') {
+        body.style.padding = '0';
+        body.innerHTML = `<iframe src="${fullUrl}" style="width:100%;height:72vh;border:none;"></iframe>`;
+      } else {
+        body.innerHTML = `<div style="text-align:center;padding:40px;">
+          <div style="font-size:3rem;margin-bottom:12px;">📄</div>
+          <div style="color:#ccc;margin-bottom:16px;">${url.split('/').pop()}</div>
+          <a href="${fullUrl}" download target="_blank"
+            style="background:#25D366;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;">⬇️ Télécharger</a>
+        </div>`;
+      }
+
+      box.appendChild(hd);
+      box.appendChild(body);
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+      document.addEventListener('keydown', function h(e) {
+        if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', h); }
+      });
     }
 
     // ══ FORUM DE CLASSE ══
     let forumMsgs = [];
-    function initForumClasse() {
+    async function initForumClasse() {
       const classe = currentUser.classe || 'Votre Classe';
       document.getElementById('fc-sub').textContent = `Discussions internes · ${classe} — Privé, invisible aux profs & direction`;
-      renderForumMsgs();
+      await loadForumClasse();
     }
 
-    function renderForumMsgs() {
-      const mockMsgs = [
-        { id: 1, auteur: 'Rasmané K.', moi: false, texte: 'Est-ce que quelqu\'un a eu les corrections du devoir de Maths T1 ?', time: '09:14', initiales: 'RK', color: '#7C3AED' },
-        { id: 2, auteur: 'Moi', moi: true, texte: 'Oui je peux les partager après l\'école 😊', time: '09:17', initiales: (currentUser.prenom || 'M')[0].toUpperCase(), color: '#3B49DF' },
-        { id: 3, auteur: 'Aïssata D.', moi: false, texte: 'Merci ! Y\'a un exposé aussi en SVT pour la semaine prochaine ?', time: '09:20', initiales: 'AD', color: '#059669' },
-      ];
-      forumMsgs = mockMsgs;
-      renderThread('fc-thread', forumMsgs);
+    async function loadForumClasse() {
+      try {
+        const r = await fetch(`${API}/eleves/forum-classe`, { headers: authH() });
+        const data = await r.json();
+        forumMsgs = (data.messages || []).map(m => ({
+          id: m.id,
+          auteur: m.nom_auteur,
+          moi: m.id_auteur === currentUser.id,
+          texte: m.texte,
+          time: m.time || '',
+          initiales: m.initiales || (m.nom_auteur || '?')[0].toUpperCase(),
+          color: '#' + ((parseInt(m.id_auteur || 0) * 2654435761) % 0xFFFFFF).toString(16).padStart(6, '0').slice(0, 6) || '#7C3AED'
+        }));
+        renderThread('fc-thread', forumMsgs);
+      } catch (e) {
+        renderThread('fc-thread', []);
+      }
     }
 
     function renderThread(containerId, msgs) {
@@ -2094,34 +2242,53 @@
       el.scrollTop = el.scrollHeight;
     }
 
-    function sendForumMsg(type) {
+    async function sendForumMsg(type) {
       const inputId = type === 'classe' ? 'fc-input' : 'inter-input';
       const threadId = type === 'classe' ? 'fc-thread' : 'inter-thread';
       const input = document.getElementById(inputId);
       const txt = input.value.trim();
       if (!txt) return;
+      input.value = '';
 
       const now = new Date();
       const time = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-      const initiales = ((currentUser.prenom || 'M')[0] || 'M').toUpperCase();
+      const initiales = ((currentUser.prenom || 'M')[0] + (currentUser.nom || 'E')[0]).toUpperCase();
 
+      // Afficher immédiatement (optimiste)
+      const tempMsg = { id: Date.now(), auteur: 'Vous', moi: true, texte: txt, time, initiales, color: '#3B49DF' };
       if (type === 'classe') {
-        forumMsgs.push({ auteur: 'Moi', moi: true, texte: txt, time, initiales, color: '#3B49DF' });
+        forumMsgs.push(tempMsg);
         renderThread('fc-thread', forumMsgs);
       } else {
         const el = document.getElementById('inter-thread');
         el.insertAdjacentHTML('beforeend', `
-      <div class="msg-bubble me">
-        <div class="msg-avatar" style="background:#3B49DF">${initiales}</div>
-        <div class="msg-body">
-          <div class="msg-name">Vous</div>
-          <div class="msg-txt mine">${escHtml(txt)}</div>
-          <div class="msg-time">${time}</div>
-        </div>
-      </div>`);
+          <div class="msg-bubble me">
+            <div class="msg-avatar" style="background:#3B49DF">${initiales}</div>
+            <div class="msg-body">
+              <div class="msg-name">Vous</div>
+              <div class="msg-txt mine">${escHtml(txt)}</div>
+              <div class="msg-time">${time}</div>
+            </div>
+          </div>`);
         el.scrollTop = el.scrollHeight;
       }
-      input.value = '';
+
+      // Enregistrer en BD
+      try {
+        if (type === 'classe') {
+          await fetch(`${API}/eleves/forum-classe`, {
+            method: 'POST',
+            headers: { ...authH(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ texte: txt })
+          });
+        } else {
+          await fetch(`${API}/eleves/inter-classes`, {
+            method: 'POST',
+            headers: { ...authH(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ texte: txt, classe_cible: currentInterClasse })
+          });
+        }
+      } catch (e) { console.warn('sendForumMsg:', e.message); }
     }
 
     // ══ INTER-CLASSES ══
@@ -2135,7 +2302,7 @@
     </button>`).join('');
     }
 
-    function selectInterClasse(cls, btn) {
+    async function selectInterClasse(cls, btn) {
       document.querySelectorAll('#inter-classes-list button').forEach(b => {
         b.style.borderColor = 'var(--border)'; b.style.color = 'var(--muted)'; b.style.background = 'var(--card)';
         b.classList.remove('actif');
@@ -2144,96 +2311,124 @@
       btn.classList.add('actif');
       currentInterClasse = cls;
       document.getElementById('inter-channel-title').textContent = `💬 Discussion avec ${cls}`;
-      document.getElementById('inter-thread').innerHTML = `
-    <div class="msg-bubble">
-      <div class="msg-avatar" style="background:#7C3AED">IC</div>
-      <div class="msg-body">
-        <div class="msg-name">Canal Inter-Classes · ${cls}</div>
-        <div class="msg-txt other">Bienvenue dans le canal de discussion avec ${cls} ! Partagez vos projets, entraidez-vous 📚</div>
-        <div class="msg-time">Aujourd'hui</div>
-      </div>
-    </div>`;
+      const thread = document.getElementById('inter-thread');
+      thread.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem;">⏳ Chargement…</div>';
+      try {
+        const r = await fetch(`${API}/eleves/inter-classes?classe_cible=${encodeURIComponent(cls)}`, { headers: authH() });
+        const data = await r.json();
+        const msgs = data.messages || [];
+        if (!msgs.length) {
+          thread.innerHTML = `<div class="msg-bubble">
+            <div class="msg-avatar" style="background:#7C3AED">IC</div>
+            <div class="msg-body">
+              <div class="msg-name">Canal Inter-Classes · ${cls}</div>
+              <div class="msg-txt other">Soyez les premiers à démarrer une discussion avec ${cls} ! 📚</div>
+              <div class="msg-time">Maintenant</div>
+            </div>
+          </div>`;
+        } else {
+          thread.innerHTML = msgs.map(m => {
+            const moi = m.id_auteur === currentUser.id;
+            return `<div class="msg-bubble ${moi ? 'me' : ''}">
+              <div class="msg-avatar" style="background:${moi ? '#3B49DF' : '#7C3AED'}">${m.initiales || '?'}</div>
+              <div class="msg-body">
+                <div class="msg-name">${moi ? 'Vous' : escHtml(m.nom_auteur)} <span style="font-size:.62rem;color:var(--muted);">${m.classe_source || ''}</span></div>
+                <div class="msg-txt ${moi ? 'mine' : 'other'}">${escHtml(m.texte)}</div>
+                <div class="msg-time">${m.time || ''}</div>
+              </div>
+            </div>`;
+          }).join('');
+        }
+        thread.scrollTop = thread.scrollHeight;
+      } catch (e) { thread.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Erreur de chargement</div>'; }
     }
 
     // ══ GRAND ÉLÈVES ══
-    function initGrandEleves() {
-      const postsDemoColors = ['#3B49DF', '#7C3AED', '#059669', '#DC2626', '#D97706', '#0891B2'];
-      allPosts = [
-        { id: 1, auteur: 'Oumar S.', classe: 'Tle D', initiales: 'OS', color: '#3B49DF', texte: '🏆 On a gagné la finale du tournoi de foot inter-lycées ! Merci à toute l\'équipe et à tous ceux qui sont venus nous soutenir !', tag: 'SPORT', likes: 24, time: 'il y a 2h', liked: false, tagColor: '#EEF2FF', tagTxt: '#3B49DF' },
-        { id: 2, auteur: 'Fatoumata C.', classe: '3ème', initiales: 'FC', color: '#059669', texte: '📝 Quelqu\'un a des conseils pour le concours d\'entrée en 2nde à Thomas Sankara ? Je cherche les sujets des années précédentes 🙏', tag: 'CONCOURS', likes: 8, time: 'il y a 4h', liked: false, tagColor: '#FEF3C7', tagTxt: '#92400E' },
-        { id: 3, auteur: 'Ibrahim K.', classe: '1ère A', initiales: 'IK', color: '#DC2626', texte: '🎭 Répétition du spectacle de fin d\'année ce vendredi à 14h en salle polyvalente. Tous les élèves du club théâtre sont attendus !', tag: 'CULTURE', likes: 15, time: 'il y a 6h', liked: false, tagColor: '#FDF4FF', tagTxt: '#7C3AED' },
-        { id: 4, auteur: 'Aminata B.', classe: 'Tle A', initiales: 'AB', color: '#D97706', texte: '🤝 J\'offre des cours de soutien en Mathématiques pour les 4ème et 3ème. Je passe l\'exam cette année donc je connais bien le programme. DM moi !', tag: 'ENTRAIDE', likes: 31, time: 'il y a 1j', liked: false, tagColor: '#F0FDF4', tagTxt: '#065F46' },
-      ];
-      renderPosts(allPosts);
+    allPosts = [];
+    async function initGrandEleves() {
+      await loadGrandEleves('TOUT');
+    }
+
+    async function loadGrandEleves(tag) {
+      const container = document.getElementById('ge-posts');
+      if (container) container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">⏳ Chargement…</div>';
+      try {
+        const url = tag && tag !== 'TOUT' ? `${API}/eleves/grand-eleves?tag=${encodeURIComponent(tag)}` : `${API}/eleves/grand-eleves`;
+        const r = await fetch(url, { headers: authH() });
+        const data = await r.json();
+        allPosts = data.posts || [];
+        renderPosts(allPosts);
+      } catch (e) {
+        allPosts = [];
+        renderPosts([]);
+      }
     }
 
     function filterPosts(tag, el) {
       document.querySelectorAll('#pg-grand-eleves .tab').forEach(t => t.classList.remove('on'));
       el.classList.add('on');
-      const filtered = tag === 'tous' ? allPosts : allPosts.filter(p => p.tag === tag);
-      renderPosts(filtered);
+      loadGrandEleves(tag && tag !== 'tous' && tag !== 'TOUT' ? tag : 'TOUT');
     }
 
     function renderPosts(posts) {
-      const tagColors = { SPORT: { bg: '#EEF2FF', txt: '#3B49DF' }, CONCOURS: { bg: '#FEF3C7', txt: '#92400E' }, CULTURE: { bg: '#FDF4FF', txt: '#7C3AED' }, ENTRAIDE: { bg: '#F0FDF4', txt: '#065F46' }, INFO: { bg: '#F3F4F6', txt: '#374151' } };
-      document.getElementById('ge-posts').innerHTML = posts.map(p => {
-        const tc = tagColors[p.tag] || { bg: '#F3F4F6', txt: '#374151' };
-        return `<div class="post-card" id="post-${p.id}">
-      <div class="post-meta">
-        <div class="post-avatar" style="background:${p.color}">${p.initiales}</div>
-        <div>
-          <div class="post-author">${p.auteur}</div>
-          <div class="post-class">${p.classe}</div>
-        </div>
-        <span class="post-time">${p.time}</span>
-      </div>
-      <div class="post-content">${escHtml(p.texte)}</div>
-      <div style="margin-bottom:8px;">
-        <span class="post-tag" style="background:${tc.bg};color:${tc.txt}">${p.tag}</span>
-      </div>
-      <div class="post-actions">
-        <button class="post-action-btn ${p.liked ? 'liked' : ''}" onclick="toggleLike(${p.id},this)">
-          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          <span id="likes-${p.id}">${p.likes}</span>
-        </button>
-        <button class="post-action-btn">
-          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          Commenter
-        </button>
-        <button class="post-action-btn">
-          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          Partager
-        </button>
-      </div>
-    </div>`;
-      }).join('') || '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-txt">Aucune publication dans cette catégorie</div></div>';
+      const container = document.getElementById('ge-posts');
+      if (!container) return;
+      if (!posts.length) {
+        container.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune publication — soyez le premier !</div></div>';
+        return;
+      }
+      const tagColors = { SPORT: '#EEF2FF', CONCOURS: '#FEF3C7', CULTURE: '#FDF4FF', ENTRAIDE: '#F0FDF4', GENERAL: '#F3F4F6', ANNONCE: '#FEE2E2' };
+      const tagTxt = { SPORT: '#3B49DF', CONCOURS: '#92400E', CULTURE: '#7C3AED', ENTRAIDE: '#065F46', GENERAL: '#374151', ANNONCE: '#DC2626' };
+      container.innerHTML = posts.map(p => `
+        <div class="post-card" id="post-${p.id}">
+          <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+            <div class="msg-avatar" style="background:${p.color || '#3B49DF'};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;font-weight:800;flex-shrink:0;">${p.initiales || '?'}</div>
+            <div style="flex:1;">
+              <div style="font-size:.82rem;font-weight:700;">${escHtml(p.nom_auteur || 'Élève')} <span style="font-size:.65rem;color:var(--muted);font-weight:500;">${p.classe_auteur || ''}</span></div>
+              <div style="font-size:.65rem;color:var(--muted);">${p.time || ''}</div>
+            </div>
+            <span style="background:${tagColors[p.tag] || '#F3F4F6'};color:${tagTxt[p.tag] || '#374151'};font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:6px;">${p.tag || 'GENERAL'}</span>
+          </div>
+          <div style="font-size:.85rem;color:#374151;line-height:1.6;margin-bottom:10px;">${escHtml(p.texte)}</div>
+          <div class="post-actions">
+            <button class="post-action-btn" onclick="toggleLike(${p.id}, this)">
+              <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              <span id="likes-${p.id}">${p.likes || 0}</span> J'aime
+            </button>
+          </div>
+        </div>`).join('');
     }
 
-    function toggleLike(id, btn) {
-      const p = allPosts.find(x => x.id === id);
-      if (!p) return;
-      p.liked = !p.liked;
-      p.likes += p.liked ? 1 : -1;
-      document.getElementById(`likes-${id}`).textContent = p.likes;
-      btn.classList.toggle('liked', p.liked);
+    async function toggleLike(postId, btn) {
+      try {
+        const r = await fetch(`${API}/eleves/grand-eleves/${postId}/like`, { method: 'POST', headers: authH() });
+        const d = await r.json();
+        if (d.success) {
+          const span = document.getElementById('likes-' + postId);
+          if (span) span.textContent = parseInt(span.textContent || 0) + (d.liked ? 1 : -1);
+          btn.style.color = d.liked ? 'var(--red)' : '';
+        }
+      } catch (e) { }
     }
 
-    function publishPost() {
-      const txt = document.getElementById('compose-input').value.trim();
-      const tag = document.getElementById('compose-tag').value;
-      if (!txt) return;
-
-      const tagColors = { SPORT: { bg: '#EEF2FF' }, CONCOURS: { bg: '#FEF3C7' }, CULTURE: { bg: '#FDF4FF' }, ENTRAIDE: { bg: '#F0FDF4' }, INFO: { bg: '#F3F4F6' } };
-      const initiales = ((currentUser.prenom || 'M')[0] + (currentUser.nom || '?')[0]).toUpperCase();
-      const newPost = {
-        id: Date.now(), auteur: `${currentUser.prenom || 'Moi'} ${(currentUser.nom || '')[0] || ''}.`.trim(),
-        classe: currentUser.classe || '—', initiales, color: '#3B49DF',
-        texte: txt, tag, likes: 0, time: 'à l\'instant', liked: false
-      };
-      allPosts.unshift(newPost);
-      renderPosts(allPosts);
-      document.getElementById('compose-input').value = '';
+    async function publishPost() {
+      const txt = document.getElementById('compose-input')?.value.trim();
+      const tag = document.getElementById('compose-tag')?.value || 'GENERAL';
+      if (!txt) { alert('Saisissez un message'); return; }
+      try {
+        const r = await fetch(`${API}/eleves/grand-eleves`, {
+          method: 'POST',
+          headers: { ...authH(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texte: txt, tag })
+        });
+        const d = await r.json();
+        if (d.success) {
+          document.getElementById('compose-input').value = '';
+          await loadGrandEleves('TOUT');
+        }
+      } catch (e) { alert('Erreur: ' + e.message); }
     }
+
 
     // ══ VIE SCOLAIRE ══
     async function loadVieScolaire() {
@@ -2243,7 +2438,7 @@
         const acts = data.activites || [];
 
         if (!acts.length) {
-          document.getElementById('vs-content').innerHTML = mockActivites();
+          loadVieScolaire();
           return;
         }
         document.getElementById('vs-content').innerHTML = acts.map(a => {
@@ -2260,77 +2455,110 @@
       </div>`;
         }).join('');
       } catch (e) {
-        document.getElementById('vs-content').innerHTML = mockActivites();
+        loadVieScolaire();
       }
     }
 
-    function mockActivites() {
-      const acts = [
-        { titre: '🏅 Tournoi de Football Inter-Lycées', desc: 'Compétition sportive regroupant les meilleurs lycées de Ouagadougou. Inscriptions ouvertes !', date: '15 Mar – 20 Mar 2026', status: 'À VENIR', statusClass: 'badge-ok' },
-        { titre: '🎭 Spectacle de Fin d\'Année', desc: 'Préparation du grand spectacle annuel : théâtre, danse, musique. Toutes les classes participent.', date: '10 Mai – 15 Jun 2026', status: 'EN COURS', statusClass: 'badge-blue' },
-        { titre: '📚 Cours de Soutien Vacances', desc: 'Organisation de cours de soutien pendant les vacances de Pâques pour les élèves de 3ème et Terminale.', date: '25 Mar – 5 Avr 2026', status: 'À VENIR', statusClass: 'badge-ok' },
-        { titre: '🌍 Semaine de la Cohésion', desc: 'Activités culturelles et intercommunautaires pour renforcer les liens entre élèves.', date: '1 Avr – 5 Avr 2026', status: 'À VENIR', statusClass: 'badge-ok' },
-      ];
-      return acts.map(a => `<div class="post-card">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-      <div style="flex:1;">
-        <div style="font-family:'Syne',sans-serif;font-size:.96rem;font-weight:800;margin-bottom:5px;">${a.titre}</div>
-        <div style="font-size:.8rem;color:#374151;margin-bottom:8px;">${a.desc}</div>
-        <div style="font-size:.7rem;color:var(--muted);">📅 ${a.date}</div>
-      </div>
-      <span class="${a.statusClass}">${a.status}</span>
-    </div>
-    <div class="post-actions" style="margin-top:8px;">
-      <button class="post-action-btn"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Je participe</button>
-      <button class="post-action-btn"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Partager</button>
-    </div>
-  </div>`).join('');
+    async function loadVieScolaire() {
+      const box = document.getElementById('vs-content');
+      if (!box) return;
+      box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">⏳ Chargement…</div>';
+      try {
+        const r = await fetch(`${API}/eleves/activites`, { headers: authH() });
+        const data = await r.json();
+        const acts = data.activites || [];
+        if (!acts.length) {
+          box.innerHTML = '<div class="empty"><div class="empty-icon">🎭</div><div class="empty-txt">Aucune activité programmée</div></div>';
+          return;
+        }
+        const statusClass = { 'À VENIR': 'badge-ok', 'EN COURS': 'badge-blue', 'TERMINÉE': 'badge-grey' };
+        box.innerHTML = acts.map(a => {
+          const dateStr = a.date_debut ? new Date(a.date_debut).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+          return `<div class="post-card">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+              <div style="flex:1;">
+                <div style="font-family:'Syne',sans-serif;font-size:.96rem;font-weight:800;margin-bottom:5px;">${escHtml(a.titre)}</div>
+                <div style="font-size:.8rem;color:#374151;margin-bottom:8px;">${escHtml(a.description || '')}</div>
+                ${a.lieu ? `<div style="font-size:.7rem;color:var(--muted);">📍 ${escHtml(a.lieu)}</div>` : ''}
+                ${dateStr ? `<div style="font-size:.7rem;color:var(--muted);">📅 ${dateStr}</div>` : ''}
+              </div>
+              <span class="${statusClass[a.statut] || 'badge-grey'}">${a.statut || '—'}</span>
+            </div>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        box.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger les activités</div></div>';
+      }
     }
+
 
     // ══ ORIENTATION ══
-    function loadOrientation() {
+    async function loadOrientation() {
       const classe = currentUser.classe || '';
       const isExamen = ['3ème', 'Tle A', 'Tle D', 'Tle C', '1ère A', '1ère D'].includes(classe);
+      const container = document.getElementById('ori-content');
+      if (!container) return;
 
-      document.getElementById('ori-content').innerHTML = `
-    <div class="ori-card">
-      <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px;">Votre Profil Orientation</div>
-      <div class="ori-eleve-name">${currentUser.prenom || '—'} ${currentUser.nom || ''}</div>
-      <div class="ori-serie">Classe : ${classe || '—'}</div>
-      ${isExamen ? '<div style="font-size:.76rem;color:var(--ink);">Suivi personnalisé activé pour la classe d\'examen.</div>' : '<div style="font-size:.76rem;color:var(--muted);">Suivi orientation disponible à partir de la 3ème.</div>'}
-    </div>
+      // En-tête profil
+      let html = `<div class="ori-card">
+        <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px;">Votre Profil Orientation</div>
+        <div class="ori-eleve-name">${currentUser.prenom || '—'} ${currentUser.nom || ''}</div>
+        <div class="ori-serie">Classe : ${classe || '—'}</div>
+        ${isExamen ? '<div style="font-size:.76rem;color:var(--ink);">Suivi personnalisé activé pour votre classe d\'examen.</div>' : '<div style="font-size:.76rem;color:var(--muted);">Suivi orientation disponible à partir de la 3ème.</div>'}
+      </div>`;
 
-    <div class="ori-card">
-      <div class="card-hd-title" style="margin-bottom:10px;">💡 Conseils Récents</div>
-      <div class="ori-avis">
-        <div class="ori-avis-role">👨‍🏫 Professeur</div>
-        <div class="ori-avis-txt">Excellent travail en Mathématiques. Je te recommande la série D ou C selon tes affinités pour les sciences.</div>
-      </div>
-      <div class="ori-avis" style="margin-top:8px;">
-        <div class="ori-avis-role" style="color:#7C3AED;">🎓 Ancien Élève (Alumni)</div>
-        <div class="ori-avis-txt">J'ai fait Tle D et intégré 2iE. La série scientifique ouvre beaucoup de portes au Burkina et en Afrique de l'Ouest !</div>
-      </div>
-      <div class="ori-avis" style="margin-top:8px;">
-        <div class="ori-avis-role" style="color:#059669;">👨‍👩‍👧 Parent</div>
-        <div class="ori-avis-txt">Prends le temps de réfléchir à ce qui te passionne vraiment. Nous te soutenons dans ton choix.</div>
-      </div>
-    </div>
+      // Avis des profs depuis la BD
+      try {
+        const r = await fetch(`${API}/eleves/orientation`, { headers: authH() });
+        const data = await r.json();
+        const avis = data.avis || [];
 
-    <div class="ori-card" style="grid-column:1/-1;">
-      <div class="card-hd-title" style="margin-bottom:12px;">🗺️ Parcours Recommandés</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-        ${[
-          { s: 'Série D', d: 'Maths, Sciences, Bio', c: '#3B49DF', bg: '#EEF2FF' },
-          { s: 'Série C', d: 'Maths, Sciences Physiques', c: '#7C3AED', bg: '#FDF4FF' },
-          { s: 'Série A', d: 'Lettres, Philosophie', c: '#059669', bg: '#F0FDF4' },
-          { s: 'Filière Pro', d: 'Comptabilité, Gestion', c: '#D97706', bg: '#FEF3C7' },
-        ].map(p => `<div style="background:${p.bg};border-radius:10px;padding:12px;text-align:center;">
-          <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:900;color:${p.c};margin-bottom:4px;">${p.s}</div>
-          <div style="font-size:.68rem;color:#374151;">${p.d}</div>
-        </div>`).join('')}
-      </div>
-    </div>`;
+        if (avis.length) {
+          html += `<div class="ori-card">
+            <div class="card-hd-title" style="margin-bottom:10px;">💡 Avis de vos Professeurs</div>`;
+          avis.forEach(a => {
+            html += `<div class="ori-avis" style="margin-bottom:10px;">
+              <div class="ori-avis-role">👨‍🏫 ${escHtml(a.prof_prenom)} ${escHtml(a.prof_nom)}</div>
+              ${a.points_forts ? `<div style="font-size:.75rem;color:#059669;margin-top:3px;">✅ Points forts : ${escHtml(a.points_forts)}</div>` : ''}
+              ${a.points_faibles ? `<div style="font-size:.75rem;color:#DC2626;margin-top:3px;">📌 À améliorer : ${escHtml(a.points_faibles)}</div>` : ''}
+              ${a.serie_recommandee ? `<div style="font-size:.75rem;color:#3B49DF;font-weight:700;margin-top:3px;">🎯 Série recommandée : ${escHtml(a.serie_recommandee)}</div>` : ''}
+              ${a.commentaire ? `<div class="ori-avis-txt" style="margin-top:5px;">${escHtml(a.commentaire)}</div>` : ''}
+            </div>`;
+          });
+          html += `</div>`;
+        } else {
+          html += `<div class="ori-card">
+            <div class="card-hd-title" style="margin-bottom:8px;">💡 Conseils d'Orientation</div>
+            <div style="font-size:.8rem;color:var(--muted);text-align:center;padding:16px;">
+              Aucun avis d'orientation disponible pour l'instant.<br>Vos professeurs pourront vous en laisser prochainement.
+            </div>
+          </div>`;
+        }
+      } catch (e) {
+        html += `<div class="ori-card"><div style="color:var(--muted);font-size:.8rem;">Impossible de charger les avis.</div></div>`;
+      }
+
+      // Parcours recommandés (statiques — information générale)
+      if (isExamen) {
+        html += `<div class="ori-card" style="grid-column:1/-1;">
+          <div class="card-hd-title" style="margin-bottom:12px;">🗺️ Parcours Disponibles au Burkina Faso</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;">
+            ${[
+            { s: 'Série D', d: 'Maths, Sciences, Bio', c: '#3B49DF', bg: '#EEF2FF' },
+            { s: 'Série C', d: 'Maths, Sciences Physiques', c: '#7C3AED', bg: '#FDF4FF' },
+            { s: 'Série A', d: 'Lettres, Philosophie', c: '#059669', bg: '#F0FDF4' },
+            { s: 'Filière Pro', d: 'Comptabilité, Gestion', c: '#D97706', bg: '#FEF3C7' },
+          ].map(p => `<div style="background:${p.bg};border-radius:10px;padding:12px;text-align:center;">
+              <div style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:900;color:${p.c};">${p.s}</div>
+              <div style="font-size:.65rem;color:#374151;margin-top:3px;">${p.d}</div>
+            </div>`).join('')}
+          </div>
+        </div>`;
+      }
+
+      container.innerHTML = html;
     }
+
 
     // ══ ANNONCES ══
     async function loadAnnonces() {
@@ -2339,7 +2567,7 @@
         const data = await r.json();
         const anns = data.annonces || [];
         if (!anns.length) {
-          document.getElementById('ann-content').innerHTML = mockAnnonces();
+          document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce pour le moment</div></div>';
           return;
         }
         document.getElementById('ann-content').innerHTML = anns.map(a => `
@@ -2354,37 +2582,9 @@
         <div style="font-size:.8rem;color:#374151;line-height:1.7;">${a.contenu || a.message || ''}</div>
       </div>`).join('');
       } catch (e) {
-        document.getElementById('ann-content').innerHTML = mockAnnonces();
+        const box = document.getElementById('ann-content');
+        if (box) box.innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce disponible</div></div>';
       }
-    }
-
-    function mockAnnonces() {
-      return `
-    <div class="annonce-card" style="cursor:default;">
-      <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;opacity:.7;margin-bottom:4px;">📢 Direction · 8 Mars 2026</div>
-      <div style="font-size:.92rem;font-weight:700;margin-bottom:6px;">Calendrier des Examens Trimestriels – Trimestre 2</div>
-      <div style="font-size:.8rem;opacity:.85;line-height:1.6;">Les examens de fin de trimestre 2 auront lieu du 15 au 19 mars 2026. Les élèves sont priés de se présenter 15 minutes avant le début des épreuves.</div>
-    </div>
-    <div class="card">
-      <div class="card-hd">
-        <div>
-          <div style="font-family:'Syne',sans-serif;font-size:.96rem;font-weight:800;">Journée Portes Ouvertes – Orientation 3ème/Tle</div>
-          <div style="font-size:.64rem;color:var(--muted);margin-top:2px;">📅 Samedi 21 mars 2026</div>
-        </div>
-        <span class="badge-blue">ÉVÉNEMENT</span>
-      </div>
-      <div style="font-size:.8rem;color:#374151;line-height:1.7;">Rencontre avec des représentants des grandes écoles, universités et entreprises du Burkina Faso pour guider les élèves dans leurs choix d'orientation. Présence obligatoire pour les classes de 3ème et Terminale.</div>
-    </div>
-    <div class="card">
-      <div class="card-hd">
-        <div>
-          <div style="font-family:'Syne',sans-serif;font-size:.96rem;font-weight:800;">Rappel : Cotisations APE – Clôture le 20 mars</div>
-          <div style="font-size:.64rem;color:var(--muted);margin-top:2px;">📅 Lundi 10 mars 2026</div>
-        </div>
-        <span class="badge-warn">RAPPEL</span>
-      </div>
-      <div style="font-size:.8rem;color:#374151;line-height:1.7;">Les parents n'ayant pas encore réglé les cotisations APE sont priés de le faire avant le 20 mars 2026 auprès du bureau de la direction.</div>
-    </div>`;
     }
 
 
@@ -2405,97 +2605,97 @@
       // Matières collège BF : Français, Maths, Anglais, Histoire-Géo,
       // SVT, Sciences Physiques, EPS, EDHC, Informatique/TIC
       '6ème': {
-        Lundi:    ['Français','Mathématiques','SVT',       'PAUSE','Histoire-Géo','EDHC',         'EPS',          '—', '—'],
-        Mardi:    ['Mathématiques','Français','Anglais',   'PAUSE','SVT','Sciences Physiques',    '—',            '—', '—'],
-        Mercredi: ['Histoire-Géo','Anglais','Français',   'PAUSE','Mathématiques','—',            '—',            '—', '—'],
-        Jeudi:    ['Sciences Physiques','SVT','Maths',    'PAUSE','Français','Informatique/TIC',  'EDHC',         '—', '—'],
-        Vendredi: ['Anglais','Histoire-Géo','Français',   'PAUSE','Sciences Physiques','Maths',   'Informatique/TIC','—','—'],
-        Samedi:   ['Français','Mathématiques','EPS',      'PAUSE','Histoire-Géo','—',             '—',            '—', '—'],
-        Dimanche: ['—','—','—','PAUSE','—','—','—','—','—'],
+        Lundi: ['Français', 'Mathématiques', 'SVT', 'PAUSE', 'Histoire-Géo', 'EDHC', 'EPS', '—', '—'],
+        Mardi: ['Mathématiques', 'Français', 'Anglais', 'PAUSE', 'SVT', 'Sciences Physiques', '—', '—', '—'],
+        Mercredi: ['Histoire-Géo', 'Anglais', 'Français', 'PAUSE', 'Mathématiques', '—', '—', '—', '—'],
+        Jeudi: ['Sciences Physiques', 'SVT', 'Maths', 'PAUSE', 'Français', 'Informatique/TIC', 'EDHC', '—', '—'],
+        Vendredi: ['Anglais', 'Histoire-Géo', 'Français', 'PAUSE', 'Sciences Physiques', 'Maths', 'Informatique/TIC', '—', '—'],
+        Samedi: ['Français', 'Mathématiques', 'EPS', 'PAUSE', 'Histoire-Géo', '—', '—', '—', '—'],
+        Dimanche: ['—', '—', '—', 'PAUSE', '—', '—', '—', '—', '—'],
       },
       '5ème': {
-        Lundi:    ['Mathématiques','Français','Anglais',   'PAUSE','SVT','Histoire-Géo',          'EPS',          '—', '—'],
-        Mardi:    ['Français','Sciences Physiques','SVT', 'PAUSE','Mathématiques','Français',     '—',            '—', '—'],
-        Mercredi: ['Anglais','Mathématiques','Histoire-Géo','PAUSE','Français','—',               '—',            '—', '—'],
-        Jeudi:    ['SVT','Anglais','Français',            'PAUSE','Sciences Physiques','Maths',   'EDHC',         '—', '—'],
-        Vendredi: ['Histoire-Géo','Français','Maths',     'PAUSE','Anglais','SVT',               'Informatique/TIC','—','—'],
-        Samedi:   ['Mathématiques','Français','Sciences Physiques','PAUSE','Histoire-Géo','—',    '—',            '—', '—'],
-        Dimanche: ['—','—','—','PAUSE','—','—','—','—','—'],
+        Lundi: ['Mathématiques', 'Français', 'Anglais', 'PAUSE', 'SVT', 'Histoire-Géo', 'EPS', '—', '—'],
+        Mardi: ['Français', 'Sciences Physiques', 'SVT', 'PAUSE', 'Mathématiques', 'Français', '—', '—', '—'],
+        Mercredi: ['Anglais', 'Mathématiques', 'Histoire-Géo', 'PAUSE', 'Français', '—', '—', '—', '—'],
+        Jeudi: ['SVT', 'Anglais', 'Français', 'PAUSE', 'Sciences Physiques', 'Maths', 'EDHC', '—', '—'],
+        Vendredi: ['Histoire-Géo', 'Français', 'Maths', 'PAUSE', 'Anglais', 'SVT', 'Informatique/TIC', '—', '—'],
+        Samedi: ['Mathématiques', 'Français', 'Sciences Physiques', 'PAUSE', 'Histoire-Géo', '—', '—', '—', '—'],
+        Dimanche: ['—', '—', '—', 'PAUSE', '—', '—', '—', '—', '—'],
       },
       '4ème': {
-        Lundi:    ['Mathématiques','Sciences Physiques','Français','PAUSE','SVT','Anglais',       'EPS',          '—', '—'],
-        Mardi:    ['Français','Mathématiques','Anglais', 'PAUSE','Histoire-Géo','Sciences Physiques','—',         '—', '—'],
-        Mercredi: ['SVT','Français','Mathématiques',     'PAUSE','Anglais','—',                  '—',            '—', '—'],
-        Jeudi:    ['Anglais','SVT','Histoire-Géo',       'PAUSE','Mathématiques','Français',      'Informatique/TIC','—','—'],
-        Vendredi: ['Histoire-Géo','Anglais','Sciences Physiques','PAUSE','Français','Maths',      'EDHC',         '—', '—'],
-        Samedi:   ['Français','Mathématiques','SVT',     'PAUSE','Sciences Physiques','—',        '—',            '—', '—'],
-        Dimanche: ['—','—','—','PAUSE','—','—','—','—','—'],
+        Lundi: ['Mathématiques', 'Sciences Physiques', 'Français', 'PAUSE', 'SVT', 'Anglais', 'EPS', '—', '—'],
+        Mardi: ['Français', 'Mathématiques', 'Anglais', 'PAUSE', 'Histoire-Géo', 'Sciences Physiques', '—', '—', '—'],
+        Mercredi: ['SVT', 'Français', 'Mathématiques', 'PAUSE', 'Anglais', '—', '—', '—', '—'],
+        Jeudi: ['Anglais', 'SVT', 'Histoire-Géo', 'PAUSE', 'Mathématiques', 'Français', 'Informatique/TIC', '—', '—'],
+        Vendredi: ['Histoire-Géo', 'Anglais', 'Sciences Physiques', 'PAUSE', 'Français', 'Maths', 'EDHC', '—', '—'],
+        Samedi: ['Français', 'Mathématiques', 'SVT', 'PAUSE', 'Sciences Physiques', '—', '—', '—', '—'],
+        Dimanche: ['—', '—', '—', 'PAUSE', '—', '—', '—', '—', '—'],
       },
       '3ème': {
-        Lundi:    ['Mathématiques','Sciences Physiques','Français','PAUSE','SVT','Anglais',       'EPS',          '—', '—'],
-        Mardi:    ['Français','Mathématiques','Histoire-Géo','PAUSE','Sciences Physiques','SVT', '—',            '—', '—'],
-        Mercredi: ['Anglais','Français','Mathématiques', 'PAUSE','Histoire-Géo','—',             '—',            '—', '—'],
-        Jeudi:    ['SVT','Histoire-Géo','Anglais',       'PAUSE','Mathématiques','Français',      'EDHC',         '—', '—'],
-        Vendredi: ['Sciences Physiques','Anglais','SVT', 'PAUSE','Français','Mathématiques',      'Informatique/TIC','—','—'],
-        Samedi:   ['Mathématiques','Français','Histoire-Géo','PAUSE','Sciences Physiques','—',   '—',            '—', '—'],
-        Dimanche: ['—','—','—','PAUSE','—','—','—','—','—'],
+        Lundi: ['Mathématiques', 'Sciences Physiques', 'Français', 'PAUSE', 'SVT', 'Anglais', 'EPS', '—', '—'],
+        Mardi: ['Français', 'Mathématiques', 'Histoire-Géo', 'PAUSE', 'Sciences Physiques', 'SVT', '—', '—', '—'],
+        Mercredi: ['Anglais', 'Français', 'Mathématiques', 'PAUSE', 'Histoire-Géo', '—', '—', '—', '—'],
+        Jeudi: ['SVT', 'Histoire-Géo', 'Anglais', 'PAUSE', 'Mathématiques', 'Français', 'EDHC', '—', '—'],
+        Vendredi: ['Sciences Physiques', 'Anglais', 'SVT', 'PAUSE', 'Français', 'Mathématiques', 'Informatique/TIC', '—', '—'],
+        Samedi: ['Mathématiques', 'Français', 'Histoire-Géo', 'PAUSE', 'Sciences Physiques', '—', '—', '—', '—'],
+        Dimanche: ['—', '—', '—', 'PAUSE', '—', '—', '—', '—', '—'],
       },
       // ── LYCÉE ────────────────────────────────────────────────────
       // Matières lycée BF : Français, Maths, Anglais, Histoire-Géo,
       // SVT (séries A&D), Sciences Physiques (séries C&D), Philosophie, EPS
       '2nde A': {
-        Lundi:    ['Français','Philosophie','Anglais',    'PAUSE','Histoire-Géo','Mathématiques', 'EPS',          'Français', '—'],
-        Mardi:    ['Histoire-Géo','Français','Philosophie','PAUSE','Anglais','SVT',              'Mathématiques','—',        '—'],
-        Mercredi: ['Philosophie','Mathématiques','Français','PAUSE','Histoire-Géo','—',          '—',            '—',        '—'],
-        Jeudi:    ['Anglais','Histoire-Géo','Français',  'PAUSE','Philosophie','Mathématiques',  'SVT',          'Anglais',  '—'],
-        Vendredi: ['Mathématiques','Anglais','SVT',       'PAUSE','Français','Philosophie',       'Histoire-Géo', '—',        '—'],
-        Samedi:   ['Français','Philosophie','Histoire-Géo','PAUSE','Mathématiques','—',          '—',            '—',        '—'],
-        Dimanche: ['—','—','—','PAUSE','—','—','—','—','—'],
+        Lundi: ['Français', 'Philosophie', 'Anglais', 'PAUSE', 'Histoire-Géo', 'Mathématiques', 'EPS', 'Français', '—'],
+        Mardi: ['Histoire-Géo', 'Français', 'Philosophie', 'PAUSE', 'Anglais', 'SVT', 'Mathématiques', '—', '—'],
+        Mercredi: ['Philosophie', 'Mathématiques', 'Français', 'PAUSE', 'Histoire-Géo', '—', '—', '—', '—'],
+        Jeudi: ['Anglais', 'Histoire-Géo', 'Français', 'PAUSE', 'Philosophie', 'Mathématiques', 'SVT', 'Anglais', '—'],
+        Vendredi: ['Mathématiques', 'Anglais', 'SVT', 'PAUSE', 'Français', 'Philosophie', 'Histoire-Géo', '—', '—'],
+        Samedi: ['Français', 'Philosophie', 'Histoire-Géo', 'PAUSE', 'Mathématiques', '—', '—', '—', '—'],
+        Dimanche: ['—', '—', '—', 'PAUSE', '—', '—', '—', '—', '—'],
       },
       '2nde C': {
-        Lundi:    ['Mathématiques','Sciences Physiques','Français','PAUSE','SVT','Anglais',       'EPS',          'Mathématiques','—'],
-        Mardi:    ['Sciences Physiques','Mathématiques','SVT','PAUSE','Français','Histoire-Géo', 'Anglais',      '—',           '—'],
-        Mercredi: ['SVT','Mathématiques','Sciences Physiques','PAUSE','Français','—',            '—',            '—',           '—'],
-        Jeudi:    ['Anglais','SVT','Mathématiques',      'PAUSE','Sciences Physiques','Français', 'Histoire-Géo', 'Sciences Physiques','—'],
-        Vendredi: ['Français','Anglais','Histoire-Géo', 'PAUSE','Mathématiques','SVT',           'Sciences Physiques','—',    '—'],
-        Samedi:   ['Mathématiques','Sciences Physiques','SVT','PAUSE','Français','—',            '—',            '—',           '—'],
-        Dimanche: ['—','—','—','PAUSE','—','—','—','—','—'],
+        Lundi: ['Mathématiques', 'Sciences Physiques', 'Français', 'PAUSE', 'SVT', 'Anglais', 'EPS', 'Mathématiques', '—'],
+        Mardi: ['Sciences Physiques', 'Mathématiques', 'SVT', 'PAUSE', 'Français', 'Histoire-Géo', 'Anglais', '—', '—'],
+        Mercredi: ['SVT', 'Mathématiques', 'Sciences Physiques', 'PAUSE', 'Français', '—', '—', '—', '—'],
+        Jeudi: ['Anglais', 'SVT', 'Mathématiques', 'PAUSE', 'Sciences Physiques', 'Français', 'Histoire-Géo', 'Sciences Physiques', '—'],
+        Vendredi: ['Français', 'Anglais', 'Histoire-Géo', 'PAUSE', 'Mathématiques', 'SVT', 'Sciences Physiques', '—', '—'],
+        Samedi: ['Mathématiques', 'Sciences Physiques', 'SVT', 'PAUSE', 'Français', '—', '—', '—', '—'],
+        Dimanche: ['—', '—', '—', 'PAUSE', '—', '—', '—', '—', '—'],
       },
       '1ère A': {
-        Lundi:    ['Philosophie','Français','Anglais',   'PAUSE','Histoire-Géo','Philosophie',    'EPS',          'Français',  'Philosophie'],
-        Mardi:    ['Français','Philosophie','Histoire-Géo','PAUSE','Anglais','Français',         'Philosophie',  '—',         '—'],
-        Mercredi: ['Histoire-Géo','Philosophie','Français','PAUSE','Mathématiques','—',          '—',            '—',         '—'],
-        Jeudi:    ['Anglais','Français','Philosophie',  'PAUSE','Histoire-Géo','Anglais',         'Français',     'Philosophie','—'],
-        Vendredi: ['Philosophie','Histoire-Géo','Anglais','PAUSE','Français','Philosophie',      'Histoire-Géo', '—',         '—'],
-        Samedi:   ['Français','Philosophie','Histoire-Géo','PAUSE','Anglais','—',               '—',            '—',         '—'],
-        Dimanche: ['—','—','—','PAUSE','—','—','—','—','—'],
+        Lundi: ['Philosophie', 'Français', 'Anglais', 'PAUSE', 'Histoire-Géo', 'Philosophie', 'EPS', 'Français', 'Philosophie'],
+        Mardi: ['Français', 'Philosophie', 'Histoire-Géo', 'PAUSE', 'Anglais', 'Français', 'Philosophie', '—', '—'],
+        Mercredi: ['Histoire-Géo', 'Philosophie', 'Français', 'PAUSE', 'Mathématiques', '—', '—', '—', '—'],
+        Jeudi: ['Anglais', 'Français', 'Philosophie', 'PAUSE', 'Histoire-Géo', 'Anglais', 'Français', 'Philosophie', '—'],
+        Vendredi: ['Philosophie', 'Histoire-Géo', 'Anglais', 'PAUSE', 'Français', 'Philosophie', 'Histoire-Géo', '—', '—'],
+        Samedi: ['Français', 'Philosophie', 'Histoire-Géo', 'PAUSE', 'Anglais', '—', '—', '—', '—'],
+        Dimanche: ['—', '—', '—', 'PAUSE', '—', '—', '—', '—', '—'],
       },
       '1ère D': {
-        Lundi:    ['Mathématiques','Sciences Physiques','SVT','PAUSE','Anglais','Mathématiques',  'EPS',          'Sciences Physiques','Mathématiques'],
-        Mardi:    ['Sciences Physiques','Mathématiques','Français','PAUSE','SVT','Sciences Physiques','Mathématiques','—',   '—'],
-        Mercredi: ['SVT','Mathématiques','Sciences Physiques','PAUSE','Français','—',            '—',            '—',         '—'],
-        Jeudi:    ['Anglais','SVT','Mathématiques',     'PAUSE','Sciences Physiques','SVT',       'Mathématiques','Anglais',   'Sciences Physiques'],
-        Vendredi: ['Français','Anglais','SVT',          'PAUSE','Mathématiques','Sciences Physiques','SVT',       '—',         '—'],
-        Samedi:   ['Mathématiques','Sciences Physiques','SVT','PAUSE','Français','—',            '—',            '—',         '—'],
-        Dimanche: ['—','—','—','PAUSE','—','—','—','—','—'],
+        Lundi: ['Mathématiques', 'Sciences Physiques', 'SVT', 'PAUSE', 'Anglais', 'Mathématiques', 'EPS', 'Sciences Physiques', 'Mathématiques'],
+        Mardi: ['Sciences Physiques', 'Mathématiques', 'Français', 'PAUSE', 'SVT', 'Sciences Physiques', 'Mathématiques', '—', '—'],
+        Mercredi: ['SVT', 'Mathématiques', 'Sciences Physiques', 'PAUSE', 'Français', '—', '—', '—', '—'],
+        Jeudi: ['Anglais', 'SVT', 'Mathématiques', 'PAUSE', 'Sciences Physiques', 'SVT', 'Mathématiques', 'Anglais', 'Sciences Physiques'],
+        Vendredi: ['Français', 'Anglais', 'SVT', 'PAUSE', 'Mathématiques', 'Sciences Physiques', 'SVT', '—', '—'],
+        Samedi: ['Mathématiques', 'Sciences Physiques', 'SVT', 'PAUSE', 'Français', '—', '—', '—', '—'],
+        Dimanche: ['—', '—', '—', 'PAUSE', '—', '—', '—', '—', '—'],
       },
       'Tle A': {
-        Lundi:    ['Philosophie','Français','Anglais',   'PAUSE','Histoire-Géo','Philosophie',    'EPS',          'Français',  'Philosophie'],
-        Mardi:    ['Français','Philosophie','Histoire-Géo','PAUSE','Anglais','Philosophie',      'Français',     'Histoire-Géo','—'],
-        Mercredi: ['Histoire-Géo','Philosophie','Français','PAUSE','Philosophie','—',            '—',            '—',         '—'],
-        Jeudi:    ['Anglais','Français','Philosophie',  'PAUSE','Histoire-Géo','Français',        'Philosophie',  'Anglais',   'Histoire-Géo'],
-        Vendredi: ['Philosophie','Histoire-Géo','Anglais','PAUSE','Français','Philosophie',      'Histoire-Géo', 'Français',  '—'],
-        Samedi:   ['Philosophie','Français','Histoire-Géo','PAUSE','Anglais','—',               '—',            '—',         '—'],
-        Dimanche: ['—','—','—','PAUSE','—','—','—','—','—'],
+        Lundi: ['Philosophie', 'Français', 'Anglais', 'PAUSE', 'Histoire-Géo', 'Philosophie', 'EPS', 'Français', 'Philosophie'],
+        Mardi: ['Français', 'Philosophie', 'Histoire-Géo', 'PAUSE', 'Anglais', 'Philosophie', 'Français', 'Histoire-Géo', '—'],
+        Mercredi: ['Histoire-Géo', 'Philosophie', 'Français', 'PAUSE', 'Philosophie', '—', '—', '—', '—'],
+        Jeudi: ['Anglais', 'Français', 'Philosophie', 'PAUSE', 'Histoire-Géo', 'Français', 'Philosophie', 'Anglais', 'Histoire-Géo'],
+        Vendredi: ['Philosophie', 'Histoire-Géo', 'Anglais', 'PAUSE', 'Français', 'Philosophie', 'Histoire-Géo', 'Français', '—'],
+        Samedi: ['Philosophie', 'Français', 'Histoire-Géo', 'PAUSE', 'Anglais', '—', '—', '—', '—'],
+        Dimanche: ['—', '—', '—', 'PAUSE', '—', '—', '—', '—', '—'],
       },
       'Tle D': {
-        Lundi:    ['Mathématiques','Sciences Physiques','SVT','PAUSE','Anglais','Mathématiques',  'EPS',          'Sciences Physiques','Mathématiques'],
-        Mardi:    ['Sciences Physiques','Mathématiques','SVT','PAUSE','Français','Sciences Physiques','Mathématiques','SVT', '—'],
-        Mercredi: ['SVT','Mathématiques','Sciences Physiques','PAUSE','Mathématiques','—',       '—',            '—',         '—'],
-        Jeudi:    ['Anglais','SVT','Mathématiques',     'PAUSE','Sciences Physiques','Mathématiques','SVT',        'Anglais',  'Sciences Physiques'],
-        Vendredi: ['Sciences Physiques','SVT','Français','PAUSE','Mathématiques','Sciences Physiques','Mathématiques','—',  '—'],
-        Samedi:   ['Mathématiques','Sciences Physiques','SVT','PAUSE','Français','—',            '—',            '—',         '—'],
-        Dimanche: ['—','—','—','PAUSE','—','—','—','—','—'],
+        Lundi: ['Mathématiques', 'Sciences Physiques', 'SVT', 'PAUSE', 'Anglais', 'Mathématiques', 'EPS', 'Sciences Physiques', 'Mathématiques'],
+        Mardi: ['Sciences Physiques', 'Mathématiques', 'SVT', 'PAUSE', 'Français', 'Sciences Physiques', 'Mathématiques', 'SVT', '—'],
+        Mercredi: ['SVT', 'Mathématiques', 'Sciences Physiques', 'PAUSE', 'Mathématiques', '—', '—', '—', '—'],
+        Jeudi: ['Anglais', 'SVT', 'Mathématiques', 'PAUSE', 'Sciences Physiques', 'Mathématiques', 'SVT', 'Anglais', 'Sciences Physiques'],
+        Vendredi: ['Sciences Physiques', 'SVT', 'Français', 'PAUSE', 'Mathématiques', 'Sciences Physiques', 'Mathématiques', '—', '—'],
+        Samedi: ['Mathématiques', 'Sciences Physiques', 'SVT', 'PAUSE', 'Français', '—', '—', '—', '—'],
+        Dimanche: ['—', '—', '—', 'PAUSE', '—', '—', '—', '—', '—'],
       },
     };
 
@@ -2512,8 +2712,8 @@
       { h: '17h00 – 18h00', label: 'C8 (Lycée)' },
     ];
 
-    const JOURS = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
-    const JOURS_COURT = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+    const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+    const JOURS_COURT = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
     // Couleurs par matière
     const MAT_COLORS = {
@@ -2537,47 +2737,47 @@
 
     // Devoirs statiques par classe (seront remplacés par API quand prof programme)
     const DEVOIRS_STATIQUES = {
-      '6ème':  [{ mat:'Mathématiques', titre:'Fractions et nombres décimaux', prof:'M. Ouédraogo', date:null },
-                { mat:'Français', titre:'Dictée préparée - Le marché', prof:'Mme Sawadogo', date:null }],
-      '5ème':  [{ mat:'Sciences Physiques', titre:'États de la matière', prof:'M. Kaboré', date:null },
-                { mat:'Anglais', titre:'Vocabulary test - Family', prof:'M. Traoré', date:null }],
-      '4ème':  [{ mat:'Mathématiques', titre:'Équations du premier degré', prof:'M. Ouédraogo', date:null },
-                { mat:'SVT', titre:'La cellule vivante', prof:'Mme Compaoré', date:null }],
-      '3ème':  [{ mat:'Mathématiques', titre:'Théorème de Pythagore', prof:'M. Ouédraogo', date:null },
-                { mat:'Français', titre:'Rédaction - Mon avenir', prof:'Mme Sawadogo', date:null },
-                { mat:'Sciences Physiques', titre:'Électricité - circuits', prof:'M. Kaboré', date:null }],
-      '2nde A':[{ mat:'Français', titre:'Commentaire composé - Texte de Mongo Beti', prof:'Mme Sawadogo', date:null },
-                { mat:'Histoire-Géo', titre:'La colonisation en Afrique', prof:'M. Zonon', date:null }],
-      '2nde C':[{ mat:'Mathématiques', titre:'Trigonométrie - cercle trigo', prof:'M. Ouédraogo', date:null },
-                { mat:'SVT', titre:'La photosynthèse', prof:'Mme Compaoré', date:null }],
-      '1ère A':[{ mat:'Philosophie', titre:'Dissertation - La liberté', prof:'M. Barro', date:null },
-                { mat:'Français', titre:'Commentaire - Discours BF', prof:'Mme Sawadogo', date:null }],
-      '1ère D':[{ mat:'Mathématiques', titre:'Dérivées et fonctions', prof:'M. Ouédraogo', date:null },
-                { mat:'Sciences Physiques', titre:'Mécanique - Forces', prof:'M. Kaboré', date:null },
-                { mat:'SVT', titre:'Génétique et hérédité', prof:'Mme Compaoré', date:null }],
-      'Tle A': [{ mat:'Philosophie', titre:'Dissertation - La conscience', prof:'M. Barro', date:null },
-                { mat:'Français', titre:'Texte littéraire - Kourouma', prof:'Mme Sawadogo', date:null }],
-      'Tle D': [{ mat:'Mathématiques', titre:'Intégrales et primitives', prof:'M. Ouédraogo', date:null },
-                { mat:'Sciences Physiques', titre:'Ondes et lumière', prof:'M. Kaboré', date:null },
-                { mat:'SVT', titre:'Immunologie', prof:'Mme Compaoré', date:null }],
+      '6ème': [{ mat: 'Mathématiques', titre: 'Fractions et nombres décimaux', prof: 'M. Ouédraogo', date: null },
+      { mat: 'Français', titre: 'Dictée préparée - Le marché', prof: 'Mme Sawadogo', date: null }],
+      '5ème': [{ mat: 'Sciences Physiques', titre: 'États de la matière', prof: 'M. Kaboré', date: null },
+      { mat: 'Anglais', titre: 'Vocabulary test - Family', prof: 'M. Traoré', date: null }],
+      '4ème': [{ mat: 'Mathématiques', titre: 'Équations du premier degré', prof: 'M. Ouédraogo', date: null },
+      { mat: 'SVT', titre: 'La cellule vivante', prof: 'Mme Compaoré', date: null }],
+      '3ème': [{ mat: 'Mathématiques', titre: 'Théorème de Pythagore', prof: 'M. Ouédraogo', date: null },
+      { mat: 'Français', titre: 'Rédaction - Mon avenir', prof: 'Mme Sawadogo', date: null },
+      { mat: 'Sciences Physiques', titre: 'Électricité - circuits', prof: 'M. Kaboré', date: null }],
+      '2nde A': [{ mat: 'Français', titre: 'Commentaire composé - Texte de Mongo Beti', prof: 'Mme Sawadogo', date: null },
+      { mat: 'Histoire-Géo', titre: 'La colonisation en Afrique', prof: 'M. Zonon', date: null }],
+      '2nde C': [{ mat: 'Mathématiques', titre: 'Trigonométrie - cercle trigo', prof: 'M. Ouédraogo', date: null },
+      { mat: 'SVT', titre: 'La photosynthèse', prof: 'Mme Compaoré', date: null }],
+      '1ère A': [{ mat: 'Philosophie', titre: 'Dissertation - La liberté', prof: 'M. Barro', date: null },
+      { mat: 'Français', titre: 'Commentaire - Discours BF', prof: 'Mme Sawadogo', date: null }],
+      '1ère D': [{ mat: 'Mathématiques', titre: 'Dérivées et fonctions', prof: 'M. Ouédraogo', date: null },
+      { mat: 'Sciences Physiques', titre: 'Mécanique - Forces', prof: 'M. Kaboré', date: null },
+      { mat: 'SVT', titre: 'Génétique et hérédité', prof: 'Mme Compaoré', date: null }],
+      'Tle A': [{ mat: 'Philosophie', titre: 'Dissertation - La conscience', prof: 'M. Barro', date: null },
+      { mat: 'Français', titre: 'Texte littéraire - Kourouma', prof: 'Mme Sawadogo', date: null }],
+      'Tle D': [{ mat: 'Mathématiques', titre: 'Intégrales et primitives', prof: 'M. Ouédraogo', date: null },
+      { mat: 'Sciences Physiques', titre: 'Ondes et lumière', prof: 'M. Kaboré', date: null },
+      { mat: 'SVT', titre: 'Immunologie', prof: 'Mme Compaoré', date: null }],
     };
 
     // Compositions T1 (publiées par la direction)
     const COMPOS_T1 = {
-      '6ème':  [{ mat:'Français', date:'2026-04-07' }, { mat:'Mathématiques', date:'2026-04-08' }, { mat:'Histoire-Géo', date:'2026-04-09' }],
-      '5ème':  [{ mat:'Mathématiques', date:'2026-04-07' }, { mat:'Français', date:'2026-04-08' }, { mat:'Sciences Physiques', date:'2026-04-09' }],
-      '4ème':  [{ mat:'Mathématiques', date:'2026-04-07' }, { mat:'Français', date:'2026-04-08' }, { mat:'SVT', date:'2026-04-09' }],
-      '3ème':  [{ mat:'Mathématiques', date:'2026-04-06' }, { mat:'Français', date:'2026-04-07' }, { mat:'Sciences Physiques', date:'2026-04-08' }, { mat:'SVT', date:'2026-04-09' }],
-      '2nde A':[{ mat:'Français', date:'2026-04-06' }, { mat:'Histoire-Géo', date:'2026-04-07' }, { mat:'Mathématiques', date:'2026-04-08' }],
-      '2nde C':[{ mat:'Mathématiques', date:'2026-04-06' }, { mat:'Sciences Physiques', date:'2026-04-07' }, { mat:'Français', date:'2026-04-08' }],
-      '1ère A':[{ mat:'Français', date:'2026-04-06' }, { mat:'Philosophie', date:'2026-04-07' }, { mat:'Histoire-Géo', date:'2026-04-08' }],
-      '1ère D':[{ mat:'Mathématiques', date:'2026-04-06' }, { mat:'Sciences Physiques', date:'2026-04-07' }, { mat:'SVT', date:'2026-04-08' }],
-      'Tle A': [{ mat:'Philosophie', date:'2026-04-05' }, { mat:'Français', date:'2026-04-06' }, { mat:'Histoire-Géo', date:'2026-04-07' }, { mat:'Anglais', date:'2026-04-08' }],
-      'Tle D': [{ mat:'Mathématiques', date:'2026-04-05' }, { mat:'Sciences Physiques', date:'2026-04-06' }, { mat:'SVT', date:'2026-04-07' }, { mat:'Français', date:'2026-04-08' }],
+      '6ème': [{ mat: 'Français', date: '2026-04-07' }, { mat: 'Mathématiques', date: '2026-04-08' }, { mat: 'Histoire-Géo', date: '2026-04-09' }],
+      '5ème': [{ mat: 'Mathématiques', date: '2026-04-07' }, { mat: 'Français', date: '2026-04-08' }, { mat: 'Sciences Physiques', date: '2026-04-09' }],
+      '4ème': [{ mat: 'Mathématiques', date: '2026-04-07' }, { mat: 'Français', date: '2026-04-08' }, { mat: 'SVT', date: '2026-04-09' }],
+      '3ème': [{ mat: 'Mathématiques', date: '2026-04-06' }, { mat: 'Français', date: '2026-04-07' }, { mat: 'Sciences Physiques', date: '2026-04-08' }, { mat: 'SVT', date: '2026-04-09' }],
+      '2nde A': [{ mat: 'Français', date: '2026-04-06' }, { mat: 'Histoire-Géo', date: '2026-04-07' }, { mat: 'Mathématiques', date: '2026-04-08' }],
+      '2nde C': [{ mat: 'Mathématiques', date: '2026-04-06' }, { mat: 'Sciences Physiques', date: '2026-04-07' }, { mat: 'Français', date: '2026-04-08' }],
+      '1ère A': [{ mat: 'Français', date: '2026-04-06' }, { mat: 'Philosophie', date: '2026-04-07' }, { mat: 'Histoire-Géo', date: '2026-04-08' }],
+      '1ère D': [{ mat: 'Mathématiques', date: '2026-04-06' }, { mat: 'Sciences Physiques', date: '2026-04-07' }, { mat: 'SVT', date: '2026-04-08' }],
+      'Tle A': [{ mat: 'Philosophie', date: '2026-04-05' }, { mat: 'Français', date: '2026-04-06' }, { mat: 'Histoire-Géo', date: '2026-04-07' }, { mat: 'Anglais', date: '2026-04-08' }],
+      'Tle D': [{ mat: 'Mathématiques', date: '2026-04-05' }, { mat: 'Sciences Physiques', date: '2026-04-06' }, { mat: 'SVT', date: '2026-04-07' }, { mat: 'Français', date: '2026-04-08' }],
     };
 
     function progTab(tab, el) {
-      ['emploi','devoirs','compos','examens'].forEach(t => {
+      ['emploi', 'devoirs', 'compos', 'examens'].forEach(t => {
         const el2 = document.getElementById('prog-' + t);
         if (el2) el2.style.display = 'none';
       });
@@ -2592,7 +2792,7 @@
 
     function loadProgramme() {
       const classe = currentUser.classe || '';
-      const isExamen = ['3ème','Tle A','Tle D'].includes(classe);
+      const isExamen = ['3ème', 'Tle A', 'Tle D'].includes(classe);
       const tabEx = document.getElementById('tab-examens');
       if (tabEx) tabEx.style.display = isExamen ? '' : 'none';
       renderEmploiDuTemps();
@@ -2602,16 +2802,16 @@
     function renderEmploiDuTemps() {
       const classe = currentUser.classe || '';
       const edt = EMPLOIS_DU_TEMPS[classe] || EMPLOIS_DU_TEMPS['6ème'];
-      const today = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'][new Date().getDay()];
+      const today = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'][new Date().getDay()];
 
       let html = `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
         <table style="width:100%;border-collapse:collapse;min-width:520px;font-size:.72rem;">
           <thead>
             <tr>
               <th style="padding:7px 8px;background:#0D1020;color:rgba(255,255,255,.5);font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;border-radius:6px 0 0 0;width:90px;">Horaire</th>`;
-      JOURS.forEach((j,i) => {
+      JOURS.forEach((j, i) => {
         const isToday = j === today;
-        html += `<th style="padding:7px 6px;background:${isToday?'rgba(59,73,223,.4)':'#0D1020'};color:${isToday?'#A5B4FC':'rgba(255,255,255,.5)'};font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;${i===6?'border-radius:0 6px 0 0;':''}">${JOURS_COURT[i]}${isToday?' ✦':''}</th>`;
+        html += `<th style="padding:7px 6px;background:${isToday ? 'rgba(59,73,223,.4)' : '#0D1020'};color:${isToday ? '#A5B4FC' : 'rgba(255,255,255,.5)'};font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;${i === 6 ? 'border-radius:0 6px 0 0;' : ''}">${JOURS_COURT[i]}${isToday ? ' ✦' : ''}</th>`;
       });
       html += '</tr></thead><tbody>';
 
@@ -2619,10 +2819,10 @@
         const isPause = cr.pause;
         // Séparateur pause déjeuner entre C5 (index 5) et C6 (index 6)
         if (ci === 6) {
-          html += `<tr><td colspan="${JOURS.length+1}" style="padding:5px 8px;text-align:center;font-size:.58rem;font-weight:800;color:#94A3B8;letter-spacing:.1em;background:rgba(0,0,0,.2);border-top:2px solid rgba(255,255,255,.06);">── PAUSE DÉJEUNER · 12h00 – 15h00 ──</td></tr>`;
+          html += `<tr><td colspan="${JOURS.length + 1}" style="padding:5px 8px;text-align:center;font-size:.58rem;font-weight:800;color:#94A3B8;letter-spacing:.1em;background:rgba(0,0,0,.2);border-top:2px solid rgba(255,255,255,.06);">── PAUSE DÉJEUNER · 12h00 – 15h00 ──</td></tr>`;
         }
-        html += `<tr style="background:${isPause?'rgba(148,163,184,.06)':'transparent'};">`;
-        html += `<td style="padding:6px 8px;font-size:.6rem;color:${isPause?'#94A3B8':'#7B8FF5'};font-weight:800;white-space:nowrap;border-right:1px solid rgba(255,255,255,.08);background:rgba(13,16,32,.6);">${cr.h}</td>`;
+        html += `<tr style="background:${isPause ? 'rgba(148,163,184,.06)' : 'transparent'};">`;
+        html += `<td style="padding:6px 8px;font-size:.6rem;color:${isPause ? '#94A3B8' : '#7B8FF5'};font-weight:800;white-space:nowrap;border-right:1px solid rgba(255,255,255,.08);background:rgba(13,16,32,.6);">${cr.h}</td>`;
         JOURS.forEach(j => {
           const mat = edt[j] ? (edt[j][ci] || '—') : '—';
           const isToday = j === today;
@@ -2633,12 +2833,12 @@
               <span style="font-size:.54rem;color:#94A3B8;font-style:italic;">Pause</span>
             </td>`;
           } else if (isCreuse) {
-            html += `<td style="padding:5px 4px;text-align:center;border:1px solid rgba(255,255,255,.04);${isToday?'background:rgba(59,73,223,.04);':''}">
+            html += `<td style="padding:5px 4px;text-align:center;border:1px solid rgba(255,255,255,.04);${isToday ? 'background:rgba(59,73,223,.04);' : ''}">
               <span style="color:rgba(255,255,255,.1);font-size:.7rem;">·</span>
             </td>`;
           } else {
             const col = getMATColor(mat);
-            html += `<td style="padding:4px;border:1px solid rgba(255,255,255,.04);${isToday?'background:rgba(59,73,223,.08);':''}">
+            html += `<td style="padding:4px;border:1px solid rgba(255,255,255,.04);${isToday ? 'background:rgba(59,73,223,.08);' : ''}">
               <div style="background:${col}22;border-left:2px solid ${col};border-radius:4px;padding:4px 5px;font-size:.62rem;font-weight:700;color:${col};line-height:1.3;">${mat}</div>
             </td>`;
           }
@@ -2663,7 +2863,7 @@
           const d = await r.json();
           devoirs = d.devoirs || [];
         }
-      } catch(e) {}
+      } catch (e) { }
 
       // Fallback statique si API vide/erreur
       if (!devoirs.length) devoirs = (DEVOIRS_STATIQUES[classe] || []).map(d => ({ ...d, source: 'static' }));
@@ -2673,12 +2873,12 @@
         return;
       }
 
-      const today = new Date(); today.setHours(0,0,0,0);
+      const today = new Date(); today.setHours(0, 0, 0, 0);
       el.innerHTML = devoirs.map(d => {
         const hasDate = d.date && d.date !== null;
         let urgence = '', urgLabel = '';
         if (hasDate) {
-          const dd = new Date(d.date); dd.setHours(0,0,0,0);
+          const dd = new Date(d.date); dd.setHours(0, 0, 0, 0);
           const diff = Math.ceil((dd - today) / 86400000);
           if (diff <= 0) { urgence = '#DC2626'; urgLabel = '⚠️ Passé'; }
           else if (diff <= 2) { urgence = '#D97706'; urgLabel = `🔴 Dans ${diff}j`; }
@@ -2689,7 +2889,7 @@
         const matNom = d.mat || d.matiere || '—';
         return `<div class="card" style="margin-bottom:10px;border-left:4px solid ${col};display:flex;align-items:center;gap:14px;padding:13px 16px;">
           <div style="width:44px;height:44px;border-radius:12px;background:${col}22;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <span style="font-size:.6rem;font-weight:900;color:${col};text-align:center;line-height:1.2;text-transform:uppercase;">${matNom.split(' ').map(w=>w[0]).join('').slice(0,3)}</span>
+            <span style="font-size:.6rem;font-weight:900;color:${col};text-align:center;line-height:1.2;text-transform:uppercase;">${matNom.split(' ').map(w => w[0]).join('').slice(0, 3)}</span>
           </div>
           <div style="flex:1;min-width:0;">
             <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:900;color:${col};">Devoir de ${matNom}</div>
@@ -2697,10 +2897,10 @@
           </div>
           <div style="text-align:right;flex-shrink:0;">
             ${hasDate
-              ? `<div style="font-size:.72rem;font-weight:900;color:${urgence};">${urgLabel}</div>
-                 <div style="font-size:.6rem;color:var(--muted);margin-top:2px;">📅 ${new Date(d.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long'})}</div>`
-              : `<div style="font-size:.62rem;background:rgba(148,163,184,.12);color:var(--muted);padding:4px 9px;border-radius:20px;font-weight:700;">Sans date</div>`
-            }
+            ? `<div style="font-size:.72rem;font-weight:900;color:${urgence};">${urgLabel}</div>
+                 <div style="font-size:.6rem;color:var(--muted);margin-top:2px;">📅 ${new Date(d.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</div>`
+            : `<div style="font-size:.62rem;background:rgba(148,163,184,.12);color:var(--muted);padding:4px 9px;border-radius:20px;font-weight:700;">Sans date</div>`
+          }
           </div>
         </div>`;
       }).join('');
@@ -2715,25 +2915,25 @@
         el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Pas encore de programme de compositions publié.</div></div>';
         return;
       }
-      const today = new Date(); today.setHours(0,0,0,0);
+      const today = new Date(); today.setHours(0, 0, 0, 0);
       el.innerHTML = `<div style="margin-bottom:10px;">
         <div style="font-size:.7rem;color:var(--muted);font-weight:700;margin-bottom:10px;">📋 COMPOSITIONS DU 1er TRIMESTRE · ${classe}</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           ${compos.map(c => {
-            const d = new Date(c.date); d.setHours(0,0,0,0);
-            const diff = Math.ceil((d - today) / 86400000);
-            const col = getMATColor(c.mat);
-            const passed = diff < 0;
-            return `<div class="card" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-left:3px solid ${passed?'#94A3B8':col};opacity:${passed?'.5':'1'};">
+        const d = new Date(c.date); d.setHours(0, 0, 0, 0);
+        const diff = Math.ceil((d - today) / 86400000);
+        const col = getMATColor(c.mat);
+        const passed = diff < 0;
+        return `<div class="card" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-left:3px solid ${passed ? '#94A3B8' : col};opacity:${passed ? '.5' : '1'};">
               <div style="flex:1;">
-                <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;color:${passed?'#94A3B8':col};letter-spacing:.07em;">${c.mat}</div>
-                <div style="font-size:.72rem;color:var(--muted);margin-top:2px;">📅 ${d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div>
+                <div style="font-size:.62rem;font-weight:800;text-transform:uppercase;color:${passed ? '#94A3B8' : col};letter-spacing:.07em;">${c.mat}</div>
+                <div style="font-size:.72rem;color:var(--muted);margin-top:2px;">📅 ${d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
               </div>
-              <div style="font-size:.68rem;font-weight:800;color:${passed?'#94A3B8':diff<=3?'#DC2626':diff<=7?'#D97706':'#059669'};">
+              <div style="font-size:.68rem;font-weight:800;color:${passed ? '#94A3B8' : diff <= 3 ? '#DC2626' : diff <= 7 ? '#D97706' : '#059669'};">
                 ${passed ? 'Passé' : diff === 0 ? "Aujourd'hui !" : `J-${diff}`}
               </div>
             </div>`;
-          }).join('')}
+      }).join('')}
         </div>
       </div>`;
     }
@@ -2747,8 +2947,8 @@
         el.innerHTML = '<div class="empty"><div class="empty-icon">🎓</div><div class="empty-txt">Pas d\'examen national pour cette classe.</div></div>';
         return;
       }
-      const today = new Date(); today.setHours(0,0,0,0);
-      const examDate = new Date(examen.date); examDate.setHours(0,0,0,0);
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const examDate = new Date(examen.date); examDate.setHours(0, 0, 0, 0);
       const joursRestants = Math.ceil((examDate - today) / 86400000);
 
       el.innerHTML = `
@@ -2756,7 +2956,7 @@
           <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:#7B8FF5;margin-bottom:8px;">${examen.nom} 2026</div>
           <div style="font-family:'Syne',sans-serif;font-size:2.8rem;font-weight:900;color:#3B49DF;line-height:1;">${joursRestants > 0 ? joursRestants : '—'}</div>
           <div style="font-size:.8rem;color:var(--muted);margin-top:6px;">jours restants</div>
-          <div style="font-size:.75rem;font-weight:700;color:var(--ink);margin-top:10px;">📅 ${examDate.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+          <div style="font-size:.75rem;font-weight:700;color:var(--ink);margin-top:10px;">📅 ${examDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</div>
         </div>
         <div class="card" style="margin-bottom:10px;">
           <div style="font-size:.74rem;font-weight:800;color:var(--ink);margin-bottom:10px;">💡 Conseils pour réussir l'${examen.nom}</div>
@@ -2780,7 +2980,7 @@
           document.getElementById('vs-content').innerHTML = renderVSMock();
           return;
         }
-        document.getElementById('vs-content').innerHTML = acts.map((a,i) => renderVSCard(a, i, false)).join('');
+        document.getElementById('vs-content').innerHTML = acts.map((a, i) => renderVSCard(a, i, false)).join('');
       } catch (e) {
         document.getElementById('vs-content').innerHTML = renderVSMock();
       }
@@ -2788,7 +2988,7 @@
 
     function renderVSCard(a, idx, isMock) {
       const dateStr = a.date_debut
-        ? `📅 Du ${new Date(a.date_debut).toLocaleDateString('fr-FR')} au ${new Date(a.date_fin||a.date_debut).toLocaleDateString('fr-FR')}`
+        ? `📅 Du ${new Date(a.date_debut).toLocaleDateString('fr-FR')} au ${new Date(a.date_fin || a.date_debut).toLocaleDateString('fr-FR')}`
         : (a.date || '');
       const likes = a._likes || 0;
       const comments = a._comments || [];
@@ -2796,8 +2996,8 @@
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
           <div style="flex:1;min-width:0;">
             <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;">👮 Publié par le Surveillant</div>
-            <div style="font-family:'Syne',sans-serif;font-size:.94rem;font-weight:800;margin-bottom:5px;">${a.titre||a.title||'Activité'}</div>
-            <div style="font-size:.78rem;color:#374151;margin-bottom:7px;line-height:1.6;">${a.description||a.desc||''}</div>
+            <div style="font-family:'Syne',sans-serif;font-size:.94rem;font-weight:800;margin-bottom:5px;">${a.titre || a.title || 'Activité'}</div>
+            <div style="font-size:.78rem;color:#374151;margin-bottom:7px;line-height:1.6;">${a.description || a.desc || ''}</div>
             <div style="font-size:.68rem;color:var(--muted);">${dateStr}</div>
           </div>
         </div>
@@ -2813,7 +3013,7 @@
         </div>
         <div id="vs-comments-${idx}" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:10px;">
           <div id="vs-comm-list-${idx}" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;">
-            ${comments.map(c=>`<div style="font-size:.72rem;background:rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;"><span style="font-weight:700;color:var(--accent2);">${c.auteur}</span> <span style="color:rgba(255,255,255,.6);">${c.texte}</span></div>`).join('')}
+            ${comments.map(c => `<div style="font-size:.72rem;background:rgba(255,255,255,.04);border-radius:8px;padding:7px 10px;"><span style="font-weight:700;color:var(--accent2);">${c.auteur}</span> <span style="color:rgba(255,255,255,.6);">${c.texte}</span></div>`).join('')}
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
             <input type="text" id="vs-comm-input-${idx}" placeholder="Ajouter un commentaire..." 
@@ -2830,16 +3030,16 @@
 
     function renderVSMock() {
       const mocks = [
-        { titre:'🏅 Tournoi de Football Inter-Lycées', desc:'Compétition sportive regroupant les meilleurs lycées de Ouagadougou.', date:'📅 15 Mar – 20 Mar 2026', _likes:12, _comments:[] },
-        { titre:'🎭 Spectacle de Fin d\'Année', desc:'Préparation du grand spectacle : théâtre, danse, musique. Toutes les classes participent.', date:'📅 10 Mai – 15 Jun 2026', _likes:8, _comments:[] },
-        { titre:'📚 Cours de Soutien Vacances', desc:'Cours de soutien pendant les vacances de Pâques pour 3ème et Terminale.', date:'📅 25 Mar – 5 Avr 2026', _likes:5, _comments:[] },
+        { titre: '🏅 Tournoi de Football Inter-Lycées', desc: 'Compétition sportive regroupant les meilleurs lycées de Ouagadougou.', date: '📅 15 Mar – 20 Mar 2026', _likes: 12, _comments: [] },
+        { titre: '🎭 Spectacle de Fin d\'Année', desc: 'Préparation du grand spectacle : théâtre, danse, musique. Toutes les classes participent.', date: '📅 10 Mai – 15 Jun 2026', _likes: 8, _comments: [] },
+        { titre: '📚 Cours de Soutien Vacances', desc: 'Cours de soutien pendant les vacances de Pâques pour 3ème et Terminale.', date: '📅 25 Mar – 5 Avr 2026', _likes: 5, _comments: [] },
       ];
       vsData = mocks;
-      return mocks.map((a,i) => renderVSCard(a, i, true)).join('');
+      return mocks.map((a, i) => renderVSCard(a, i, true)).join('');
     }
 
     function vsLike(idx) {
-      if (!vsData[idx]) vsData[idx] = { _likes:0, _comments:[] };
+      if (!vsData[idx]) vsData[idx] = { _likes: 0, _comments: [] };
       vsData[idx]._likes = (vsData[idx]._likes || 0) + 1;
       const cnt = document.getElementById(`vs-like-count-${idx}`);
       const btn = document.getElementById(`vs-like-btn-${idx}`);
@@ -2855,8 +3055,8 @@
     function vsAddComment(idx) {
       const input = document.getElementById(`vs-comm-input-${idx}`);
       if (!input || !input.value.trim()) return;
-      if (!vsData[idx]) vsData[idx] = { _likes:0, _comments:[] };
-      const auteur = `${currentUser.prenom || 'Élève'} ${(currentUser.nom||'')[0]||''}.`.trim();
+      if (!vsData[idx]) vsData[idx] = { _likes: 0, _comments: [] };
+      const auteur = `${currentUser.prenom || 'Élève'} ${(currentUser.nom || '')[0] || ''}.`.trim();
       const comment = { auteur, texte: input.value.trim() };
       vsData[idx]._comments = vsData[idx]._comments || [];
       vsData[idx]._comments.push(comment);
@@ -2880,6 +3080,36 @@
     function logout() { localStorage.clear(); window.location.href = 'login.html'; }
   </script>
   <script src="responsive-init.js"></script>
+  <!-- ... -->
+
+  <!-- Inclure le script de Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    // ...
+
+    // Écoute l'événement pour envoyer les messages d'absences aux élèves
+    function sendAbsence() {
+      const data = {
+        conv_id: 'general',
+        message: 'Absence enregistrée',
+      };
+
+      // Envoyer les messages d'absences aux élèves via Socket.IO
+      if (io) {
+        io.emit('sendAbsence', data);
+      }
+    }
+
+    // ...
+
+    // Initialise Socket.IO
+    const socket = io();
+
+    // ...
+  </script>
+
+  <!-- ... -->
 </body>
 
 </html>

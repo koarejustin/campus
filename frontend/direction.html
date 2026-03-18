@@ -20,6 +20,11 @@
       padding: 0;
     }
 
+    html,
+    body {
+      overflow-x: hidden !important;
+    }
+
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background: #EEF2F7;
@@ -668,13 +673,33 @@
     .prof-card {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 14px;
+      gap: 10px;
+      padding: 13px 14px;
       border: 1px solid #E2E8F0;
       border-radius: 12px;
       background: #fff;
       margin-bottom: 8px;
       transition: .15s;
+      flex-wrap: nowrap;
+    }
+
+    .prof-card .prof-info {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .prof-card .prof-info>div {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .prof-card .prof-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     .prof-card:hover {
@@ -694,6 +719,13 @@
       font-weight: 900;
       color: #fff;
       flex-shrink: 0;
+    }
+
+    /* ══ GRILLE FORMULAIRES SECTIONS ══ */
+    .sec-form-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 14px;
     }
 
     /* ══ ABSENCES SURVEILLANT ══ */
@@ -1073,260 +1105,427 @@
     }
   </style>
   <style>
-  /* ══ RESPONSIVE DIRECTION — corrections mobile ══════════════ */
+    /* ══ RESPONSIVE DIRECTION — corrections mobile ══════════════ */
 
-  @media (max-width: 639px) {
+    @media (max-width: 639px) {
 
-    /* ── SIDEBAR : CACHÉE par défaut sur mobile ── */
-    .sidebar {
-      transform: translateX(-100%) !important;
-      transition: transform .28s cubic-bezier(.4,0,.2,1) !important;
-      z-index: 999 !important;
-      width: 240px !important;
-    }
-    .sidebar.open {
-      transform: translateX(0) !important;
+      /* ── SIDEBAR : CACHÉE par défaut sur mobile ── */
+      .sidebar {
+        transform: translateX(-100%) !important;
+        transition: transform .28s cubic-bezier(.4, 0, .2, 1) !important;
+        z-index: 999 !important;
+        width: 240px !important;
+      }
+
+      .sidebar.open {
+        transform: translateX(0) !important;
+      }
+
+      /* ── MAIN : pleine largeur, padding pour hamburger ── */
+      main {
+        margin-left: 0 !important;
+        padding: 0 12px 40px !important;
+      }
+
+      /* ── Topbar : décaler sous le hamburger ── */
+      .topbar {
+        padding: 60px 0 0 0 !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        margin-bottom: 14px !important;
+      }
+
+      .page-title {
+        font-size: 1.1rem !important;
+        line-height: 1.2 !important;
+      }
+
+      .page-sub {
+        font-size: .67rem !important;
+        white-space: normal !important;
+        line-height: 1.4 !important;
+      }
+
+      #topbar-right {
+        width: 100% !important;
+      }
+
+      /* ── KPI grid : 2 colonnes ── */
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+      }
+
+      /* ── Toutes les grids internes ── */
+      [style*="grid-template-columns: 1fr 300px"],
+      [style*="grid-template-columns:1fr 300px"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      [style*="grid-template-columns: 1fr 1fr"],
+      [style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      [style*="grid-template-columns: repeat(4, 1fr)"],
+      [style*="grid-template-columns:repeat(4,1fr)"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+
+      [style*="grid-template-columns: repeat(3, 1fr)"],
+      [style*="grid-template-columns:repeat(3,1fr)"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+
+      /* ── Emploi du temps : tableau scroll horizontal ── */
+      #edt-table-wrap,
+      #s-edt .card>div:last-child {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+
+      .edt-wrap {
+        min-width: 520px !important;
+      }
+
+      #edt-table,
+      .edt-grid {
+        min-width: 520px !important;
+      }
+
+      /* ── Tableau emploi du temps (70px + repeat 5) ── */
+      .tbl-edt {
+        min-width: 580px !important;
+      }
+
+      .tbl-edt,
+      .edt-tbl {
+        display: block !important;
+        overflow-x: auto !important;
+      }
+
+      /* ── Tous les tableaux → scroll ── */
+      table {
+        display: block !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+      }
+
+      table td,
+      table th {
+        white-space: normal !important;
+        min-width: 80px !important;
+      }
+
+      /* ── Cards ── */
+      .card {
+        padding: 13px 14px !important;
+        border-radius: 14px !important;
+      }
+
+      /* ── KPI cards ── */
+      .kpi {
+        padding: 12px 13px !important;
+      }
+
+      .kpi-val {
+        font-size: 1.5rem !important;
+      }
+
+      /* ── Formulaires (absences, convocations, incidents) ── */
+      .form-row,
+      [style*="display:flex;gap"] {
+        flex-wrap: wrap !important;
+      }
+
+      input,
+      select,
+      textarea {
+        font-size: .83rem !important;
+      }
+
+      /* ── Sections sec : scroll + padding-bottom ── */
+      .sec.on {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 0 12px !important;
+        padding-bottom: 80px !important;
+      }
+
+      .sec {
+        padding: 0 !important;
+      }
+
+      /* ── Grids 360px/380px → 1 colonne sur mobile ── */
+      [style*="grid-template-columns:360px"],
+      [style*="grid-template-columns: 360px"],
+      [style*="grid-template-columns:380px"],
+      [style*="grid-template-columns: 380px"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ── Grids 1fr 340px / 2fr 1fr ── */
+      [style*="grid-template-columns:1fr 340px"],
+      [style*="grid-template-columns: 1fr 340px"],
+      [style*="grid-template-columns:2fr 1fr"],
+      [style*="grid-template-columns: 2fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ── Boutons ── */
+      button[class*="btn"],
+      .btn {
+        font-size: .72rem !important;
+      }
+
+      /* ── Stats comptabilité : 3 colonnes → 1 ── */
+      [style*="grid-template-columns: repeat(3"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ── Sections : tous les grids fixes → 1 colonne ── */
+      #s-abs>div,
+      #s-conv>div,
+      #s-inc>div,
+      #s-flux>div,
+      #s-corps>div,
+      #s-sign>div,
+      #s-compta>div,
+      #s-agenda>div,
+      #s-eleves>div {
+        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      /* ── KPI stats des sections (repeat 4 inline) ── */
+      #s-abs>div:first-child,
+      #s-conv>div:first-child,
+      #s-inc>div:first-child {
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        flex-direction: unset !important;
+      }
+
+      /* ── Tableaux dans les sections → scroll ── */
+      #s-abs [style*="grid-template-columns:100px"],
+      #s-conv [style*="grid-template-columns:100px"] {
+        min-width: 500px !important;
+      }
+
+      #s-abs .card,
+      #s-conv .card,
+      #s-inc .card,
+      #s-sign .card,
+      #s-corps .card,
+      #s-compta .card {
+        overflow-x: auto !important;
+        width: 100% !important;
+      }
+
+      /* ── Formulaires pleine largeur ── */
+      #s-abs input,
+      #s-abs select,
+      #s-abs textarea,
+      #s-conv input,
+      #s-conv select,
+      #s-conv textarea,
+      #s-inc input,
+      #s-inc select,
+      #s-inc textarea,
+      #s-agenda input,
+      #s-agenda select,
+      #s-agenda textarea,
+      #s-flux input,
+      #s-flux select,
+      #s-flux textarea,
+      #s-corps input,
+      #s-corps select,
+      #s-corps textarea {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+      }
+
+      /* ── Elèves: liste ── */
+      #s-eleves .card {
+        width: 100% !important;
+      }
+
+      /* ══ DASHBOARD : perf-wrap + répartition classes → 1 colonne ══ */
+      .perf-wrap {
+        grid-template-columns: 1fr !important;
+      }
+
+      .chart-h {
+        height: 200px !important;
+      }
+
+      /* ══ FORMULAIRES SECTIONS : 1 colonne sur mobile ══ */
+      .sec-form-grid,
+      #inc-grid,
+      #conv-grid,
+      #abs-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
+      }
+
+      .sec-form-grid>*,
+      #inc-grid>*,
+      #conv-grid>*,
+      #abs-grid>* {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+      }
+
+      /* Tous les inputs/selects dans s-inc pleine largeur */
+      #s-inc input,
+      #s-inc select,
+      #s-inc textarea,
+      #s-conv input,
+      #s-conv select,
+      #s-conv textarea,
+      #s-abs input,
+      #s-abs select,
+      #s-abs textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Formulaire abs-form → 1 colonne sur mobile */
+      .abs-form {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Inputs formulaires pleine largeur */
+      .abs-form input,
+      .abs-form select,
+      .abs-form textarea {
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Cards incidents pleine largeur */
+      #inc-list .card,
+      #inc-list>div {
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* ══ DASHBOARD : graphique perf → ne pas déborder ══ */
+      #s-dash .card {
+        overflow: hidden !important;
+      }
+
+      /* Statistiques Répartition classes → 1 colonne */
+      #s-dash [style*="grid-template-columns:1fr 300px"],
+      #s-dash [style*="grid-template-columns: 1fr 300px"] {
+        grid-template-columns: 1fr !important;
+      }
     }
 
-    /* ── MAIN : pleine largeur, padding pour hamburger ── */
-    main {
-      margin-left: 0 !important;
-      padding: 0 12px 40px !important;
+    /* ── Tablet ── */
+    @media (max-width: 1023px) and (min-width: 640px) {
+      .topbar {
+        padding: 20px 18px 0 !important;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+
+      [style*="grid-template-columns: 1fr 300px"],
+      [style*="grid-template-columns:1fr 300px"] {
+        grid-template-columns: 1fr !important;
+      }
     }
 
-    /* ── Topbar : décaler sous le hamburger ── */
-    .topbar {
-      padding: 60px 0 0 0 !important;
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      gap: 8px !important;
-      margin-bottom: 14px !important;
-    }
-    .page-title {
-      font-size: 1.1rem !important;
-      line-height: 1.2 !important;
-    }
-    .page-sub {
-      font-size: .67rem !important;
-      white-space: normal !important;
-      line-height: 1.4 !important;
-    }
-    #topbar-right {
-      width: 100% !important;
+    /* ══ MODALS CORPS ENSEIGNANT ══ */
+    .dir-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .55);
+      z-index: 9000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      backdrop-filter: blur(3px);
     }
 
-    /* ── KPI grid : 2 colonnes ── */
-    .kpi-grid {
-      grid-template-columns: repeat(2, 1fr) !important;
-      gap: 8px !important;
+    .dir-modal-overlay.open .dir-modal {
+      transform: translateY(0);
+      opacity: 1;
     }
 
-    /* ── Toutes les grids internes ── */
-    [style*="grid-template-columns: 1fr 300px"],
-    [style*="grid-template-columns:1fr 300px"] {
-      grid-template-columns: 1fr !important;
-    }
-    [style*="grid-template-columns: 1fr 1fr"],
-    [style*="grid-template-columns:1fr 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-    [style*="grid-template-columns: repeat(4, 1fr)"],
-    [style*="grid-template-columns:repeat(4,1fr)"] {
-      grid-template-columns: repeat(2, 1fr) !important;
-    }
-    [style*="grid-template-columns: repeat(3, 1fr)"],
-    [style*="grid-template-columns:repeat(3,1fr)"] {
-      grid-template-columns: repeat(2, 1fr) !important;
+    .dir-modal {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(15, 23, 42, .22);
+      transform: translateY(24px);
+      opacity: 0;
+      transition: transform .25s cubic-bezier(.4, 0, .2, 1), opacity .25s;
     }
 
-    /* ── Emploi du temps : tableau scroll horizontal ── */
-    #edt-table-wrap, #s-edt .card > div:last-child {
-      overflow-x: auto !important;
-      -webkit-overflow-scrolling: touch !important;
-    }
-    .edt-wrap {
-      min-width: 520px !important;
-    }
-    #edt-table, .edt-grid {
-      min-width: 520px !important;
-    }
-
-    /* ── Tableau emploi du temps (70px + repeat 5) ── */
-    .tbl-edt {
-      min-width: 580px !important;
-    }
-    .tbl-edt, .edt-tbl {
-      display: block !important;
-      overflow-x: auto !important;
+    .dir-modal-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid #F1F5F9;
+      position: sticky;
+      top: 0;
+      background: #fff;
+      z-index: 1;
+      border-radius: 20px 20px 0 0;
     }
 
-    /* ── Tous les tableaux → scroll ── */
-    table {
-      display: block !important;
-      overflow-x: auto !important;
-      white-space: nowrap !important;
-    }
-    table td, table th {
-      white-space: normal !important;
-      min-width: 80px !important;
-    }
-
-    /* ── Cards ── */
-    .card {
-      padding: 13px 14px !important;
-      border-radius: 14px !important;
+    .dir-modal-av {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      font-weight: 900;
+      color: #fff;
+      flex-shrink: 0;
     }
 
-    /* ── KPI cards ── */
-    .kpi {
-      padding: 12px 13px !important;
-    }
-    .kpi-val {
-      font-size: 1.5rem !important;
+    .dir-modal-body {
+      padding: 18px 20px 20px;
     }
 
-    /* ── Formulaires (absences, convocations, incidents) ── */
-    .form-row, [style*="display:flex;gap"] {
-      flex-wrap: wrap !important;
-    }
-    input, select, textarea {
-      font-size: .83rem !important;
-    }
-
-    /* ── Sections sec : scroll + padding-bottom ── */
-    .sec.on {
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-      padding: 0 12px !important;
-      padding-bottom: 80px !important;
-    }
-    .sec {
-      padding: 0 !important;
+    .dir-modal-close {
+      margin-left: auto;
+      background: #F1F5F9;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s;
     }
 
-    /* ── Grids 360px/380px → 1 colonne sur mobile ── */
-    [style*="grid-template-columns:360px"],
-    [style*="grid-template-columns: 360px"],
-    [style*="grid-template-columns:380px"],
-    [style*="grid-template-columns: 380px"] {
-      grid-template-columns: 1fr !important;
+    .dir-modal-close:hover {
+      background: #E2E8F0;
     }
-
-    /* ── Grids 1fr 340px / 2fr 1fr ── */
-    [style*="grid-template-columns:1fr 340px"],
-    [style*="grid-template-columns: 1fr 340px"],
-    [style*="grid-template-columns:2fr 1fr"],
-    [style*="grid-template-columns: 2fr 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* ── Boutons ── */
-    button[class*="btn"], .btn {
-      font-size: .72rem !important;
-    }
-
-    /* ── Stats comptabilité : 3 colonnes → 1 ── */
-    [style*="grid-template-columns: repeat(3"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* ── Sections : tous les grids fixes → 1 colonne ── */
-    #s-abs > div,
-    #s-conv > div,
-    #s-inc > div,
-    #s-flux > div,
-    #s-corps > div,
-    #s-sign > div,
-    #s-compta > div,
-    #s-agenda > div,
-    #s-eleves > div {
-      grid-template-columns: 1fr !important;
-      display: flex !important;
-      flex-direction: column !important;
-    }
-
-    /* ── KPI stats des sections (repeat 4 inline) ── */
-    #s-abs > div:first-child,
-    #s-conv > div:first-child,
-    #s-inc > div:first-child {
-      display: grid !important;
-      grid-template-columns: repeat(2, 1fr) !important;
-      flex-direction: unset !important;
-    }
-
-    /* ── Tableaux dans les sections → scroll ── */
-    #s-abs [style*="grid-template-columns:100px"],
-    #s-conv [style*="grid-template-columns:100px"] {
-      min-width: 500px !important;
-    }
-    #s-abs .card, #s-conv .card, #s-inc .card,
-    #s-sign .card, #s-corps .card, #s-compta .card {
-      overflow-x: auto !important;
-      width: 100% !important;
-    }
-
-    /* ── Formulaires pleine largeur ── */
-    #s-abs input, #s-abs select, #s-abs textarea,
-    #s-conv input, #s-conv select, #s-conv textarea,
-    #s-inc input, #s-inc select, #s-inc textarea,
-    #s-agenda input, #s-agenda select, #s-agenda textarea,
-    #s-flux input, #s-flux select, #s-flux textarea,
-    #s-corps input, #s-corps select, #s-corps textarea {
-      width: 100% !important;
-      box-sizing: border-box !important;
-      max-width: 100% !important;
-    }
-
-    /* ── Elèves: liste ── */
-    #s-eleves .card { width: 100% !important; }
-
-    /* ══ DASHBOARD : perf-wrap + répartition classes → 1 colonne ══ */
-    .perf-wrap {
-      grid-template-columns: 1fr !important;
-    }
-    .chart-h {
-      height: 200px !important;
-    }
-
-    /* ══ FORMULAIRES SECTIONS : 1 colonne sur mobile ══ */
-    .sec-form-grid {
-      grid-template-columns: 1fr !important;
-      gap: 12px !important;
-    }
-    .sec-form-grid > .card,
-    .sec-form-grid > div {
-      width: 100% !important;
-      min-width: 0 !important;
-      box-sizing: border-box !important;
-    }
-    /* Inputs formulaires pleine largeur */
-    .abs-form input,
-    .abs-form select,
-    .abs-form textarea {
-      width: 100% !important;
-      box-sizing: border-box !important;
-    }
-
-    /* ══ DASHBOARD : graphique perf → ne pas déborder ══ */
-    #s-dash .card {
-      overflow: hidden !important;
-    }
-    /* Statistiques Répartition classes → 1 colonne */
-    #s-dash [style*="grid-template-columns:1fr 300px"],
-    #s-dash [style*="grid-template-columns: 1fr 300px"] {
-      grid-template-columns: 1fr !important;
-    }
-  }
-
-  /* ── Tablet ── */
-  @media (max-width: 1023px) and (min-width: 640px) {
-    .topbar { padding: 20px 18px 0 !important; }
-    .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
-    [style*="grid-template-columns: 1fr 300px"],
-    [style*="grid-template-columns:1fr 300px"] {
-      grid-template-columns: 1fr !important;
-    }
-  }
   </style>
 </head>
 
@@ -1698,7 +1897,7 @@
         </div>
       </div>
 
-      <div class="sec-form-grid">
+      <div class="sec-form-grid" id="abs-grid">
         <!-- Formulaire saisie -->
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div class="card" style="padding:22px;">
@@ -1895,7 +2094,7 @@
         </div>
       </div>
 
-      <div class="sec-form-grid">
+      <div class="sec-form-grid" id="conv-grid">
         <!-- Formulaire -->
         <div class="card" style="padding:22px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
@@ -2028,7 +2227,7 @@
 
     <!-- ══════════ INCIDENTS ══════════ -->
     <div id="s-inc" class="sec">
-      <div class="sec-form-grid">
+      <div class="sec-form-grid" id="inc-grid">
         <div class="card" style="padding:20px;">
           <div style="display:flex;align-items:center;gap:7px;margin-bottom:16px;">
             <i data-lucide="alert-triangle" style="width:15px;height:15px;color:#F59E0B;"></i>
@@ -2571,7 +2770,7 @@
     // NAVIGATION
     // ══════════════════════════════════════
     const PAGES = {
-      dash: { sec: 's-dash', title: 'Tableau de Bord', sub: "Vue d'ensemble de l'établissement" },
+      dash: { sec: 's-dash', title: 'Tableau de Bord', sub: "Vue d\'ensemble de l\'établissement" },
       eleves: { sec: 's-eleves', title: 'Gestion des Élèves', sub: 'Liste, profils et suivi' },
       abs: { sec: 's-abs', title: 'Absences', sub: 'Enregistrement et suivi des absences · Impact visible par l\'élève et son parent' },
       conv: { sec: 's-conv', title: 'Convocations', sub: 'Convocations privées · Visibles uniquement par l\'élève et son parent' },
@@ -2622,10 +2821,10 @@
           const absMonth = s.absences || 0;
           const convEnAtt = s.alerts || 0;
           // KPI absences/convocations dans les sections si affichées
-          ['abs-stat-total'].forEach(id => { const el = $(id); if(el) el.textContent = absMonth; });
-          ['conv-stat-total'].forEach(id => { const el = $(id); if(el) el.textContent = convEnAtt; });
+          ['abs-stat-total'].forEach(id => { const el = $(id); if (el) el.textContent = absMonth; });
+          ['conv-stat-total'].forEach(id => { const el = $(id); if (el) el.textContent = convEnAtt; });
         }
-      } catch(e) { console.warn('loadStats:', e); }
+      } catch (e) { console.warn('loadStats:', e); }
     }
 
     // ══════════════════════════════════════
@@ -3147,39 +3346,140 @@
     // CORPS ENSEIGNANT
     // ══════════════════════════════════════
     const CORPS_MOCK = [
-      { nom: 'SAWADOGO Issouf', mat: 'Mathématiques', cls: 'Tle D, 1ère D, 2nde C', statut: 'Permanent', col: '#4F46E5' },
-      { nom: 'KABORE Marie', mat: 'Français & Philo', cls: '3ème, 2nde A, Tle A', statut: 'Permanent', col: '#C2410C' },
-      { nom: 'TRAORE Ibrahim', mat: 'Anglais', cls: '6ème, 5ème, 4ème', statut: 'Contractuel', col: '#15803D' },
-      { nom: 'OUEDRAOGO Paul', mat: 'SVT & Physique', cls: '2nde A, 2nde C, 1ère D', statut: 'Permanent', col: '#0369A1' },
-      { nom: 'NANA Sophie', mat: 'Histoire-Géo', cls: 'Tle A, 1ère A, 3ème', statut: 'Contractuel', col: '#7E22CE' },
-      { nom: 'ZONGO Charles', mat: 'EPS', cls: 'Toutes classes', statut: 'Permanent', col: '#065F46' },
+      { id: 'P1', nom: 'SAWADOGO Issouf', mat: 'Mathématiques', cls: 'Tle D, 1ère D, 2nde C', statut: 'Permanent', col: '#4F46E5', code: 'PROF-2026-001' },
+      { id: 'P2', nom: 'KABORE Marie', mat: 'Français & Philo', cls: '3ème, 2nde A, Tle A', statut: 'Permanent', col: '#C2410C', code: 'PROF-2026-002' },
+      { id: 'P3', nom: 'TRAORE Ibrahim', mat: 'Anglais', cls: '6ème, 5ème, 4ème', statut: 'Contractuel', col: '#15803D', code: 'PROF-2026-003' },
+      { id: 'P4', nom: 'OUEDRAOGO Paul', mat: 'SVT & Physique', cls: '2nde A, 2nde C, 1ère D', statut: 'Permanent', col: '#0369A1', code: 'PROF-2026-004' },
+      { id: 'P5', nom: 'NANA Sophie', mat: 'Histoire-Géo', cls: 'Tle A, 1ère A, 3ème', statut: 'Contractuel', col: '#7E22CE', code: 'PROF-2026-005' },
+      { id: 'P6', nom: 'ZONGO Charles', mat: 'EPS', cls: 'Toutes classes', statut: 'Permanent', col: '#065F46', code: 'PROF-2026-006' },
     ];
+
+    // Cahiers de texte fictifs par prof
+    const CAHIERS_MOCK = {
+      'P1': [
+        { date: 'Lun 10 Mar', classe: 'Tle D', seance: 'Fonctions dérivées — Exercices corrigés', fait: true },
+        { date: 'Mar 11 Mar', classe: '1ère D', seance: 'Trigonométrie — Introduction', fait: true },
+        { date: 'Mer 12 Mar', classe: '2nde C', seance: 'Équations du 2nd degré', fait: false },
+      ],
+      'P2': [
+        { date: 'Lun 10 Mar', classe: '3ème', seance: 'Lecture: Le Mariage de Figaro', fait: true },
+        { date: 'Mer 12 Mar', classe: 'Tle A', seance: 'Dissertation: La liberté', fait: true },
+      ],
+      'P3': [
+        { date: 'Lun 10 Mar', classe: '6ème', seance: 'Vocabulaire: les animaux', fait: true },
+        { date: 'Mar 11 Mar', classe: '5ème', seance: 'Grammaire: Present Perfect', fait: false },
+      ],
+      'P4': [
+        { date: 'Lun 10 Mar', classe: '2nde A', seance: 'La cellule eucaryote', fait: true },
+        { date: 'Mer 12 Mar', classe: '1ère D', seance: 'Lois de Newton — TP', fait: true },
+      ],
+      'P5': [
+        { date: 'Mar 11 Mar', classe: 'Tle A', seance: 'Révolution française — Causes', fait: true },
+        { date: 'Jeu 13 Mar', classe: '1ère A', seance: 'Cartographie Afrique de l\'Ouest', fait: false },
+      ],
+      'P6': [
+        { date: 'Lun 10 Mar', classe: 'Toutes', seance: 'Athlétisme — Course 100m', fait: true },
+        { date: 'Ven 14 Mar', classe: 'Toutes', seance: 'Basket-ball — Techniques', fait: true },
+      ],
+    };
+
     function loadCorps() {
       corpsData = CORPS_MOCK;
       renderCorps();
       $('cahiers-list').innerHTML = CORPS_MOCK.map(p => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F1F5F9;">
-      <span style="font-size:.75rem;font-weight:700;">${esc(p.nom)}</span>
-      <button class="btn-p" style="padding:4px 9px;font-size:.65rem;" onclick="voirCahier('${esc(p.nom)}')">📓 Voir</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F1F5F9;">
+      <div style="min-width:0;flex:1;overflow:hidden;">
+        <div style="font-size:.75rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.nom)}</div>
+        <div style="font-size:.62rem;color:#94A3B8;">${esc(p.mat)}</div>
+      </div>
+      <button class="btn-p" style="padding:4px 9px;font-size:.65rem;flex-shrink:0;margin-left:8px;" onclick="voirCahier('${p.id}')">📓 Voir</button>
     </div>`).join('');
     }
+
     function renderCorps() {
       const q = ($('corps-srch')?.value || '').toLowerCase();
       const r = corpsData.filter(p => !q || (p.nom + p.mat).toLowerCase().includes(q));
       $('corps-list').innerHTML = r.map(p => `
     <div class="prof-card">
-      <div class="prof-av" style="background:${p.col};">${p.nom.charAt(0)}</div>
-      <div style="flex:1;">
+      <div class="prof-av" style="background:${p.col};flex-shrink:0;">${p.nom.charAt(0)}</div>
+      <div class="prof-info">
         <div style="font-size:.82rem;font-weight:800;color:#0F172A;">${esc(p.nom)}</div>
-        <div style="font-size:.72rem;color:#64748B;margin-top:1px;">${esc(p.mat)} · <span style="color:#4F46E5;font-weight:700;">${esc(p.cls)}</span></div>
+        <div style="font-size:.7rem;color:#64748B;margin-top:1px;">${esc(p.mat)} · <span style="color:#4F46E5;font-weight:700;">${esc(p.cls)}</span></div>
+        <div style="font-size:.62rem;color:#94A3B8;margin-top:1px;">${esc(p.code)}</div>
       </div>
-      <span class="b ${p.statut === 'Permanent' ? 'b-grn' : 'b-org'}">${p.statut}</span>
-      <button class="btn-p" style="padding:5px 10px;font-size:.68rem;">Message</button>
+      <div class="prof-actions">
+        <span class="b ${p.statut === 'Permanent' ? 'b-grn' : 'b-org'}">${p.statut}</span>
+        <button class="btn-p" style="padding:5px 10px;font-size:.68rem;" onclick="msgProf('${p.id}')">
+          <i data-lucide="message-square" style="width:12px;height:12px;"></i>Message
+        </button>
+      </div>
     </div>`).join('');
+      if (window.lucide) lucide.createIcons();
     }
+
     function filtCorps() { if (corpsData.length) renderCorps(); }
     function demanderNotes() { toast('Demande de notes envoyée au professeur', 'ok'); }
-    function voirCahier(nom) { toast('Cahier de texte de ' + nom + ' — en développement', 'info'); }
+
+    /* ── Modal Message Prof ── */
+    function msgProf(id) {
+      const p = CORPS_MOCK.find(x => x.id === id); if (!p) return;
+      const modal = document.getElementById('modal-msg-prof');
+      document.getElementById('mmp-titre').textContent = 'Message à ' + p.nom;
+      document.getElementById('mmp-sous').textContent = p.mat + ' · ' + p.code;
+      document.getElementById('mmp-av').textContent = p.nom.charAt(0);
+      document.getElementById('mmp-av').style.background = p.col;
+      document.getElementById('mmp-ta').value = '';
+      document.getElementById('mmp-id').value = id;
+      document.getElementById('mmp-chars').textContent = '0/500';
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('open'), 10);
+      document.getElementById('mmp-ta').focus();
+    }
+    function closeMsgProf() {
+      const modal = document.getElementById('modal-msg-prof');
+      modal.classList.remove('open');
+      setTimeout(() => modal.style.display = 'none', 250);
+    }
+    function sendMsgProf() {
+      const msg = document.getElementById('mmp-ta').value.trim();
+      if (!msg) { document.getElementById('mmp-ta').style.borderColor = '#EF4444'; return; }
+      const id = document.getElementById('mmp-id').value;
+      const p = CORPS_MOCK.find(x => x.id === id);
+      // Tentative API réelle
+      api('/admin/message-prof', { method: 'POST', body: JSON.stringify({ destinataire: p?.code, message: msg }) })
+        .catch(() => { });
+      closeMsgProf();
+      toast('Message envoyé à ' + (p?.nom || 'Prof'), 'ok');
+    }
+
+    /* ── Modal Cahier de texte ── */
+    function voirCahier(id) {
+      const p = CORPS_MOCK.find(x => x.id === id); if (!p) return;
+      const seances = CAHIERS_MOCK[id] || [];
+      const modal = document.getElementById('modal-cahier');
+      document.getElementById('mca-titre').textContent = 'Cahier de ' + p.nom;
+      document.getElementById('mca-sous').textContent = p.mat + ' · ' + p.cls;
+      document.getElementById('mca-av').textContent = p.nom.charAt(0);
+      document.getElementById('mca-av').style.background = p.col;
+      document.getElementById('mca-rows').innerHTML = seances.length ? seances.map(s => `
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;">
+          <div style="flex-shrink:0;margin-top:2px;">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${s.fait ? '#10B981' : '#F59E0B'};"></span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:.78rem;font-weight:800;color:#1E293B;">${esc(s.seance)}</div>
+            <div style="font-size:.65rem;color:#94A3B8;margin-top:2px;">${esc(s.date)} · Classe : ${esc(s.classe)}</div>
+          </div>
+          <span style="font-size:.62rem;font-weight:800;padding:3px 8px;border-radius:20px;flex-shrink:0;background:${s.fait ? '#D1FAE5' : '#FEF3C7'};color:${s.fait ? '#065F46' : '#92400E'};">${s.fait ? 'Fait' : 'À faire'}</span>
+        </div>`).join('') : '<div style="text-align:center;padding:24px;color:#94A3B8;font-size:.78rem;">Aucune séance enregistrée</div>';
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('open'), 10);
+    }
+    function closeCahier() {
+      const modal = document.getElementById('modal-cahier');
+      modal.classList.remove('open');
+      setTimeout(() => modal.style.display = 'none', 250);
+    }
 
     // ══════════════════════════════════════
     // SIGNATURES
@@ -3349,7 +3649,149 @@
 
     setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 200);
   </script>
-  <script src="responsive-init.js"></script>
+  <script src="responsive-init.js">
+
+
+    // ══ RESPONSIVE GRIDS : force 1 colonne < 640px ══
+    (function () {
+      function fixGrids() {
+        const isMobile = window.innerWidth < 640;
+        ['inc-grid', 'conv-grid', 'abs-grid'].forEach(function (gid) {
+          var g = document.getElementById(gid);
+          if (!g) return;
+          if (isMobile) {
+            g.style.cssText = 'display:flex!important;flex-direction:column!important;gap:12px!important;width:100%!important;';
+            Array.from(g.children).forEach(function (c) {
+              c.style.cssText += 'width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;';
+            });
+          } else {
+            g.style.cssText = '';
+            Array.from(g.children).forEach(function (c) { c.style.width = ''; c.style.minWidth = ''; });
+          }
+        });
+      }
+      window.addEventListener('load', fixGrids);
+      window.addEventListener('resize', fixGrids);
+      document.addEventListener('click', function (e) {
+        var btn = e.target.closest('[onclick*="go("]');
+        if (btn) setTimeout(fixGrids, 80);
+      });
+    })();
+
+  </script>
+
+  <!-- ══ MODAL MESSAGE PROF ══ -->
+  <div id="modal-msg-prof" class="dir-modal-overlay" onclick="if(event.target===this)closeMsgProf()">
+    <div class="dir-modal">
+      <div class="dir-modal-head">
+        <div id="mmp-av" class="dir-modal-av">?</div>
+        <div style="flex:1;min-width:0;">
+          <div id="mmp-titre" style="font-size:.9rem;font-weight:900;color:#0F172A;"></div>
+          <div id="mmp-sous" style="font-size:.68rem;color:#94A3B8;margin-top:2px;"></div>
+        </div>
+        <button class="dir-modal-close" onclick="closeMsgProf()">
+          <i data-lucide="x" style="width:16px;height:16px;color:#64748B;"></i>
+        </button>
+      </div>
+      <div class="dir-modal-body">
+        <input type="hidden" id="mmp-id">
+        <label style="font-size:.74rem;font-weight:800;color:#475569;display:block;margin-bottom:6px;">Objet du
+          message</label>
+        <select id="mmp-objet"
+          style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.79rem;font-family:inherit;outline:none;margin-bottom:12px;">
+          <option>📋 Rappel de notes — Trimestre 1</option>
+          <option>📋 Rappel de notes — Trimestre 2</option>
+          <option>📋 Rappel de notes — Trimestre 3</option>
+          <option>⚠️ Incident disciplinaire à traiter</option>
+          <option>📅 Convocation — Réunion pédagogique</option>
+          <option>📊 Demande de rapport de classe</option>
+          <option>✏️ Message personnel</option>
+        </select>
+        <label style="font-size:.74rem;font-weight:800;color:#475569;display:block;margin-bottom:6px;">Message</label>
+        <textarea id="mmp-ta" rows="5" maxlength="500" placeholder="Écrivez votre message ici…"
+          style="width:100%;padding:10px 13px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;outline:none;resize:none;box-sizing:border-box;line-height:1.5;"
+          oninput="const l=this.value.length;document.getElementById('mmp-chars').textContent=l+'/500';this.style.borderColor=l>0?'#4F46E5':'#E2E8F0';"
+          onfocus="this.style.borderColor='#4F46E5'"
+          onblur="this.style.borderColor=this.value.length?'#4F46E5':'#E2E8F0'"></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;margin-bottom:14px;">
+          <span id="mmp-chars" style="font-size:.62rem;color:#94A3B8;">0/500</span>
+          <span style="font-size:.62rem;color:#94A3B8;">Visible uniquement par ce professeur</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="closeMsgProf()"
+            style="flex:1;padding:10px;background:#F1F5F9;border:none;border-radius:10px;font-size:.8rem;font-weight:700;color:#475569;cursor:pointer;font-family:inherit;">Annuler</button>
+          <button onclick="sendMsgProf()"
+            style="flex:2;padding:10px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;">
+            <i data-lucide="send" style="width:14px;height:14px;"></i>Envoyer le message
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL CAHIER DE TEXTE ══ -->
+  <div id="modal-cahier" class="dir-modal-overlay" onclick="if(event.target===this)closeCahier()">
+    <div class="dir-modal">
+      <div class="dir-modal-head">
+        <div id="mca-av" class="dir-modal-av">?</div>
+        <div style="flex:1;min-width:0;">
+          <div id="mca-titre" style="font-size:.9rem;font-weight:900;color:#0F172A;"></div>
+          <div id="mca-sous" style="font-size:.68rem;color:#94A3B8;margin-top:2px;"></div>
+        </div>
+        <button class="dir-modal-close" onclick="closeCahier()">
+          <i data-lucide="x" style="width:16px;height:16px;color:#64748B;"></i>
+        </button>
+      </div>
+      <div class="dir-modal-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div style="font-size:.78rem;font-weight:800;color:#475569;">📓 Séances enregistrées</div>
+          <div style="display:flex;gap:6px;font-size:.62rem;">
+            <span style="display:flex;align-items:center;gap:3px;"><span
+                style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>Fait</span>
+            <span style="display:flex;align-items:center;gap:3px;"><span
+                style="width:7px;height:7px;border-radius:50%;background:#F59E0B;display:inline-block;"></span>À
+              faire</span>
+          </div>
+        </div>
+        <div id="mca-rows"></div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid #F1F5F9;text-align:center;">
+          <button onclick="closeCahier()"
+            style="padding:9px 28px;background:#F1F5F9;border:none;border-radius:10px;font-size:.8rem;font-weight:700;color:#475569;cursor:pointer;font-family:inherit;">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ... -->
+
+  <!-- Inclure le script de Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    // ...
+
+    // Écoute l'événement pour envoyer les messages d'absences aux élèves
+    function sendAbsence() {
+      const data = {
+        conv_id: 'general',
+        message: 'Absence enregistrée',
+      };
+
+      // Envoyer les messages d'absences aux élèves via Socket.IO
+      if (io) {
+        io.emit('sendAbsence', data);
+      }
+    }
+
+    // ...
+
+    // Initialise Socket.IO
+    const socket = io();
+
+    // ...
+  </script>
+
+  <!-- ... -->
+
 </body>
 
 </html>

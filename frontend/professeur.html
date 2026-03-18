@@ -3,8 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <script src="config.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Espace Professeur | Campus Numérique FASO</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap"
@@ -406,7 +405,308 @@
       display: block;
       animation: fu .3s ease;
     }
-
+    /* ══ SALLE DES PROFS — Style WhatsApp ══ */
+    #s-salle.sec.on {
+      display: flex !important;
+      flex-direction: column !important;
+      padding: 0 !important;
+      height: calc(100vh - 120px) !important;
+      min-height: 520px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,.12);
+    }
+    #s-salle .salle-wrap {
+      flex: 1; min-height: 0;
+      display: flex !important;
+      flex-direction: row !important;
+      overflow: hidden;
+      height: 100%;
+      background: #111B21;
+    }
+    /* Sidebar collègues */
+    #s-salle .conv-sidebar {
+      width: 300px !important; min-width: 300px !important;
+      flex-shrink: 0 !important;
+      display: flex !important; flex-direction: column !important;
+      height: 100%; overflow: hidden;
+      background: #111B21;
+      border-right: 1px solid #2A3942;
+    }
+    #s-salle .conv-sidebar-hd {
+      padding: 14px 16px;
+      background: #202C33;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #2A3942;
+    }
+    #s-salle .conv-sidebar-title {
+      font-size: .85rem; font-weight: 700; color: #E9EDEF;
+    }
+    #s-salle .conv-search {
+      padding: 8px 12px;
+      background: #111B21;
+    }
+    #s-salle .conv-search input {
+      width: 100%; padding: 7px 12px; border-radius: 8px;
+      border: none; background: #202C33; color: #E9EDEF;
+      font-size: .78rem; outline: none;
+    }
+    #s-salle .conv-search input::placeholder { color: #8696A0; }
+    #s-salle .conv-list { flex: 1 !important; overflow-y: auto !important; }
+    #s-salle .conv-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 11px 14px; cursor: pointer;
+      border-bottom: 1px solid #1F2C33;
+      transition: background .15s;
+    }
+    #s-salle .conv-item:hover, #s-salle .conv-item.sel {
+      background: #2A3942;
+    }
+    #s-salle .conv-av {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; font-weight: 800; color: #fff;
+      flex-shrink: 0; position: relative;
+      overflow: hidden;
+    }
+    #s-salle .conv-online-dot {
+      position: absolute; bottom: 1px; right: 1px;
+      width: 10px; height: 10px; border-radius: 50%;
+      border: 2px solid #111B21;
+    }
+    #s-salle .conv-nm { font-size: .82rem; font-weight: 600; color: #E9EDEF; }
+    #s-salle .conv-preview { font-size: .72rem; color: #8696A0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #s-salle .conv-time { font-size: .65rem; color: #8696A0; }
+    #s-salle .conv-unread {
+      background: #00A884; color: #fff;
+      border-radius: 50%; width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .6rem; font-weight: 700; flex-shrink: 0;
+    }
+    /* Zone chat */
+    #s-salle .chat-zone {
+      flex: 1 !important; min-height: 0 !important;
+      display: flex !important; flex-direction: column !important;
+      overflow: hidden !important;
+      background: #0B141A;
+    }
+    /* Fond chat - motif WhatsApp */
+    #s-salle .msgs-bg {
+      flex: 1 !important; min-height: 0 !important; overflow-y: auto !important;
+      padding: 14px 16px;
+      background-color: #0B141A !important;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23182229' fill-opacity='0.6'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      display: flex; flex-direction: column; gap: 2px; position: relative;
+    }
+    /* Header chat */
+    #s-salle .chat-hd {
+      padding: 10px 16px; background: #202C33;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid #2A3942; flex-shrink: 0;
+    }
+    #s-salle .chat-hd-av {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; font-weight: 800; color: #fff; overflow: hidden;
+    }
+    #s-salle .chat-hd-nm { font-size: .87rem; font-weight: 700; color: #E9EDEF; }
+    #s-salle .chat-hd-sub { font-size: .7rem; color: #8696A0; }
+    #s-salle .chat-hd-actions { margin-left: auto; display: flex; gap: 8px; }
+    #s-salle .chat-hd-ico {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; cursor: pointer; color: #AEBAC1;
+      transition: background .15s;
+    }
+    #s-salle .chat-hd-ico:hover { background: #2A3942; }
+    #s-salle .chat-hd-ico svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    /* Bulles messages */
+    #s-salle .msg-row { display: flex; flex-direction: column; margin-bottom: 2px; }
+    #s-salle .msg-row.mine { align-items: flex-end; }
+    #s-salle .msg-row.other { align-items: flex-start; }
+    #s-salle .msg-sender { font-size: .68rem; font-weight: 700; margin-bottom: 2px; margin-left: 4px; }
+    #s-salle .bubble {
+      max-width: 65%; padding: 7px 10px 18px;
+      border-radius: 8px; position: relative;
+      font-size: .83rem; line-height: 1.4; word-break: break-word;
+      min-width: 60px;
+    }
+    #s-salle .msg-row.mine .bubble {
+      background: #005C4B; color: #E9EDEF;
+      border-top-right-radius: 2px;
+    }
+    #s-salle .msg-row.other .bubble {
+      background: #202C33; color: #E9EDEF;
+      border-top-left-radius: 2px;
+    }
+    #s-salle .bubble-time {
+      font-size: .6rem; color: #8696A0;
+      position: absolute; bottom: 4px; right: 8px;
+      display: flex; align-items: center; gap: 3px;
+    }
+    #s-salle .tick { color: #53BDEB; }
+    #s-salle .date-sep {
+      text-align: center; margin: 10px 0;
+    }
+    #s-salle .date-sep span {
+      background: #182229; color: #8696A0;
+      font-size: .68rem; padding: 4px 10px; border-radius: 8px;
+    }
+    /* Zone saisie */
+    #s-salle .chat-input-row {
+      padding: 8px 12px; background: #202C33;
+      display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0;
+    }
+    #s-salle .chat-tool-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: none; border: none; cursor: pointer;
+      color: #AEBAC1; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: color .15s;
+    }
+    #s-salle .chat-tool-btn:hover { color: #E9EDEF; }
+    #s-salle .chat-tool-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    #s-salle .chat-inp-box {
+      flex: 1; background: #2A3942; color: #E9EDEF;
+      border: none; border-radius: 20px;
+      padding: 9px 14px; font-size: .84rem;
+      resize: none; outline: none; max-height: 100px;
+      font-family: inherit; line-height: 1.4;
+    }
+    #s-salle .chat-inp-box::placeholder { color: #8696A0; }
+    #s-salle .chat-mic-btn, #s-salle .chat-send-btn {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: #00A884; border: none; cursor: pointer;
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: transform .15s;
+    }
+    #s-salle .chat-mic-btn:hover, #s-salle .chat-send-btn:hover { transform: scale(1.08); }
+    #s-salle .chat-mic-btn.recording { background: #FF3B30; animation: pulse 1s infinite; }
+    #s-salle .chat-mic-btn svg, #s-salle .chat-send-btn svg {
+      width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2;
+    }
+    /* Menu attach WhatsApp */
+    #s-salle .attach-menu {
+      position: absolute; bottom: 65px; left: 55px;
+      background: #233138; border-radius: 16px;
+      padding: 12px 8px; display: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      z-index: 10; flex-direction: column; gap: 4px;
+    }
+    #s-salle .attach-menu.show { display: flex; }
+    #s-salle .attach-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: 10px;
+      cursor: pointer; transition: background .15s;
+    }
+    #s-salle .attach-item:hover { background: #2A3942; }
+    #s-salle .attach-ico {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    #s-salle .attach-lbl { font-size: .8rem; font-weight: 600; color: #E9EDEF; }
+    /* Reply bar */
+    #s-salle .reply-bar {
+      background: #182229; border-left: 3px solid #00A884;
+      padding: 8px 12px; display: none;
+      align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    #s-salle .reply-bar.show { display: flex; }
+    #s-salle .reply-bar-nm { font-size: .72rem; font-weight: 700; color: #00A884; }
+    #s-salle .reply-bar-txt { font-size: .72rem; color: #8696A0; }
+    #s-salle .reply-close { background: none; border: none; color: #8696A0; cursor: pointer; font-size: 1rem; }
+    /* Emoji */
+    #s-salle .emoji-picker-wrap {
+      position: absolute; bottom: 65px; left: 12px;
+      background: #233138; border-radius: 12px;
+      padding: 10px; display: none; z-index: 10;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    #s-salle .emoji-picker-wrap.show { display: block; }
+    #s-salle .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+    #s-salle .e-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; border-radius: 6px; padding: 3px; transition: background .1s; }
+    #s-salle .e-btn:hover { background: #2A3942; }
+    /* Sondage */
+    #s-salle .poll-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      display: none; align-items: center; justify-content: center; z-index: 100;
+    }
+    #s-salle .poll-overlay.show { display: flex; }
+    #s-salle .poll-box {
+      background: #233138; border-radius: 16px;
+      padding: 20px; width: 340px; max-width: 90vw;
+    }
+    /* Stickers */
+    #s-salle .sticker-wrap {
+      position: absolute; bottom: 65px; right: 55px;
+      background: #233138; border-radius: 12px;
+      padding: 10px; display: none; z-index: 10;
+      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    #s-salle .sticker-wrap.show { display: block; }
+    #s-salle .sticker-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    #s-salle .sticker-btn { font-size: 1.6rem; cursor: pointer; border-radius: 8px; padding: 4px; border: none; background: none; transition: background .1s; }
+    #s-salle .sticker-btn:hover { background: #2A3942; }
+    /* Context menu */
+    #s-salle .ctx-menu {
+      position: absolute; background: #233138;
+      border-radius: 10px; padding: 6px 0;
+      box-shadow: 0 4px 16px rgba(0,0,0,.4);
+      z-index: 20; display: none; min-width: 160px;
+    }
+    #s-salle .ctx-menu.show { display: block; }
+    #s-salle .ctx-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 16px; font-size: .8rem; color: #E9EDEF;
+      cursor: pointer; transition: background .12s;
+    }
+    #s-salle .ctx-item:hover { background: #2A3942; }
+    #s-salle .ctx-item svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+    /* Bg picker */
+    #s-salle .bg-picker {
+      position: absolute; top: 55px; right: 12px;
+      background: #233138; border-radius: 12px;
+      padding: 12px; display: none; z-index: 10;
+    }
+    #s-salle .bg-picker.show { display: block; }
+    #s-salle .bg-picker-title { font-size: .75rem; font-weight: 700; color: #8696A0; margin-bottom: 8px; }
+    #s-salle .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    #s-salle .bg-opt { border-radius: 8px; cursor: pointer; height: 50px; border: 2px solid transparent; transition: border-color .15s; }
+    #s-salle .bg-opt.sel { border-color: #00A884; }
+    /* Réponse dans bulle */
+    #s-salle .reply-preview {
+      background: rgba(0,0,0,.2); border-left: 3px solid #00A884;
+      border-radius: 6px; padding: 5px 8px; margin-bottom: 5px;
+    }
+    #s-salle .reply-preview-nm { font-size: .68rem; font-weight: 700; color: #00A884; }
+    #s-salle .reply-preview-txt { font-size: .72rem; color: #8696A0; }
+    /* Bulle fichier */
+    #s-salle .bubble-file {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,.07); border-radius: 8px;
+      padding: 10px 12px; min-width: 180px;
+    }
+    #s-salle .bubble-file-ico { font-size: 1.8rem; }
+    #s-salle .bubble-file-nm { font-size: .78rem; font-weight: 600; color: #E9EDEF; }
+    #s-salle .bubble-file-sz { font-size: .65rem; color: #8696A0; margin-top: 2px; }
+    /* Sondage bulle */
+    #s-salle .bubble-poll { min-width: 200px; }
+    #s-salle .poll-opt {
+      background: rgba(255,255,255,.08); border-radius: 8px;
+      padding: 8px 10px; margin-top: 5px; cursor: pointer;
+      font-size: .78rem; position: relative; overflow: hidden;
+    }
+    #s-salle .poll-bar { position: absolute; left: 0; top: 0; height: 100%; background: rgba(0,168,132,.25); border-radius: 8px; transition: width .4s; }
+    @media (max-width:640px) {
+      #s-salle .salle-wrap { flex-direction:column !important; height:calc(100dvh - 95px) !important; }
+      #s-salle .conv-sidebar { width:100% !important; min-width:0 !important; max-height:90px !important; flex:0 0 auto !important; border-right:none !important; border-bottom:1px solid #2A3942 !important; }
+      #s-salle .conv-search { display:none !important; }
+      #s-salle .conv-list { flex-direction:row !important; overflow-x:auto !important; overflow-y:hidden !important; padding:4px 8px !important; gap:4px !important; }
+      #s-salle .conv-item { flex-direction:column !important; align-items:center !important; width:52px !important; min-height:0 !important; padding:4px !important; flex-shrink:0 !important; border-bottom:none !important; }
+      #s-salle .conv-item > div:last-child { display:none !important; }
+      #s-salle .conv-av { width:36px !important; height:36px !important; }
+      #s-salle .msg-row { max-width:84vw !important; }
+    }
     @keyframes fu {
       from {
         opacity: 0;
@@ -2019,241 +2319,7 @@
       display: none;
     }
   </style>
-  <style>
-  /* ══ RESPONSIVE PROFESSEUR — mobile first ══════════════════════ */
-
-  /* ── Topbar : décaler le titre pour ne pas être caché par le hamburger ── */
-  @media (max-width: 639px) {
-
-    /* Topbar */
-    .topbar {
-      padding: 56px 14px 0 14px !important;
-      flex-direction: column !important;
-      align-items: flex-start !important;
-      gap: 10px !important;
-      margin-bottom: 12px !important;
-    }
-    .topbar > div:first-child {
-      width: 100% !important;
-    }
-    .pg-title {
-      font-size: 1.05rem !important;
-      padding-left: 0 !important;
-      line-height: 1.2 !important;
-    }
-    .pg-sub {
-      font-size: .67rem !important;
-      white-space: normal !important;
-      line-height: 1.4 !important;
-    }
-    .topbar-right {
-      width: 100% !important;
-      justify-content: flex-start !important;
-    }
-    .tri-sel {
-      font-size: .68rem !important;
-      padding: 5px 8px !important;
-    }
-
-    /* KPI : 2 colonnes au lieu de 4 */
-    .kpi-row {
-      grid-template-columns: repeat(2, 1fr) !important;
-      gap: 8px !important;
-    }
-    .kpi {
-      padding: 12px 13px !important;
-    }
-    .kpi-val {
-      font-size: 1.4rem !important;
-    }
-    .kpi-ico {
-      width: 30px !important;
-      height: 30px !important;
-      margin-bottom: 7px !important;
-    }
-    .kpi-lbl {
-      font-size: .56rem !important;
-    }
-
-    /* Grid 2 colonnes → 1 colonne */
-    .grid-2, [style*="grid-template-columns:1fr 1fr"],
-    [style*="grid-template-columns: 1fr 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* Section principale */
-    .sec.on {
-      padding: 0 !important;
-    }
-
-    /* Cards */
-    .card {
-      padding: 13px 14px !important;
-      border-radius: 11px !important;
-    }
-    .card-hd {
-      flex-wrap: wrap !important;
-      gap: 6px !important;
-    }
-
-    /* Orientation : grid 1fr 340px → 1 colonne */
-    #s-orient > div {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* Salle des profs : sidebar + chat → colonne */
-    .salle-wrap {
-      grid-template-columns: 1fr !important;
-      height: auto !important;
-      min-height: unset !important;
-    }
-    .conv-sidebar {
-      max-height: 220px !important;
-      overflow-y: auto !important;
-    }
-    .msg-zone {
-      height: 45vh !important;
-      min-height: 250px !important;
-    }
-
-    /* Tableau notes : scroll horizontal */
-    .notes-tbl-wrap, #notes-table-wrap {
-      overflow-x: auto !important;
-      -webkit-overflow-scrolling: touch !important;
-    }
-    .notes-tbl-wrap table, #notes-table-wrap table {
-      min-width: 420px !important;
-    }
-
-    /* Tabs classes → wrap */
-    #cls-tabs-notes {
-      flex-wrap: wrap !important;
-      gap: 4px !important;
-    }
-    .cls-tab {
-      font-size: .68rem !important;
-      padding: 5px 10px !important;
-    }
-
-    /* Ressources form → 1 colonne */
-    .res-form-grid,
-    [style*="grid-template-columns:1fr 1fr;gap"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* Upload zone */
-    .drop-zone {
-      padding: 20px 14px !important;
-    }
-
-    /* Boutons */
-    .btn-p, .btn-ghost {
-      font-size: .72rem !important;
-      padding: 8px 12px !important;
-    }
-
-    /* Liste élèves notes */
-    .eleve-row {
-      flex-wrap: wrap !important;
-      gap: 5px !important;
-    }
-    .eleve-name {
-      font-size: .76rem !important;
-    }
-
-    /* Cahier de texte */
-    #ct-form > div[style*="grid"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* Profil */
-    #s-profil > div {
-      grid-template-columns: 1fr !important;
-    }
-    .profil-photo-wrap {
-      text-align: center;
-    }
-
-    /* ── CT et RES : grid 1fr 340px → 1 colonne ── */
-    #s-ct > div,
-    #s-res > div:nth-child(2),
-    #s-orient > div {
-      grid-template-columns: 1fr !important;
-    }
-    /* Vidéos grid repeat(3) → 2 col */
-    #video-grid {
-      grid-template-columns: repeat(2, 1fr) !important;
-    }
-    /* Formulaire ressources : pleine largeur */
-    #s-res .card[style*="align-self:start"] {
-      width: 100% !important;
-    }
-    /* Inputs pleine largeur */
-    #s-ct input, #s-ct select, #s-ct textarea,
-    #s-res input, #s-res select, #s-res textarea {
-      width: 100% !important;
-      box-sizing: border-box !important;
-    }
-    /* Tabs wrap */
-    #s-res > div:first-child {
-      flex-wrap: wrap !important;
-      gap: 5px !important;
-    }
-    #s-res > div:first-child > div[style*="margin-left:auto"] {
-      margin-left: 0 !important;
-      width: 100% !important;
-      justify-content: space-between !important;
-    }
-
-    /* ── Notes grid : 260px 1fr → 1 colonne ── */
-    .notes-grid {
-      grid-template-columns: 1fr !important;
-    }
-    .eleve-list {
-      max-height: 280px !important;
-    }
-
-    /* ── Orientation : grid 1fr 340px → 1 colonne ── */
-    #s-orient > div {
-      grid-template-columns: 1fr !important;
-      display: flex !important;
-      flex-direction: column !important;
-    }
-    #orient-list {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* ── Salle des profs ── */
-    .salle-wrap {
-      grid-template-columns: 1fr !important;
-      height: auto !important;
-      min-height: unset !important;
-    }
-    .conv-sidebar {
-      max-height: 200px !important;
-      overflow-y: auto !important;
-    }
-    .msg-zone {
-      height: 40vh !important;
-    }
-  }
-
-  /* ── Tablet 640–1023px ─────────────────────────────────────── */
-  @media (max-width: 1023px) and (min-width: 640px) {
-    .topbar {
-      padding-top: 20px !important;
-    }
-    .kpi-row {
-      grid-template-columns: repeat(2, 1fr) !important;
-    }
-    .salle-wrap {
-      grid-template-columns: 220px 1fr !important;
-    }
-    #s-orient > div {
-      grid-template-columns: 1fr !important;
-    }
-  }
-  </style>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 
 <body>
@@ -2273,9 +2339,12 @@
           <div class="sb-role">Espace Professeur</div>
         </div>
       </div>
-      <div class="sb-user">
-        <div class="sb-user-name" id="sb-name">Chargement…</div>
-        <div class="sb-user-mat" id="sb-mat">PROF-2026-XXX</div>
+      <div class="sb-user" style="display:flex;align-items:center;gap:9px;">
+        <div id="sb-avatar" style="width:36px;height:36px;min-width:36px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;color:#fff;overflow:hidden;flex-shrink:0;">M</div>
+        <div style="min-width:0;">
+          <div class="sb-user-name" id="sb-name">Chargement…</div>
+          <div class="sb-user-mat" id="sb-mat">PROF-2026-XXX</div>
+        </div>
       </div>
     </div>
     <div class="sb-scroll">
@@ -2375,7 +2444,7 @@
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
                 <circle cx="9" cy="7" r="4" />
               </svg></div>
-            <div class="kpi-val" style="color:var(--accent);" id="k-el">156</div>
+            <div class="kpi-val" style="color:var(--accent);" id="k-el">…</div>
             <div class="kpi-lbl">Mes élèves</div>
           </div>
           <div class="card kpi">
@@ -2383,7 +2452,7 @@
                 <path d="M12 20h9" />
                 <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
               </svg></div>
-            <div class="kpi-val" style="color:#2563EB;" id="k-notes">89</div>
+            <div class="kpi-val" style="color:#2563EB;" id="k-notes">…</div>
             <div class="kpi-lbl">Notes saisies</div>
           </div>
           <div class="card kpi">
@@ -2392,7 +2461,7 @@
                 <line x1="12" y1="20" x2="12" y2="4" />
                 <line x1="6" y1="20" x2="6" y2="14" />
               </svg></div>
-            <div class="kpi-val" style="color:#7C3AED;">12.4</div>
+            <div class="kpi-val" style="color:#7C3AED;" id="k-moy">—</div>
             <div class="kpi-lbl">Moy. générale</div>
           </div>
           <div class="card kpi">
@@ -2814,208 +2883,239 @@
               </button>
               <div id="res-msg"
                 style="display:none;font-size:.74rem;padding:10px 12px;border-radius:9px;font-weight:600;"></div>
-            </div>
-          </div>
+             </div>
+
+      </div>
       </div>
       </div>
 
+      <!-- ══ ORIENTATION ══ -->
       <div id="s-orient" class="sec">
-        <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
-          <div class="card">
-            <div class="card-hd">
-              <div>
-                <div class="card-hd-title">Suivi Orientation · 3ème → Terminale</div>
-                <div class="card-hd-sub">Points forts/faibles · Conseil de série</div>
+            <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
+              <div class="card">
+                <div class="card-hd">
+                  <div>
+                    <div class="card-hd-title">Suivi Orientation · 3ème → Terminale</div>
+                    <div class="card-hd-sub">Points forts/faibles · Conseil de série</div>
+                  </div>
+                  <select id="orient-filter" style="padding:5px 9px;font-size:.72rem;border-radius:7px;"
+                    onchange="renderOrient()">
+                    <option value="">Mes classes</option>
+                  </select>
+                </div>
+                <div style="padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="orient-list"></div>
               </div>
-              <select id="orient-filter" style="padding:5px 9px;font-size:.72rem;border-radius:7px;"
-                onchange="renderOrient()">
-                <option value="">Mes classes</option>
-              </select>
-            </div>
-            <div style="padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="orient-list"></div>
-          </div>
-          <div class="card" style="padding:18px;">
-            <div style="font-size:.86rem;font-weight:800;color:var(--ink);margin-bottom:12px;">🧭 Avis d'orientation
-            </div>
-            <div style="display:flex;flex-direction:column;gap:9px;">
-              <div><label>Élève (matricule)</label><input type="text" id="or-el" placeholder="CN-2026-XXXX"></div>
-              <div><label>Points forts</label><textarea id="or-force" rows="2"
-                  placeholder="Logique, rigueur, créativité…"></textarea></div>
-              <div><label>Points à améliorer</label><textarea id="or-faib" rows="2"
-                  placeholder="Expression écrite, concentration…"></textarea></div>
-              <div><label>Série recommandée</label>
-                <select id="or-serie">
-                  <option value="">— Sélectionner —</option>
-                  <option>Terminale A</option>
-                  <option>Terminale D</option>
-                  <option>1ère A</option>
-                  <option>1ère D</option>
-                  <option>2nde (redoublement)</option>
-                  <option>Orientation CFA</option>
-                </select>
+              <div class="card" style="padding:18px;">
+                <div style="font-size:.86rem;font-weight:800;color:var(--ink);margin-bottom:12px;">🧭 Avis d'orientation
+                </div>
+                <div style="display:flex;flex-direction:column;gap:9px;">
+                  <div><label>Élève (matricule)</label><input type="text" id="or-el" placeholder="CN-2026-XXXX"></div>
+                  <div><label>Points forts</label><textarea id="or-force" rows="2"
+                      placeholder="Logique, rigueur, créativité…"></textarea></div>
+                  <div><label>Points à améliorer</label><textarea id="or-faib" rows="2"
+                      placeholder="Expression écrite, concentration…"></textarea></div>
+                  <div><label>Série recommandée</label>
+                    <select id="or-serie">
+                      <option value="">— Sélectionner —</option>
+                      <option>Terminale A</option>
+                      <option>Terminale D</option>
+                      <option>1ère A</option>
+                      <option>1ère D</option>
+                      <option>2nde (redoublement)</option>
+                      <option>Orientation CFA</option>
+                    </select>
+                  </div>
+                  <div><label>Commentaire général</label><textarea id="or-comment" rows="3"
+                      placeholder="Avis visible par l'élève, son parent et les alumni…"></textarea></div>
+                </div>
+                <button class="btn-p" style="width:100%;justify-content:center;margin-top:12px;"
+                  onclick="saveOrientation()">
+                  <svg viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>Publier l'avis
+                </button>
+                <div id="or-msg"
+                  style="display:none;margin-top:9px;font-size:.72rem;padding:8px 11px;border-radius:7px;font-weight:600;">
+                </div>
               </div>
-              <div><label>Commentaire général</label><textarea id="or-comment" rows="3"
-                  placeholder="Avis visible par l'élève, son parent et les alumni…"></textarea></div>
-            </div>
-            <button class="btn-p" style="width:100%;justify-content:center;margin-top:12px;"
-              onclick="saveOrientation()">
-              <svg viewBox="0 0 24 24">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>Publier l'avis
-            </button>
-            <div id="or-msg"
-              style="display:none;margin-top:9px;font-size:.72rem;padding:8px 11px;border-radius:7px;font-weight:600;">
             </div>
           </div>
-        </div>
-      </div>
 
+      <!-- ══ SALLE DES PROFS (WhatsApp) ══ -->
       <div id="s-salle" class="sec">
-        <div class="salle-wrap">
-          <!-- Sidebar -->
-          <div class="conv-sidebar">
-            <div class="conv-sidebar-hd">
-              <span class="conv-sidebar-title">💬 Collègues <span id="online-cnt"
-                  style="font-size:.65rem;color:#52B788;font-weight:700;"></span></span>
-              <div class="conv-hd-btns">
-                <button class="conv-hd-btn" title="Nouveau groupe"
-                  onclick="toast('Groupes — bientôt disponible','info')">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                </button>
+            <div class="salle-wrap">
+              <!-- Sidebar -->
+              <div class="conv-sidebar">
+                <div class="conv-sidebar-hd">
+                  <span class="conv-sidebar-title">💬 Collègues <span id="online-cnt"
+                      style="font-size:.65rem;color:#52B788;font-weight:700;"></span></span>
+                  <div class="conv-hd-btns">
+                    <button class="conv-hd-btn" title="Nouveau groupe"
+                      onclick="toast('Groupes — bientôt disponible','info')">
+                      <svg viewBox="0 0 24 24">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="conv-search">
+                  <input type="text" placeholder="🔍 Rechercher…" oninput="filtProfs(this.value)">
+                </div>
+                <div class="conv-list" id="conv-list"></div>
+              </div>
+
+              <!-- Zone chat -->
+              <div class="chat-zone" id="chat-zone" style="position:relative;">
+                <!-- Header -->
+                <div class="chat-hd" id="chat-hd">
+                  <div class="chat-hd-av" id="chat-hd-av" style="background:var(--accent);">S</div>
+                  <div style="flex:1;min-width:0;">
+                    <div class="chat-hd-nm" id="chat-hd-nm">Salle commune</div>
+                    <div class="chat-hd-sub" id="chat-hd-sub">Tous les professeurs</div>
+                  </div>
+                  <div class="chat-hd-actions">
+                    <button class="chat-hd-ico" onclick="toggleBgPicker()" title="Changer le fond">
+                      <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                          d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+                      </svg>
+                    </button>
+                    <button class="chat-hd-ico" onclick="toast('Appel vocal — bientôt disponible','info')">
+                      <svg viewBox="0 0 24 24">
+                        <path
+                          d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.1a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Sélecteur de fond -->
+                <div class="bg-picker" id="bg-picker">
+                  <div class="bg-picker-title">Choisir un fond</div>
+                  <div class="bg-grid" id="bg-grid"></div>
+                </div>
+
+                <!-- Zone messages -->
+                <div class="msgs-bg" id="msgs-bg"></div>
+
+                <!-- Reply bar -->
+                <div class="reply-bar" id="reply-bar">
+                  <div class="reply-bar-content">
+                    <div class="reply-bar-nm" id="reply-bar-nm">Répondre à</div>
+                    <div class="reply-bar-txt" id="reply-bar-txt"></div>
+                  </div>
+                  <button class="reply-close" onclick="cancelReply()">✕</button>
+                </div>
+
+                <!-- Attach menu -->
+                <div class="attach-menu" id="attach-menu">
+                  <div class="attach-item" onclick="triggerAttach('image/*')">
+                    <div class="attach-ico" style="background:#BF59CF;">🖼️</div>
+                    <span class="attach-lbl">Photos & Images</span>
+                  </div>
+                  <div class="attach-item" onclick="triggerAttach('video/*')">
+                    <div class="attach-ico" style="background:#E53E3E;">🎬</div>
+                    <span class="attach-lbl">Vidéo</span>
+                  </div>
+                  <div class="attach-item" onclick="triggerAttach('.pdf,.doc,.docx,.pptx,.xlsx,.txt')">
+                    <div class="attach-ico" style="background:#0063CB;">📄</div>
+                    <span class="attach-lbl">Document</span>
+                  </div>
+                  <div class="attach-item" onclick="triggerAttach('.mp3,.ogg,.wav,.m4a,.aac')">
+                    <div class="attach-ico" style="background:#D3396D;">🎵</div>
+                    <span class="attach-lbl">Audio</span>
+                  </div>
+                </div>
+                <input type="file" id="chat-attach-input" style="display:none;" onchange="sendAttachment(this)">
+
+                <!-- Emoji picker -->
+                <div class="emoji-picker-wrap" id="emoji-picker-wrap"></div>
+
+                <!-- Context menu -->
+                <div class="ctx-menu" id="ctx-menu">
+                  <div class="ctx-item" onclick="ctxReply()">
+                    <svg viewBox="0 0 24 24">
+                      <polyline points="9 17 4 12 9 7" />
+                      <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+                    </svg>
+                    Répondre
+                  </div>
+                  <div class="ctx-item" onclick="ctxCopy()">
+                    <svg viewBox="0 0 24 24">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    Copier
+                  </div>
+                  <div class="ctx-item" onclick="ctxDelete()" style="color:#FF8080;">
+                    <svg viewBox="0 0 24 24">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6l-1 14H6L5 6" />
+                      <path d="M10 11v6M14 11v6" />
+                    </svg>
+                    Supprimer
+                  </div>
+                </div>
+
+                <!-- Stickers panel -->
+                <div class="sticker-wrap" id="sticker-wrap">
+                  <div style="font-size:.7rem;font-weight:700;color:#8696A0;margin-bottom:6px;">Stickers 🎭</div>
+                  <div class="sticker-grid" id="sticker-grid"></div>
+                </div>
+
+                <!-- Sondage overlay -->
+                <div class="poll-overlay" id="poll-overlay">
+                  <div class="poll-box">
+                    <div style="font-size:.9rem;font-weight:700;color:#E9EDEF;margin-bottom:12px;">📊 Créer un sondage</div>
+                    <input id="poll-question" placeholder="Question…" style="width:100%;background:#2A3942;border:none;border-radius:8px;padding:9px 12px;color:#E9EDEF;font-size:.82rem;outline:none;margin-bottom:8px;">
+                    <div id="poll-options-wrap">
+                      <input class="poll-opt-inp" placeholder="Option 1…" style="width:100%;background:#2A3942;border:none;border-radius:8px;padding:8px 12px;color:#E9EDEF;font-size:.8rem;outline:none;margin-bottom:5px;">
+                      <input class="poll-opt-inp" placeholder="Option 2…" style="width:100%;background:#2A3942;border:none;border-radius:8px;padding:8px 12px;color:#E9EDEF;font-size:.8rem;outline:none;margin-bottom:5px;">
+                    </div>
+                    <button onclick="addPollOption()" style="background:none;border:none;color:#00A884;font-size:.78rem;font-weight:700;cursor:pointer;margin-bottom:12px;">+ Ajouter option</button>
+                    <div style="display:flex;gap:8px;">
+                      <button onclick="closePoll()" style="flex:1;background:#2A3942;border:none;border-radius:8px;padding:9px;color:#8696A0;font-weight:700;cursor:pointer;">Annuler</button>
+                      <button onclick="sendPoll()" style="flex:1;background:#00A884;border:none;border-radius:8px;padding:9px;color:#fff;font-weight:700;cursor:pointer;">Envoyer</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Input bar WhatsApp -->
+                <div class="chat-input-row" id="chat-input-row" style="position:relative;">
+                  <button class="chat-tool-btn" onclick="toggleEmoji()" title="Emoji">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                  </button>
+                  <button class="chat-tool-btn" onclick="toggleAttach()" title="Joindre">
+                    <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                  </button>
+                  <button class="chat-tool-btn" onclick="toggleStickers()" title="Stickers">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 3 4 3 4-3 4-3"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                  </button>
+                  <button class="chat-tool-btn" onclick="openPoll()" title="Sondage">
+                    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                  </button>
+                  <textarea class="chat-inp-box" id="chat-inp" placeholder="Message…" rows="1"
+                    onkeydown="handleChatKey(event)"
+                    oninput="autoResizeInp(this);toggleSendMic();"></textarea>
+                  <button class="chat-send-btn" id="send-btn" style="display:none;" onclick="sendMsg()" title="Envoyer">
+                    <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                  <button class="chat-mic-btn" id="mic-btn" onclick="toggleRecording()" title="Message vocal">
+                    <svg id="mic-ico" viewBox="0 0 24 24">
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                      <line x1="12" y1="19" x2="12" y2="23"/>
+                      <line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
-            <div class="conv-search">
-              <input type="text" placeholder="🔍 Rechercher…" oninput="filtProfs(this.value)">
-            </div>
-            <div class="conv-list" id="conv-list"></div>
           </div>
-
-          <!-- Zone chat -->
-          <div class="chat-zone" id="chat-zone" style="position:relative;">
-            <!-- Header -->
-            <div class="chat-hd" id="chat-hd">
-              <div class="chat-hd-av" id="chat-hd-av" style="background:var(--accent);">S</div>
-              <div style="flex:1;min-width:0;">
-                <div class="chat-hd-nm" id="chat-hd-nm">Salle commune</div>
-                <div class="chat-hd-sub" id="chat-hd-sub">Tous les professeurs</div>
-              </div>
-              <div class="chat-hd-actions">
-                <button class="chat-hd-ico" onclick="toggleBgPicker()" title="Changer le fond">
-                  <svg viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="3" />
-                    <path
-                      d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
-                  </svg>
-                </button>
-                <button class="chat-hd-ico" onclick="toast('Appel vocal — bientôt disponible','info')">
-                  <svg viewBox="0 0 24 24">
-                    <path
-                      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.1a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- Sélecteur de fond -->
-            <div class="bg-picker" id="bg-picker">
-              <div class="bg-picker-title">Choisir un fond</div>
-              <div class="bg-grid" id="bg-grid"></div>
-            </div>
-
-            <!-- Zone messages -->
-            <div class="msgs-bg" id="msgs-bg"></div>
-
-            <!-- Reply bar -->
-            <div class="reply-bar" id="reply-bar">
-              <div class="reply-bar-content">
-                <div class="reply-bar-nm" id="reply-bar-nm">Répondre à</div>
-                <div class="reply-bar-txt" id="reply-bar-txt"></div>
-              </div>
-              <button class="reply-close" onclick="cancelReply()">✕</button>
-            </div>
-
-            <!-- Attach menu -->
-            <div class="attach-menu" id="attach-menu">
-              <div class="attach-item" onclick="triggerAttach('image/*')">
-                <div class="attach-ico" style="background:#BF59CF;">🖼️</div>
-                <span class="attach-lbl">Photos & vidéos</span>
-              </div>
-              <div class="attach-item" onclick="triggerAttach('.pdf,.doc,.docx,.pptx,.xlsx')">
-                <div class="attach-ico" style="background:#0063CB;">📄</div>
-                <span class="attach-lbl">Document</span>
-              </div>
-              <div class="attach-item" onclick="triggerAttach('.mp3,.ogg,.wav,.m4a')">
-                <div class="attach-ico" style="background:#D3396D;">🎵</div>
-                <span class="attach-lbl">Audio</span>
-              </div>
-            </div>
-            <input type="file" id="chat-attach-input" style="display:none;" onchange="sendAttachment(this)">
-
-            <!-- Emoji picker -->
-            <div class="emoji-picker-wrap" id="emoji-picker-wrap"></div>
-
-            <!-- Context menu -->
-            <div class="ctx-menu" id="ctx-menu">
-              <div class="ctx-item" onclick="ctxReply()">
-                <svg viewBox="0 0 24 24">
-                  <polyline points="9 17 4 12 9 7" />
-                  <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
-                </svg>
-                Répondre
-              </div>
-              <div class="ctx-item" onclick="ctxCopy()">
-                <svg viewBox="0 0 24 24">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-                Copier
-              </div>
-              <div class="ctx-item" onclick="ctxDelete()" style="color:#FF8080;">
-                <svg viewBox="0 0 24 24">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6l-1 14H6L5 6" />
-                  <path d="M10 11v6M14 11v6" />
-                </svg>
-                Supprimer
-              </div>
-            </div>
-
-            <!-- Input -->
-            <div class="chat-input-row" id="chat-input-row">
-              <button class="chat-tool-btn" onclick="toggleEmoji()" title="Emoji">
-                <svg viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-                  <line x1="9" y1="9" x2="9.01" y2="9" />
-                  <line x1="15" y1="9" x2="15.01" y2="9" />
-                </svg>
-              </button>
-              <button class="chat-tool-btn" onclick="toggleAttach()" title="Joindre">
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-                </svg>
-              </button>
-              <textarea class="chat-inp-box" id="chat-inp" placeholder="Message…" rows="1"
-                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"
-                oninput="autoResizeInp(this)"></textarea>
-              <button class="chat-mic-btn" id="mic-btn" onclick="toggleRecording()" title="Message vocal">
-                <svg id="mic-ico" viewBox="0 0 24 24">
-                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                  <line x1="12" y1="19" x2="12" y2="23" />
-                  <line x1="8" y1="23" x2="16" y2="23" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
         </div><!-- .pad -->
   </main>
@@ -3027,30 +3127,181 @@
     // ══════════════════════════════════════════
     const SESS = JSON.parse(localStorage.getItem('user_session') || '{}');
     const TOK = SESS?.token || '';
-    const API = window.API_BASE || window.API_BASE || (window.API_BASE||'http://localhost:5000/api');
+    const API = window.API_BASE ||
+      (location.hostname==='localhost'||location.hostname==='127.0.0.1'
+        ? 'http://'+location.hostname+':5000/api'
+        : location.protocol+'//'+location.host+'/api');
+    const BASE_URL = API.replace('/api','');
     const authH = () => ({ 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' });
     const $ = id => document.getElementById(id);
     const esc = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     // Données du prof connecté (simulées + réelles si API répond)
     let PROF = {
-      prenom: SESS.prenom || 'Marie', nom: SESS.nom || 'KABORE',
-      code: SESS.code_unique || 'PROF-2026-001',
-      email: SESS.email || 'marie.kabore@campusfaso.bf',
-      tel: '+226 70 00 00 01', diplome: 'Licence Maths · Université de Ouagadougou',
-      exp: 8, bio: 'Professeure de Mathématiques et Physique-Chimie depuis 8 ans.',
-      matieres: ['Mathématiques', 'Physique-Chimie'],
-      classes: ['Tle D', '1ère D', '2nde C', '3ème'],
+      prenom: SESS.prenom || '', nom: SESS.nom || '',
+      code: SESS.code_unique || '',
+      email: SESS.email || '',
+      tel: '', diplome: '', exp: 0, bio: '',
+      matieres: [],
+      classes: [],
       photo: null
     };
 
     const COLORS = ['#2D6A4F', '#2563EB', '#7C3AED', '#C2410C', '#0369A1', '#65A30D', '#B45309', '#0E7490'];
-    let selCls = PROF.classes[0] || '';
+    let selCls = '';
+    // MES_CLASSES est un alias dynamique — mis à jour après chargement API
+    let MES_CLASSES = [];
+
+    // ══ Charger le vrai profil du prof depuis la BD ══
+    async function chargerProfilProfesseur() {
+      try {
+        const r = await fetch(API + '/professeurs/profil', {
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        const data = await r.json();
+        if (data.profil) {
+          const p = data.profil;
+          if (p.telephone)  PROF.tel      = p.telephone;
+          if (p.specialite) PROF.diplome  = p.specialite;
+          if (p.biographie) PROF.bio      = p.biographie;
+          if (p.photo_url) {
+            PROF.photo = BASE_URL + p.photo_url;
+            const av = $('prof-avatar-display');
+            if (av) av.innerHTML = `<img src="${PROF.photo}" alt="photo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+            updateSbAvatar(PROF.photo);
+          }
+        }
+      } catch(e) { console.warn('chargerProfilProfesseur:', e.message); }
+
+      // ══ Charger les classes depuis l'API dédiée ══
+      try {
+        const rCls = await fetch(`${API}/professeurs/mes-classes`, {
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        const dCls = await rCls.json();
+        if (dCls.success && dCls.classes && dCls.classes.length) {
+          PROF.classes = dCls.classes;
+          PROF.matieres = dCls.matieres && dCls.matieres.length ? dCls.matieres : PROF.matieres.length ? PROF.matieres : ['Mathématiques'];
+        } else {
+          // Fallback : toutes les classes (prof peut choisir)
+          PROF.classes = ['6ème','5ème','4ème','3ème','2nde A','2nde C','1ère A','1ère D','Tle A','Tle D'];
+          if (!PROF.matieres.length) PROF.matieres = ['Mathématiques'];
+        }
+        MES_CLASSES.length = 0;
+        PROF.classes.forEach(c => MES_CLASSES.push(c));
+        selCls = PROF.classes[0] || '';
+        console.log('✅ Classes:', PROF.classes, '| Matières:', PROF.matieres);
+      } catch(e) {
+        console.warn('chargerClasses:', e.message);
+        PROF.classes = ['6ème','5ème','4ème','3ème','2nde A','2nde C','1ère A','1ère D','Tle A','Tle D'];
+        if (!PROF.matieres.length) PROF.matieres = ['Mathématiques'];
+        MES_CLASSES.length = 0;
+        PROF.classes.forEach(c => MES_CLASSES.push(c));
+        selCls = PROF.classes[0] || '';
+      }
+    }
     let selEleve = null;
     let elevesData = [], ctData = [], resData = [], orientData = [];
     let currentConv = 'general';
     let conversations = {};
     let profsOnline = [];
+    let salleSocket = null;
+    PROF._photoFile = null;
+
+    // ══ SOCKET.IO ══
+    function initSocket() {
+      if (salleSocket && salleSocket.connected) return;
+      if (typeof io === 'undefined') { console.warn('Socket.io non disponible'); return; }
+      salleSocket = io(BASE_URL, { transports: ['websocket','polling'] });
+      salleSocket.on('connect', () => {
+        salleSocket.emit('auth', { token:TOK, nom:PROF.nom, prenom:PROF.prenom, code:PROF.code });
+        const ind = document.getElementById('socket-indicator');
+        if (ind) ind.style.background = '#4ADE80';
+      });
+      salleSocket.on('disconnect', () => {
+        const ind = document.getElementById('socket-indicator');
+        if (ind) ind.style.background = '#F59E0B';
+      });
+      salleSocket.on('msg-salle', (msg) => {
+        const cid = msg.conv_id || 'general';
+        if (!conversations[cid]) conversations[cid] = [];
+        const isMine = msg.from === PROF.code;
+        const m = { id:msg.id||Date.now(), from:msg.from, nm:msg.nom,
+                    txt:msg.txt, t:msg.time, mine:isMine, date:"Aujourd'hui" };
+        if (!conversations[cid].find(x => x.id === m.id)) conversations[cid].push(m);
+        if (currentConv === cid) { renderMsgs(); setTimeout(scrollMsgs, 50); }
+        renderConvList();
+        if (!isMine) toast('💬 '+msg.nom, 'info');
+      });
+      salleSocket.on('user-joined', d => {
+        const p = PROFS_LIST.find(x => x.id === d.code); if (p) p.online = true;
+        renderConvList(); toast('🟢 '+(d.prenom||d.nom)+' en ligne','info');
+      });
+      salleSocket.on('user-left', d => {
+        const p = PROFS_LIST.find(x => x.id === d.code); if (p) p.online = false;
+        $('online-cnt').textContent = PROFS_LIST.filter(p => p.online).length + ' en ligne';
+        renderConvList();
+      });
+    }
+
+    // ══ CHARGER LISTE DES PROFS DEPUIS LA BD ══
+    async function loadProfs() {
+      try {
+        const r = await fetch(API + '/professeurs/liste-salle', {
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        if (!r.ok) return;
+        const data = await r.json();
+        if (data.profs && data.profs.length) {
+          data.profs.forEach(p => {
+            if (p.code_unique === PROF.code) return; // ne pas s'ajouter soi-même
+            if (!PROFS_LIST.find(x => x.id === p.code_unique)) {
+              PROFS_LIST.push({
+                id: p.code_unique,
+                nm: (p.prenom || '') + ' ' + (p.nom || ''),
+                sub: p.specialite || 'Professeur',
+                col: COLORS[PROFS_LIST.length % COLORS.length],
+                online: false
+              });
+              if (!conversations[p.code_unique]) conversations[p.code_unique] = [];
+            }
+          });
+          $('online-cnt').textContent = PROFS_LIST.filter(p => p.online).length + ' en ligne';
+          renderConvList();
+        }
+      } catch (e) { /* silencieux — route optionnelle */ }
+    }
+
+    // ══ CHARGER HISTORIQUE BD ══
+    async function loadMessages(convId) {
+      try {
+        const r = await fetch(BASE_URL + '/api/messages/' + encodeURIComponent(convId) + '?limit=60',
+          { headers: { 'Authorization': 'Bearer ' + TOK } });
+        if (!r.ok) return;
+        const data = await r.json();
+        if (!data.success || !data.messages?.length) return;
+        conversations[convId] = data.messages.map(m => {
+          const url = m.txt || '';
+          const ext = url.split('.').pop().toLowerCase();
+          const obj = { id: m.id, from: m.from, nm: m.nom, txt: url,
+            t: m.time, date: m.date, mine: m.from === PROF.code, read: true, media: null };
+          // Reconstruire le type média depuis l'URL stockée
+          if (m.type === 'img' || /\.(jpg|jpeg|png|gif|webp)$/i.test(url)) {
+            obj.media = 'img'; obj.src = BASE_URL + url;
+          } else if (m.type === 'video' || /\.(mp4|webm|mov|ogv)$/i.test(url)) {
+            obj.media = 'video'; obj.src = BASE_URL + url;
+          } else if (m.type === 'audio' || /\.(mp3|ogg|wav|m4a|webm)$/i.test(url)) {
+            obj.media = 'audio'; obj.src = BASE_URL + url;
+          } else if (m.type === 'file' || /\.(pdf|doc|docx|pptx|xlsx)$/i.test(url)) {
+            obj.media = 'file'; obj.fileName = url.split('/').pop(); obj.src = BASE_URL + url;
+          }
+          return obj;
+        });
+        if (currentConv === convId) { renderMsgs(); setTimeout(scrollMsgs, 50); }
+        renderConvList();
+      } catch (e) { console.warn('loadMessages:', e.message); }
+    }
+
 
     // ══════════════════════════════════════════
     // INIT
@@ -3061,12 +3312,32 @@
       initUI();
     });
 
-    function initUI() {
-      $('sb-name').textContent = PROF.prenom + ' ' + PROF.nom;
+    function updateSbAvatar(photoUrl) {
+      const av = document.getElementById('sb-avatar');
+      if (!av) return;
+      if (photoUrl) {
+        av.innerHTML = '<img src="' + photoUrl + '" style="width:100%;height:100%;object-fit:cover;">';
+      } else {
+        av.innerHTML = (PROF.prenom || 'P').charAt(0);
+      }
+    }
+
+    async function initUI() {
+      // Afficher le nom depuis la session immédiatement
+      $('sb-name').textContent = (PROF.prenom + ' ' + PROF.nom).trim() || 'Professeur';
       $('sb-mat').textContent = PROF.code;
+      const sbAv = document.getElementById('sb-avatar');
+      if (sbAv) sbAv.textContent = (PROF.prenom || 'P').charAt(0);
       $('ct-date').value = new Date().toISOString().split('T')[0];
+
+      // ── Charger le profil réel + classes depuis la BD d'abord ──
+      await chargerProfilProfesseur();
+
+      // Maintenant que PROF.classes est chargé, construire l'interface
       buildAllSelects();
       buildClsTabs();
+
+      // Charger toutes les données en parallèle
       loadDash();
       loadProfil();
       loadEleves();
@@ -3096,6 +3367,7 @@
       const p = PAGES[page];
       if (p) { $('pg-title').textContent = p.title; $('pg-sub').textContent = p.sub; }
       if (page === 'salle') setTimeout(scrollMsgs, 100);
+      if (page === 'orient') loadOrient();
     }
 
     // ══════════════════════════════════════════
@@ -3108,20 +3380,33 @@
         const blank = el.querySelector('option[value=""]');
         el.innerHTML = '';
         if (blank) el.appendChild(blank);
-        PROF.classes.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; el.appendChild(o); });
-      });
-      const of = $('orient-filter'); if (of) {
-        of.innerHTML = '<option value="">Mes classes</option>';
-        ['3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'].filter(c => PROF.classes.includes(c)).forEach(c => {
-          of.innerHTML += `<option>${c}</option>`;
+        PROF.classes.forEach(c => {
+          const o = document.createElement('option'); o.value = c; o.textContent = c; el.appendChild(o);
         });
+      });
+      // Orientation : uniquement classes d'examen
+      const of = $('orient-filter');
+      if (of) {
+        of.innerHTML = '<option value="">Mes classes</option>';
+        const examClasses = ['3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
+        (PROF.classes.length ? PROF.classes : examClasses)
+          .filter(c => examClasses.includes(c))
+          .forEach(c => { of.innerHTML += `<option value="${c}">${c}</option>`; });
       }
     }
 
     function buildClsTabs() {
+      if (!PROF.classes.length) {
+        $('cls-tabs-notes').innerHTML = '<div style="color:var(--muted);font-size:.75rem;padding:8px;">Aucune classe assignée</div>';
+        return;
+      }
       $('cls-tabs-notes').innerHTML = PROF.classes.map((c, i) =>
         `<button class="cls-tab ${i === 0 ? 'on' : ''}" onclick="chgCls('${esc(c)}',this)">${c}</button>`
       ).join('');
+      // S'assurer que selCls est bien initialisé
+      if (!selCls || !PROF.classes.includes(selCls)) {
+        selCls = PROF.classes[0];
+      }
     }
 
     function chgCls(cls, btn) {
@@ -3134,26 +3419,106 @@
     // ══════════════════════════════════════════
     // DASHBOARD
     // ══════════════════════════════════════════
-    function loadDash() {
-      $('dash-cls').innerHTML = PROF.classes.map(c => {
-        const pct = Math.floor(Math.random() * 60) + 40;
-        const col = pct === 100 ? 'var(--accent)' : pct > 70 ? 'var(--amber)' : 'var(--red)';
-        return `<div style="margin-bottom:11px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-        <span style="font-size:.78rem;font-weight:800;">${c}</span>
-        <span style="font-size:.7rem;font-weight:800;color:${col};">${pct}% saisi</span>
-      </div>
-      <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;">
-        <div style="width:${pct}%;height:100%;background:${col};border-radius:3px;"></div>
-      </div>
-    </div>`;
-      }).join('');
-      $('dash-res').innerHTML = ['Cours Maths T1', 'TD Physique', 'Exercices Suites'].map(r =>
-        `<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:5px;background:#FAFFFE;">
-      <span style="font-size:.9rem;">📄</span>
-      <span style="font-size:.77rem;font-weight:700;color:var(--ink);">${r}</span>
-      <span class="b b-grn" style="margin-left:auto;">Publié</span>
-    </div>`).join('');
+    async function loadDash() {
+      // Afficher skeleton pendant le chargement
+      const kEl = $('k-el'), kNotes = $('k-notes'), kMoy = document.getElementById('k-moy'), kRes = $('k-res');
+      if (kEl) kEl.textContent = '…';
+      if (kNotes) kNotes.textContent = '…';
+      if (kMoy) kMoy.textContent = '…';
+
+      try {
+        // 1. Vrais élèves par classe
+        const rEl = await fetch(API + '/professeurs/eleves?classe=' + encodeURIComponent(PROF.classes[0] || '') + '&trimestre=1',
+          { headers: { 'Authorization': 'Bearer ' + TOK } });
+        const dEl = await rEl.json();
+        const totalEleves = dEl.success ? (dEl.eleves || []).length : 0;
+        if (kEl) kEl.textContent = totalEleves;
+
+        // 2. Vraies ressources
+        const rRes = await fetch(API + '/professeurs/ressources', { headers: { 'Authorization': 'Bearer ' + TOK } });
+        const dRes = await rRes.json();
+        if (dRes.success) {
+          resData = (dRes.ressources || []).map(x => {
+            const url = x.url || x.url_fichier || '';
+            const ext = url ? url.split('.').pop().toLowerCase() : '';
+            const typeRaw = (x.type || x.type_document || 'cours').toLowerCase();
+            const type = /^(mp4|webm|mov|avi|mkv|ogv)$/.test(ext) ? 'video'
+              : /^(mp3|ogg|wav|m4a)$/.test(ext) ? 'audio'
+              : /^(jpg|jpeg|png|gif|webp)$/.test(ext) ? 'image' : typeRaw;
+            return { id: x.id_ressource || x.id, titre: x.titre || '—',
+              cls: x.cls || x.classe_cible || x.classe_concernee || 'TOUTES',
+              type, mat: x.mat || 'Ma matière',
+              taille: x.taille || '—', format: ext ? ext.toUpperCase() : '—',
+              visible: x.visible !== false,
+              col: COLORS[Math.floor(Math.random()*COLORS.length)],
+              date: x.date || (x.date_ajout ? new Date(x.date_ajout).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}) : '—'),
+              url, videoUrl: url };
+          });
+          if (kRes) kRes.textContent = resData.filter(r => r.visible).length;
+          // Ressources récentes dans le dashboard
+          const recent = resData.slice(0, 5);
+          const dashRes = document.getElementById('dash-res');
+          if (dashRes) {
+            dashRes.innerHTML = recent.length ? recent.map(r => {
+              const ico = r.type === 'video' ? '🎥' : r.type === 'audio' ? '🎵' : r.type === 'image' ? '🖼️' : '📄';
+              return `<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:5px;background:#FAFFFE;cursor:pointer;" onclick="go('res',document.getElementById('ni-res'))">
+                <span style="font-size:.9rem;">${ico}</span>
+                <span style="font-size:.77rem;font-weight:700;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.titre)}</span>
+                <span class="b b-grn" style="flex-shrink:0;">Publié</span>
+              </div>`;
+            }).join('')
+            : '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem;">Aucune ressource</div>';
+          }
+        }
+
+        // 3. Classes avec taux réel de notes saisies
+        const clsStats = await Promise.all(PROF.classes.map(async c => {
+          try {
+            const r = await fetch(API + '/professeurs/eleves?classe=' + encodeURIComponent(c) + '&trimestre=1',
+              { headers: { 'Authorization': 'Bearer ' + TOK } });
+            const d = await r.json();
+            const eleves = d.success ? (d.eleves || []) : [];
+            const avecNote = eleves.filter(e => e.moyenne !== null && e.moyenne !== undefined).length;
+            const pct = eleves.length ? Math.round((avecNote / eleves.length) * 100) : 0;
+            const moys = eleves.map(e => parseFloat(e.moyenne)).filter(m => !isNaN(m));
+            const moy = moys.length ? (moys.reduce((a,b)=>a+b,0)/moys.length).toFixed(1) : null;
+            return { cls: c, nb: eleves.length, pct, moy };
+          } catch(e) { return { cls: c, nb: 0, pct: 0, moy: null }; }
+        }));
+
+        // Mettre à jour le total élèves avec la somme réelle
+        const totalReal = clsStats.reduce((s,c)=>s+c.nb,0);
+        if (kEl) kEl.textContent = totalReal;
+
+        // Moyenne générale
+        const allMoys = clsStats.filter(c=>c.moy).map(c=>parseFloat(c.moy));
+        const moyGen = allMoys.length ? (allMoys.reduce((a,b)=>a+b,0)/allMoys.length).toFixed(1) : '—';
+        if (kMoy) kMoy.textContent = moyGen;
+
+        // Barres de progression
+        const dashCls = document.getElementById('dash-cls');
+        if (dashCls) {
+          dashCls.innerHTML = clsStats.map(s => {
+            const col = s.pct === 100 ? 'var(--accent)' : s.pct > 70 ? 'var(--amber)' : 'var(--red)';
+            return `<div style="margin-bottom:11px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                <span style="font-size:.78rem;font-weight:800;">${s.cls} <span style="font-size:.65rem;color:var(--muted);font-weight:600;">(${s.nb} élèves)</span></span>
+                <span style="font-size:.7rem;font-weight:800;color:${col};">${s.pct}% saisi${s.moy ? ' · moy '+s.moy : ''}</span>
+              </div>
+              <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;">
+                <div style="width:${s.pct}%;height:100%;background:${col};border-radius:3px;transition:width .5s;"></div>
+              </div>
+            </div>`;
+          }).join('');
+        }
+
+        // Nb total notes saisies
+        const totalNotes = clsStats.reduce((s,c)=>s+c.nb*(c.pct/100|0),0);
+        if (kNotes) kNotes.textContent = clsStats.reduce((s,c)=>s+Math.round(c.nb*c.pct/100),0);
+
+      } catch(e) {
+        console.warn('loadDash:', e.message);
+      }
     }
 
     // ══════════════════════════════════════════
@@ -3169,19 +3534,36 @@
       $('pf-exp').value = PROF.exp;
       $('pf-bio').value = PROF.bio;
       $('stat-exp').textContent = PROF.exp;
-      // Avatar initial
       updateAvatar();
-      // Badges matières
       renderMatBadges();
-      // Chips
       renderChips();
-      // Classes + matières list
       $('cls-mat-list').innerHTML = PROF.classes.map((c, i) =>
         `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:5px;background:#FAFFFE;">
       <span style="font-size:.78rem;font-weight:800;color:var(--ink);">${c}</span>
       <span style="font-size:.7rem;font-weight:700;color:var(--muted);">${PROF.matieres.join(' · ')}</span>
     </div>`
       ).join('');
+
+      // ── Charger les vraies données depuis l'API (photo + bio) ──
+      fetch(API + '/professeurs/profil', { headers: { 'Authorization': 'Bearer ' + TOK } })
+        .then(r => r.json())
+        .then(data => {
+          if (!data.profil) return;
+          const p = data.profil;
+          // Remplir les champs
+          if (p.telephone) { PROF.tel = p.telephone; $('pf-tel').value = p.telephone; }
+          if (p.specialite) { PROF.diplome = p.specialite; $('pf-diplome').value = p.specialite; }
+          if (p.biographie) { PROF.bio = p.biographie; $('pf-bio').value = p.biographie; }
+          // ── Photo persistante ──
+          if (p.photo_url) {
+            PROF.photo = BASE_URL + p.photo_url;
+            const av = $('prof-avatar-display');
+            if (av) av.innerHTML = `<img src="${PROF.photo}" alt="photo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+            // Mettre à jour aussi l'avatar dans la sidebar
+            updateSbAvatar(PROF.photo);
+          }
+        })
+        .catch(() => {});
     }
 
     function updateAvatar() {
@@ -3215,27 +3597,73 @@
       PROF.matieres = PROF.matieres.filter(m => m !== val); renderChips(); renderMatBadges();
     }
 
-    function previewPhoto(inp) {
-      const f = inp.files[0]; if (!f) return;
-      const r = new FileReader();
-      r.onload = e => { PROF.photo = e.target.result; updateAvatar(); toast('Photo mise à jour', 'ok'); };
-      r.readAsDataURL(f);
+    function previewPhoto(input) {
+      const f = input.files[0]; if (!f) return;
+      PROF._photoFile = f;
+      const reader = new FileReader();
+      reader.onload = e => {
+        ['pf-avatar','prof-photo'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el && el.tagName === 'IMG') el.src = e.target.result;
+        });
+      };
+      reader.readAsDataURL(f);
+      toast('Photo prête — cliquez Enregistrer', 'info');
     }
 
-    function saveProfile() {
-      PROF.prenom = $('pf-prenom').value.trim() || PROF.prenom;
-      PROF.nom = $('pf-nom').value.trim() || PROF.nom;
-      PROF.email = $('pf-email').value.trim();
-      PROF.tel = $('pf-tel').value.trim();
-      PROF.diplome = $('pf-diplome').value.trim();
-      PROF.exp = parseInt($('pf-exp').value) || PROF.exp;
-      PROF.bio = $('pf-bio').value.trim();
-      $('sb-name').textContent = PROF.prenom + ' ' + PROF.nom;
-      $('profil-name').textContent = PROF.prenom + ' ' + PROF.nom;
-      $('stat-exp').textContent = PROF.exp;
-      loadProfil();
-      showMsg($('profil-msg'), '✅ Profil enregistré', 'ok');
-      toast('Profil mis à jour', 'ok');
+    async function saveProfile() {
+      const msgEl = $('profil-msg');
+      showMsg(msgEl, '⏳ Enregistrement...', 'info');
+      try {
+        const fd = new FormData();
+        const telRaw = ($('pf-tel')?.value || '').trim();
+        fd.append('telephone', telRaw.replace(/\s+/g, '').replace(/[^0-9+]/g, ''));
+        fd.append('specialite', $('pf-diplome')?.value.trim() || '');
+        fd.append('biographie', $('pf-bio')?.value.trim() || '');
+        if (PROF._photoFile) fd.append('photo', PROF._photoFile);
+
+        const r = await fetch(API + '/professeurs/profil', {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + TOK },
+          body: fd
+        });
+        const data = await r.json();
+        if (data.success) {
+          if (data.profil?.photo_url) {
+            const fullPhotoUrl = BASE_URL + data.profil.photo_url;
+            PROF.photo = fullPhotoUrl;
+            // Mettre à jour l'avatar affiché
+            const av = $('prof-avatar-display');
+            if (av) av.innerHTML = `<img src="${fullPhotoUrl}?v=${Date.now()}" alt="photo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
+            // Mettre à jour la sidebar aussi
+            updateSbAvatar(fullPhotoUrl);
+            // Persister dans localStorage pour prochain rechargement
+            const sessObj = JSON.parse(localStorage.getItem('user_session') || '{}');
+            sessObj.photo_url = data.profil.photo_url;
+            localStorage.setItem('user_session', JSON.stringify(sessObj));
+          }
+          PROF._photoFile = null;
+          showMsg(msgEl, '✅ Profil enregistré avec succès', 'ok');
+          toast('Profil mis à jour ✓', 'ok');
+        } else {
+          showMsg(msgEl, '❌ ' + (data.message || 'Erreur'), 'err');
+        }
+      } catch (e) {
+        showMsg(msgEl, '❌ Erreur: ' + e.message, 'err');
+      }
+    }
+
+    // Stocker le fichier photo sélectionné
+    function onPhotoSelected(input) {
+      const f = input.files[0]; if (!f) return;
+      PROF._photoFile = f;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const el = document.getElementById('pf-avatar') || document.getElementById('prof-photo');
+        if (el) el.src = e.target.result;
+      };
+      reader.readAsDataURL(f);
+      toast('Photo sélectionnée — cliquez Enregistrer', 'info');
     }
 
     function togglePwd2() {
@@ -3245,20 +3673,33 @@
     // ══════════════════════════════════════════
     // SAISIE NOTES — CLOISONNEMENT PROF
     // ══════════════════════════════════════════
-    function loadEleves() {
-      // Génération d'élèves pour LA classe du prof uniquement
-      const noms = [['SAWADOGO', 'Moussa'], ['KABORE', 'Aicha'], ['TRAORE', 'Yasmine'], ['OUEDRAOGO', 'Idrissa'],
-      ['NANA', 'Fatimata'], ['ZONGO', 'Adama'], ['COMPAORE', 'Sylvie'], ['TAPSOBA', 'Abdoul'],
-      ['DIALLO', 'Seydou'], ['SOME', 'Mariam'], ['YAMEOGO', 'Paul'], ['BADO', 'Ines'],
-      ['LANKOUANDE', 'Brice'], ['TIENDREBEOGO', 'Amina'], ['HEMA', 'Serge'], ['KINDA', 'Rose']];
-      // Nombre d'élèves variable selon classe
-      const nb = { 'Tle D': 38, '1ère D': 42, '2nde C': 40, '3ème': 36 }[selCls] || 35;
-      elevesData = noms.slice(0, Math.min(nb, noms.length)).map((n, i) => ({
-        id: i, code: 'CN-2026-' + (2000 + i + (PROF.classes.indexOf(selCls) * 100)),
-        nom: n[0], prenom: n[1],
-        moy: (8 + Math.random() * 10).toFixed(1),
-        col: COLORS[i % COLORS.length]
-      }));
+    async function loadEleves() {
+      const tri = $('tri-sel')?.value || '1';
+      // Loader
+      $('eleve-list').innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.75rem;">⏳ Chargement…</div>';
+      try {
+        const r = await fetch(
+          `${API}/professeurs/eleves?classe=${encodeURIComponent(selCls)}&trimestre=${tri}`,
+          { headers: { 'Authorization': 'Bearer ' + TOK } }
+        );
+        const data = await r.json();
+        if (data.success) {
+          elevesData = (data.eleves || []).map((e, i) => ({
+            idx: i,                    // index pour le onclick
+            id: e.id_user,             // vrai id pour saveNotes
+            code: e.code_unique,
+            nom: e.nom || '',
+            prenom: e.prenom || '',
+            moy: (e.moyenne !== null && e.moyenne !== undefined && e.moyenne !== '') ? parseFloat(e.moyenne).toFixed(1) : null,
+            col: COLORS[i % COLORS.length]
+          }));
+        } else {
+          elevesData = [];
+        }
+      } catch(e) {
+        console.warn('loadEleves:', e.message);
+        elevesData = [];
+      }
       $('el-cnt').textContent = elevesData.length;
       selEleve = null;
       renderEleves();
@@ -3272,57 +3713,93 @@
       const q = ($('srch-el')?.value || '').toLowerCase();
       const r = elevesData.filter(e => !q || (e.nom + e.prenom + e.code).toLowerCase().includes(q));
       $('eleve-list').innerHTML = r.map(e => `
-    <div class="eleve-item ${selEleve?.id === e.id ? 'sel' : ''}" onclick="selEleveNote(${e.id})">
+    <div class="eleve-item ${selEleve?.idx === e.idx ? 'sel' : ''}" data-idx="${e.idx}" onclick="selEleveNote(${e.idx})">
       <div class="eleve-av" style="background:${e.col};">${e.nom.charAt(0)}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:.78rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.prenom)} ${esc(e.nom)}</div>
         <div style="font-size:.6rem;font-family:'JetBrains Mono',monospace;color:var(--muted);">${e.code}</div>
       </div>
-      <div style="font-size:.74rem;font-weight:800;color:${parseFloat(e.moy) >= 10 ? 'var(--accent)' : 'var(--red)'};">${e.moy}</div>
+      <div style="font-size:.74rem;font-weight:800;color:${e.moy !== null ? (parseFloat(e.moy) >= 10 ? 'var(--accent)' : 'var(--red)') : 'var(--muted)'};">${e.moy !== null ? e.moy : '—'}</div>
     </div>`).join('');
     }
 
-    function selEleveNote(id) {
-      selEleve = elevesData.find(e => e.id === id);
+    async function selEleveNote(idx) {
+      selEleve = elevesData.find(e => e.idx === idx);
+      if (!selEleve) return;
       renderEleves();
-      // Matières du prof selon classe — SEULEMENT ses matières
-      const mats = PROF.matieres.map((m, i) => ({
-        n: m, c: m.includes('Math') || m.includes('Phys') ? 4 : m.includes('Franc') || m.includes('Phil') ? 3 : 2
-      }));
       const tri = $('tri-sel')?.value || '1';
+      // S'assurer qu'on a au moins une matière
+      const matsSource = PROF.matieres.length ? PROF.matieres : ['Matière'];
+      const mats = matsSource.map((m, i) => ({
+        n: m, id: i + 1,
+        c: m.includes('Math') || m.includes('Phys') ? 4 : m.includes('Franc') || m.includes('Phil') ? 3 : 2
+      }));
+
+      // Afficher le panel immédiatement
+      const moyAff = selEleve.moy !== null ? selEleve.moy + '/20' : '—';
+      const moyCol = selEleve.moy !== null ? (parseFloat(selEleve.moy) >= 10 ? 'var(--accent)' : 'var(--red)') : 'var(--muted)';
       $('note-panel').innerHTML = `
-    <div style="padding:16px;">
-      <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:#F0F7F3;border-radius:10px;border:1.5px solid var(--accent3);margin-bottom:16px;">
-        <div class="eleve-av" style="background:${selEleve.col};width:38px;height:38px;border-radius:10px;">${selEleve.nom.charAt(0)}</div>
-        <div style="flex:1;">
-          <div style="font-size:.88rem;font-weight:800;">${esc(selEleve.prenom)} ${esc(selEleve.nom)}</div>
-          <div style="font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${selEleve.code} · ${selCls}</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:1.1rem;font-weight:900;color:${parseFloat(selEleve.moy) >= 10 ? 'var(--accent)' : 'var(--red)'};">${selEleve.moy}/20</div>
-          <div style="font-size:.6rem;color:var(--muted);">Moy. actuelle</div>
-        </div>
-      </div>
-      <div style="font-size:.78rem;font-weight:800;margin-bottom:10px;">Notes · T${tri} · <span style="color:var(--muted);">${selCls}</span></div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;" id="mats-grid">
-        ${mats.map((m, i) => `
+        <div style="padding:16px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:#F0F7F3;border-radius:10px;border:1.5px solid var(--accent3);margin-bottom:16px;">
+            <div class="eleve-av" style="background:${selEleve.col};width:38px;height:38px;border-radius:10px;">${selEleve.nom.charAt(0)}</div>
+            <div style="flex:1;">
+              <div style="font-size:.88rem;font-weight:800;">${esc(selEleve.prenom)} ${esc(selEleve.nom)}</div>
+              <div style="font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${selEleve.code} · ${selCls}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:1.1rem;font-weight:900;color:${moyCol};">${moyAff}</div>
+              <div style="font-size:.6rem;color:var(--muted);">Moy. T${tri}</div>
+            </div>
+          </div>
+          <div style="font-size:.78rem;font-weight:800;margin-bottom:10px;">
+            Saisie Notes · T${tri} · <span style="color:var(--muted);">${selCls}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;" id="mats-grid">
+            <div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--muted);font-size:.75rem;">⏳ Chargement des notes existantes…</div>
+          </div>
+          <div style="display:flex;gap:7px;margin-top:12px;">
+            <input type="text" id="note-com" placeholder="Appréciation (optionnel)" style="flex:1;padding:8px 11px;font-size:.78rem;border:1px solid var(--border);border-radius:8px;outline:none;">
+            <button class="btn-p" onclick="saveNotes()">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Valider
+            </button>
+          </div>
+          <div id="note-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
+        </div>`;
+
+      // Charger les notes déjà saisies pour cet élève
+      let existingNotes = {};
+      try {
+        const r = await fetch(
+          `${API}/professeurs/eleves?classe=${encodeURIComponent(selCls)}&trimestre=${tri}`,
+          { headers: { 'Authorization': 'Bearer ' + TOK } }
+        );
+        const d = await r.json();
+        // Les notes individuelles par matière ne viennent pas encore de cette route
+        // On affiche juste les champs vides prêts à saisir
+      } catch(e) {}
+
+      // Rendre la grille des matières
+      const grid = document.getElementById('mats-grid');
+      if (grid) {
+        grid.innerHTML = mats.map((m, i) => `
           <div style="background:#F5FBF7;border:1.5px solid var(--border);border-radius:10px;padding:11px;">
             <div style="font-size:.74rem;font-weight:800;color:var(--ink);margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;">
               ${esc(m.n)}<span style="font-size:.62rem;background:var(--accent3);color:var(--accent);padding:2px 6px;border-radius:4px;font-weight:800;">×${m.c}</span>
             </div>
-            <input class="nf-inp" id="ni-${i}" type="number" min="0" max="20" step="0.5" placeholder="— /20" oninput="updBar(${i},this.value)">
-            <div style="height:4px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden;"><div id="nb-${i}" style="width:0%;height:100%;background:var(--accent2);border-radius:2px;transition:width .4s;"></div></div>
-            <div id="na-${i}" style="font-size:.62rem;font-weight:700;text-align:center;margin-top:3px;color:var(--muted);">—</div>
-          </div>`).join('')}
-      </div>
-      <div style="display:flex;gap:7px;margin-top:12px;">
-        <input type="text" id="note-com" placeholder="Appréciation (optionnel)" style="flex:1;padding:8px 11px;font-size:.78rem;">
-        <button class="btn-p" onclick="saveNotes(${JSON.stringify(mats.map(m => m.n))})">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Valider
-        </button>
-      </div>
-      <div id="note-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
-    </div>`;
+            <input class="nf-inp" id="ni-${i}" data-id-matiere="${m.id}" type="number"
+              min="0" max="20" step="0.5" placeholder="— /20"
+              oninput="updBar(${i},this.value)"
+              value="${existingNotes[m.id] !== undefined ? existingNotes[m.id] : ''}">
+            <div style="height:4px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden;">
+              <div id="nb-${i}" style="width:${existingNotes[m.id] ? (existingNotes[m.id]/20*100) : 0}%;height:100%;background:var(--accent2);border-radius:2px;transition:width .4s;"></div>
+            </div>
+            <div id="na-${i}" style="font-size:.62rem;font-weight:700;text-align:center;margin-top:3px;color:var(--muted);">
+              ${existingNotes[m.id] ? (existingNotes[m.id] >= 10 ? 'Acquis' : 'À revoir') : '—'}
+            </div>
+          </div>`).join('');
+        // Init des barres si valeurs existantes
+        mats.forEach((m, i) => { if (existingNotes[m.id]) updBar(i, existingNotes[m.id]); });
+      }
     }
 
     function updBar(i, val) {
@@ -3334,28 +3811,81 @@
       }
     }
 
-    async function saveNotes(matNames) {
+    async function saveNotes() {
       if (!selEleve) { toast('Sélectionnez un élève', 'err'); return; }
-      const notes = matNames.map((m, i) => ({ mat: m, note: parseFloat($('ni-' + i)?.value) || null })).filter(n => n.note !== null);
-      if (!notes.length) { toast('Saisir au moins une note', 'err'); return; }
-      const moy = notes.reduce((s, n) => s + n.note, 0) / notes.length;
-      selEleve.moy = moy.toFixed(1);
-      renderEleves();
-      showMsg($('note-msg'), `✅ ${notes.length} note(s) — Moy: ${moy.toFixed(2)}/20`, 'ok');
-      toast('Notes enregistrées', 'ok');
-      // TODO: await api('/professeurs/notes', {method:'POST', body:JSON.stringify({eleve:selEleve.code,classe:selCls,notes,trimestre:$('tri-sel').value})});
+      const tri = parseInt($('tri-sel')?.value || '1');
+      const noteMsg = $('note-msg');
+
+      // Lire tous les inputs ni-X dynamiquement
+      const notes = [];
+      let i = 0;
+      while (true) {
+        const inp = document.getElementById('ni-' + i);
+        if (!inp) break;
+        const val = parseFloat(inp.value);
+        const idMat = parseInt(inp.dataset.idMatiere) || (i + 1);
+        const matName = PROF.matieres[i] || ('Matière ' + (i+1));
+        if (!isNaN(val) && val >= 0 && val <= 20) {
+          notes.push({ id_eleve: selEleve.id, id_matiere: idMat, mat: matName, note: val });
+        }
+        i++;
+      }
+
+      if (!notes.length) { toast('Saisir au moins une note valide (0–20)', 'err'); return; }
+
+      showMsg(noteMsg, '⏳ Enregistrement en base…', 'info');
+      try {
+        const r = await fetch(API + '/professeurs/notes', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes, trimestre: tri, annee_scolaire: '2025-2026' })
+        });
+        const data = await r.json();
+        if (data.success) {
+          const moy = notes.reduce((s,n) => s + n.note, 0) / notes.length;
+          selEleve.moy = moy.toFixed(1);
+          renderEleves(); // mise à jour temps réel
+          showMsg(noteMsg, `✅ ${data.message || notes.length + ' note(s) enregistrée(s)'} — Moy: ${moy.toFixed(2)}/20`, 'ok');
+          toast('Notes sauvegardées ✓', 'ok');
+          const kn = $('k-notes');
+          if (kn && !isNaN(parseInt(kn.textContent)))
+            kn.textContent = parseInt(kn.textContent) + notes.length;
+        } else {
+          showMsg(noteMsg, '❌ ' + (data.message || 'Erreur serveur'), 'err');
+        }
+      } catch(e) {
+        showMsg(noteMsg, '❌ Erreur réseau : ' + e.message, 'err');
+      }
     }
 
     // ══════════════════════════════════════════
     // CAHIER DE TEXTE
     // ══════════════════════════════════════════
-    function loadCT() {
-      ctData = [
-        { cls: 'Tle D', mat: 'Mathématiques', titre: 'Dérivées — Fonctions composées', contenu: 'Règle des fonctions composées + exercices', taf: 'Ex p.85 n°12,14', date: '2026-03-07', hdeb: '07:30', hfin: '09:00' },
-        { cls: '2nde C', mat: 'Physique-Chimie', titre: 'Cinématique — MRU', contenu: 'Équations horaires du mouvement', taf: 'TD n°3', date: '2026-03-06', hdeb: '10:45', hfin: '12:00' },
-        { cls: '1ère D', mat: 'Mathématiques', titre: 'Suites arithmétiques', contenu: 'Terme général et somme', taf: 'Livre p.112', date: '2026-03-05', hdeb: '14:00', hfin: '15:30' },
-        { cls: '3ème', mat: 'Mathématiques', titre: 'Pythagore — Applications', contenu: 'Démonstration et cas pratiques', taf: 'Problème vendredi', date: '2026-03-04', hdeb: '07:30', hfin: '09:00' },
-      ];
+    async function loadCT() {
+      try {
+        const r = await fetch(API + '/professeurs/cahier-texte', {
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        const data = await r.json();
+        if (data.success && data.seances?.length) {
+          ctData = data.seances.map(s => ({
+            id: s.id_seance || s.id,
+            cls: s.classe,
+            mat: s.matiere,
+            titre: s.titre,
+            contenu: s.contenu || '',
+            taf: s.taf || s.travail_a_faire || '',
+            date: s.date_seance ? s.date_seance.split('T')[0] : '',
+            hdeb: s.heure_debut || '',
+            hfin: s.heure_fin || ''
+          }));
+        } else {
+          ctData = [];
+        }
+      } catch(e) {
+        console.warn('loadCT:', e.message);
+        ctData = [];
+      }
       renderCT();
     }
 
@@ -3378,12 +3908,45 @@
     }
 
     async function saveCT() {
-      const entry = { cls: $('ct-cls').value, mat: $('ct-mat').value, titre: $('ct-titre').value, contenu: $('ct-contenu').value, taf: $('ct-taf').value, date: $('ct-date').value, hdeb: $('ct-hdeb').value, hfin: $('ct-hfin').value };
-      if (!entry.titre || !entry.mat) { showMsg($('ct-msg'), 'Titre et matière requis', 'err'); return; }
-      ctData.unshift(entry); renderCT();
-      showMsg($('ct-msg'), '✅ Séance enregistrée', 'ok');
-      toast('Cahier de texte mis à jour', 'ok');
-      $('ct-titre').value = ''; $('ct-contenu').value = ''; $('ct-taf').value = '';
+      const entry = {
+        classe: $('ct-cls').value,
+        matiere: $('ct-mat').value,
+        titre: $('ct-titre').value,
+        contenu: $('ct-contenu').value,
+        taf: $('ct-taf').value,
+        date_seance: $('ct-date').value,
+        heure_debut: $('ct-hdeb').value,
+        heure_fin: $('ct-hfin').value
+      };
+      if (!entry.titre || !entry.matiere) { showMsg($('ct-msg'), 'Titre et matière requis', 'err'); return; }
+      showMsg($('ct-msg'), '⏳ Enregistrement…', 'info');
+      try {
+        const r = await fetch(API + '/professeurs/cahier-texte', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
+          body: JSON.stringify(entry)
+        });
+        const data = await r.json();
+        if (data.success) {
+          // Ajouter en haut de la liste immédiatement
+          ctData.unshift({ cls: entry.classe, mat: entry.matiere, titre: entry.titre,
+            contenu: entry.contenu, taf: entry.taf, date: entry.date_seance,
+            hdeb: entry.heure_debut, hfin: entry.heure_fin });
+          renderCT();
+          showMsg($('ct-msg'), '✅ Séance enregistrée en BD', 'ok');
+          toast('Cahier de texte mis à jour ✓', 'ok');
+          $('ct-titre').value = ''; $('ct-contenu').value = ''; $('ct-taf').value = '';
+        } else {
+          showMsg($('ct-msg'), '❌ ' + (data.message || 'Erreur'), 'err');
+        }
+      } catch(e) {
+        // Fallback local si API indisponible
+        ctData.unshift({ cls: entry.classe, mat: entry.matiere, titre: entry.titre,
+          contenu: entry.contenu, taf: entry.taf, date: entry.date_seance,
+          hdeb: entry.heure_debut, hfin: entry.heure_fin });
+        renderCT();
+        showMsg($('ct-msg'), '⚠️ Enregistré localement (hors ligne)', 'info');
+      }
     }
 
     // ══════════════════════════════════════════
@@ -3404,22 +3967,31 @@
         const data = await r.json();
         if (data.success) {
           // Normaliser le format pour renderRes()
-          resData = (data.ressources || []).map(x => ({
-            id: x.id_ressource,
-            titre: x.titre,
-            cls: x.classe_cible,
-            type: (x.type || 'AUTRE').toLowerCase(),
-            mat: x.matiere || 'Non définie',
-            taille: x.taille_fichier ? (x.taille_fichier > 1048576 ? (x.taille_fichier / 1048576).toFixed(1) + ' Mo' : Math.round(x.taille_fichier / 1024) + ' Ko') : '—',
-            format: x.url ? x.url.split('.').pop().toUpperCase() : '—',
-            visible: x.est_visible,
-            col: COLORS[Math.floor(Math.random() * COLORS.length)],
-            date: x.date_ajout ? new Date(x.date_ajout).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '—',
-            url: x.url,
-            videoUrl: x.url || '',
-            thumb: ''
-          }));
-        } else {
+          resData = (data.ressources || []).map(x => {
+            const url = x.url || x.url_fichier || '';
+            const cls = x.cls || x.classe_cible || x.classe_concernee || 'TOUTES';
+            const ext = url ? url.split('.').pop().toLowerCase() : '';
+            // Type : priorité à l'extension réelle du fichier
+            const typeRaw = (x.type || x.type_document || 'cours').toLowerCase();
+            const type = /^(mp4|webm|mov|avi|mkv|ogv)$/.test(ext) ? 'video'
+              : /^(mp3|ogg|wav|m4a)$/.test(ext) ? 'audio'
+              : /^(jpg|jpeg|png|gif|webp)$/.test(ext) ? 'image'
+              : typeRaw;
+            const sz = x.taille || x.taille_fichier;
+            return {
+              id:      x.id_ressource || x.id,
+              titre:   x.titre || '—',
+              cls, type,
+              mat:     x.mat || x.matiere || 'Ma matière',
+              taille:  sz ? (sz>1048576?(sz/1048576).toFixed(1)+' Mo':Math.round(sz/1024)+' Ko') : '—',
+              format:  ext ? ext.toUpperCase() : '—',
+              visible: x.visible !== undefined ? x.visible : (x.est_visible !== false),
+              col:     COLORS[Math.floor(Math.random()*COLORS.length)],
+              date:    x.date || (x.date_ajout||x.date_depot
+                ? new Date(x.date_ajout||x.date_depot).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}) : '—'),
+              url, videoUrl: url, thumb: ''
+            };
+          });        } else {
           resData = [];
         }
       } catch (e) {
@@ -3441,18 +4013,27 @@
     function renderRes() {
       const clsFil = $('res-filter-cls')?.value || '';
       let r = resData.filter(x => (!resTypeFil || x.type === resTypeFil) && (!clsFil || x.cls === clsFil));
-      // Vidéos
-      const vids = r.filter(x => x.type === 'video');
-      const docs = r.filter(x => x.type !== 'video');
+      // Vidéos = type 'video' OU extension vidéo dans l'URL
+      const isVideo = x => x.type === 'video' || /\.(mp4|webm|mov|avi|mkv|ogv)$/i.test(x.url || '');
+      // Dans "Toutes" : vidéos affichées EN PLUS dans la grille, docs dans la liste
+      const vids = r.filter(isVideo);
+      const docs = r.filter(x => !isVideo(x));
+      // Afficher la section vidéos si au moins une vidéo dans le filtre actuel
+      const showVids = vids.length > 0;
       $('video-cnt').textContent = vids.length;
       $('doc-cnt').textContent = docs.length;
-      const vsec = $('videos-section'); if (vsec) vsec.style.display = vids.length ? 'block' : 'none';
-      // Grille vidéos
-      $('video-grid').innerHTML = vids.map(v => `
+      const vsec = $('videos-section'); if (vsec) vsec.style.display = showVids ? 'block' : 'none';
+
+      // Grille vidéos avec miniature réelle
+      $('video-grid').innerHTML = vids.map(v => {
+        const fullUrl = v.url ? (v.url.startsWith('http') ? v.url : BASE_URL + v.url) : '';
+        return `
     <div class="video-card">
-      <div class="video-thumb" style="background:#0D1F14;">
-        <div style="font-size:3rem;opacity:.3;">🎥</div>
-        <div class="play-overlay" onclick="toast('Lecture de : ${v.titre}','info')">
+      <div class="video-thumb" style="background:#0D1F14;position:relative;overflow:hidden;">
+        ${fullUrl
+          ? `<video src="${fullUrl}" preload="metadata" style="width:100%;height:100%;object-fit:cover;opacity:.7;" muted></video>`
+          : `<div style="font-size:3rem;opacity:.3;display:flex;align-items:center;justify-content:center;height:100%;">🎥</div>`}
+        <div class="play-overlay" onclick="openVideo('${esc(v.titre)}','${v.url||''}')">
           <div class="play-btn-big"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
         </div>
         <div style="position:absolute;top:7px;right:7px;background:rgba(0,0,0,.6);color:#fff;font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:10px;">${v.taille}</div>
@@ -3462,16 +4043,19 @@
         <div style="font-size:.78rem;font-weight:800;color:var(--ink);line-height:1.3;">${esc(v.titre)}</div>
         <div style="font-size:.64rem;color:var(--muted);margin-top:3px;">${v.cls} · ${v.mat} · ${v.date}</div>
         <div style="display:flex;gap:5px;margin-top:6px;">
+          <button onclick="openVideo('${esc(v.titre)}','${v.url||''}')" style="flex:1;padding:4px;font-size:.66rem;font-weight:700;border:1px solid var(--accent3);border-radius:6px;cursor:pointer;background:#E8F5EE;color:var(--accent);font-family:'DM Sans',sans-serif;">▶ Lire</button>
           <button onclick="toggleResVisible(${v.id})" style="flex:1;padding:4px;font-size:.66rem;font-weight:700;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:${v.visible ? '#E8F5EE' : '#FEF2F2'};color:${v.visible ? 'var(--accent)' : 'var(--red)'};font-family:'DM Sans',sans-serif;">${v.visible ? '✓ Visible' : '✗ Masqué'}</button>
           <button onclick="deleteRes(${v.id})" style="padding:4px 8px;font-size:.66rem;font-weight:700;border:1px solid #FECDD3;border-radius:6px;cursor:pointer;background:#FEF2F2;color:var(--red);font-family:'DM Sans',sans-serif;">🗑</button>
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+      }).join('');
+
       // Liste docs
-      const typeIco = { cours: '📄', td: '📝', exercice: '✏️', doc: '📎' };
-      const typeLbl = { cours: 'Cours', td: 'TD', exercice: 'Exercice', doc: 'Document' };
-      const typeBg = { cours: '#E8F5EE', td: '#EFF6FF', exercice: '#FEF9C3', doc: '#F5F3FF' };
-      const typeTxt = { cours: 'var(--accent)', td: '#1D4ED8', exercice: '#854D0E', doc: '#5B21B6' };
+      const typeIco = { cours: '📄', td: '📝', exercice: '✏️', doc: '📎', audio: '🎵', image: '🖼️' };
+      const typeLbl = { cours: 'Cours', td: 'TD', exercice: 'Exercice', doc: 'Document', audio: 'Audio', image: 'Image' };
+      const typeBg  = { cours: '#E8F5EE', td: '#EFF6FF', exercice: '#FEF9C3', doc: '#F5F3FF', audio: '#FDF2F8', image: '#ECFDF5' };
+      const typeTxt = { cours: 'var(--accent)', td: '#1D4ED8', exercice: '#854D0E', doc: '#5B21B6', audio: '#9D174D', image: '#059669' };
       $('res-list').innerHTML = docs.length ? docs.map(res => `
     <div style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-bottom:1px solid #F5F9F6;transition:.15s;" onmouseover="this.style.background='#FAFFFE'" onmouseout="this.style.background=''">
       <div style="width:36px;height:36px;border-radius:10px;background:${res.col};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">${typeIco[res.type] || '📄'}</div>
@@ -3479,10 +4063,13 @@
         <div style="font-size:.8rem;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(res.titre)}</div>
         <div style="font-size:.65rem;color:var(--muted);margin-top:1px;">${esc(res.cls)} · ${esc(res.mat)} · ${res.taille} · ${res.date}</div>
       </div>
-      <span style="padding:2px 8px;border-radius:4px;font-size:.6rem;font-weight:800;background:${typeBg[res.type]};color:${typeTxt[res.type]};flex-shrink:0;">${typeLbl[res.type] || 'Doc'}</span>
-      <span style="font-size:.7rem;font-weight:700;padding:3px 8px;border-radius:6px;cursor:pointer;background:${res.visible ? '#E8F5EE' : '#FEF2F2'};color:${res.visible ? 'var(--accent)' : 'var(--red)'};" onclick="toggleResVisible(${res.id})">${res.visible ? 'Visible' : 'Masqué'}</span>
+      <span style="padding:2px 8px;border-radius:4px;font-size:.6rem;font-weight:800;background:${typeBg[res.type]||'#F5F3FF'};color:${typeTxt[res.type]||'#5B21B6'};flex-shrink:0;">${typeLbl[res.type] || 'Doc'}</span>
+      ${res.url
+        ? `<button onclick="openVideo('${esc(res.titre)}','${res.url}')" style="padding:4px 10px;font-size:.66rem;font-weight:700;border:1px solid #BBF7D0;border-radius:6px;cursor:pointer;background:#ECFDF5;color:#059669;flex-shrink:0;">📂 Ouvrir</button>`
+        : ''}
       <button onclick="deleteRes(${res.id})" style="padding:4px 8px;font-size:.66rem;border:1px solid #FECDD3;border-radius:6px;cursor:pointer;background:#FEF2F2;color:var(--red);font-family:'DM Sans',sans-serif;">🗑</button>
-    </div>`).join('') : '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">Aucun document</div>';
+    </div>`).join('')
+    : '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">Aucun document publié</div>';
     }
 
     async function toggleResVisible(id) {
@@ -3625,22 +4212,30 @@
           showMsg(msg, '✅ Publié pour ' + nbEl, 'ok');
           toast(hasFile ? 'Document envoyé aux élèves ✓' : 'Cours publié sans fichier ✓', 'ok');
 
+          // Détecter le vrai type selon l'extension
+          const _file = hasFile ? fileInp.files[0] : null;
+          const _ext = _file ? _file.name.split('.').pop().toLowerCase() : '';
+          const _typeByExt = /^(mp4|webm|mov|avi|mkv|ogv)$/.test(_ext) ? 'video'
+            : /^(mp3|ogg|wav|m4a)$/.test(_ext) ? 'audio'
+            : /^(jpg|jpeg|png|gif|webp)$/.test(_ext) ? 'image'
+            : (res.type_ressource || type || 'cours').toLowerCase();
+          const _url = res.url || res.url_fichier || '';
           // Ajouter localement sans rechargement
           resData.unshift({
             id: res.id_ressource,
             titre: res.titre,
-            cls: res.classe_cible,
-            type: (res.type_ressource || 'AUTRE').toLowerCase(),
+            cls: res.classe_cible || cls,
+            type: _typeByExt,
             mat: 'Ma matière',
-            taille: fileInp.files[0].size > 1048576
-              ? (fileInp.files[0].size / 1048576).toFixed(1) + ' Mo'
-              : Math.round(fileInp.files[0].size / 1024) + ' Ko',
-            format: fileInp.files[0].name.split('.').pop().toUpperCase(),
+            taille: _file
+              ? (_file.size > 1048576 ? (_file.size/1048576).toFixed(1)+' Mo' : Math.round(_file.size/1024)+' Ko')
+              : '—',
+            format: _ext ? _ext.toUpperCase() : '—',
             visible: true,
             col: COLORS[Math.floor(Math.random() * COLORS.length)],
             date: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
-            url: res.url_fichier || '',
-            videoUrl: res.url_fichier || '',
+            url: _url,
+            videoUrl: _url,
             thumb: ''
           });
           renderRes();
@@ -3663,86 +4258,107 @@
     }
 
     // ══════════════════════════════════════════
-    // ORIENTATION ÉLÈVES
+    // ORIENTATION — fonctions manquantes
     // ══════════════════════════════════════════
     async function loadOrient() {
+      try {
+        const cls = $('orient-filter')?.value || '';
+        const url = cls ? `${API}/professeurs/orientation?classe=${encodeURIComponent(cls)}` : `${API}/professeurs/orientation`;
+        const r = await fetch(url, { headers: { 'Authorization': 'Bearer ' + TOK } });
+        const data = await r.json();
+        if (data.success) {
+          orientData = data.eleves || [];
+        } else {
+          orientData = [];
+        }
+      } catch (e) {
+        orientData = [];
+      }
       renderOrient();
     }
 
-    async function renderOrient() {
-      const el = document.getElementById('orient-list');
-      if (!el) return;
-      const filtre = document.getElementById('orient-filter')?.value || '';
-      // Essayer API
-      try {
-        const r = await fetch(`${API}/professeurs/orientation${filtre ? '?classe='+encodeURIComponent(filtre) : ''}`, { headers: authH() });
-        if (r.ok) {
-          const d = await r.json();
-          const eleves = d.eleves || d.orientation || [];
-          if (eleves.length) {
-            el.innerHTML = eleves.map(e => {
-              const moy = parseFloat(e.moyenne || 0);
-              const col = moy >= 14 ? '#059669' : moy >= 10 ? '#D97706' : '#DC2626';
-              return `<div class="card" style="padding:12px;cursor:pointer;" onclick="">
-                <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px;">
-                  <div style="width:34px;height:34px;border-radius:10px;background:${col}22;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.75rem;color:${col};">${(e.prenom||'?')[0]}${(e.nom||'?')[0]}</div>
-                  <div style="flex:1;min-width:0;">
-                    <div style="font-size:.78rem;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.prenom||''} ${e.nom||''}</div>
-                    <div style="font-size:.62rem;color:var(--muted);">${e.classe||''} · ${e.code_unique||''}</div>
-                  </div>
-                  <div style="font-size:1.1rem;font-weight:900;color:${col};">${moy.toFixed(1)}</div>
-                </div>
-              </div>`;
-            }).join('');
-            return;
-          }
-        }
-      } catch(e) {}
-      // Fallback mock
-      el.innerHTML = PROF.classes.filter(c => !filtre || c === filtre).map(cls => `
-        <div class="card" style="padding:14px;">
-          <div style="font-size:.72rem;font-weight:800;color:var(--ink);margin-bottom:8px;">${cls}</div>
-          <div style="font-size:.7rem;color:var(--muted);">Les données d'orientation s'afficheront ici une fois les notes saisies.</div>
-        </div>`).join('') || '<div style="font-size:.76rem;color:var(--muted);padding:14px;">Aucune classe disponible pour l\'orientation.</div>';
+    function renderOrient() {
+      const list = $('orient-list');
+      if (!list) return;
+      if (!orientData.length) {
+        list.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">
+          <div style="font-size:2rem;margin-bottom:8px;">🧭</div>
+          Aucun élève trouvé pour cette classe.<br>
+          <span style="font-size:.7rem;">Les élèves de vos classes d'examen apparaîtront ici.</span>
+        </div>`;
+        return;
+      }
+      list.innerHTML = orientData.map(e => {
+        const moy = parseFloat(e.moyenne) || 0;
+        const col = moy >= 14 ? 'var(--accent)' : moy >= 10 ? 'var(--amber)' : 'var(--red)';
+        const conseil = moy >= 14 ? 'Terminale D recommandée' : moy >= 10 ? 'Peut progresser' : 'Soutien nécessaire';
+        return `<div style="border:1px solid var(--border);border-radius:10px;padding:11px;background:#FAFFFE;cursor:pointer;"
+          onclick="selOrientEleve('${esc(e.code_unique)}','${esc(e.prenom)} ${esc(e.nom)}')">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <div style="width:30px;height:30px;border-radius:8px;background:${col};display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;">${e.nom?.charAt(0)||'?'}</div>
+            <div>
+              <div style="font-size:.76rem;font-weight:800;color:var(--ink);">${esc(e.prenom)} ${esc(e.nom)}</div>
+              <div style="font-size:.62rem;color:var(--muted);">${esc(e.classe||'')} · ${esc(e.code_unique)}</div>
+            </div>
+            <div style="margin-left:auto;font-size:.9rem;font-weight:900;color:${col};">${moy ? moy.toFixed(1) : '—'}</div>
+          </div>
+          <div style="font-size:.62rem;background:${moy >= 14 ? '#E8F5EE' : moy >= 10 ? '#FEF9C3' : '#FEF2F2'};color:${col};padding:3px 7px;border-radius:5px;font-weight:700;">${conseil}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function selOrientEleve(code, nom) {
+      const el = $('or-el');
+      if (el) { el.value = code; el.focus(); }
+      toast('Élève sélectionné : ' + nom, 'info');
     }
 
     async function saveOrientation() {
-      const elId = document.getElementById('or-el')?.value?.trim();
-      const force = document.getElementById('or-force')?.value?.trim();
-      const faib = document.getElementById('or-faib')?.value?.trim();
-      const serie = document.getElementById('or-serie')?.value;
-      const comment = document.getElementById('or-comment')?.value?.trim();
-      const msg = document.getElementById('or-msg');
-      if (!elId || !serie) {
-        if (msg) { msg.style.display=''; msg.style.background='#FEE2E2'; msg.style.color='#991B1B'; msg.textContent='Remplissez au minimum le matricule et la série recommandée.'; }
-        return;
-      }
+      const eleveCode = $('or-el')?.value.trim();
+      const force     = $('or-force')?.value.trim();
+      const faib      = $('or-faib')?.value.trim();
+      const serie     = $('or-serie')?.value;
+      const comment   = $('or-comment')?.value.trim();
+      const msgEl     = $('or-msg');
+
+      if (!eleveCode) { showMsg(msgEl, '⚠️ Saisissez le matricule de l\'élève', 'err'); return; }
+      if (!comment && !serie) { showMsg(msgEl, '⚠️ Ajoutez au moins un commentaire ou une série', 'err'); return; }
+
+      showMsg(msgEl, '⏳ Publication...', 'info');
       try {
         const r = await fetch(`${API}/professeurs/orientation`, {
-          method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id_eleve: elId, points_forts: force, points_faibles: faib, serie_recommandee: serie, commentaire: comment })
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_eleve_code: eleveCode, points_forts: force, points_faibles: faib, serie_recommandee: serie, commentaire: comment })
         });
-        const d = await r.json();
-        if (msg) {
-          msg.style.display = '';
-          if (r.ok) { msg.style.background='#DCFCE7'; msg.style.color='#166534'; msg.textContent='✅ Avis publié avec succès.'; }
-          else { msg.style.background='#FEE2E2'; msg.style.color='#991B1B'; msg.textContent = d.message || 'Erreur.'; }
+        const data = await r.json();
+        if (data.success) {
+          showMsg(msgEl, '✅ Avis publié avec succès', 'ok');
+          toast('Avis d\'orientation publié ✓', 'ok');
+          // Réinitialiser le formulaire
+          ['or-el','or-force','or-faib','or-comment'].forEach(id => { const el=$(id); if(el) el.value=''; });
+          if ($('or-serie')) $('or-serie').value = '';
+        } else {
+          showMsg(msgEl, '❌ ' + (data.message || 'Erreur'), 'err');
         }
-      } catch(e) {
-        if (msg) { msg.style.display=''; msg.style.background='#FEE2E2'; msg.style.color='#991B1B'; msg.textContent='Erreur réseau.'; }
+      } catch (e) {
+        showMsg(msgEl, '❌ Erreur réseau', 'err');
       }
-      setTimeout(() => { if(msg) msg.style.display='none'; }, 4000);
     }
 
     function initSalle() {
-      PROFS_LIST.forEach(p => { if (!conversations[p.id]) conversations[p.id] = [...(INIT_MSGS[p.id] || [])]; });
+      PROFS_LIST.forEach(p => { if (!conversations[p.id]) conversations[p.id] = []; });
       buildBgGrid();
       renderConvList();
       loadConv('general');
-      $('online-cnt').textContent = PROFS_LIST.filter(p => p.online).length + ' en ligne';
+      $('online-cnt').textContent = '0 en ligne';
+      initSocket();
+      loadMessages('general');
+      loadProfs(); // ← charge les collègues depuis la BD
       // Fermer menus sur clic extérieur
       document.addEventListener('click', e => {
         if (!e.target.closest('#attach-menu') && !e.target.closest('.chat-tool-btn')) closeAttach();
+        if (!e.target.closest('#sticker-wrap') && !e.target.closest('.chat-tool-btn')) closeStickers();
         if (!e.target.closest('#emoji-picker-wrap') && !e.target.closest('.chat-tool-btn')) closeEmojiPicker();
         if (!e.target.closest('#bg-picker') && !e.target.closest('.chat-hd-ico')) closeBgPicker();
         if (!e.target.closest('#ctx-menu')) closeCtx();
@@ -3829,13 +4445,55 @@
           inner += `<div class="reply-preview"><div class="reply-preview-nm">${esc(orig?.nm || 'Message')}</div><div class="reply-preview-txt">${esc(orig?.txt || bubblePreview(orig) || '')}</div></div>`;
         }
         if (m.media === 'img') {
-          inner += `<img class="bubble-img" src="${m.src}" alt="Photo" onclick="window.open('${m.src}')">`;
-        } else if (m.media === 'file') {
-          const ico = { 'pdf': '📄', 'doc': '📝', 'pptx': '📊', 'xlsx': '📊', 'mp3': '🎵' }[m.fileName?.split('.').pop()?.toLowerCase()] || '📎';
-          inner += `<div class="bubble-file"><div class="bubble-file-ico">${ico}</div><div class="bubble-file-info"><div class="bubble-file-nm">${esc(m.fileName)}</div><div class="bubble-file-sz">${m.fileSize || ''}</div></div></div>`;
+          inner += `<img src="${m.src}" alt="Photo"
+            style="max-width:240px;max-height:200px;border-radius:8px;cursor:pointer;display:block;"
+            onclick="openVideo('Photo','${m.src}')">`;
+        } else if (m.media === 'video') {
+          inner += `<div style="max-width:280px;">
+            <video controls style="width:100%;border-radius:8px;display:block;background:#000;">
+              <source src="${m.src}">Navigateur incompatible.
+            </video>
+            <div style="font-size:.62rem;opacity:.6;margin-top:3px;cursor:pointer;"
+              onclick="openVideo('Vidéo','${m.src}')">⛶ Plein écran</div>
+          </div>`;
         } else if (m.media === 'audio') {
-          const bars = Array.from({ length: 18 }, (_, j) => `<div class="audio-bar" style="height:${4 + Math.random() * 12}px;animation-delay:${j * 0.06}s;"></div>`).join('');
-          inner += `<div class="bubble-audio"><button class="audio-play-btn" onclick="this.innerHTML=this.innerHTML.includes('▶')?'<svg viewBox=\'0 0 24 24\' style=\'width:13px;height:13px;fill:white;\'><rect x=\'6\' y=\'4\' width=\'4\' height=\'16\'/><rect x=\'14\' y=\'4\' width=\'4\' height=\'16\'/></svg>':'<svg viewBox=\'0 0 24 24\' style=\'width:13px;height:13px;fill:white;margin-left:2px;\'><polygon points=\'5 3 19 12 5 21 5 3\'/></svg>'"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:white;margin-left:2px;"><polygon points="5 3 19 12 5 21 5 3"/></svg></button><div class="audio-wave">${bars}</div><span class="audio-dur">${m.dur || '0:12'}</span></div>`;
+          inner += `<div style="min-width:200px;">
+            <audio controls style="width:100%;height:36px;">
+              <source src="${m.src}">
+            </audio>
+          </div>`;
+        } else if (m.media === 'file') {
+          const ext2 = (m.fileName || m.src || '').split('.').pop().toLowerCase();
+          const ico = { pdf:'📄', doc:'📝', docx:'📝', pptx:'📊', xlsx:'📊', mp3:'🎵' }[ext2] || '📎';
+          inner += `<div class="bubble-file" style="cursor:pointer;"
+            onclick="openVideo('${esc(m.fileName||'Fichier')}','${m.src||''}')">
+            <div class="bubble-file-ico">${ico}</div>
+            <div class="bubble-file-info">
+              <div class="bubble-file-nm">${esc(m.fileName || (m.src||'').split('/').pop() || 'Fichier')}</div>
+              <div class="bubble-file-sz">${m.fileSize || ''} · Toucher pour ouvrir</div>
+            </div>
+          </div>`;
+        } else if (m.type === 'sticker' || (m.txt && m.txt.length <= 4 && /\p{Emoji}/u.test(m.txt))) {
+          inner += `<span style="font-size:2.2rem;line-height:1;">${m.txt}</span>`;
+        } else if (m.type === 'poll') {
+          let pd = m.poll;
+          if (!pd && m.txt) { try { pd = JSON.parse(m.txt); } catch(e) {} }
+          if (pd) {
+            const total = pd.votes.reduce((a,b)=>a+b,0);
+            inner += `<div class="bubble-poll">
+              <div style="font-size:.8rem;font-weight:700;color:#E9EDEF;margin-bottom:8px;">📊 ${esc(pd.question)}</div>
+              ${pd.options.map((o,i) => {
+                const pct = total ? Math.round(pd.votes[i]/total*100) : 0;
+                const voted = pd.voters && pd.voters[PROF.code] === i;
+                return `<div class="poll-opt" onclick="votePoll(${m.id},${i})">
+                  <div class="poll-bar" style="width:${pct}%;"></div>
+                  <span style="position:relative;z-index:1;font-weight:${voted?'800':'500'};">${esc(o)}${voted?' ✓':''}</span>
+                  <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:.65rem;color:#8696A0;">${pct}%</span>
+                </div>`;
+              }).join('')}
+              <div style="font-size:.65rem;color:#8696A0;margin-top:6px;">${total} vote(s)</div>
+            </div>`;
+          } else { inner += esc(m.txt||''); }
         } else {
           inner += esc(m.txt || '');
         }
@@ -3855,57 +4513,130 @@
     function sendMsg() {
       const inp = $('chat-inp'); if (!inp) return;
       const txt = inp.value.trim(); if (!txt) return;
-      const t = nowHHMM();
-      const id = Date.now();
-      const msg = { id, from: 'me', nm: 'Moi', txt, t, mine: true, date: "Aujourd'hui" };
-      if (replyMsg) msg.replyTo = replyMsg.id;
-      conversations[currentConv].push(msg);
-      inp.value = ''; inp.style.height = 'auto';
-      cancelReply(); renderMsgs(); renderConvList();
+      if (salleSocket && salleSocket.connected) {
+        salleSocket.emit('msg-salle', { txt, conv_id:currentConv, type:'text',
+          replyTo: replyMsg ? replyMsg.id : null });
+      } else {
+        const m = { id:Date.now(), from:PROF.code||'me', nm:PROF.prenom+' '+PROF.nom,
+          txt, t:nowHHMM(), mine:true, date:"Aujourd'hui" };
+        if (!conversations[currentConv]) conversations[currentConv]=[];
+        conversations[currentConv].push(m);
+        renderMsgs(); renderConvList();
+      }
+      inp.value=''; inp.style.height='auto'; cancelReply();
     }
 
-    // ── Pièces jointes ──
+    // ── Pièces jointes → upload réel au serveur ──
     function toggleAttach() { attachShown = !attachShown; $('attach-menu').classList.toggle('show', attachShown); closeEmojiPicker(); closeBgPicker(); }
     function closeAttach() { attachShown = false; $('attach-menu')?.classList.remove('show'); }
     function triggerAttach(accept) { $('chat-attach-input').accept = accept; $('chat-attach-input').click(); closeAttach(); }
 
-    function sendAttachment(inp) {
+    async function sendAttachment(inp) {
       const f = inp.files[0]; if (!f) return;
-      const t = nowHHMM(); const id = Date.now();
-      const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(f.name);
-      const isAudio = /\.(mp3|ogg|wav|m4a)$/i.test(f.name);
-      const msg = { id, from: 'me', nm: 'Moi', t, mine: true, date: "Aujourd'hui" };
-      if (isImg) {
-        const reader = new FileReader();
-        reader.onload = e => { msg.media = 'img'; msg.src = e.target.result; msg.txt = 'Photo'; conversations[currentConv].push(msg); renderMsgs(); renderConvList(); toast('Photo envoyée', 'ok'); };
-        reader.readAsDataURL(f);
-      } else if (isAudio) {
-        msg.media = 'audio'; msg.dur = '0:' + (Math.floor(Math.random() * 55) + 5).toString().padStart(2, '0'); msg.txt = 'Audio';
-        conversations[currentConv].push(msg); renderMsgs(); renderConvList(); toast('Audio envoyé', 'ok');
-      } else {
-        const sz = f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' Mo' : (f.size / 1024).toFixed(0) + ' Ko';
-        msg.media = 'file'; msg.fileName = f.name; msg.fileSize = sz; msg.txt = 'Fichier';
-        conversations[currentConv].push(msg); renderMsgs(); renderConvList(); toast('Fichier partagé', 'ok');
-      }
       inp.value = '';
+      const ext = f.name.split('.').pop().toLowerCase();
+      const isImg   = /^(jpg|jpeg|png|gif|webp)$/.test(ext);
+      const isVideo = /^(mp4|webm|mov|avi|mkv|ogv)$/.test(ext);
+      const isAudio = /^(mp3|ogg|wav|m4a)$/.test(ext);
+      const type = isImg ? 'img' : isVideo ? 'video' : isAudio ? 'audio' : 'file';
+
+      // Afficher un message "envoi en cours" local
+      const localId = Date.now();
+      const localMsg = { id: localId, from: PROF.code, nm: PROF.prenom + ' ' + PROF.nom,
+        txt: '⏳ Envoi de ' + f.name + '…', t: nowHHMM(), mine: true, date: "Aujourd'hui" };
+      if (!conversations[currentConv]) conversations[currentConv] = [];
+      conversations[currentConv].push(localMsg);
+      renderMsgs(); scrollMsgs();
+
+      try {
+        const fd = new FormData();
+        fd.append('media', f);
+        fd.append('conv_id', currentConv);
+        fd.append('nom', PROF.prenom + ' ' + PROF.nom);
+        fd.append('type', type);
+
+        const r = await fetch(BASE_URL + '/api/messages/upload', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK },
+          body: fd
+        });
+        const data = await r.json();
+
+        // Supprimer le message "envoi en cours"
+        conversations[currentConv] = conversations[currentConv].filter(m => m.id !== localId);
+
+        if (data.success) {
+          // Le socket va diffuser à tous — on l'ajoute aussi localement si pas encore là
+          const url = data.url;
+          const msg = { id: data.id, from: PROF.code, nm: PROF.prenom + ' ' + PROF.nom,
+            txt: url, t: nowHHMM(), mine: true, date: "Aujourd'hui",
+            media: type, src: BASE_URL + url,
+            fileName: data.fileName, fileSize: data.fileSize };
+          if (!conversations[currentConv].find(m => m.id === data.id))
+            conversations[currentConv].push(msg);
+          renderMsgs(); renderConvList(); scrollMsgs();
+          toast('Fichier envoyé ✓', 'ok');
+        } else {
+          toast('Échec envoi : ' + (data.message || 'Erreur'), 'err');
+          renderMsgs();
+        }
+      } catch (e) {
+        conversations[currentConv] = conversations[currentConv].filter(m => m.id !== localId);
+        toast('Erreur réseau : ' + e.message, 'err');
+        renderMsgs();
+      }
     }
 
-    // ── Micro / Enregistrement vocal ──
-    function toggleRecording() {
+    // ── Micro / Enregistrement vocal réel ──
+    async function toggleRecording() {
       const btn = $('mic-btn'), ico = $('mic-ico');
       if (!isRecording) {
-        isRecording = true; recSecs = 0; btn.classList.add('recording');
-        ico.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
-        recInterval = setInterval(() => { recSecs++; btn.title = `⏹ ${Math.floor(recSecs / 60)}:${(recSecs % 60).toString().padStart(2, '0')}`; }, 1000);
-        toast('🎤 Enregistrement en cours…', 'info');
+        // Demander accès micro
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          isRecording = true; recSecs = 0; audioChunks = [];
+          btn.classList.add('recording');
+          ico.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+          // Choisir le codec supporté
+          const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+            ? 'audio/webm;codecs=opus'
+            : MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')
+              ? 'audio/ogg;codecs=opus' : 'audio/webm';
+          mediaRecorder = new MediaRecorder(stream, { mimeType });
+          mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+          mediaRecorder.start(200);
+          recInterval = setInterval(() => {
+            recSecs++;
+            btn.title = `⏹ ${Math.floor(recSecs / 60)}:${(recSecs % 60).toString().padStart(2, '0')}`;
+          }, 1000);
+          toast('🎤 Enregistrement… Appuyez pour arrêter', 'info');
+        } catch (e) {
+          toast('Micro non disponible : ' + e.message, 'err');
+        }
       } else {
-        isRecording = false; btn.classList.remove('recording'); clearInterval(recInterval);
+        // Arrêter l'enregistrement
+        isRecording = false;
+        btn.classList.remove('recording');
+        clearInterval(recInterval);
         ico.innerHTML = '<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>';
-        const dur = Math.floor(recSecs / 60) + ':' + (recSecs % 60).toString().padStart(2, '0');
         btn.title = 'Message vocal';
-        const id = Date.now();
-        conversations[currentConv].push({ id, from: 'me', nm: 'Moi', media: 'audio', dur, t: nowHHMM(), mine: true, date: "Aujourd'hui" });
-        renderMsgs(); renderConvList(); toast('Message vocal envoyé', 'ok');
+        if (mediaRecorder) {
+          mediaRecorder.stop();
+          mediaRecorder.stream.getTracks().forEach(t => t.stop());
+          mediaRecorder.onstop = async () => {
+            const dur = Math.floor(recSecs / 60) + ':' + (recSecs % 60).toString().padStart(2, '0');
+            const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType });
+            const ext = mediaRecorder.mimeType.includes('ogg') ? 'ogg' : 'webm';
+            const file = new File([blob], `vocal_${Date.now()}.${ext}`, { type: mediaRecorder.mimeType });
+            // Upload via sendAttachment
+            const dt = new DataTransfer(); dt.items.add(file);
+            const fakeInp = document.createElement('input');
+            fakeInp.type = 'file';
+            Object.defineProperty(fakeInp, 'files', { value: dt.files });
+            await sendAttachment(fakeInp);
+          };
+          mediaRecorder = null;
+        }
       }
     }
 
@@ -3951,6 +4682,101 @@
     // ── Utils ──
     function nowHHMM() { const n = new Date(); return n.getHours().toString().padStart(2, '0') + ':' + n.getMinutes().toString().padStart(2, '0'); }
     function autoResizeInp(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+    // ── Toggle send/mic selon contenu ──
+    function toggleSendMic() {
+      const inp = $('chat-inp');
+      const has = inp && inp.value.trim().length > 0;
+      const sendBtn = $('send-btn'), micBtn = $('mic-btn');
+      if (sendBtn) sendBtn.style.display = has ? 'flex' : 'none';
+      if (micBtn)  micBtn.style.display  = has ? 'none' : 'flex';
+    }
+
+    function handleChatKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+    }
+
+    // ── Stickers ──
+    const STICKERS = ['😊','😂','🥰','😎','🤔','😅','🙏','👏','👍','❤️','🔥','✅','🎉','💪','📚','✏️','🏫','⏰','📅','🤝','💡','🎓','👋','🌟','🚀','💯','😭','🥳','🤩','😴','🤗','😤','🙌','✌️','👀'];
+    let stickerShown = false;
+    function toggleStickers() {
+      stickerShown = !stickerShown;
+      const sw = $('sticker-wrap');
+      if (stickerShown && sw) {
+        const grid = $('sticker-grid');
+        if (grid && !grid.innerHTML) {
+          grid.innerHTML = STICKERS.map(s =>
+            `<button class="sticker-btn" onclick="sendSticker('${s}')">${s}</button>`
+          ).join('');
+        }
+        sw.classList.add('show');
+      } else if (sw) { sw.classList.remove('show'); }
+      closeAttach(); closeEmojiPicker();
+    }
+    function closeStickers() { stickerShown = false; $('sticker-wrap')?.classList.remove('show'); }
+    function sendSticker(s) {
+      closeStickers();
+      if (salleSocket && salleSocket.connected) {
+        salleSocket.emit('msg-salle', { txt: s, conv_id: currentConv, type: 'sticker' });
+      } else {
+        const m = { id: Date.now(), from: PROF.code, nm: PROF.prenom+' '+PROF.nom,
+          txt: s, t: nowHHMM(), mine: true, date: "Aujourd'hui", type: 'sticker' };
+        if (!conversations[currentConv]) conversations[currentConv] = [];
+        conversations[currentConv].push(m);
+        renderMsgs(); renderConvList();
+      }
+    }
+
+    // ── Sondage ──
+    function openPoll() { $('poll-overlay')?.classList.add('show'); closeAttach(); }
+    function closePoll() { $('poll-overlay')?.classList.remove('show'); }
+    function addPollOption() {
+      const wrap = $('poll-options-wrap');
+      const nb = wrap.querySelectorAll('.poll-opt-inp').length + 1;
+      if (nb > 6) return;
+      const inp = document.createElement('input');
+      inp.className = 'poll-opt-inp';
+      inp.placeholder = `Option ${nb}…`;
+      inp.style.cssText = 'width:100%;background:#2A3942;border:none;border-radius:8px;padding:8px 12px;color:#E9EDEF;font-size:.8rem;outline:none;margin-bottom:5px;display:block;';
+      wrap.appendChild(inp);
+    }
+    function sendPoll() {
+      const q = $('poll-question')?.value.trim();
+      if (!q) { toast('Saisissez une question', 'err'); return; }
+      const opts = [...document.querySelectorAll('.poll-opt-inp')]
+        .map(i => i.value.trim()).filter(v => v);
+      if (opts.length < 2) { toast('Au moins 2 options requises', 'err'); return; }
+      const pollData = { question: q, options: opts, votes: opts.map(() => 0), voters: {} };
+      const txt = JSON.stringify(pollData);
+      closePoll();
+      if (salleSocket && salleSocket.connected) {
+        salleSocket.emit('msg-salle', { txt, conv_id: currentConv, type: 'poll' });
+      } else {
+        const m = { id: Date.now(), from: PROF.code, nm: PROF.prenom+' '+PROF.nom,
+          txt, t: nowHHMM(), mine: true, date: "Aujourd'hui", type: 'poll', poll: pollData };
+        if (!conversations[currentConv]) conversations[currentConv] = [];
+        conversations[currentConv].push(m);
+        renderMsgs(); renderConvList();
+      }
+      // Reset
+      if ($('poll-question')) $('poll-question').value = '';
+      document.querySelectorAll('.poll-opt-inp').forEach((inp, i) => { if (i < 2) inp.value = ''; else inp.remove(); });
+    }
+
+    function votePoll(msgId, optIdx) {
+      const msgs = conversations[currentConv] || [];
+      const m = msgs.find(x => x.id === msgId);
+      if (!m || !m.poll) return;
+      const prev = m.poll.voters[PROF.code];
+      if (prev !== undefined) { m.poll.votes[prev] = Math.max(0, m.poll.votes[prev] - 1); }
+      m.poll.votes[optIdx]++;
+      m.poll.voters[PROF.code] = optIdx;
+      renderMsgs();
+      // Envoyer le vote via socket
+      if (salleSocket && salleSocket.connected) {
+        salleSocket.emit('poll-vote', { msg_id: msgId, option: optIdx, conv_id: currentConv });
+      }
+    }
+
     function filtProfs(v) { renderConvList(v); }
     function scrollMsgs() { const m = $('msgs-bg'); if (m) setTimeout(() => m.scrollTop = m.scrollHeight, 30); }
 
@@ -3977,6 +4803,50 @@
     }
 
     function logout() { localStorage.removeItem('user_session'); location.href = 'login.html'; }
+
+    // ══════════════════════════════════════════
+    // LECTEUR UNIVERSEL (vidéo / PDF / image / doc)
+    // ══════════════════════════════════════════
+    function openVideo(titre, url) {
+      const old = document.getElementById('vid-modal');
+      if (old) old.remove();
+      const fullUrl = url ? (url.startsWith('http') ? url : BASE_URL+url) : '';
+      const ext = (url||'').split('.').pop().toLowerCase();
+      const overlay = document.createElement('div');
+      overlay.id = 'vid-modal';
+      overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+      const box = document.createElement('div');
+      box.style.cssText = 'background:#111;border-radius:14px;overflow:hidden;max-width:860px;width:100%;max-height:90vh;display:flex;flex-direction:column;';
+      const hd = document.createElement('div');
+      hd.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#1a1a1a;flex-shrink:0;';
+      const ttl = document.createElement('span');
+      ttl.textContent = titre||'Document';
+      ttl.style.cssText = 'color:#fff;font-size:.85rem;font-weight:700;';
+      const cls = document.createElement('button');
+      cls.textContent = '✕';
+      cls.style.cssText = 'background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 4px;';
+      cls.onclick = function() { overlay.remove(); };
+      hd.appendChild(ttl); hd.appendChild(cls);
+      const body = document.createElement('div');
+      body.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;background:#000;min-height:280px;';
+      if (!fullUrl) {
+        body.innerHTML = '<div style="color:#888;padding:40px;text-align:center;font-size:.9rem;">Aucun fichier disponible</div>';
+      } else if (['mp4','webm','mov','avi','mkv','ogg'].includes(ext)) {
+        body.innerHTML = '<video controls autoplay style="max-width:100%;max-height:72vh;"><source src="'+fullUrl+'">Navigateur incompatible.</video>';
+      } else if (ext==='pdf') {
+        body.style.padding='0';
+        body.innerHTML = '<iframe src="'+fullUrl+'" style="width:100%;height:72vh;border:none;"></iframe>';
+      } else if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
+        body.innerHTML = '<img src="'+fullUrl+'" style="max-width:100%;max-height:72vh;object-fit:contain;">';
+      } else {
+        body.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:3rem;margin-bottom:12px;">📄</div><div style="color:#ccc;margin-bottom:16px;">'+esc(titre||'')+'</div><a href="'+fullUrl+'" download target="_blank" style="background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;">⬇️ Télécharger</a></div>';
+      }
+      box.appendChild(hd); box.appendChild(body); overlay.appendChild(box);
+      document.body.appendChild(overlay);
+      document.addEventListener('keydown', function h(e){if(e.key==='Escape'){overlay.remove();document.removeEventListener('keydown',h);}});
+    }
+
   </script>
   <script src="responsive-init.js"></script>
 </body>

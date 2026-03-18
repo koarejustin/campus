@@ -731,299 +731,338 @@
     }
   </style>
   <style>
-  /* ══ RESPONSIVE PARENT — corrections mobile ══════════════════ */
+    /* ══ RESPONSIVE PARENT — corrections mobile ══════════════════ */
 
-  /* ── Fix .fw-wrap manque display:flex ── */
-  .fw-wrap {
-    display: flex !important;
-  }
-
-  /* ── MOBILE < 640px ── */
-  @media (max-width: 639px) {
-
-    /* Titre de page : décaler pour ne pas être caché par le hamburger */
-    .sec-hd, .pg-hd, .sec > .hd, [id^="sec-"] > div:first-child > div:first-child {
-      padding-top: 0 !important;
-    }
-
-    /* Sidebar (sb) sur mobile : pleine hauteur avec overflow */
-    .sb {
-      height: 100vh !important;
-      overflow-y: auto !important;
-    }
-
-    /* ── Profil : 250px+1fr → 1 colonne ── */
-    #sec-profil > div[style*="grid-template-columns:250px"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* ── Bulletin : simplifier le tableau ── */
-    .bul-row, .bul-th {
-      grid-template-columns: 1fr 44px 64px 56px !important;
-      padding: 10px 12px !important;
-      font-size: .7rem !important;
-    }
-    /* Masquer colonne PROGRES sur très petit écran */
-    /* Bul-row last-child géré plus bas */
-
-    /* ── Toutes les grids → adaptées ── */
-    [style*="grid-template-columns:repeat(4,1fr)"] {
-      grid-template-columns: repeat(2,1fr) !important;
-    }
-    [style*="grid-template-columns:repeat(3,1fr)"] {
-      grid-template-columns: repeat(2,1fr) !important;
-    }
-    [style*="grid-template-columns:1fr 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-    [style*="grid-template-columns:1fr auto 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* ── Forum WhatsApp : forcer hauteur correcte ── */
-    #sec-forum.on {
-      height: calc(100vh - 0px) !important;
-      max-height: 100vh !important;
-      overflow: hidden !important;
-    }
-    .fw-msgs {
-      flex: 1 !important;
-      min-height: 0 !important;
-      overflow-y: auto !important;
-    }
-    .fw-bar {
-      flex-shrink: 0 !important;
-      position: sticky !important;
-      bottom: 0 !important;
-      z-index: 10 !important;
-    }
-    .fw-ta {
-      font-size: .8rem !important;
-    }
-
-    /* ── Bulletin stats ── */
-    [style*="grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px"] {
-      grid-template-columns: 1fr 1fr !important;
-      gap: 8px !important;
-    }
-    [style*="grid-template-columns:repeat(3,1fr);gap:11px"] {
-      grid-template-columns: 1fr 1fr !important;
-    }
-
-    /* ── Résumé bulletin bas de page ── */
-    [style*="grid-template-columns:1fr auto 1fr;gap:16px"] {
-      grid-template-columns: 1fr !important;
-      gap: 8px !important;
-    }
-
-    /* ── Cards ── */
-    .card {
-      padding: 13px 14px !important;
-      border-radius: 14px !important;
-    }
-
-    /* ── Boutons ── */
-    .btn, .bp, .btn.bp {
-      font-size: .72rem !important;
-      padding: 8px 12px !important;
-    }
-
-    /* ── Messages bulles ── */
-    .mrow {
-      max-width: 88% !important;
-    }
-
-    /* ── Profil photo centré ── */
-    #sec-profil [style*="grid-template-columns:250px"] > div:first-child {
-      display: flex !important;
-      flex-direction: column !important;
-      align-items: center !important;
-    }
-
-    /* ── Profil : colonne droite visible + phrase complète ── */
-    #sec-profil > div {
-      grid-template-columns: 1fr !important;
-      display: flex !important;
-      flex-direction: column !important;
-    }
-    #sec-profil .card {
-      overflow: visible !important;
-      width: 100% !important;
-    }
-
-    /* ── Annonces : pleine largeur ── */
-    #sec-annonces, #an-list {
-      width: 100% !important;
-      overflow-x: hidden !important;
-    }
-
-    /* ── Bulletin header : 3 boxes → 1 colonne ── */
-    #sec-bulletin [style*="grid-template-columns:repeat(3,1fr)"] {
-      grid-template-columns: 1fr !important;
-    }
-    #sec-bulletin [style*="grid-template-columns: repeat(3"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* ── Forum : barre saisie toujours visible ── */
-    #sec-forum.on {
-      display: flex !important;
-      flex-direction: column !important;
-      height: calc(100vh - 56px) !important;
-      overflow: hidden !important;
-    }
-    #sec-forum:not(.on) {
-      display: none !important;
-    }
+    /* ── Fix .fw-wrap manque display:flex ── */
     .fw-wrap {
       display: flex !important;
-      flex-direction: column !important;
-      flex: 1 !important;
-      min-height: 0 !important;
-      overflow: hidden !important;
-    }
-    .fw-msgs {
-      flex: 1 !important;
-      min-height: 0 !important;
-      overflow-y: auto !important;
-    }
-    .fw-bar {
-      flex-shrink: 0 !important;
-      background: #F0F2F5 !important;
-      z-index: 10 !important;
     }
 
-    /* ── Dashboard : header violet pleine largeur ── */
-    #sec-dash [style*="grid-template-columns:1fr 1fr"],
-    #sec-dash [style*="grid-template-columns: 1fr 1fr"] {
-      grid-template-columns: 1fr !important;
+    /* ── MOBILE < 640px ── */
+    @media (max-width: 639px) {
+
+      /* Titre de page : décaler pour ne pas être caché par le hamburger */
+      .sec-hd,
+      .pg-hd,
+      .sec>.hd,
+      [id^="sec-"]>div:first-child>div:first-child {
+        padding-top: 0 !important;
+      }
+
+      /* Sidebar (sb) sur mobile : pleine hauteur avec overflow */
+      .sb {
+        height: 100vh !important;
+        overflow-y: auto !important;
+      }
+
+      /* ── Profil : 250px+1fr → 1 colonne ── */
+      #sec-profil>div[style*="grid-template-columns:250px"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ── Bulletin : simplifier le tableau ── */
+      .bul-row,
+      .bul-th {
+        grid-template-columns: 1fr 44px 64px 56px !important;
+        padding: 10px 12px !important;
+        font-size: .7rem !important;
+      }
+
+      /* Masquer colonne PROGRES sur très petit écran */
+      /* Bul-row last-child géré plus bas */
+
+      /* ── Toutes les grids → adaptées ── */
+      [style*="grid-template-columns:repeat(4,1fr)"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+
+      [style*="grid-template-columns:repeat(3,1fr)"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+
+      [style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      [style*="grid-template-columns:1fr auto 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ── Forum WhatsApp : forcer hauteur correcte ── */
+      #sec-forum.on {
+        height: calc(100vh - 0px) !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
+      }
+
+      .fw-msgs {
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+      }
+
+      .fw-bar {
+        flex-shrink: 0 !important;
+        position: sticky !important;
+        bottom: 0 !important;
+        z-index: 10 !important;
+      }
+
+      .fw-ta {
+        font-size: .8rem !important;
+      }
+
+      /* ── Bulletin stats ── */
+      [style*="grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px"] {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+      }
+
+      [style*="grid-template-columns:repeat(3,1fr);gap:11px"] {
+        grid-template-columns: 1fr 1fr !important;
+      }
+
+      /* ── Résumé bulletin bas de page ── */
+      [style*="grid-template-columns:1fr auto 1fr;gap:16px"] {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+      }
+
+      /* ── Cards ── */
+      .card {
+        padding: 13px 14px !important;
+        border-radius: 14px !important;
+      }
+
+      /* ── Boutons ── */
+      .btn,
+      .bp,
+      .btn.bp {
+        font-size: .72rem !important;
+        padding: 8px 12px !important;
+      }
+
+      /* ── Messages bulles ── */
+      .mrow {
+        max-width: 88% !important;
+      }
+
+      /* ── Profil photo centré ── */
+      #sec-profil [style*="grid-template-columns:250px"]>div:first-child {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+      }
+
+      /* ── Profil : colonne droite visible + phrase complète ── */
+      #sec-profil>div {
+        grid-template-columns: 1fr !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      #sec-profil .card {
+        overflow: visible !important;
+        width: 100% !important;
+      }
+
+      /* ── Annonces : pleine largeur ── */
+      #sec-annonces,
+      #an-list {
+        width: 100% !important;
+        overflow-x: hidden !important;
+      }
+
+      /* ── Bulletin header : 3 boxes → 1 colonne ── */
+      #sec-bulletin [style*="grid-template-columns:repeat(3,1fr)"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      #sec-bulletin [style*="grid-template-columns: repeat(3"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ── Forum : barre saisie toujours visible ── */
+      #sec-forum.on {
+        display: flex !important;
+        flex-direction: column !important;
+        height: calc(100vh - 56px) !important;
+        overflow: hidden !important;
+      }
+
+      #sec-forum:not(.on) {
+        display: none !important;
+      }
+
+      .fw-wrap {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+      }
+
+      .fw-msgs {
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+      }
+
+      .fw-bar {
+        flex-shrink: 0 !important;
+        background: #F0F2F5 !important;
+        z-index: 10 !important;
+      }
+
+      /* ── Dashboard : header violet pleine largeur ── */
+      #sec-dash [style*="grid-template-columns:1fr 1fr"],
+      #sec-dash [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ── Sections : padding-bottom pour ne pas être coupé ── */
+      .sec.on {
+        padding-bottom: 70px !important;
+      }
+
+      /* Sauf le forum qui a sa propre gestion */
+      #sec-forum.on {
+        padding-bottom: 0 !important;
+      }
+
+      /* ── sec-accueil : grille notes+annonces → 1 colonne ── */
+      #sec-accueil [style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ── Bulletin : layout mobile simplifié ── */
+      .bul-row {
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 10px 14px !important;
+        gap: 5px !important;
+        border-bottom: 1px solid #F1F5F9 !important;
+      }
+
+      .bul-th {
+        display: none !important;
+      }
+
+      /* Ligne : première div = nom matière (flex row) */
+      .bul-row>div:first-child {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+      }
+
+      /* Colonne note (3ème div) → inline à droite du nom */
+      .bul-row>div:nth-child(3) {
+        position: absolute !important;
+        right: 14px !important;
+      }
+
+      /* Réinitialiser position sur la ligne */
+      .bul-row {
+        position: relative !important;
+      }
+
+      /* Masquer COEF et PTS */
+      .bul-row>div:nth-child(2),
+      .bul-row>div:nth-child(4) {
+        display: none !important;
+      }
+
+      /* Barre de progression pleine largeur en bas */
+      .bul-row>div:last-child {
+        display: block !important;
+        padding-right: 60px !important;
+      }
+
+      /* ══ BULLETIN : libérer le overflow pour afficher toutes les matières ══ */
+      .bul-doc {
+        overflow: visible !important;
+      }
+
+      #sec-bulletin {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+      }
+
+      /* Tableau des notes : padding réduit sur mobile */
+      .bul-hd {
+        padding: 18px 16px 16px !important;
+      }
+
+      /* Pied bulletin : 3 colonnes → 1 colonne */
+      #bul-foot {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        padding: 14px 16px !important;
+      }
+
+      /* En-tête bulletin info boxes → 1 colonne */
+      .bul-hd [style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ── Forum : hauteur correcte + fw-bar toujours visible ── */
+      #sec-forum.on {
+        display: flex !important;
+        flex-direction: column !important;
+        height: calc(100dvh - 56px) !important;
+        max-height: calc(100dvh - 56px) !important;
+        overflow: hidden !important;
+      }
+
+      #fw-msgs {
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+      }
+
+      .fw-bar {
+        flex-shrink: 0 !important;
+        position: relative !important;
+        z-index: 20 !important;
+        background: #F0F2F5 !important;
+        border-top: 2px solid #ddd !important;
+      }
+
+      .fw-ta {
+        font-size: .82rem !important;
+      }
+
+      /* ── Profil : phrase complète visible ── */
+      #sec-profil .card {
+        overflow: visible !important;
+        max-width: 100% !important;
+      }
+
+      #sec-profil [style*="background:#FFF7ED"] {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow: visible !important;
+        font-size: .6rem !important;
+        line-height: 1.5 !important;
+      }
     }
 
-    /* ── Sections : padding-bottom pour ne pas être coupé ── */
-    .sec.on {
-      padding-bottom: 70px !important;
-    }
-    /* Sauf le forum qui a sa propre gestion */
-    #sec-forum.on {
-      padding-bottom: 0 !important;
-    }
+    /* ── Tablet 640–1023px ── */
+    @media (max-width: 1023px) and (min-width: 640px) {
+      [style*="grid-template-columns:repeat(4,1fr)"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
 
-    /* ── sec-accueil : grille notes+annonces → 1 colonne ── */
-    #sec-accueil [style*="grid-template-columns:1fr 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
+      [style*="grid-template-columns:250px 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
 
-    /* ── Bulletin : layout mobile simplifié ── */
-    .bul-row {
-      display: flex !important;
-      flex-direction: column !important;
-      padding: 10px 14px !important;
-      gap: 5px !important;
-      border-bottom: 1px solid #F1F5F9 !important;
+      .bul-row,
+      .bul-th {
+        padding: 10px 16px !important;
+      }
     }
-    .bul-th {
-      display: none !important;
-    }
-    /* Ligne : première div = nom matière (flex row) */
-    .bul-row > div:first-child {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      gap: 8px !important;
-    }
-    /* Colonne note (3ème div) → inline à droite du nom */
-    .bul-row > div:nth-child(3) {
-      position: absolute !important;
-      right: 14px !important;
-    }
-    /* Réinitialiser position sur la ligne */
-    .bul-row {
-      position: relative !important;
-    }
-    /* Masquer COEF et PTS */
-    .bul-row > div:nth-child(2),
-    .bul-row > div:nth-child(4) {
-      display: none !important;
-    }
-    /* Barre de progression pleine largeur en bas */
-    .bul-row > div:last-child {
-      display: block !important;
-      padding-right: 60px !important;
-    }
-
-    /* ══ BULLETIN : libérer le overflow pour afficher toutes les matières ══ */
-    .bul-doc {
-      overflow: visible !important;
-    }
-    #sec-bulletin {
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-    }
-    /* Tableau des notes : padding réduit sur mobile */
-    .bul-hd {
-      padding: 18px 16px 16px !important;
-    }
-    /* Pied bulletin : 3 colonnes → 1 colonne */
-    #bul-foot {
-      grid-template-columns: 1fr !important;
-      gap: 8px !important;
-      padding: 14px 16px !important;
-    }
-    /* En-tête bulletin info boxes → 1 colonne */
-    .bul-hd [style*="grid-template-columns"] {
-      grid-template-columns: 1fr !important;
-    }
-
-    /* ── Forum : hauteur correcte + fw-bar toujours visible ── */
-    #sec-forum.on {
-      display: flex !important;
-      flex-direction: column !important;
-      height: calc(100dvh - 56px) !important;
-      max-height: calc(100dvh - 56px) !important;
-      overflow: hidden !important;
-    }
-    #fw-msgs {
-      flex: 1 !important;
-      min-height: 0 !important;
-      overflow-y: auto !important;
-    }
-    .fw-bar {
-      flex-shrink: 0 !important;
-      position: relative !important;
-      z-index: 20 !important;
-      background: #F0F2F5 !important;
-      border-top: 2px solid #ddd !important;
-    }
-    .fw-ta {
-      font-size: .82rem !important;
-    }
-
-    /* ── Profil : phrase complète visible ── */
-    #sec-profil .card {
-      overflow: visible !important;
-      max-width: 100% !important;
-    }
-    #sec-profil [style*="background:#FFF7ED"] {
-      white-space: normal !important;
-      word-break: break-word !important;
-      overflow: visible !important;
-      font-size: .6rem !important;
-      line-height: 1.5 !important;
-    }
-  }
-
-  /* ── Tablet 640–1023px ── */
-  @media (max-width: 1023px) and (min-width: 640px) {
-    [style*="grid-template-columns:repeat(4,1fr)"] {
-      grid-template-columns: repeat(2,1fr) !important;
-    }
-    [style*="grid-template-columns:250px 1fr"] {
-      grid-template-columns: 1fr !important;
-    }
-    .bul-row, .bul-th {
-      padding: 10px 16px !important;
-    }
-  }
   </style>
 </head>
 
@@ -1672,7 +1711,7 @@
     /* ═════════════ PROFIL ═════════════ */
     async function loadProfil() {
       try { const d = await api('/parents/profil'); if (d.success) P = d.profil; else throw 0; }
-      catch { P = { prenom: sess.prenom || 'Parent', nom: sess.nom || '', code_unique: sess.code_unique || '---', profession: null, statut_ape: 'MEMBRE', telephone: null, adresse: null, photo_url: null, biographie: null }; }
+      catch { P = { prenom: sess.prenom || '', nom: sess.nom || '', code_unique: sess.code_unique || '---', prenom_full: sess.prenom || '', nom_full: sess.nom || '', profession: null, statut_ape: 'MEMBRE', telephone: null, adresse: null, photo_url: sess.photo_url || null, biographie: null }; }
       renderProfil();
       loadEnfant();
     }
@@ -1754,7 +1793,7 @@
           document.getElementById('bul-cls-h').textContent = cls;
           document.getElementById('st-moy').textContent = moy;
         }
-      } catch(e) {
+      } catch (e) {
         // Garder les --- mais continuer les chargements
         console.warn('Enfant non chargé:', e);
       }
@@ -1768,14 +1807,14 @@
     }
 
     /* ═════════════ APERÇU ═════════════ */
-    const NDEMO = [{ nom_matiere: 'Mathématiques', valeur_note: 16.5, coefficient: 4 }, { nom_matiere: 'Français', valeur_note: 14.0, coefficient: 4 }, { nom_matiere: 'Physique-Chimie', valeur_note: 13.5, coefficient: 3 }, { nom_matiere: 'Anglais', valeur_note: 11.0, coefficient: 2 }, { nom_matiere: 'SVT', valeur_note: 15.0, coefficient: 2 }];
+    const NDEMO = []; // Plus de données fictives
 
     async function loadApercu() {
       // Notes
       try {
         const id = E.id_enfant;
         const d = id ? await api(`/parents/bulletin-enfant?enfant_id=${id}&trimestre=1`) : { success: false };
-        const ns = (d.success && d.notes?.length > 0) ? d.notes : NDEMO;
+        const ns = (d.success && d.notes?.length > 0) ? d.notes : [];
         document.getElementById('ap-n').innerHTML = ns.slice(0, 3).map(n => {
           const v = parseFloat(n.valeur_note || n.note || 10);
           return `<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid #F1F5F9;">
@@ -1783,7 +1822,7 @@
               <div class="nb" style="margin-top:3px;"><div class="nf" style="width:${(v / 20) * 100}%;background:${nCol(v)};"></div></div></div>
               <span style="font-size:.84rem;font-weight:900;color:${nCol(v)};flex-shrink:0;">${v.toFixed(1)}</span></div>`;
         }).join('');
-      } catch { document.getElementById('ap-n').innerHTML = '<div style="font-size:.7rem;color:#94A3B8;text-align:center;padding:12px;">Non disponible</div>'; }
+      } catch { document.getElementById('ap-n').innerHTML = '<div style="font-size:.7rem;color:#94A3B8;text-align:center;padding:12px;">Notes non disponibles</div>'; }
       // Annonces
       try {
         const d = await api('/parents/annonces');
@@ -1796,7 +1835,7 @@
         } else apADm();
       } catch { apADm(); }
     }
-    function apADm() { document.getElementById('ap-a').innerHTML = '<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:11px;padding:8px 10px;margin-bottom:7px;"><div style="font-size:.73rem;font-weight:800;">🔴 Examens — 10 mars</div><div style="font-size:.63rem;color:#64748B;margin-top:2px;">Présence obligatoire.</div></div><div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:11px;padding:8px 10px;"><div style="font-size:.73rem;font-weight:800;">🔵 Réunion parents — 15 mars</div><div style="font-size:.63rem;color:#64748B;margin-top:2px;">Bilan du 1er trimestre.</div></div>'; }
+    function apADm() { document.getElementById('ap-a').innerHTML = '<div style="text-align:center;padding:12px;color:#94A3B8;font-size:.75rem;">Aucune annonce récente</div>'; }
 
     /* ═════════════ BULLETIN ═════════════ */
     async function loadBulletin(tri) {
@@ -1823,7 +1862,7 @@
             // Remplir le header avec les infos de l'enfant
             if (d.enfant) {
               const en = d.enfant;
-              const nomE = en.nom_complet || ((en.prenom||'') + ' ' + (en.nom||'')).trim() || '---';
+              const nomE = en.nom_complet || ((en.prenom || '') + ' ' + (en.nom || '')).trim() || '---';
               document.getElementById('bul-nom-h').textContent = nomE;
               document.getElementById('bul-mat-h').textContent = en.code_unique || E.code_unique || '---';
               document.getElementById('bul-cls-h').textContent = en.classe || en.classe_actuelle || E.classe || '---';
@@ -1834,8 +1873,8 @@
             }
           }
         }
-      } catch(e) { console.warn('loadBulletin:', e); }
-      renderBulletin(notes || NDEMO);
+      } catch (e) { console.warn('loadBulletin:', e); }
+      renderBulletin(notes || []);
     }
 
     function renderBulletin(notes) {
@@ -1929,7 +1968,7 @@
         } else abDm();
       } catch { abDm(); }
     }
-    function abDm() { document.getElementById('ab-inj').textContent = 1; document.getElementById('ab-jus').textContent = 2; document.getElementById('ab-tot').textContent = 3; document.getElementById('ab-list').innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;"><div style="width:7px;height:7px;border-radius:50%;background:#EF4444;"></div><div style="flex:1;font-size:.76rem;font-weight:700;">24 fév. 2026 — Français</div><span class="bdg" style="background:#FEE2E2;color:#991B1B;">Non justifiée</span></div>'; }
+    function abDm() { document.getElementById('ab-inj').textContent = 0; document.getElementById('ab-jus').textContent = 0; document.getElementById('ab-tot').textContent = 0; document.getElementById('ab-list').innerHTML = '<div style="text-align:center;color:#CBD5E1;padding:22px;font-size:.78rem;font-weight:700;">✅ Aucune absence enregistrée</div>'; }
 
     /* ═════════════ CONVOCATIONS ═════════════ */
     async function loadCvCpt() {
@@ -1948,7 +1987,7 @@
         } else cvDm();
       } catch { cvDm(); }
     }
-    function cvDm() { document.getElementById('cv-list').innerHTML = '<div style="background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F59E0B;border-radius:14px;padding:13px;margin-bottom:9px;"><div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;"><span class="bdg" style="background:#FDE68A;color:#92400E;">CONVOCATION</span><span style="font-size:.78rem;font-weight:800;">Entretien Surveillant Général</span></div><div style="font-size:.7rem;color:#78350F;">Absence non justifiée du 24 fév. Présentez-vous avec votre enfant.</div><div style="font-size:.6rem;font-weight:800;color:#D97706;text-transform:uppercase;margin-top:6px;">📅 Lundi 10 mars 2026 à 10h00</div></div>'; }
+    function cvDm() { document.getElementById('cv-list').innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:.8rem;">Aucune convocation</div>'; }
 
     /* ═════════════ FORUM WHATSAPP AVANCÉ ═════════════ */
     let fInt = null, tInt = null, fPosts = [], replyTo = null, ctxPost = null;
@@ -2161,19 +2200,12 @@
     async function likePost(id) { try { await api('/parents/forum/' + id + '/like', { method: 'POST' }); await loadPosts(); } catch { } }
 
     function forumDm() {
-      fPosts = [
-        { id_post: 1, prenom: 'KONÉ', nom: 'Mireille', code_unique: 'X1', statut_ape: 'MEMBRE', contenu: 'Bonjour à tous ! La réunion du samedi 15 mars est confirmée à 9h. Qui peut apporter des chaises ? 🙏', nb_likes: 12, j_ai_like: false, created_at: new Date(Date.now() - 7200000).toISOString(), photo_url: null, reactions: [{ emoji: '👍', cnt: 5 }, { emoji: '❤️', cnt: 3 }], ma_reaction: null, est_supprime: false, reply_to_id: null },
-        { id_post: 2, prenom: 'DUBOIS', nom: 'Sixte', code_unique: 'X2', statut_ape: 'TRÉSORIER', contenu: "Cours de soutien pendant les vacances d'avril pour les Terminales ? 📚", nb_likes: 31, j_ai_like: false, created_at: new Date(Date.now() - 18000000).toISOString(), photo_url: null, reactions: [{ emoji: '🔥', cnt: 8 }], ma_reaction: null, est_supprime: false, reply_to_id: null },
-        { id_post: 3, prenom: 'SAWADOGO', nom: 'Fatima', code_unique: 'X3', statut_ape: 'SECRÉTAIRE', contenu: 'Félicitations à tous les élèves qui ont progressé ce trimestre ! 🎉', nb_likes: 24, j_ai_like: false, created_at: new Date(Date.now() - 86400000).toISOString(), photo_url: null, reactions: [{ emoji: '❤️', cnt: 12 }, { emoji: '👏', cnt: 6 }], ma_reaction: null, est_supprime: false, reply_to_id: null },
-      ];
-      renderForum(fPosts);
-      document.getElementById('fw-st').textContent = 'Mode démo · 3 messages';
+      // Aucun message fictif - afficher vide
+      fPosts = [];
+      renderForum();
     }
 
-    function arTa(ta) { ta.style.height = '38px'; ta.style.height = Math.min(ta.scrollHeight, 110) + 'px'; }
 
-    /* ═════════════ COTISATIONS ═════════════ */
-    /* ═════════════ COTISATIONS ═════════════ */
     async function loadCot() {
       try {
         const d = await api('/parents/cotisations');
@@ -2192,7 +2224,7 @@
         } else cotDm();
       } catch { cotDm(); }
     }
-    function cotDm() { document.getElementById('cp').textContent = '5 000 FCFA'; document.getElementById('cr').textContent = '5 000 FCFA'; document.getElementById('ct').textContent = '10 000 FCFA'; document.getElementById('ch').innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;"><i data-lucide="check-circle" style="width:16px;height:16px;color:#10B981;flex-shrink:0;"></i><div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">Cotisation 1er semestre</div><div style="font-size:.6rem;color:#94A3B8;">Payé le 15 oct. 2025</div></div><span style="font-weight:900;font-size:.8rem;color:#10B981;">5 000 FCFA</span></div><div style="display:flex;align-items:center;gap:10px;padding:10px 0;"><i data-lucide="clock" style="width:16px;height:16px;color:#EF4444;flex-shrink:0;"></i><div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">Cotisation 2e semestre</div><div style="font-size:.6rem;color:#94A3B8;">Échéance : 15 mars 2026</div></div><span style="font-weight:900;font-size:.8rem;color:#EF4444;">5 000 FCFA</span></div>'; if (window.lucide) lucide.createIcons(); }
+    function cotDm() { document.getElementById('cp').textContent = '0 FCFA'; document.getElementById('cr').textContent = '0 FCFA'; document.getElementById('ct').textContent = '0 FCFA'; document.getElementById('ch').innerHTML = '<div style="text-align:center;padding:16px;color:#94A3B8;font-size:.8rem;">Aucune cotisation enregistrée</div>'; }
 
     /* ═════════════ ANNONCES ═════════════ */
     async function loadAnn() {
@@ -2210,7 +2242,7 @@
         } else annDm();
       } catch { annDm(); }
     }
-    function annDm() { document.getElementById('an-list').innerHTML = '<div class="card" style="border-left:4px solid #EF4444;margin-bottom:10px;"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span class="bdg" style="background:#FEE2E2;color:#EF4444;">URGENT</span><span style="font-size:.78rem;font-weight:800;">Examens de passage — 10 mars</span></div><div style="font-size:.7rem;color:#475569;">Les examens blancs débutent le 10 mars 2026. Présence obligatoire.</div><div style="font-size:.58rem;color:#CBD5E1;margin-top:6px;font-weight:700;">Direction · Il y a 3 jours</div></div>'; }
+    function annDm() { document.getElementById('an-list').innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:.8rem;">Aucune annonce disponible</div>'; }
 
     /* ═════════════ ORIENTATION ═════════════ */
     function envOri() { const m = document.getElementById('ori-msg').value.trim(); if (!m) return; dlg('Conseil envoyé', 'Votre avis a été partagé avec les professeurs.'); document.getElementById('ori-msg').value = ''; }
@@ -2272,6 +2304,36 @@
     lucide.createIcons();
   </script>
   <script src="responsive-init.js"></script>
+  <!-- ... -->
+
+  <!-- Inclure le script de Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    // ...
+
+    // Écoute l'événement pour envoyer les messages d'absences aux élèves
+    function sendAbsence() {
+      const data = {
+        conv_id: 'general',
+        message: 'Absence enregistrée',
+      };
+
+      // Envoyer les messages d'absences aux élèves via Socket.IO
+      if (io) {
+        io.emit('sendAbsence', data);
+      }
+    }
+
+    // ...
+
+    // Initialise Socket.IO
+    const socket = io();
+
+    // ...
+  </script>
+
+  <!-- ... -->
 </body>
 
 </html>

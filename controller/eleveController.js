@@ -243,50 +243,64 @@ exports.getActivites = async (req, res) => {
 exports.getRessources = async (req, res) => {
     try {
         const eleveId = req.user?.id;
+        if (!eleveId) return res.status(401).json({ message: 'Non authentifié' });
 
-        if (!eleveId) {
-            return res.status(401).json({ message: 'Non authentifié' });
-        }
+        // Récupérer la classe de l'élève
+        const classeResult = await db.query(
+            `SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user = $1`,
+            [eleveId]
+        );
+        const classe = classeResult.rows[0]?.classe_actuelle;
+        if (!classe) return res.status(404).json({ message: 'Classe non trouvée' });
 
-        // Simule des ressources pédagogiques (cours, exercices, documents)
-        const ressources = [
-            {
-                id: 1,
-                titre: "Cours de Français - Grammaire",
-                type: "COURS_VIDEO",
-                matiere: "Français",
-                duree_minutes: 45,
-                date_ajout: new Date(),
-                url: "/ressources/francais-grammaire-1.mp4"
-            },
-            {
-                id: 2,
-                titre: "Exercices Mathématiques - Algèbre",
-                type: "EXERCICES",
-                matiere: "Mathématiques",
-                nb_exercices: 15,
-                date_ajout: new Date(),
-                url: "/ressources/maths-algebre-ex.pdf"
-            },
-            {
-                id: 3,
-                titre: "Présentation Histoire - Période Coloniale",
-                type: "DOCUMENT",
-                matiere: "Histoire",
-                nb_pages: 25,
-                date_ajout: new Date(),
-                url: "/ressources/histoire-colonial.pdf"
-            }
-        ];
+        // Récupérer les vraies ressources publiées par les profs pour cette classe
+        // ou pour "TOUTES" les classes
+        const result = await db.query(`
+            SELECT
+                r.id_ressource,
+                r.titre,
+                r.type_document,
+                r.url_fichier,
+                r.classe_concernee,
+                r.date_depot,
+                COALESCE(c.nom, 'Professeur')    AS prof_nom,
+                COALESCE(c.prenom, '')            AS prof_prenom
+            FROM pedagogie.ressources_pedagogiques r
+            LEFT JOIN pedagogie.profils_profs pp ON pp.id_prof = r.id_prof
+            LEFT JOIN authentification.comptes c  ON c.id_user = pp.id_user
+            WHERE (r.classe_concernee = $1 OR r.classe_concernee = 'TOUTES')
+            ORDER BY r.date_depot DESC
+        `, [classe]);
+
+        const ressources = result.rows.map(r => {
+            const url = r.url_fichier || '';
+            const ext = url ? url.split('.').pop().toLowerCase() : '';
+            const type = /^(mp4|webm|mov|avi|mkv|ogv)$/.test(ext) ? 'video'
+                : /^(mp3|ogg|wav|m4a)$/.test(ext) ? 'audio'
+                : /^(jpg|jpeg|png|gif|webp)$/.test(ext) ? 'image'
+                : (r.type_document || 'cours').toLowerCase();
+            return {
+                id:           r.id_ressource,
+                titre:        r.titre,
+                type,
+                type_document: r.type_document,
+                url,
+                classe:       r.classe_concernee,
+                date_ajout:   r.date_depot,
+                format:       ext ? ext.toUpperCase() : '—',
+                prof:         r.prof_prenom + ' ' + r.prof_nom
+            };
+        });
 
         res.json({
             success: true,
             count: ressources.length,
-            ressources: ressources
+            classe,
+            ressources
         });
 
     } catch (error) {
-        console.error('Erreur récupération ressources:', error);
+        console.error('Erreur récupération ressources élève:', error);
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };
@@ -348,29 +362,61 @@ exports.getHoraire = async (req, res) => {
 exports.getStatistiques = async (req, res) => {
     try {
         const eleveId = req.user?.id;
+        if (!eleveId) return res.status(401).json({ message: 'Non authentifié' });
 
-        if (!eleveId) {
-            return res.status(401).json({ message: 'Non authentifié' });
-        }
+        const trimestre = req.query.trimestre || null;
 
-        const statsQuery = `
-            SELECT 
-                AVG(note) as moyenne_generale,
-                MAX(note) as meilleure_note,
-                MIN(note) as pire_note,
-                COUNT(*) as nb_evaluations
-            FROM pedagogie.notes_evaluations
-            WHERE id_eleve = $1
-        `;
-
-        const statsResult = await db.query(statsQuery, [eleveId]);
+        // Moyenne + stats globales
+        const statsQuery = trimestre
+            ? `SELECT AVG(note) as moyenne_generale, MAX(note) as meilleure_note,
+                      MIN(note) as pire_note, COUNT(*) as nb_evaluations
+               FROM pedagogie.notes_evaluations
+               WHERE id_eleve = $1 AND trimestre = $2`
+            : `SELECT AVG(note) as moyenne_generale, MAX(note) as meilleure_note,
+                      MIN(note) as pire_note, COUNT(*) as nb_evaluations
+               FROM pedagogie.notes_evaluations WHERE id_eleve = $1`;
+        const statsResult = await db.query(statsQuery, trimestre ? [eleveId, trimestre] : [eleveId]);
         const stats = statsResult.rows[0] || {};
 
+        // Notes par matière (avec nom de matière)
+        const notesQuery = trimestre
+            ? `SELECT COALESCE(m.nom_matiere, 'Matière') as matiere,
+                      COALESCE(m.nom_matiere, 'Matière') as nom_matiere,
+                      COALESCE(m.coefficient, 2) as coefficient,
+                      ROUND(AVG(n.note)::numeric, 2) as note_moyenne,
+                      ROUND(AVG(n.note)::numeric, 2) as valeur_note,
+                      COUNT(n.id_evaluation) as nb_evaluations
+               FROM pedagogie.notes_evaluations n
+               LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
+               WHERE n.id_eleve = $1 AND n.trimestre = $2
+               GROUP BY m.nom_matiere, m.coefficient
+               ORDER BY note_moyenne DESC`
+            : `SELECT COALESCE(m.nom_matiere, 'Matière') as matiere,
+                      COALESCE(m.nom_matiere, 'Matière') as nom_matiere,
+                      COALESCE(m.coefficient, 2) as coefficient,
+                      ROUND(AVG(n.note)::numeric, 2) as note_moyenne,
+                      ROUND(AVG(n.note)::numeric, 2) as valeur_note,
+                      COUNT(n.id_evaluation) as nb_evaluations
+               FROM pedagogie.notes_evaluations n
+               LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
+               WHERE n.id_eleve = $1
+               GROUP BY m.nom_matiere, m.coefficient
+               ORDER BY note_moyenne DESC`;
+        const notesResult = await db.query(notesQuery, trimestre ? [eleveId, trimestre] : [eleveId]);
+
         // Absences
-        const absenceQuery = `
-            SELECT COUNT(*) as total FROM gestion.absences WHERE id_eleve = $1 AND justifiee = false
-        `;
-        const absenceResult = await db.query(absenceQuery, [eleveId]);
+        const absenceResult = await db.query(
+            `SELECT COUNT(*) as total FROM gestion.absences WHERE id_eleve = $1 AND justifiee = false`,
+            [eleveId]
+        );
+
+        // Evolution trimestrielle
+        const evoResult = await db.query(`
+            SELECT trimestre as tri, ROUND(AVG(note)::numeric, 2) as moy
+            FROM pedagogie.notes_evaluations
+            WHERE id_eleve = $1
+            GROUP BY trimestre ORDER BY trimestre
+        `, [eleveId]);
 
         res.json({
             success: true,
@@ -379,16 +425,315 @@ exports.getStatistiques = async (req, res) => {
                     moyenne: Math.round((stats.moyenne_generale || 0) * 100) / 100,
                     meilleure_note: Math.round((stats.meilleure_note || 0) * 100) / 100,
                     pire_note: Math.round((stats.pire_note || 0) * 100) / 100,
-                    evaluations_totales: stats.nb_evaluations || 0
+                    evaluations_totales: parseInt(stats.nb_evaluations || 0)
                 },
                 discipline: {
                     absences_non_justifiees: parseInt(absenceResult.rows[0]?.total || 0)
-                }
-            }
+                },
+                notes_par_matiere: notesResult.rows,
+                evolution_trimestrielle: evoResult.rows.map(r => ({
+                    tri: 'T' + r.tri, trimestre: r.tri, moy: parseFloat(r.moy || 0)
+                }))
+            },
+            // Format direct pour compatibilité dashboard parent
+            notes_par_matiere: notesResult.rows
         });
 
     } catch (error) {
-        console.error('Erreur récupération statistiques:', error);
+        console.error('Erreur getStatistiques:', error);
         res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
+// ═══════════════════════════════════════════
+// FORUM DE CLASSE (messages réels en BD)
+// ═══════════════════════════════════════════
+exports.getForumClasse = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        const classe = (await db.query(
+            `SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user=$1`, [eleveId]
+        )).rows[0]?.classe_actuelle;
+        if (!classe) return res.json({ success: true, messages: [] });
+
+        // Créer table si besoin
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS vie_scolaire.forum_classe (
+                id SERIAL PRIMARY KEY,
+                classe TEXT NOT NULL,
+                id_auteur INTEGER NOT NULL,
+                nom_auteur TEXT,
+                initiales TEXT,
+                texte TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        `).catch(() => {});
+
+        const r = await db.query(`
+            SELECT f.id, f.id_auteur, f.nom_auteur, f.initiales, f.texte,
+                   to_char(f.created_at AT TIME ZONE 'Africa/Ouagadougou','HH24:MI') as time,
+                   to_char(f.created_at,'YYYY-MM-DD') as date
+            FROM vie_scolaire.forum_classe f
+            WHERE f.classe = $1
+            ORDER BY f.created_at ASC
+            LIMIT 100
+        `, [classe]);
+        res.json({ success: true, classe, messages: r.rows });
+    } catch(e) {
+        console.warn('getForumClasse:', e.message);
+        res.json({ success: true, messages: [] });
+    }
+};
+
+exports.postForumClasse = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        const { texte } = req.body;
+        if (!texte?.trim()) return res.status(400).json({ success: false, message: 'Message vide' });
+
+        const u = await db.query(
+            `SELECT c.nom, c.prenom, pe.classe_actuelle
+             FROM authentification.comptes c
+             JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
+             WHERE c.id_user = $1`, [eleveId]
+        );
+        if (!u.rows.length) return res.status(404).json({ success: false, message: 'Élève non trouvé' });
+        const { nom, prenom, classe_actuelle } = u.rows[0];
+        const nom_auteur = prenom + ' ' + nom.charAt(0) + '.';
+        const initiales = (prenom.charAt(0) + nom.charAt(0)).toUpperCase();
+
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS vie_scolaire.forum_classe (
+                id SERIAL PRIMARY KEY, classe TEXT NOT NULL, id_auteur INTEGER NOT NULL,
+                nom_auteur TEXT, initiales TEXT, texte TEXT NOT NULL, created_at TIMESTAMP DEFAULT NOW()
+            )
+        `).catch(() => {});
+
+        const r = await db.query(`
+            INSERT INTO vie_scolaire.forum_classe (classe, id_auteur, nom_auteur, initiales, texte)
+            VALUES ($1,$2,$3,$4,$5) RETURNING id, to_char(created_at,'HH24:MI') as time
+        `, [classe_actuelle, eleveId, nom_auteur, initiales, texte.trim()]);
+
+        res.json({ success: true, message: r.rows[0], nom_auteur, initiales });
+    } catch(e) {
+        console.error('postForumClasse:', e.message);
+        res.status(500).json({ success: false, message: e.message });
+    }
+};
+
+// ═══════════════════════════════════════════
+// INTER-CLASSES (messages entre classes)
+// ═══════════════════════════════════════════
+exports.getInterClasses = async (req, res) => {
+    try {
+        const { classe_cible } = req.query;
+        const eleveId = req.user?.id;
+        const u = await db.query(
+            `SELECT pe.classe_actuelle FROM vie_scolaire.profils_eleves pe WHERE pe.id_user=$1`, [eleveId]
+        );
+        const maClasse = u.rows[0]?.classe_actuelle;
+        if (!maClasse || !classe_cible) return res.json({ success: true, messages: [] });
+
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS vie_scolaire.inter_classes (
+                id SERIAL PRIMARY KEY, classe_source TEXT, classe_cible TEXT,
+                id_auteur INTEGER, nom_auteur TEXT, initiales TEXT,
+                texte TEXT NOT NULL, created_at TIMESTAMP DEFAULT NOW()
+            )
+        `).catch(() => {});
+
+        // Messages entre les 2 classes (bidirectionnel)
+        const r = await db.query(`
+            SELECT id, id_auteur, nom_auteur, initiales, texte, classe_source,
+                   to_char(created_at AT TIME ZONE 'Africa/Ouagadougou','HH24:MI') as time
+            FROM vie_scolaire.inter_classes
+            WHERE (classe_source=$1 AND classe_cible=$2) OR (classe_source=$2 AND classe_cible=$1)
+            ORDER BY created_at ASC LIMIT 100
+        `, [maClasse, classe_cible]);
+        res.json({ success: true, messages: r.rows, ma_classe: maClasse });
+    } catch(e) {
+        console.warn('getInterClasses:', e.message);
+        res.json({ success: true, messages: [] });
+    }
+};
+
+exports.postInterClasses = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        const { texte, classe_cible } = req.body;
+        if (!texte?.trim() || !classe_cible) return res.status(400).json({ success: false, message: 'Données manquantes' });
+
+        const u = await db.query(`
+            SELECT c.nom, c.prenom, pe.classe_actuelle
+            FROM authentification.comptes c
+            JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
+            WHERE c.id_user = $1`, [eleveId]
+        );
+        if (!u.rows.length) return res.status(404).json({ success: false });
+        const { nom, prenom, classe_actuelle } = u.rows[0];
+        const nom_auteur = prenom + ' ' + nom.charAt(0) + '.';
+        const initiales = (prenom.charAt(0) + nom.charAt(0)).toUpperCase();
+
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS vie_scolaire.inter_classes (
+                id SERIAL PRIMARY KEY, classe_source TEXT, classe_cible TEXT,
+                id_auteur INTEGER, nom_auteur TEXT, initiales TEXT,
+                texte TEXT NOT NULL, created_at TIMESTAMP DEFAULT NOW()
+            )
+        `).catch(() => {});
+
+        const r = await db.query(`
+            INSERT INTO vie_scolaire.inter_classes (classe_source, classe_cible, id_auteur, nom_auteur, initiales, texte)
+            VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, to_char(created_at,'HH24:MI') as time
+        `, [classe_actuelle, classe_cible, eleveId, nom_auteur, initiales, texte.trim()]);
+
+        res.json({ success: true, message: r.rows[0], nom_auteur, initiales, classe_source: classe_actuelle });
+    } catch(e) {
+        console.error('postInterClasses:', e.message);
+        res.status(500).json({ success: false, message: e.message });
+    }
+};
+
+// ═══════════════════════════════════════════
+// GRAND ÉLÈVES (posts publics entre élèves)
+// ═══════════════════════════════════════════
+exports.getGrandEleves = async (req, res) => {
+    try {
+        const { tag } = req.query;
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS vie_scolaire.grand_eleves_posts (
+                id SERIAL PRIMARY KEY, id_auteur INTEGER, nom_auteur TEXT,
+                classe_auteur TEXT, initiales TEXT, color TEXT DEFAULT '#3B49DF',
+                texte TEXT NOT NULL, tag TEXT DEFAULT 'GENERAL',
+                likes INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW()
+            )
+        `).catch(() => {});
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS vie_scolaire.grand_eleves_likes (
+                id_post INTEGER, id_user INTEGER, PRIMARY KEY(id_post, id_user)
+            )
+        `).catch(() => {});
+
+        let q = `
+            SELECT p.id, p.id_auteur, p.nom_auteur, p.classe_auteur, p.initiales,
+                   p.color, p.texte, p.tag, p.likes,
+                   to_char(p.created_at,'DD/MM HH24:MI') as time
+            FROM vie_scolaire.grand_eleves_posts p
+        `;
+        const params = [];
+        if (tag && tag !== 'TOUT') { q += ` WHERE p.tag=$1`; params.push(tag); }
+        q += ` ORDER BY p.created_at DESC LIMIT 50`;
+        const r = await db.query(q, params);
+        res.json({ success: true, posts: r.rows });
+    } catch(e) {
+        console.warn('getGrandEleves:', e.message);
+        res.json({ success: true, posts: [] });
+    }
+};
+
+exports.postGrandEleves = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        const { texte, tag } = req.body;
+        if (!texte?.trim()) return res.status(400).json({ success: false, message: 'Message vide' });
+
+        const u = await db.query(`
+            SELECT c.nom, c.prenom, pe.classe_actuelle
+            FROM authentification.comptes c
+            JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
+            WHERE c.id_user = $1`, [eleveId]
+        );
+        if (!u.rows.length) return res.status(404).json({ success: false });
+        const { nom, prenom, classe_actuelle } = u.rows[0];
+        const nom_auteur = prenom + ' ' + nom;
+        const initiales = (prenom.charAt(0) + nom.charAt(0)).toUpperCase();
+        const colors = ['#3B49DF','#7C3AED','#059669','#DC2626','#D97706','#0891B2'];
+        const color = colors[eleveId % colors.length];
+
+        const r = await db.query(`
+            INSERT INTO vie_scolaire.grand_eleves_posts (id_auteur, nom_auteur, classe_auteur, initiales, color, texte, tag)
+            VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id, to_char(created_at,'DD/MM HH24:MI') as time
+        `, [eleveId, nom_auteur, classe_actuelle, initiales, color, texte.trim(), tag || 'GENERAL']);
+
+        res.json({ success: true, post: r.rows[0] });
+    } catch(e) {
+        console.error('postGrandEleves:', e.message);
+        res.status(500).json({ success: false, message: e.message });
+    }
+};
+
+exports.likePost = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        const { id } = req.params;
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS vie_scolaire.grand_eleves_likes (
+                id_post INTEGER, id_user INTEGER, PRIMARY KEY(id_post, id_user)
+            )
+        `).catch(() => {});
+        // Toggle like
+        const exists = await db.query(
+            `SELECT 1 FROM vie_scolaire.grand_eleves_likes WHERE id_post=$1 AND id_user=$2`, [id, eleveId]
+        );
+        if (exists.rows.length) {
+            await db.query(`DELETE FROM vie_scolaire.grand_eleves_likes WHERE id_post=$1 AND id_user=$2`, [id, eleveId]);
+            await db.query(`UPDATE vie_scolaire.grand_eleves_posts SET likes = GREATEST(likes-1,0) WHERE id=$1`, [id]);
+            res.json({ success: true, liked: false });
+        } else {
+            await db.query(`INSERT INTO vie_scolaire.grand_eleves_likes VALUES ($1,$2)`, [id, eleveId]);
+            await db.query(`UPDATE vie_scolaire.grand_eleves_posts SET likes = likes+1 WHERE id=$1`, [id]);
+            res.json({ success: true, liked: true });
+        }
+    } catch(e) {
+        res.status(500).json({ success: false });
+    }
+};
+
+// ═══════════════════════════════════════════
+// VIE SCOLAIRE (vraies activités depuis BD)
+// ═══════════════════════════════════════════
+exports.getVieScolaire = async (req, res) => {
+    try {
+        const r = await db.query(`
+            SELECT id_activite, titre, description, date_debut, date_fin,
+                   type_activite as tag, lieu,
+                   CASE
+                     WHEN date_fin < NOW() THEN 'TERMINÉE'
+                     WHEN date_debut <= NOW() THEN 'EN COURS'
+                     ELSE 'À VENIR'
+                   END as statut
+            FROM gestion.activities
+            ORDER BY date_debut ASC
+            LIMIT 20
+        `);
+        res.json({ success: true, activites: r.rows });
+    } catch(e) {
+        console.warn('getVieScolaire:', e.message);
+        res.json({ success: true, activites: [] });
+    }
+};
+
+// ═══════════════════════════════════════════
+// ORIENTATION (vrais avis des profs + alumni)
+// ═══════════════════════════════════════════
+exports.getOrientationEleve = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        // Chercher les avis d'orientation enregistrés par les profs pour cet élève
+        const r = await db.query(`
+            SELECT o.id, o.points_forts, o.points_faibles, o.serie_recommandee,
+                   o.commentaire, o.created_at,
+                   c.nom as prof_nom, c.prenom as prof_prenom, c.role_actuel as role
+            FROM pedagogie.orientations o
+            JOIN authentification.comptes c ON c.id_user = o.id_professeur
+            WHERE o.id_eleve_code = (
+                SELECT code_unique FROM authentification.comptes WHERE id_user = $1
+            )
+            ORDER BY o.created_at DESC
+        `, [eleveId]);
+        res.json({ success: true, avis: r.rows });
+    } catch(e) {
+        console.warn('getOrientationEleve:', e.message);
+        res.json({ success: true, avis: [] });
     }
 };

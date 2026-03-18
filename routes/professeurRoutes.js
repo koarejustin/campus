@@ -3,45 +3,118 @@ const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const ctrl = require('../controller/professeurController');
 
-// Multer pour upload fichiers
-let upload;
+// ── Multer config ──
+let uploadFichier, uploadPhoto;
 try {
     const multer = require('multer');
     const path = require('path');
     const fs = require('fs');
     const uploadDir = path.join(__dirname, '../public/uploads');
     if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    const storage = multer.diskStorage({
+
+    // Storage pour ressources pédagogiques
+    const storageFichier = multer.diskStorage({
+        destination: (req, file, cb) => cb(null, uploadDir),
+        filename: (req, file, cb) => {
+            const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+            cb(null, `res_${Date.now()}_${safeName}`);
+        }
+    });
+
+    // Storage pour photos de profil
+    const storagePhoto = multer.diskStorage({
         destination: (req, file, cb) => cb(null, uploadDir),
         filename: (req, file, cb) => {
             const ext = path.extname(file.originalname);
-            cb(null, `res_${Date.now()}${ext}`);
+            cb(null, `photo_${req.user?.id || Date.now()}${ext}`);
         }
     });
-    upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });
+
+    // Filtre : PDF, Word, vidéos, images, audio
+    const fileFilter = (req, file, cb) => {
+        const allowed = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'video/mp4', 'video/mpeg', 'video/webm', 'video/quicktime',
+            'audio/mpeg', 'audio/wav', 'audio/ogg',
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+            'text/plain'
+        ];
+        if (allowed.includes(file.mimetype)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Type de fichier non autorisé: ' + file.mimetype), false);
+        }
+    };
+
+    const photoFilter = (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) cb(null, true);
+        else cb(new Error('Seules les images sont acceptées pour la photo'), false);
+    };
+
+    uploadFichier = multer({
+        storage: storageFichier,
+        limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo max
+        fileFilter
+    });
+
+    uploadPhoto = multer({
+        storage: storagePhoto,
+        limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo max
+        fileFilter: photoFilter
+    });
+
 } catch (e) {
-    // multer non installé → upload désactivé
-    upload = { single: () => (req, res, next) => next() };
+    console.error('Multer non disponible:', e.message);
+    const noop = { single: () => (req, res, next) => next() };
+    uploadFichier = noop;
+    uploadPhoto = noop;
+}
+
+// ── Gestion erreurs multer ──
+function handleUpload(uploadMiddleware) {
+    return (req, res, next) => {
+        uploadMiddleware(req, res, (err) => {
+            if (err) {
+                console.error('Erreur upload:', err.message);
+                return res.status(400).json({ success: false, message: 'Erreur upload: ' + err.message });
+            }
+            next();
+        });
+    };
 }
 
 // ── Profil ──
-router.get('/profil',   authMiddleware, ctrl.getProfil);
-router.put('/profil',   authMiddleware, ctrl.updateProfil);
+router.get('/profil', authMiddleware, ctrl.getProfil);
+router.put('/profil', authMiddleware, handleUpload(uploadPhoto.single('photo')), ctrl.updateProfil);
 
 // ── Élèves ──
-router.get('/eleves',   authMiddleware, ctrl.getEleves);
+router.get('/eleves', authMiddleware, ctrl.getEleves);
 
 // ── Notes ──
-router.post('/notes',   authMiddleware, ctrl.saveNotes);
+router.post('/notes', authMiddleware, ctrl.saveNotes);
 
 // ── Ressources ──
-router.get('/ressources',                    authMiddleware, ctrl.getRessources);
-router.post('/ressources',                   authMiddleware, upload.single('fichier'), ctrl.ajouterRessource);
-router.put('/ressources/:id/visibilite',     authMiddleware, ctrl.toggleVisibilite);
-router.delete('/ressources/:id',             authMiddleware, ctrl.supprimerRessource);
+router.get('/ressources', authMiddleware, ctrl.getRessources);
+router.post('/ressources', authMiddleware, handleUpload(uploadFichier.single('fichier')), ctrl.ajouterRessource);
+router.put('/ressources/:id/visibilite', authMiddleware, ctrl.toggleVisibilite);
+router.delete('/ressources/:id', authMiddleware, ctrl.supprimerRessource);
 
 // ── Orientation ──
-router.get('/orientation',   authMiddleware, ctrl.getOrientation);
-router.post('/orientation',  authMiddleware, ctrl.saveOrientation);
+router.get('/orientation', authMiddleware, ctrl.getOrientation);
+router.post('/orientation', authMiddleware, ctrl.saveOrientation);
+
+// Classes et matières du prof
+router.get('/mes-classes', authMiddleware, ctrl.getMesClasses);
+
+// Cahier de texte
+router.get('/cahier-texte', authMiddleware, ctrl.getCahierTexte);
+router.post('/cahier-texte', authMiddleware, ctrl.saveCahierTexte);
+
+// Liste profs salle
+router.get('/liste-salle', authMiddleware, ctrl.getListeSalle);
 
 module.exports = router;
