@@ -47,9 +47,9 @@ FROM authentification.comptes p
 JOIN authentification.comptes e
     ON RIGHT(p.code_unique, 3) = RIGHT(e.code_unique, 3)  -- même numéro de fin (000→499)
 WHERE p.role_actuel = 'PARENT'
-  AND e.role_actuel = 'ELEVE'
-  AND p.code_unique LIKE 'PAR-2026-%'
-  AND e.code_unique LIKE 'CN-2026-%'
+        AND e.role_actuel = 'ELEVE'
+    AND p.code_unique LIKE 'PAR-2026-%'
+    AND e.code_unique LIKE 'CN-2026-%'
 ON CONFLICT (id_parent, id_eleve) DO NOTHING;
 
 
@@ -87,11 +87,11 @@ SELECT
     COUNT(*) AS parents_sans_enfant
 FROM authentification.comptes p
 WHERE p.role_actuel = 'PARENT'
-  AND p.code_unique LIKE 'PAR-2026-%'
-  AND NOT EXISTS (
-      SELECT 1 FROM vie_scolaire.relations_parents_eleves r
-      WHERE r.id_parent = p.id_user
-  );
+    AND p.code_unique LIKE 'PAR-2026-%'
+    AND NOT EXISTS (
+        SELECT 1 FROM vie_scolaire.relations_parents_eleves r
+        WHERE r.id_parent = p.id_user
+    );
 -- Attendu : 0
 
 

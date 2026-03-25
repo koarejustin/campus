@@ -164,8 +164,6 @@ function showAdminDashboard(role) {
 // --- 3. FONCTIONS COMPOSANTS (UI) ---
 
 function renderStatCard(label, value, icon, colors) {
-    // Génère un ID sûr pour chaque stat à partir du label
-    const id = label.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
     return `
         <div class="bg-white p-7 rounded-[2.5rem] shadow-sm border border-slate-50 group hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
             <div class="flex items-center gap-5">
@@ -174,7 +172,7 @@ function renderStatCard(label, value, icon, colors) {
                 </div>
                 <div>
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">${label}</p>
-                    <h4 id="stat-${id}" class="text-2xl font-black text-slate-900 tracking-tighter italic">${value}</h4>
+                    <h4 class="text-2xl font-black text-slate-900 tracking-tighter italic">${value}</h4>
                 </div>
             </div>
         </div>

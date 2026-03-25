@@ -277,18 +277,20 @@ ORDER BY a.date_publication DESC;
 -- ════════════════════════════════════════════════════════════════
 
 -- Toutes les notes enregistrées
-SELECT
+SELECT 
     c.code_unique      AS matricule,
     c.nom,
     c.prenom,
-    m.libelle_matiere  AS matiere,
+    m.nom_matiere      AS matiere,
     n.note,
     n.trimestre,
-    n.annee_scolaire
+    n.annee_scolaire,
+    n.date_evaluation AS date_saisie
 FROM pedagogie.notes_evaluations n
-JOIN authentification.comptes c ON n.id_eleve   = c.id_user
-JOIN pedagogie.matieres m       ON n.id_matiere = m.id_matiere
-ORDER BY c.nom, n.trimestre, m.libelle_matiere;
+JOIN authentification.comptes c ON n.id_eleve = c.id_user
+JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
+ORDER BY n.date_evaluation DESC
+LIMIT 10;
 
 
 -- Moyenne générale par élève (Trimestre 1)
@@ -326,3 +328,266 @@ ORDER BY
         WHEN 'ALUMNI'      THEN 6
         ELSE 7
     END;
+
+
+    -- Supprimer toutes les annonces de vie_scolaire.annonces
+DELETE FROM vie_scolaire.annonces;
+
+-- Supprimer toutes les annonces de gestion.annonces_officielles  
+DELETE FROM gestion.annonces_officielles;
+
+-- Supprimer toutes les annonces de vie_scolaire.annonces_officielles
+DELETE FROM vie_scolaire.annonces_officielles;
+
+-- Supprimer tous les avis d'orientation
+DELETE FROM pedagogie.avis_orientation;
+
+DELETE FROM vie_scolaire.annonces;
+DELETE FROM gestion.annonces_officielles;
+
+campus_numerique_db=# SELECT DISTINCT classe_actuelle,
+campus_numerique_db-#        octet_length(classe_actuelle),
+campus_numerique_db-#        ascii(substring(classe_actuelle,2,1)) as deuxieme_char_code
+campus_numerique_db-# FROM vie_scolaire.profils_eleves
+campus_numerique_db-# ORDER BY classe_actuelle;
+ classe_actuelle | octet_length | deuxieme_char_code
+-----------------+--------------+--------------------
+ 1ère A          |            7 |                352
+ 1ère D          |            7 |                352
+ 2nde A          |            6 |                110
+ 2nde C          |            6 |                110
+ 3ème            |            5 |                352
+ 4ème            |            5 |                352
+ 5ème            |            5 |                352
+ 6ème            |            5 |                352
+ Tle A           |            5 |                108
+ Tle D           |            5 |                108
+(10 lignes)
+
+
+UPDATE vie_scolaire.profils_eleves 
+SET classe_actuelle = convert_from('\x31c3a872652041', 'UTF8')
+WHERE encode(classe_actuelle::bytea,'hex') = '31c5a072652041';
+
+UPDATE vie_scolaire.profils_eleves 
+SET classe_actuelle = convert_from('\x31c3a872652044', 'UTF8')
+WHERE encode(classe_actuelle::bytea,'hex') = '31c5a072652044';
+
+UPDATE vie_scolaire.profils_eleves 
+SET classe_actuelle = convert_from('\x33c3a86d65', 'UTF8')
+WHERE encode(classe_actuelle::bytea,'hex') = '33c5a06d65';
+
+UPDATE vie_scolaire.profils_eleves 
+SET classe_actuelle = convert_from('\x34c3a86d65', 'UTF8')
+WHERE encode(classe_actuelle::bytea,'hex') = '34c5a06d65';
+
+UPDATE vie_scolaire.profils_eleves 
+SET classe_actuelle = convert_from('\x35c3a86d65', 'UTF8')
+WHERE encode(classe_actuelle::bytea,'hex') = '35c5a06d65';
+
+UPDATE vie_scolaire.profils_eleves 
+SET classe_actuelle = convert_from('\x36c3a86d65', 'UTF8')
+WHERE encode(classe_actuelle::bytea,'hex') = '36c5a06d65';
+
+
+
+SELECT DISTINCT classe_actuelle, encode(classe_actuelle::bytea,'hex') FROM vie_scolaire.profils_eleves ORDER BY 1;
+
+
+SELECT 
+    m.nom_matiere,
+    n.note,
+    n.trimestre,
+    n.date_evaluation
+FROM pedagogie.notes_evaluations n
+JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
+WHERE n.id_eleve = (SELECT id_user FROM authentification.comptes WHERE code_unique = 'CN-2026-2009')
+ORDER BY n.date_evaluation DESC;
+
+
+
+-- Trouver les tables qui contiennent des messages
+SELECT table_name 
+FROM information_schema.tables 
+WHERE table_name LIKE '%message%' OR table_name LIKE '%forum%';
+
+-- Voir la structure de la table messages
+\d messages
+-- ou
+SELECT column_name, data_type 
+FROM information_schema.columns 
+WHERE table_name = 'messages';
+
+
+-- Voir toutes les tables avec leurs schémas
+SELECT table_schema, table_name 
+FROM information_schema.tables 
+WHERE table_name LIKE '%message%' OR table_name LIKE '%forum%'
+ORDER BY table_schema, table_name;
+
+-- Voir les messages du forum de classe (principal)
+SELECT * FROM vie_scolaire.forum_classe LIMIT 10;
+
+-- Voir les messages de la salle des profs
+SELECT * FROM pedagogie.messages_salle LIMIT 10;
+
+-- Voir les messages des parents
+SELECT * FROM gestion_ape.forum_parents LIMIT 10;
+
+-- Voir les messages de prévention
+SELECT * FROM gestion.messages_prevention LIMIT 10;
+
+-- Voir les messages (si table existe)
+SELECT * FROM gestion.messages LIMIT 10;
+
+
+
+
+-- Compter les messages
+SELECT 
+    'vie_scolaire.forum_classe' as table_name, 
+    COUNT(*) as total 
+FROM vie_scolaire.forum_classe
+UNION ALL
+SELECT 'vie_scolaire.forum_classe_old', COUNT(*) FROM vie_scolaire.forum_classe_old
+UNION ALL
+SELECT 'pedagogie.messages_salle', COUNT(*) FROM pedagogie.messages_salle
+UNION ALL
+SELECT 'gestion_ape.forum_parents', COUNT(*) FROM gestion_ape.forum_parents
+UNION ALL
+SELECT 'gestion.messages_prevention', COUNT(*) FROM gestion.messages_prevention
+UNION ALL
+SELECT 'gestion.messages', COUNT(*) FROM gestion.messages
+UNION ALL
+SELECT 'gestion_ape.forum_likes', COUNT(*) FROM gestion_ape.forum_likes
+UNION ALL
+SELECT 'gestion_ape.forum_reactions', COUNT(*) FROM gestion_ape.forum_reactions;
+
+-- Commencer une transaction
+BEGIN;
+
+-- Ajouter une colonne est_supprime si elle n'existe pas
+ALTER TABLE vie_scolaire.forum_classe ADD COLUMN IF NOT EXISTS est_supprime BOOLEAN DEFAULT FALSE;
+ALTER TABLE vie_scolaire.forum_classe_old ADD COLUMN IF NOT EXISTS est_supprime BOOLEAN DEFAULT FALSE;
+ALTER TABLE pedagogie.messages_salle ADD COLUMN IF NOT EXISTS est_supprime BOOLEAN DEFAULT FALSE;
+ALTER TABLE gestion_ape.forum_parents ADD COLUMN IF NOT EXISTS est_supprime BOOLEAN DEFAULT FALSE;
+ALTER TABLE gestion.messages_prevention ADD COLUMN IF NOT EXISTS est_supprime BOOLEAN DEFAULT FALSE;
+ALTER TABLE gestion.messages ADD COLUMN IF NOT EXISTS est_supprime BOOLEAN DEFAULT FALSE;
+
+-- Soft delete : marquer comme supprimé
+UPDATE vie_scolaire.forum_classe SET est_supprime = TRUE, contenu = '[Message supprimé]' WHERE est_supprime = FALSE;
+UPDATE vie_scolaire.forum_classe_old SET est_supprime = TRUE, contenu = '[Message supprimé]' WHERE est_supprime = FALSE;
+UPDATE pedagogie.messages_salle SET est_supprime = TRUE, contenu = '[Message supprimé]' WHERE est_supprime = FALSE;
+UPDATE gestion_ape.forum_parents SET est_supprime = TRUE, contenu = '[Message supprimé]' WHERE est_supprime = FALSE;
+UPDATE gestion.messages_prevention SET est_supprime = TRUE, contenu = '[Message supprimé]' WHERE est_supprime = FALSE;
+UPDATE gestion.messages SET est_supprime = TRUE, contenu = '[Message supprimé]' WHERE est_supprime = FALSE;
+
+-- Vérifier
+SELECT 
+    (SELECT COUNT(*) FROM vie_scolaire.forum_classe WHERE est_supprime = FALSE) as forum_restants,
+    (SELECT COUNT(*) FROM pedagogie.messages_salle WHERE est_supprime = FALSE) as salle_restants;
+
+-- Valider
+COMMIT;
+
+-- ⚠️ ATTENTION : Suppression définitive et irréversible
+
+-- Faire une sauvegarde
+CREATE TABLE messages_backup_20260322 AS 
+SELECT 'vie_scolaire.forum_classe' as source, * FROM vie_scolaire.forum_classe;
+
+INSERT INTO messages_backup_20260322 
+SELECT 'vie_scolaire.forum_classe_old', * FROM vie_scolaire.forum_classe_old;
+
+INSERT INTO messages_backup_20260322 
+SELECT 'pedagogie.messages_salle', * FROM pedagogie.messages_salle;
+
+INSERT INTO messages_backup_20260322 
+SELECT 'gestion_ape.forum_parents', * FROM gestion_ape.forum_parents;
+
+INSERT INTO messages_backup_20260322 
+SELECT 'gestion.messages_prevention', * FROM gestion.messages_prevention;
+
+INSERT INTO messages_backup_20260322 
+SELECT 'gestion.messages', * FROM gestion.messages;
+
+-- Vérifier la sauvegarde
+SELECT source, COUNT(*) FROM messages_backup_20260322 GROUP BY source;
+
+-- Supprimer définitivement
+BEGIN;
+DELETE FROM vie_scolaire.forum_classe;
+DELETE FROM vie_scolaire.forum_classe_old;
+DELETE FROM pedagogie.messages_salle;
+DELETE FROM gestion_ape.forum_parents;
+DELETE FROM gestion.messages_prevention;
+DELETE FROM gestion.messages;
+DELETE FROM gestion_ape.forum_likes;
+DELETE FROM gestion_ape.forum_reactions;
+DELETE FROM gestion_ape.forum_typing;
+COMMIT;
+
+-- Vérifier
+SELECT 
+    (SELECT COUNT(*) FROM vie_scolaire.forum_classe) as forum,
+    (SELECT COUNT(*) FROM pedagogie.messages_salle) as salle;
+
+
+    -- Voir les messages par classe
+SELECT classe_cible, COUNT(*) 
+FROM vie_scolaire.forum_classe 
+GROUP BY classe_cible;
+
+-- Supprimer les messages de la classe 3ème
+DELETE FROM vie_scolaire.forum_classe 
+WHERE classe_cible = '3ème';
+
+-- Ou avec soft delete
+UPDATE vie_scolaire.forum_classe 
+SET est_supprime = TRUE 
+WHERE classe_cible = '3ème';
+
+
+-- Voir les messages du forum
+SELECT * FROM vie_scolaire.forum_classe LIMIT 10;
+
+-- Supprimer les messages du forum (soft delete)
+BEGIN;
+ALTER TABLE vie_scolaire.forum_classe ADD COLUMN IF NOT EXISTS est_supprime BOOLEAN DEFAULT FALSE;
+UPDATE vie_scolaire.forum_classe SET est_supprime = TRUE;
+COMMIT;
+
+-- Ou suppression définitive
+BEGIN;
+DELETE FROM vie_scolaire.forum_classe;
+COMMIT;
+
+
+-- Voir combien de messages tu vas supprimer
+SELECT 
+    (SELECT COUNT(*) FROM vie_scolaire.forum_classe) as forum_classe,
+    (SELECT COUNT(*) FROM vie_scolaire.forum_classe_old) as forum_old,
+    (SELECT COUNT(*) FROM pedagogie.messages_salle) as salle,
+    (SELECT COUNT(*) FROM gestion_ape.forum_parents) as parents;
+
+-- Supprimer tout (hard delete)
+BEGIN;
+DELETE FROM vie_scolaire.forum_classe;
+DELETE FROM vie_scolaire.forum_classe_old;
+DELETE FROM pedagogie.messages_salle;
+DELETE FROM gestion_ape.forum_parents;
+DELETE FROM gestion.messages_prevention;
+DELETE FROM gestion_ape.forum_likes;
+DELETE FROM gestion_ape.forum_reactions;
+COMMIT;
+
+-- Vérifier que tout est vide
+SELECT 
+    (SELECT COUNT(*) FROM vie_scolaire.forum_classe) as forum_classe,
+    (SELECT COUNT(*) FROM pedagogie.messages_salle) as salle;
+
+
+    -- Voir les messages par classe
+SELECT classe, COUNT(*)
+FROM vie_scolaire.forum_classe
+GROUP BY classe;

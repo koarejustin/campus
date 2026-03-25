@@ -13,20 +13,17 @@ const db = require('../config/db');
  */
 
 // ========== LIEN PARENT-ENFANT ==========
-// D'abord on récupère l'ID enfant depuis la relation parent-enfant
 const getEnfantsPourParent = async (parentId) => {
     try {
-        // Essai 1 : table de liaison explicite
         try {
             const r = await db.query(`
                 SELECT DISTINCT pe.id_eleve as id_enfant
-                FROM liaisons_parentales.parent_eleve pe
+                FROM vie_scolaire.relations_parents_eleves pe
                 WHERE pe.id_parent = $1
             `, [parentId]);
             if (r.rows.length > 0) return r.rows.map(r => r.id_enfant);
-        } catch(e1) { /* table n'existe pas */ }
+        } catch (e1) { }
 
-        // Essai 2 : même nom de famille (simulation_ecole crée les familles avec le même nom)
         const parentInfo = await db.query(
             `SELECT nom FROM authentification.comptes WHERE id_user = $1`, [parentId]
         );
@@ -58,10 +55,9 @@ exports.getBulletinEnfant = async (req, res) => {
             return res.status(401).json({ message: 'Données manquantes' });
         }
 
-        // Vérifier que le parent a accès à cet enfant
         const enfantsQuery = `
-            SELECT id_user FROM vie_scolaire.profils_eleves p
-            JOIN liaisons_parentales.parent_eleve pe ON p.id_user = pe.id_eleve
+            SELECT p.id_user FROM vie_scolaire.profils_eleves p
+            JOIN vie_scolaire.relations_parents_eleves pe ON p.id_user = pe.id_eleve
             WHERE pe.id_parent = $1 AND p.id_user = $2
             LIMIT 1
         `;
@@ -71,7 +67,6 @@ exports.getBulletinEnfant = async (req, res) => {
             return res.status(403).json({ message: 'Accès non autorisé' });
         }
 
-        // Récupérer le bulletin
         const bulletinQuery = `
             SELECT 
                 p.*, 
@@ -93,7 +88,6 @@ exports.getBulletinEnfant = async (req, res) => {
 
         const eleve = result.rows[0];
 
-        // Notes par matière
         const notesQuery = `
             SELECT 
                 COALESCE(m.nom_matiere, 'Matière') as nom_matiere,
@@ -155,7 +149,7 @@ exports.getMesEnfants = async (req, res) => {
                 p.classe_actuelle,
                 (SELECT AVG(note) FROM pedagogie.notes_evaluations WHERE id_eleve = p.id_user) as moyenne_generale
             FROM vie_scolaire.profils_eleves p
-            JOIN liaisons_parentales.parent_eleve pe ON p.id_user = pe.id_eleve
+            JOIN vie_scolaire.relations_parents_eleves pe ON p.id_user = pe.id_eleve
             JOIN authentification.comptes c ON p.id_user = c.id_user
             WHERE pe.id_parent = $1
             ORDER BY c.nom
@@ -194,9 +188,8 @@ exports.getConvocationsEnfant = async (req, res) => {
             return res.status(401).json({ message: 'Données manquantes' });
         }
 
-        // Vérifier accès
         const accessQuery = `
-            SELECT 1 FROM liaisons_parentales.parent_eleve 
+            SELECT 1 FROM vie_scolaire.relations_parents_eleves
             WHERE id_parent = $1 AND id_eleve = $2 LIMIT 1
         `;
         const accessCheck = await db.query(accessQuery, [parentId, enfantId]);
@@ -205,7 +198,6 @@ exports.getConvocationsEnfant = async (req, res) => {
             return res.status(403).json({ message: 'Accès non autorisé' });
         }
 
-        // Les convocations sont privées (visible seulement élève + parents)
         const query = `
             SELECT 
                 id_convocation,
@@ -248,9 +240,8 @@ exports.getAbsencesEnfant = async (req, res) => {
             return res.status(401).json({ message: 'Données manquantes' });
         }
 
-        // Vérifier accès
         const accessQuery = `
-            SELECT 1 FROM liaisons_parentales.parent_eleve 
+            SELECT 1 FROM vie_scolaire.relations_parents_eleves
             WHERE id_parent = $1 AND id_eleve = $2 LIMIT 1
         `;
         const accessCheck = await db.query(accessQuery, [parentId, enfantId]);
@@ -297,38 +288,223 @@ exports.getAbsencesEnfant = async (req, res) => {
 // ========== ANNONCES OFFICIELLES ==========
 exports.getAnnonces = async (req, res) => {
     try {
-        const query = `
-            SELECT 
-                id_annonce,
-                titre,
-                corps_annonce as contenu,
-                priorite,
-                date_publication,
-                CASE 
-                    WHEN priorite = 'Urgente' THEN '🔴 URGENT'
-                    WHEN priorite = 'Info' THEN '🔵 INFO'
-                    ELSE '⚪ NORMAL'
-                END as icone_priorite
-            FROM vie_scolaire.annonces_officielles
-            ORDER BY date_publication DESC
-            LIMIT 20
-        `;
+        let annonces = [];
 
-        const result = await db.query(query);
+        // 1. Récupérer depuis vie_scolaire.annonces
+        try {
+            const r = await db.query(`
+                SELECT id::text AS id_annonce, 
+                       titre, 
+                       contenu,
+                       COALESCE(type, 'INFO') AS priorite, 
+                       created_at AS date_publication,
+                       destinataires
+                FROM vie_scolaire.annonces
+                WHERE destinataires IN ('tous', 'parents', 'all', 'parent')
+                ORDER BY created_at DESC
+                LIMIT 30
+            `);
+            annonces = r.rows;
+        } catch (e) {
+            console.log('Erreur vie_scolaire.annonces:', e.message);
+        }
+
+        // 2. Récupérer depuis gestion.annonces_officielles
+        try {
+            const r2 = await db.query(`
+                SELECT id_annonce::text AS id_annonce, 
+                       titre, 
+                       contenu, 
+                       type AS priorite, 
+                       date_publication,
+                       COALESCE(destinataires, 'tous') as destinataires
+                FROM gestion.annonces_officielles
+                WHERE COALESCE(destinataires, 'tous') IN ('tous', 'parents', 'all', 'parent')
+                ORDER BY date_publication DESC
+                LIMIT 30
+            `);
+            annonces = [...annonces, ...r2.rows];
+        } catch (e) {
+            console.log('Erreur gestion.annonces_officielles:', e.message);
+        }
+
+        // Déduplication
+        const uniqueMap = new Map();
+        for (const annonce of annonces) {
+            const key = `${annonce.titre}_${(annonce.contenu || '').substring(0, 100)}`;
+            if (!uniqueMap.has(key)) {
+                uniqueMap.set(key, annonce);
+            }
+        }
+
+        const annoncesUniques = Array.from(uniqueMap.values());
+        annoncesUniques.sort((a, b) => new Date(b.date_publication) - new Date(a.date_publication));
+
+        console.log(`📢 ${annoncesUniques.length} annonces chargées pour parent`);
 
         res.json({
             success: true,
-            count: result.rows.length,
-            annonces: result.rows || []
+            count: annoncesUniques.length,
+            annonces: annoncesUniques.slice(0, 30)
         });
 
     } catch (error) {
-        console.error('Erreur récupération annonces:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
+        console.error('Erreur getAnnonces:', error);
+        res.json({ success: true, count: 0, annonces: [] });
     }
 };
 
-// ========== ÉVÉNEMENTS & ACTIVITÉS ==========
+// ========== PROFIL DU PARENT ==========
+exports.getProfilParent = async (req, res) => {
+    try {
+        const parentId = req.user?.id;
+        if (!parentId) return res.status(401).json({ message: 'Non authentifié' });
+
+        const base = await db.query(
+            `SELECT id_user, code_unique, nom, prenom, email, telephone, est_actif
+             FROM authentification.comptes WHERE id_user = $1`, [parentId]
+        );
+        if (!base.rows.length) return res.status(404).json({ message: 'Profil non trouvé' });
+        const c = base.rows[0];
+
+        let profession = null, adresse = null, biographie = null, photo_url = null, statut_ape = 'MEMBRE';
+        try {
+            const extra = await db.query(
+                `SELECT profession, adresse, COALESCE(biographie, bio) AS biographie,
+                        photo_url, COALESCE(statut_ape, 'MEMBRE') AS statut_ape
+                 FROM gestion_ape.profils_parents WHERE id_user = $1`, [parentId]
+            );
+            if (extra.rows.length) {
+                profession = extra.rows[0].profession;
+                adresse = extra.rows[0].adresse;
+                biographie = extra.rows[0].biographie;
+                photo_url = extra.rows[0].photo_url;
+                statut_ape = extra.rows[0].statut_ape;
+            }
+        } catch (e2) { }
+
+        res.json({
+            success: true,
+            profil: {
+                id: c.id_user, nom: c.nom, prenom: c.prenom,
+                nom_complet: `${c.prenom} ${c.nom}`,
+                code_unique: c.code_unique, email: c.email,
+                telephone: c.telephone,
+                profession, adresse, biographie, bio: biographie,
+                photo_url, statut_ape, compte_actif: c.est_actif
+            }
+        });
+    } catch (error) {
+        console.error('getProfilParent:', error.message);
+        res.status(500).json({ message: 'Erreur: ' + error.message });
+    }
+};
+
+exports.updateProfilParent = async (req, res) => {
+    try {
+        const parentId = req.user?.id;
+        if (!parentId) return res.status(401).json({ message: 'Non authentifié' });
+
+        const { telephone, adresse, profession, biographie, bio, photo_url } = req.body;
+        const bioFinal = biographie || bio || null;
+
+        const ex = await db.query(
+            `SELECT id_user FROM gestion_ape.profils_parents WHERE id_user = $1`, [parentId]
+        ).catch(() => ({ rows: [] }));
+
+        if (ex.rows && ex.rows.length > 0) {
+            await db.query(`
+                UPDATE gestion_ape.profils_parents SET
+                    profession = COALESCE($2, profession),
+                    adresse    = COALESCE($3, adresse),
+                    biographie = COALESCE($4, biographie),
+                    bio        = COALESCE($4, bio),
+                    photo_url  = COALESCE($5, photo_url),
+                    updated_at = NOW()
+                WHERE id_user = $1
+            `, [parentId, profession || null, adresse || null, bioFinal, photo_url || null]);
+        } else {
+            await db.query(`
+                INSERT INTO gestion_ape.profils_parents
+                    (id_user, profession, adresse, biographie, bio, photo_url, updated_at)
+                VALUES ($1, $2, $3, $4, $4, $5, NOW())
+            `, [parentId, profession || null, adresse || null, bioFinal, photo_url || null]);
+        }
+
+        res.json({ success: true, message: 'Profil mis à jour' });
+    } catch (error) {
+        console.error('updateProfilParent:', error.message);
+        res.status(500).json({ message: 'Erreur: ' + error.message });
+    }
+};
+
+// ========== AVIS D'ORIENTATION DU PARENT ==========
+exports.getOrientationEnfant = async (req, res) => {
+    try {
+        const parentId = req.user?.id;
+        const enfantId = req.query.enfant_id;
+        if (!parentId || !enfantId) return res.json({ success: true, avis: [] });
+
+        await db.query(`CREATE TABLE IF NOT EXISTS pedagogie.avis_orientation (
+            id SERIAL PRIMARY KEY, id_prof UUID NOT NULL, id_eleve UUID NOT NULL,
+            points_forts TEXT, points_faibles TEXT, serie_recommandee VARCHAR(100),
+            commentaire TEXT, updated_at TIMESTAMP DEFAULT NOW(),
+            source VARCHAR(20) DEFAULT 'PROF',
+            UNIQUE(id_prof, id_eleve)
+        )`).catch(() => { });
+        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'PROF'`).catch(() => { });
+
+        const r = await db.query(`
+            SELECT ao.id, ao.points_forts, ao.points_faibles, ao.serie_recommandee,
+                   ao.commentaire, COALESCE(ao.updated_at, NOW()) AS updated_at,
+                   c.nom AS auteur_nom, c.prenom AS auteur_prenom,
+                   COALESCE(ao.source, 'PROF') AS source
+            FROM pedagogie.avis_orientation ao
+            JOIN authentification.comptes c ON c.id_user = ao.id_prof
+            WHERE ao.id_eleve = $1
+            ORDER BY COALESCE(ao.updated_at, NOW()) DESC
+        `, [enfantId]);
+        res.json({ success: true, avis: r.rows });
+    } catch (e) {
+        console.error('getOrientationEnfant:', e.message);
+        res.json({ success: true, avis: [] });
+    }
+};
+
+exports.addOrientationAvis = async (req, res) => {
+    try {
+        const parentId = req.user?.id;
+        const { enfant_id, serie_recommandee, commentaire } = req.body;
+        if (!parentId || !enfant_id) return res.status(400).json({ message: 'Données manquantes' });
+
+        await db.query(`CREATE TABLE IF NOT EXISTS pedagogie.avis_orientation (
+            id SERIAL PRIMARY KEY, id_prof UUID NOT NULL, id_eleve UUID NOT NULL,
+            points_forts TEXT, points_faibles TEXT, serie_recommandee VARCHAR(100),
+            commentaire TEXT, updated_at TIMESTAMP DEFAULT NOW(),
+            source VARCHAR(20) DEFAULT 'PROF',
+            UNIQUE(id_prof, id_eleve)
+        )`).catch(() => { });
+        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'PROF'`).catch(() => { });
+
+        await db.query(`
+            INSERT INTO pedagogie.avis_orientation
+                (id_prof, id_eleve, serie_recommandee, commentaire, updated_at, source)
+            VALUES ($1, $2, $3, $4, NOW(), 'PARENT')
+            ON CONFLICT (id_prof, id_eleve) DO UPDATE SET
+                serie_recommandee = EXCLUDED.serie_recommandee,
+                commentaire       = EXCLUDED.commentaire,
+                updated_at        = NOW(),
+                source            = 'PARENT'
+        `, [parentId, enfant_id, serie_recommandee || null, commentaire || null]);
+
+        res.json({ success: true, message: "Avis d'orientation enregistré" });
+    } catch (e) {
+        console.error('addOrientationAvis:', e.message);
+        res.status(500).json({ message: e.message });
+    }
+};
+
+// ========== ACTIVITÉS & ÉVÉNEMENTS ==========
 exports.getActivites = async (req, res) => {
     try {
         const query = `
@@ -344,7 +520,7 @@ exports.getActivites = async (req, res) => {
                     WHEN date_debut <= NOW() AND date_fin >= NOW() THEN 'EN COURS'
                     ELSE 'À VENIR'
                 END as statut
-            FROM gestion.activities
+            FROM gestion.activites
             ORDER BY date_debut ASC
             LIMIT 30
         `;
@@ -359,303 +535,6 @@ exports.getActivites = async (req, res) => {
 
     } catch (error) {
         console.error('Erreur récupération activités:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-};
-
-// ========== COTISATIONS APE ==========
-exports.getCotisations = async (req, res) => {
-    try {
-        const parentId = req.user?.id;
-
-        if (!parentId) {
-            return res.status(401).json({ message: 'Non authentifié' });
-        }
-
-        // Récupérer les cotisations APE pour ce parent
-        const query = `
-            SELECT 
-                id_cotisation,
-                montant,
-                date_cotisation,
-                statut_paiement,
-                motif_cotisation,
-                periode_concernee,
-                CASE 
-                    WHEN statut_paiement = 'PAYE' THEN '✅ Payé'
-                    WHEN statut_paiement = 'EN_ATTENTE' THEN '⏳ En attente'
-                    ELSE '❌ Non payé'
-                END as statut_label
-            FROM gestion_ape.cotisations_parents
-            WHERE id_parent = $1
-            ORDER BY date_cotisation DESC
-        `;
-
-        const result = await db.query(query, [parentId]);
-
-        let totalDu = 0;
-        let totalPaye = 0;
-
-        result.rows.forEach(c => {
-            if (c.statut_paiement === 'PAYE') {
-                totalPaye += c.montant;
-            } else {
-                totalDu += c.montant;
-            }
-        });
-
-        res.json({
-            success: true,
-            count: result.rows.length,
-            resume: {
-                montant_total_du: totalDu,
-                montant_total_paye: totalPaye,
-                montant_total: totalDu + totalPaye
-            },
-            cotisations: result.rows || []
-        });
-
-    } catch (error) {
-        console.error('Erreur récupération cotisations:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-};
-
-// ========== MESSAGES DE LA DIRECTION ==========
-exports.getMessages = async (req, res) => {
-    try {
-        const parentId = req.user?.id;
-
-        if (!parentId) {
-            return res.status(401).json({ message: 'Non authentifié' });
-        }
-
-        // Messages adressés aux parents
-        const query = `
-            SELECT 
-                id_message,
-                titre,
-                contenu,
-                date_envoi,
-                priorite,
-                est_lu,
-                CASE 
-                    WHEN priorite = 'URGENT' THEN '🔴'
-                    WHEN priorite = 'NORMAL' THEN '⚪'
-                    ELSE '💙'
-                END as icone
-            FROM gestion.messages
-            WHERE destinataire_type = 'PARENT' AND destinataire_id = $1
-            ORDER BY date_envoi DESC
-            LIMIT 50
-        `;
-
-        const result = await db.query(query, [parentId]);
-
-        res.json({
-            success: true,
-            count: result.rows.length,
-            non_lus: result.rows.filter(m => !m.est_lu).length,
-            messages: result.rows || []
-        });
-
-    } catch (error) {
-        console.error('Erreur récupération messages:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-};
-
-// ========== PROFIL DU PARENT ==========
-exports.getProfilParent = async (req, res) => {
-    try {
-        const parentId = req.user?.id;
-
-        if (!parentId) {
-            return res.status(401).json({ message: 'Non authentifié' });
-        }
-
-        // Récupérer infos parent
-        // Créer la table profils_parents si elle n'existe pas
-        await db.query(`
-            CREATE TABLE IF NOT EXISTS liaisons_parentales.profils_parents (
-                id_user INTEGER PRIMARY KEY,
-                adresse TEXT, profession TEXT, biographie TEXT, photo_url TEXT,
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        `).catch(() => {});
-
-        // Récupérer le profil complet depuis toutes les tables
-        const result = await db.query(`
-            SELECT c.id_user, c.code_unique, c.nom, c.prenom, c.email, c.telephone, c.est_actif,
-                   COALESCE(pp.profession, gp.profession) as profession,
-                   COALESCE(pp.adresse, gp.adresse) as adresse,
-                   COALESCE(pp.biographie, gp.biographie) as biographie,
-                   COALESCE(pp.photo_url, gp.photo_url) as photo_url,
-                   COALESCE(gp.statut_ape, 'MEMBRE') as statut_ape
-            FROM authentification.comptes c
-            LEFT JOIN liaisons_parentales.profils_parents pp ON pp.id_user = c.id_user
-            LEFT JOIN gestion_ape.profils_parents gp ON gp.id_user = c.id_user
-            WHERE c.id_user = $1
-        `, [parentId]);
-
-        if (!result.rows.length) return res.status(404).json({ message: 'Profil non trouvé' });
-        const p = result.rows[0];
-
-        res.json({
-            success: true,
-            profil: {
-                id: p.id_user,
-                nom: p.nom,
-                prenom: p.prenom,
-                nom_complet: `${p.prenom} ${p.nom}`,
-                code_unique: p.code_unique,
-                email: p.email,
-                telephone: p.telephone,
-                profession: p.profession,
-                adresse: p.adresse,
-                biographie: p.biographie,
-                bio: p.biographie,
-                photo_url: p.photo_url,
-                statut_ape: p.statut_ape,
-                compte_actif: p.est_actif
-            }
-        });
-
-    } catch (error) {
-        console.error('Erreur récupération profil:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-};
-
-// ========== MISE À JOUR PROFIL PARENT ==========
-exports.updateProfilParent = async (req, res) => {
-    try {
-        const parentId = req.user?.id;
-        const { telephone, adresse, profession, biographie, bio, photo_url } = req.body;
-        const bioFinal = biographie || bio || undefined;
-
-        const updates = [];
-        const params = [];
-        let idx = 1;
-
-        if (telephone !== undefined) { updates.push(`telephone = $${idx++}`); params.push(telephone); }
-
-        if (updates.length > 0) {
-            params.push(parentId);
-            await db.query(
-                `UPDATE authentification.comptes SET ${updates.join(', ')} WHERE id_user = $${idx}`,
-                params
-            );
-        }
-
-        // Mettre à jour dans liaisons_parentales.profils_parents
-        try {
-            await db.query(`
-                INSERT INTO liaisons_parentales.profils_parents (id_user, adresse, profession, biographie, photo_url)
-                VALUES ($1, $2, $3, $4, $5)
-                ON CONFLICT (id_user) DO UPDATE SET
-                    adresse     = COALESCE(EXCLUDED.adresse, liaisons_parentales.profils_parents.adresse),
-                    profession  = COALESCE(EXCLUDED.profession, liaisons_parentales.profils_parents.profession),
-                    biographie  = COALESCE(EXCLUDED.biographie, liaisons_parentales.profils_parents.biographie),
-                    photo_url   = COALESCE(EXCLUDED.photo_url, liaisons_parentales.profils_parents.photo_url)
-            `, [parentId, adresse || null, profession || null, bioFinal || null, photo_url || null]);
-        } catch (e2) { /* table optionnelle */ }
-
-        // Mettre à jour dans gestion_ape.profils_parents
-        try {
-            await db.query(`
-                UPDATE gestion_ape.profils_parents
-                SET profession  = COALESCE($2, profession)
-                WHERE id_user = $1
-            `, [parentId, profession || null]);
-        } catch (e3) { /* table optionnelle */ }
-
-        // Persister le téléphone dans comptes si fourni
-        if (telephone) {
-            await db.query(
-                `UPDATE authentification.comptes SET telephone = $1 WHERE id_user = $2`,
-                [telephone, parentId]
-            ).catch(() => {});
-        }
-
-        res.json({ success: true, message: 'Profil mis à jour' });
-    } catch (error) {
-        console.error('Erreur updateProfilParent:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-};
-
-// ========== FORUM PARENTS ==========
-exports.getForumPosts = async (req, res) => {
-    try {
-        const parentId = req.user?.id;
-        // Essayer de récupérer depuis une table de forum si elle existe
-        try {
-            const r = await db.query(`
-                SELECT fp.id_post, c.prenom, c.nom, c.code_unique, fp.contenu,
-                       fp.created_at, fp.nb_likes, fp.reply_to_id,
-                       COALESCE(
-                           (SELECT COUNT(*) FROM liaisons_parentales.forum_likes fl WHERE fl.id_post = fp.id_post AND fl.id_user = $1),
-                           0
-                       )::boolean as j_ai_like,
-                       false as est_supprime,
-                       NULL as reactions, NULL as photo_url,
-                       CASE WHEN fp.id_auteur = $1 THEN TRUE ELSE FALSE END as est_moi
-                FROM liaisons_parentales.forum_posts fp
-                JOIN authentification.comptes c ON fp.id_auteur = c.id_user
-                WHERE fp.est_supprime = false
-                ORDER BY fp.created_at ASC
-                LIMIT 50
-            `, [parentId]);
-            return res.json({ success: true, posts: r.rows });
-        } catch (e) {
-            return res.json({ success: true, posts: [] });
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-};
-
-exports.addForumPost = async (req, res) => {
-    try {
-        const parentId = req.user?.id;
-        const { contenu, reply_to_id } = req.body;
-        if (!contenu || contenu.trim().length === 0) {
-            return res.status(400).json({ message: 'Message vide' });
-        }
-        try {
-            await db.query(`
-                INSERT INTO liaisons_parentales.forum_posts (id_auteur, contenu, reply_to_id, created_at, nb_likes)
-                VALUES ($1, $2, $3, NOW(), 0)
-            `, [parentId, contenu.trim(), reply_to_id || null]);
-            return res.json({ success: true, message: 'Message publié' });
-        } catch (e) {
-            return res.json({ success: true, message: 'Mode démo' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur serveur' });
-    }
-};
-
-exports.likeForumPost = async (req, res) => {
-    try {
-        const parentId = req.user?.id;
-        const postId = req.params.id;
-        try {
-            const existing = await db.query(
-                'SELECT id FROM liaisons_parentales.forum_likes WHERE id_post = $1 AND id_user = $2',
-                [postId, parentId]
-            );
-            if (existing.rows.length > 0) {
-                await db.query('DELETE FROM liaisons_parentales.forum_likes WHERE id_post = $1 AND id_user = $2', [postId, parentId]);
-                await db.query('UPDATE liaisons_parentales.forum_posts SET nb_likes = nb_likes - 1 WHERE id_post = $1', [postId]);
-            } else {
-                await db.query('INSERT INTO liaisons_parentales.forum_likes (id_post, id_user) VALUES ($1, $2)', [postId, parentId]);
-                await db.query('UPDATE liaisons_parentales.forum_posts SET nb_likes = nb_likes + 1 WHERE id_post = $1', [postId]);
-            }
-        } catch (e) { /* table n'existe pas encore */ }
-        res.json({ success: true });
-    } catch (error) {
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };

@@ -12,8 +12,8 @@ const pool = new Pool({
     database: process.env.DB_NAME || 'campus_numerique_db',
     password: String(process.env.DB_PASSWORD),
     port: process.env.DB_PORT || 5432,
-    // ⚠️ AJOUT CRUCIAL : Force l'encodage client en UTF8 pour les accents
-    options: "-c client_encoding=UTF8"
+    // ⚠️ AJOUT CRUCIAL : Force l'encodage client en UTF8 pour les accents + timezone Ouagadougou
+    options: "-c client_encoding=UTF8 -c timezone=Africa/Ouagadougou"
 });
 
 // Test de connexion automatique au démarrage du serveur
@@ -27,6 +27,7 @@ pool.connect((err, client, release) => {
     // Ajout d'une vérification visuelle dans la console
     console.log('✅ Connecté avec succès à la base : ' + process.env.DB_NAME);
     console.log('✅ Encodage forcé : UTF-8');
+    console.log('✅ Timezone forcé : Africa/Ouagadougou');
     release();
 });
 

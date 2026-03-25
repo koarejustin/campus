@@ -3,37 +3,75 @@ const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const parentController = require('../controller/parentController');
 
-// Mes enfants
-router.get('/mes-enfants', authMiddleware, parentController.getMesEnfants);
+// Routes parents
+router.get('/mes-enfants', authMiddleware, (req, res, next) => {
+    if (typeof parentController.getMesEnfants !== 'function') {
+        return res.status(500).json({ error: 'getMesEnfants is not a function' });
+    }
+    parentController.getMesEnfants(req, res, next);
+});
 
-// Bulletin d'un enfant
-router.get('/bulletin-enfant', authMiddleware, parentController.getBulletinEnfant);
+router.get('/bulletin-enfant', authMiddleware, (req, res, next) => {
+    if (typeof parentController.getBulletinEnfant !== 'function') {
+        return res.status(500).json({ error: 'getBulletinEnfant is not a function' });
+    }
+    parentController.getBulletinEnfant(req, res, next);
+});
 
-// Convocations d'un enfant
-router.get('/convocations-enfant', authMiddleware, parentController.getConvocationsEnfant);
+router.get('/convocations-enfant', authMiddleware, (req, res, next) => {
+    if (typeof parentController.getConvocationsEnfant !== 'function') {
+        return res.status(500).json({ error: 'getConvocationsEnfant is not a function' });
+    }
+    parentController.getConvocationsEnfant(req, res, next);
+});
 
-// Absences d'un enfant
-router.get('/absences-enfant', authMiddleware, parentController.getAbsencesEnfant);
+router.get('/absences-enfant', authMiddleware, (req, res, next) => {
+    if (typeof parentController.getAbsencesEnfant !== 'function') {
+        return res.status(500).json({ error: 'getAbsencesEnfant is not a function' });
+    }
+    parentController.getAbsencesEnfant(req, res, next);
+});
 
-// Annonces officielles
-router.get('/annonces', authMiddleware, parentController.getAnnonces);
+router.get('/annonces', authMiddleware, (req, res, next) => {
+    if (typeof parentController.getAnnonces !== 'function') {
+        return res.status(500).json({ error: 'getAnnonces is not a function' });
+    }
+    parentController.getAnnonces(req, res, next);
+});
 
-// Activités et événements
-router.get('/activites', authMiddleware, parentController.getActivites);
+router.get('/cotisations', authMiddleware, (req, res, next) => {
+    if (typeof parentController.getCotisations !== 'function') {
+        return res.status(500).json({ error: 'getCotisations is not a function' });
+    }
+    parentController.getCotisations(req, res, next);
+});
 
-// Cotisations APE
-router.get('/cotisations', authMiddleware, parentController.getCotisations);
+router.get('/profil', authMiddleware, (req, res, next) => {
+    if (typeof parentController.getProfilParent !== 'function') {
+        return res.status(500).json({ error: 'getProfilParent is not a function' });
+    }
+    parentController.getProfilParent(req, res, next);
+});
 
-// Messages de la direction
-router.get('/messages', authMiddleware, parentController.getMessages);
+router.put('/profil', authMiddleware, (req, res, next) => {
+    if (typeof parentController.updateProfilParent !== 'function') {
+        return res.status(500).json({ error: 'updateProfilParent is not a function' });
+    }
+    parentController.updateProfilParent(req, res, next);
+});
 
-// Profil du parent - GET + PUT
-router.get('/profil', authMiddleware, parentController.getProfilParent);
-router.put('/profil', authMiddleware, parentController.updateProfilParent);
+router.get('/orientation-enfant', authMiddleware, (req, res, next) => {
+    if (typeof parentController.getOrientationEnfant !== 'function') {
+        return res.status(500).json({ error: 'getOrientationEnfant is not a function' });
+    }
+    parentController.getOrientationEnfant(req, res, next);
+});
 
-// Forum APE
-router.get('/forum', authMiddleware, parentController.getForumPosts);
-router.post('/forum', authMiddleware, parentController.addForumPost);
-router.post('/forum/:id/like', authMiddleware, parentController.likeForumPost);
+router.post('/orientation-avis', authMiddleware, (req, res, next) => {
+    if (typeof parentController.addOrientationAvis !== 'function') {
+        return res.status(500).json({ error: 'addOrientationAvis is not a function' });
+    }
+    parentController.addOrientationAvis(req, res, next);
+});
 
 module.exports = router;

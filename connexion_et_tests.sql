@@ -217,3 +217,44 @@ JOIN authentification.comptes c  ON n.id_eleve   = c.id_user
 JOIN pedagogie.matieres m        ON n.id_matiere = m.id_matiere
 ORDER BY c.nom, n.trimestre, m.libelle_matiere
 LIMIT 30;
+
+
+SHOW timezone;
+ALTER DATABASE campus_numerique_db SET timezone TO 'Africa/Ouagadougou';
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON gestion.notifications(id_user);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_lue ON gestion.notifications(lue);
+CREATE INDEX IF NOT EXISTS idx_notifications_date ON gestion.notifications(created_at DESC);
+
+-- Ajouter la colonne si elle manque
+ALTER TABLE gestion.notifications ADD COLUMN IF NOT EXISTS id_user UUID REFERENCES authentification.comptes(id_user) ON DELETE CASCADE;
+
+-- Puis créer l'index
+CREATE INDEX idx_notifications_user ON gestion.notifications(id_user);
+
+-- Supprimer l'ancienne table
+DROP TABLE IF EXISTS gestion.notifications CASCADE;
+
+-- Recréer avec la bonne structure
+CREATE TABLE gestion.notifications (
+    id_notification   UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_user           UUID        NOT NULL REFERENCES authentification.comptes(id_user) ON DELETE CASCADE,
+    type              VARCHAR(50) NOT NULL,
+    titre             VARCHAR(255),
+    contenu           TEXT,
+    lien              TEXT,
+    est_lu            BOOLEAN     NOT NULL DEFAULT false,
+    created_at        TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Créer l'index
+CREATE INDEX idx_notifications_user ON gestion.notifications(id_user);
+CREATE INDEX idx_notifications_lu ON gestion.notifications(est_lu);
+CREATE INDEX idx_notifications_date ON gestion.notifications(created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON gestion.notifications(id_user);
+SELECT column_name, data_type 
+FROM information_schema.columns 
+WHERE table_schema = 'gestion' AND table_name = 'notifications'
+ORDER BY ordinal_position;

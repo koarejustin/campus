@@ -9,6 +9,17 @@ const db = require('./config/db');
 const app = express();
 const server = http.createServer(app);
 
+// ================================================================
+// DÉCLARATION POUR NOTIFICATIONS
+// ================================================================
+let _io = null;
+function setIO(ioInstance) {
+    _io = ioInstance;
+}
+function getIO() {
+    return _io;
+}
+
 // ═══════════════════════════════════════════
 // SOCKET.IO — Messagerie temps réel
 // ═══════════════════════════════════════════
@@ -18,14 +29,77 @@ try {
     const jwt = require('jsonwebtoken');
 
     io = new Server(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
+    app.locals.io = io;
+    setIO(io);  // ✅ UNE SEULE FOIS
 
     io.on('connection', (socket) => {
-        // ...
+        // Auth: le client envoie son token pour rejoindre le bon room
+        socket.on('auth', async (data) => {
+            try {
+                if (data && data.token) {
+                    const jwt = require('jsonwebtoken');
+                    const decoded = jwt.verify(data.token, process.env.JWT_SECRET || 'ma_cle_secrete');
+                    if (decoded.role === 'PROFESSEUR' || decoded.role === 'DIRECTION' || decoded.role === 'SURVEILLANT') {
+                        socket.join('salle-profs');
+                        socket.emit('joined', { room: 'salle-profs', code: data.code });
+                        console.log(`✅ ${data.code || decoded.role} a rejoint salle-profs`);
+                    }
+                    socket.userId = decoded.id;
+                    socket.userRole = decoded.role;
+                    socket.userCode = data.code;
+                }
+            } catch (e) { console.warn('Socket auth failed:', e.message); }
+        });
+
+        // ── Rebroadcast msg-salle (profs ↔ profs + direction) ──
+        socket.on('msg-salle', async (msg) => {
+            try {
+                const conv_id = msg.conv_id || 'general';
+                const fromCode = socket.userCode || msg.from || 'inconnu';
+                const fromNom = msg.nom || fromCode;
+                const txt = msg.txt || '';
+                const type = msg.type || 'text';
+                const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+                // Sauvegarder en BD
+                let msgId = Date.now();
+                try {
+                    const r = await db.query(
+                        `INSERT INTO pedagogie.messages_salle (conv_id, from_code, from_nom, contenu, type_msg)
+                         VALUES ($1,$2,$3,$4,$5) RETURNING id`,
+                        [conv_id, fromCode, fromNom, txt, type]
+                    );
+                    msgId = r.rows[0].id;
+                } catch (e2) { console.warn('BD msg-salle insert:', e2.message); }
+
+                // Diffuser à tout le room salle-profs
+                io.to('salle-profs').emit('msg-salle', {
+                    id: msgId,
+                    from: fromCode,
+                    nom: fromNom,
+                    txt: txt,
+                    conv_id: conv_id,
+                    type: type,
+                    time: time,
+                    isDirection: socket.userRole === 'DIRECTION'
+                });
+            } catch (e) { console.warn('msg-salle handler:', e.message); }
+        });
+
+        // ── Poll vote ──
+        socket.on('poll-vote', (data) => {
+            io.to('salle-profs').emit('poll-vote', data);
+        });
+
+        socket.on('disconnect', () => {
+            if (socket.userCode) {
+                io.to('salle-profs').emit('user-left', { code: socket.userCode });
+            }
+        });
 
         // Écoute l'événement pour envoyer les messages d'absences aux élèves
         socket.on('sendAbsence', (data) => {
             const conv_id = data.conv_id || 'general';
-            // Envoyer les messages d'absences aux élèves
             io.to('salle-profs').emit('receiveAbsence', {
                 conv_id,
                 message: data.message,
@@ -35,14 +109,11 @@ try {
         // Écoute l'événement pour envoyer les messages des parents aux élèves
         socket.on('sendParentMessage', (data) => {
             const conv_id = data.conv_id || 'general';
-            // Envoyer les messages des parents aux élèves
             io.to('salle-profs').emit('receiveParentMessage', {
                 conv_id,
                 message: data.message,
             });
         });
-
-        // ...
     });
 
     console.log('✅ Socket.io initialisé');
@@ -50,37 +121,6 @@ try {
     console.warn('⚠️ Socket.io non disponible:', e.message);
 }
 
-// ...
-
-app.post('/api/absences', (req, res) => {
-    // ...
-
-    // Envoyer les messages d'absences aux élèves via Socket.IO
-    if (io) {
-        io.to('salle-profs').emit('sendAbsence', {
-            conv_id: convId,
-            message: 'Absence enregistrée',
-        });
-    }
-
-    // ...
-});
-
-app.post('/api/parent-messages', (req, res) => {
-    // ...
-
-    // Envoyer les messages des parents aux élèves via Socket.IO
-    if (io) {
-        io.to('salle-profs').emit('sendParentMessage', {
-            conv_id: convId,
-            message: 'Message des parents',
-        });
-    }
-
-    // ...
-});
-
-// ...
 // ═══════════════════════════════════════════
 // MIDDLEWARE
 // ═══════════════════════════════════════════
@@ -129,7 +169,7 @@ const msgStorage = multer.diskStorage({
 });
 const msgUpload = multer({
     storage: msgStorage,
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo
+    limits: { fileSize: 50 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const allowed = [
             'image/jpeg', 'image/png', 'image/gif', 'image/webp',
@@ -147,7 +187,6 @@ const msgUpload = multer({
 
 const jwt = require('jsonwebtoken');
 app.post('/api/messages/upload', (req, res, next) => {
-    // Vérification JWT manuelle (avant multer)
     const auth = req.headers.authorization || '';
     const token = auth.startsWith('Bearer ') ? auth.slice(7) : auth;
     if (!token) return res.status(401).json({ success: false, message: 'Non authentifié' });
@@ -164,17 +203,16 @@ app.post('/api/messages/upload', (req, res, next) => {
         const conv_id = req.body.conv_id || 'general';
         const from_code = req.user.code_unique || req.user.id;
         const from_nom = req.body.nom || 'Professeur';
-        const type_msg = req.body.type || 'media'; // 'img' | 'audio' | 'video' | 'file'
+        const type_msg = req.body.type || 'media';
         const url = `/uploads/${req.file.filename}`;
 
-        // Sauvegarder en BD
         let msgId = Date.now();
         try {
             const r = await db.query(
                 `INSERT INTO pedagogie.messages_salle
-                 (conv_id, from_code, from_nom, contenu, type_msg)
-                 VALUES ($1,$2,$3,$4,$5)
-                 RETURNING id, date_envoi`,
+                    (conv_id, from_code, from_nom, contenu, type_msg)
+                    VALUES ($1,$2,$3,$4,$5)
+                    RETURNING id, date_envoi`,
                 [conv_id, from_code, from_nom, url, type_msg]
             );
             msgId = r.rows[0].id;
@@ -182,7 +220,6 @@ app.post('/api/messages/upload', (req, res, next) => {
             console.warn('BD insert media msg:', e.message);
         }
 
-        // Diffuser via Socket.io à toute la salle
         if (io) {
             io.to('salle-profs').emit('msg-salle', {
                 id: msgId,
@@ -222,10 +259,10 @@ app.get('/api/messages/:conv_id', async (req, res) => {
         const r = await db.query(
             `SELECT id, conv_id, from_code, from_nom,
                     contenu AS txt, type_msg AS type, reply_to, date_envoi
-             FROM pedagogie.messages_salle
-             WHERE conv_id = $1
-             ORDER BY date_envoi ASC
-             LIMIT $2`,
+                    FROM pedagogie.messages_salle
+                WHERE conv_id = $1
+                ORDER BY date_envoi ASC
+                LIMIT $2`,
             [conv_id, limit]
         );
         res.json({
@@ -249,6 +286,18 @@ app.get('/api/messages/:conv_id', async (req, res) => {
 
 // ── Santé du serveur ──
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date() }));
+
+// ================================================================
+// ROUTES NOTIFICATIONS
+// ================================================================
+const notificationRoutes = require('./routes/notificationRoutes');
+app.use('/api/notifications', notificationRoutes);
+
+// ================================================================
+// EXPORTS POUR NOTIFICATIONS
+// ================================================================
+module.exports.getIO = getIO;
+module.exports.setIO = setIO;
 
 // ═══════════════════════════════════════════
 // DÉMARRAGE

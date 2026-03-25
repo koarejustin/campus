@@ -308,6 +308,7 @@
       flex: 1;
       height: 100vh;
       overflow-y: auto;
+      overflow-x: hidden;
       background: var(--bg);
     }
 
@@ -405,6 +406,7 @@
       display: block;
       animation: fu .3s ease;
     }
+
     /* ══ SALLE DES PROFS — Style WhatsApp ══ */
     #s-salle.sec.on {
       display: flex !important;
@@ -414,299 +416,977 @@
       min-height: 520px;
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 4px 24px rgba(0,0,0,.12);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, .12);
     }
+
     #s-salle .salle-wrap {
-      flex: 1; min-height: 0;
+      flex: 1;
+      min-height: 0;
       display: flex !important;
       flex-direction: row !important;
       overflow: hidden;
       height: 100%;
       background: #111B21;
     }
+
     /* Sidebar collègues */
     #s-salle .conv-sidebar {
-      width: 300px !important; min-width: 300px !important;
+      width: 300px !important;
+      min-width: 300px !important;
       flex-shrink: 0 !important;
-      display: flex !important; flex-direction: column !important;
-      height: 100%; overflow: hidden;
+      display: flex !important;
+      flex-direction: column !important;
+      height: 100%;
+      overflow: hidden;
       background: #111B21;
       border-right: 1px solid #2A3942;
     }
+
     #s-salle .conv-sidebar-hd {
       padding: 14px 16px;
       background: #202C33;
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       border-bottom: 1px solid #2A3942;
     }
+
     #s-salle .conv-sidebar-title {
-      font-size: .85rem; font-weight: 700; color: #E9EDEF;
+      font-size: .85rem;
+      font-weight: 700;
+      color: #E9EDEF;
     }
+
     #s-salle .conv-search {
       padding: 8px 12px;
       background: #111B21;
     }
+
     #s-salle .conv-search input {
-      width: 100%; padding: 7px 12px; border-radius: 8px;
-      border: none; background: #202C33; color: #E9EDEF;
-      font-size: .78rem; outline: none;
+      width: 100%;
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: none;
+      background: #202C33;
+      color: #E9EDEF;
+      font-size: .78rem;
+      outline: none;
     }
-    #s-salle .conv-search input::placeholder { color: #8696A0; }
-    #s-salle .conv-list { flex: 1 !important; overflow-y: auto !important; }
+
+    #s-salle .conv-search input::placeholder {
+      color: #8696A0;
+    }
+
+    #s-salle .conv-list {
+      flex: 1 !important;
+      overflow-y: auto !important;
+    }
+
     #s-salle .conv-item {
-      display: flex; align-items: center; gap: 11px;
-      padding: 11px 14px; cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 11px 14px;
+      cursor: pointer;
       border-bottom: 1px solid #1F2C33;
       transition: background .15s;
     }
-    #s-salle .conv-item:hover, #s-salle .conv-item.sel {
+
+    #s-salle .conv-item:hover,
+    #s-salle .conv-item.sel {
       background: #2A3942;
     }
+
     #s-salle .conv-av {
-      width: 42px; height: 42px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .9rem; font-weight: 800; color: #fff;
-      flex-shrink: 0; position: relative;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      position: relative;
       overflow: hidden;
     }
+
     #s-salle .conv-online-dot {
-      position: absolute; bottom: 1px; right: 1px;
-      width: 10px; height: 10px; border-radius: 50%;
+      position: absolute;
+      bottom: 1px;
+      right: 1px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
       border: 2px solid #111B21;
     }
-    #s-salle .conv-nm { font-size: .82rem; font-weight: 600; color: #E9EDEF; }
-    #s-salle .conv-preview { font-size: .72rem; color: #8696A0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    #s-salle .conv-time { font-size: .65rem; color: #8696A0; }
-    #s-salle .conv-unread {
-      background: #00A884; color: #fff;
-      border-radius: 50%; width: 18px; height: 18px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .6rem; font-weight: 700; flex-shrink: 0;
+
+    #s-salle .conv-nm {
+      font-size: .82rem;
+      font-weight: 600;
+      color: #E9EDEF;
     }
+
+    #s-salle .conv-preview {
+      font-size: .72rem;
+      color: #8696A0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    #s-salle .conv-time {
+      font-size: .65rem;
+      color: #8696A0;
+    }
+
+    #s-salle .conv-unread {
+      background: #00A884;
+      color: #fff;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .6rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
     /* Zone chat */
     #s-salle .chat-zone {
-      flex: 1 !important; min-height: 0 !important;
-      display: flex !important; flex-direction: column !important;
+      flex: 1 !important;
+      min-height: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
       overflow: hidden !important;
       background: #0B141A;
     }
+
     /* Fond chat - motif WhatsApp */
     #s-salle .msgs-bg {
-      flex: 1 !important; min-height: 0 !important; overflow-y: auto !important;
+      flex: 1 !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
       padding: 14px 16px;
       background-color: #0B141A !important;
       background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23182229' fill-opacity='0.6'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-      display: flex; flex-direction: column; gap: 2px; position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      position: relative;
     }
+
     /* Header chat */
     #s-salle .chat-hd {
-      padding: 10px 16px; background: #202C33;
-      display: flex; align-items: center; gap: 12px;
-      border-bottom: 1px solid #2A3942; flex-shrink: 0;
+      padding: 10px 16px;
+      background: #202C33;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid #2A3942;
+      flex-shrink: 0;
     }
+
     #s-salle .chat-hd-av {
-      width: 38px; height: 38px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: .85rem; font-weight: 800; color: #fff; overflow: hidden;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+      font-weight: 800;
+      color: #fff;
+      overflow: hidden;
     }
-    #s-salle .chat-hd-nm { font-size: .87rem; font-weight: 700; color: #E9EDEF; }
-    #s-salle .chat-hd-sub { font-size: .7rem; color: #8696A0; }
-    #s-salle .chat-hd-actions { margin-left: auto; display: flex; gap: 8px; }
+
+    #s-salle .chat-hd-nm {
+      font-size: .87rem;
+      font-weight: 700;
+      color: #E9EDEF;
+    }
+
+    #s-salle .chat-hd-sub {
+      font-size: .7rem;
+      color: #8696A0;
+    }
+
+    #s-salle .chat-hd-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+    }
+
     #s-salle .chat-hd-ico {
-      width: 34px; height: 34px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      background: none; border: none; cursor: pointer; color: #AEBAC1;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #AEBAC1;
       transition: background .15s;
     }
-    #s-salle .chat-hd-ico:hover { background: #2A3942; }
-    #s-salle .chat-hd-ico svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    #s-salle .chat-hd-ico:hover {
+      background: #2A3942;
+    }
+
+    #s-salle .chat-hd-ico svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
     /* Bulles messages */
-    #s-salle .msg-row { display: flex; flex-direction: column; margin-bottom: 2px; }
-    #s-salle .msg-row.mine { align-items: flex-end; }
-    #s-salle .msg-row.other { align-items: flex-start; }
-    #s-salle .msg-sender { font-size: .68rem; font-weight: 700; margin-bottom: 2px; margin-left: 4px; }
+    #s-salle .msg-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 2px;
+    }
+
+    #s-salle .msg-row.mine {
+      align-items: flex-end;
+    }
+
+    #s-salle .msg-row.other {
+      align-items: flex-start;
+    }
+
+    #s-salle .msg-sender {
+      font-size: .68rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+      margin-left: 4px;
+    }
+
     #s-salle .bubble {
-      max-width: 65%; padding: 7px 10px 18px;
-      border-radius: 8px; position: relative;
-      font-size: .83rem; line-height: 1.4; word-break: break-word;
+      max-width: 65%;
+      padding: 7px 10px 18px;
+      border-radius: 8px;
+      position: relative;
+      font-size: .83rem;
+      line-height: 1.4;
+      word-break: break-word;
       min-width: 60px;
     }
+
     #s-salle .msg-row.mine .bubble {
-      background: #005C4B; color: #E9EDEF;
+      background: #005C4B;
+      color: #E9EDEF;
       border-top-right-radius: 2px;
     }
+
     #s-salle .msg-row.other .bubble {
-      background: #202C33; color: #E9EDEF;
+      background: #202C33;
+      color: #E9EDEF;
       border-top-left-radius: 2px;
     }
+
     #s-salle .bubble-time {
-      font-size: .6rem; color: #8696A0;
-      position: absolute; bottom: 4px; right: 8px;
-      display: flex; align-items: center; gap: 3px;
+      font-size: .6rem;
+      color: #8696A0;
+      position: absolute;
+      bottom: 4px;
+      right: 8px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
     }
-    #s-salle .tick { color: #53BDEB; }
+
+    #s-salle .tick {
+      color: #53BDEB;
+    }
+
     #s-salle .date-sep {
-      text-align: center; margin: 10px 0;
+      text-align: center;
+      margin: 10px 0;
     }
+
     #s-salle .date-sep span {
-      background: #182229; color: #8696A0;
-      font-size: .68rem; padding: 4px 10px; border-radius: 8px;
+      background: #182229;
+      color: #8696A0;
+      font-size: .68rem;
+      padding: 4px 10px;
+      border-radius: 8px;
     }
+
     /* Zone saisie */
     #s-salle .chat-input-row {
-      padding: 8px 12px; background: #202C33;
-      display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0;
+      padding: 8px 12px;
+      background: #202C33;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
     }
+
     #s-salle .chat-tool-btn {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: none; border: none; cursor: pointer;
-      color: #AEBAC1; display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: color .15s;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #AEBAC1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: color .15s;
     }
-    #s-salle .chat-tool-btn:hover { color: #E9EDEF; }
-    #s-salle .chat-tool-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    #s-salle .chat-tool-btn:hover {
+      color: #E9EDEF;
+    }
+
+    #s-salle .chat-tool-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
     #s-salle .chat-inp-box {
-      flex: 1; background: #2A3942; color: #E9EDEF;
-      border: none; border-radius: 20px;
-      padding: 9px 14px; font-size: .84rem;
-      resize: none; outline: none; max-height: 100px;
-      font-family: inherit; line-height: 1.4;
+      flex: 1;
+      background: #2A3942;
+      color: #E9EDEF;
+      border: none;
+      border-radius: 20px;
+      padding: 9px 14px;
+      font-size: .84rem;
+      resize: none;
+      outline: none;
+      max-height: 100px;
+      font-family: inherit;
+      line-height: 1.4;
     }
-    #s-salle .chat-inp-box::placeholder { color: #8696A0; }
-    #s-salle .chat-mic-btn, #s-salle .chat-send-btn {
-      width: 42px; height: 42px; border-radius: 50%;
-      background: #00A884; border: none; cursor: pointer;
-      color: #fff; display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: transform .15s;
+
+    #s-salle .chat-inp-box::placeholder {
+      color: #8696A0;
     }
-    #s-salle .chat-mic-btn:hover, #s-salle .chat-send-btn:hover { transform: scale(1.08); }
-    #s-salle .chat-mic-btn.recording { background: #FF3B30; animation: pulse 1s infinite; }
-    #s-salle .chat-mic-btn svg, #s-salle .chat-send-btn svg {
-      width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2;
+
+    #s-salle .chat-mic-btn,
+    #s-salle .chat-send-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #00A884;
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform .15s;
     }
+
+    #s-salle .chat-mic-btn:hover,
+    #s-salle .chat-send-btn:hover {
+      transform: scale(1.08);
+    }
+
+    #s-salle .chat-mic-btn.recording {
+      background: #FF3B30;
+      animation: pulse 1s infinite;
+    }
+
+    #s-salle .chat-mic-btn svg,
+    #s-salle .chat-send-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2;
+    }
+
     /* Menu attach WhatsApp */
     #s-salle .attach-menu {
-      position: absolute; bottom: 65px; left: 55px;
-      background: #233138; border-radius: 16px;
-      padding: 12px 8px; display: none;
-      box-shadow: 0 4px 20px rgba(0,0,0,.4);
-      z-index: 10; flex-direction: column; gap: 4px;
+      position: absolute;
+      bottom: 65px;
+      left: 55px;
+      background: #233138;
+      border-radius: 16px;
+      padding: 12px 8px;
+      display: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
+      z-index: 10;
+      flex-direction: column;
+      gap: 4px;
     }
-    #s-salle .attach-menu.show { display: flex; }
+
+    #s-salle .attach-menu.show {
+      display: flex;
+    }
+
     #s-salle .attach-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 14px; border-radius: 10px;
-      cursor: pointer; transition: background .15s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .15s;
     }
-    #s-salle .attach-item:hover { background: #2A3942; }
+
+    #s-salle .attach-item:hover {
+      background: #2A3942;
+    }
+
     #s-salle .attach-ico {
-      width: 40px; height: 40px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 1.1rem;
     }
-    #s-salle .attach-lbl { font-size: .8rem; font-weight: 600; color: #E9EDEF; }
+
+    #s-salle .attach-lbl {
+      font-size: .8rem;
+      font-weight: 600;
+      color: #E9EDEF;
+    }
+
     /* Reply bar */
     #s-salle .reply-bar {
-      background: #182229; border-left: 3px solid #00A884;
-      padding: 8px 12px; display: none;
-      align-items: center; gap: 8px; flex-shrink: 0;
+      background: #182229;
+      border-left: 3px solid #00A884;
+      padding: 8px 12px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
     }
-    #s-salle .reply-bar.show { display: flex; }
-    #s-salle .reply-bar-nm { font-size: .72rem; font-weight: 700; color: #00A884; }
-    #s-salle .reply-bar-txt { font-size: .72rem; color: #8696A0; }
-    #s-salle .reply-close { background: none; border: none; color: #8696A0; cursor: pointer; font-size: 1rem; }
+
+    #s-salle .reply-bar.show {
+      display: flex;
+    }
+
+    #s-salle .reply-bar-nm {
+      font-size: .72rem;
+      font-weight: 700;
+      color: #00A884;
+    }
+
+    #s-salle .reply-bar-txt {
+      font-size: .72rem;
+      color: #8696A0;
+    }
+
+    #s-salle .reply-close {
+      background: none;
+      border: none;
+      color: #8696A0;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
     /* Emoji */
     #s-salle .emoji-picker-wrap {
-      position: absolute; bottom: 65px; left: 12px;
-      background: #233138; border-radius: 12px;
-      padding: 10px; display: none; z-index: 10;
-      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      position: absolute;
+      bottom: 65px;
+      left: 12px;
+      background: #233138;
+      border-radius: 12px;
+      padding: 10px;
+      display: none;
+      z-index: 10;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
     }
-    #s-salle .emoji-picker-wrap.show { display: block; }
-    #s-salle .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
-    #s-salle .e-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; border-radius: 6px; padding: 3px; transition: background .1s; }
-    #s-salle .e-btn:hover { background: #2A3942; }
+
+    #s-salle .emoji-picker-wrap.show {
+      display: block;
+    }
+
+    #s-salle .emoji-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+    }
+
+    #s-salle .e-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 6px;
+      padding: 3px;
+      transition: background .1s;
+    }
+
+    #s-salle .e-btn:hover {
+      background: #2A3942;
+    }
+
     /* Sondage */
     #s-salle .poll-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.7);
-      display: none; align-items: center; justify-content: center; z-index: 100;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
     }
-    #s-salle .poll-overlay.show { display: flex; }
+
+    #s-salle .poll-overlay.show {
+      display: flex;
+    }
+
     #s-salle .poll-box {
-      background: #233138; border-radius: 16px;
-      padding: 20px; width: 340px; max-width: 90vw;
+      background: #233138;
+      border-radius: 16px;
+      padding: 20px;
+      width: 340px;
+      max-width: 90vw;
     }
+
     /* Stickers */
     #s-salle .sticker-wrap {
-      position: absolute; bottom: 65px; right: 55px;
-      background: #233138; border-radius: 12px;
-      padding: 10px; display: none; z-index: 10;
-      box-shadow: 0 4px 20px rgba(0,0,0,.4);
+      position: absolute;
+      bottom: 65px;
+      right: 55px;
+      background: #233138;
+      border-radius: 12px;
+      padding: 10px;
+      display: none;
+      z-index: 10;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, .4);
     }
-    #s-salle .sticker-wrap.show { display: block; }
-    #s-salle .sticker-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-    #s-salle .sticker-btn { font-size: 1.6rem; cursor: pointer; border-radius: 8px; padding: 4px; border: none; background: none; transition: background .1s; }
-    #s-salle .sticker-btn:hover { background: #2A3942; }
+
+    #s-salle .sticker-wrap.show {
+      display: block;
+    }
+
+    #s-salle .sticker-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+
+    #s-salle .sticker-btn {
+      font-size: 1.6rem;
+      cursor: pointer;
+      border-radius: 8px;
+      padding: 4px;
+      border: none;
+      background: none;
+      transition: background .1s;
+    }
+
+    #s-salle .sticker-btn:hover {
+      background: #2A3942;
+    }
+
     /* Context menu */
     #s-salle .ctx-menu {
-      position: absolute; background: #233138;
-      border-radius: 10px; padding: 6px 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,.4);
-      z-index: 20; display: none; min-width: 160px;
+      position: absolute;
+      background: #233138;
+      border-radius: 10px;
+      padding: 6px 0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .4);
+      z-index: 20;
+      display: none;
+      min-width: 160px;
     }
-    #s-salle .ctx-menu.show { display: block; }
+
+    #s-salle .ctx-menu.show {
+      display: block;
+    }
+
     #s-salle .ctx-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 9px 16px; font-size: .8rem; color: #E9EDEF;
-      cursor: pointer; transition: background .12s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 16px;
+      font-size: .8rem;
+      color: #E9EDEF;
+      cursor: pointer;
+      transition: background .12s;
     }
-    #s-salle .ctx-item:hover { background: #2A3942; }
-    #s-salle .ctx-item svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+    #s-salle .ctx-item:hover {
+      background: #2A3942;
+    }
+
+    #s-salle .ctx-item svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+    }
+
     /* Bg picker */
     #s-salle .bg-picker {
-      position: absolute; top: 55px; right: 12px;
-      background: #233138; border-radius: 12px;
-      padding: 12px; display: none; z-index: 10;
+      position: absolute;
+      top: 55px;
+      right: 12px;
+      background: #233138;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+      z-index: 10;
     }
-    #s-salle .bg-picker.show { display: block; }
-    #s-salle .bg-picker-title { font-size: .75rem; font-weight: 700; color: #8696A0; margin-bottom: 8px; }
-    #s-salle .bg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-    #s-salle .bg-opt { border-radius: 8px; cursor: pointer; height: 50px; border: 2px solid transparent; transition: border-color .15s; }
-    #s-salle .bg-opt.sel { border-color: #00A884; }
+
+    #s-salle .bg-picker.show {
+      display: block;
+    }
+
+    #s-salle .bg-picker-title {
+      font-size: .75rem;
+      font-weight: 700;
+      color: #8696A0;
+      margin-bottom: 8px;
+    }
+
+    #s-salle .bg-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    #s-salle .bg-opt {
+      border-radius: 8px;
+      cursor: pointer;
+      height: 50px;
+      border: 2px solid transparent;
+      transition: border-color .15s;
+    }
+
+    #s-salle .bg-opt.sel {
+      border-color: #00A884;
+    }
+
     /* Réponse dans bulle */
     #s-salle .reply-preview {
-      background: rgba(0,0,0,.2); border-left: 3px solid #00A884;
-      border-radius: 6px; padding: 5px 8px; margin-bottom: 5px;
+      background: rgba(0, 0, 0, .2);
+      border-left: 3px solid #00A884;
+      border-radius: 6px;
+      padding: 5px 8px;
+      margin-bottom: 5px;
     }
-    #s-salle .reply-preview-nm { font-size: .68rem; font-weight: 700; color: #00A884; }
-    #s-salle .reply-preview-txt { font-size: .72rem; color: #8696A0; }
+
+    #s-salle .reply-preview-nm {
+      font-size: .68rem;
+      font-weight: 700;
+      color: #00A884;
+    }
+
+    #s-salle .reply-preview-txt {
+      font-size: .72rem;
+      color: #8696A0;
+    }
+
     /* Bulle fichier */
     #s-salle .bubble-file {
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(255,255,255,.07); border-radius: 8px;
-      padding: 10px 12px; min-width: 180px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, .07);
+      border-radius: 8px;
+      padding: 10px 12px;
+      min-width: 180px;
     }
-    #s-salle .bubble-file-ico { font-size: 1.8rem; }
-    #s-salle .bubble-file-nm { font-size: .78rem; font-weight: 600; color: #E9EDEF; }
-    #s-salle .bubble-file-sz { font-size: .65rem; color: #8696A0; margin-top: 2px; }
+
+    #s-salle .bubble-file-ico {
+      font-size: 1.8rem;
+    }
+
+    #s-salle .bubble-file-nm {
+      font-size: .78rem;
+      font-weight: 600;
+      color: #E9EDEF;
+    }
+
+    #s-salle .bubble-file-sz {
+      font-size: .65rem;
+      color: #8696A0;
+      margin-top: 2px;
+    }
+
     /* Sondage bulle */
-    #s-salle .bubble-poll { min-width: 200px; }
+    #s-salle .bubble-poll {
+      min-width: 200px;
+    }
+
     #s-salle .poll-opt {
-      background: rgba(255,255,255,.08); border-radius: 8px;
-      padding: 8px 10px; margin-top: 5px; cursor: pointer;
-      font-size: .78rem; position: relative; overflow: hidden;
+      background: rgba(255, 255, 255, .08);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-top: 5px;
+      cursor: pointer;
+      font-size: .78rem;
+      position: relative;
+      overflow: hidden;
     }
-    #s-salle .poll-bar { position: absolute; left: 0; top: 0; height: 100%; background: rgba(0,168,132,.25); border-radius: 8px; transition: width .4s; }
+
+    #s-salle .poll-bar {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: rgba(0, 168, 132, .25);
+      border-radius: 8px;
+      transition: width .4s;
+    }
+
     @media (max-width:640px) {
-      #s-salle .salle-wrap { flex-direction:column !important; height:calc(100dvh - 95px) !important; }
-      #s-salle .conv-sidebar { width:100% !important; min-width:0 !important; max-height:90px !important; flex:0 0 auto !important; border-right:none !important; border-bottom:1px solid #2A3942 !important; }
-      #s-salle .conv-search { display:none !important; }
-      #s-salle .conv-list { flex-direction:row !important; overflow-x:auto !important; overflow-y:hidden !important; padding:4px 8px !important; gap:4px !important; }
-      #s-salle .conv-item { flex-direction:column !important; align-items:center !important; width:52px !important; min-height:0 !important; padding:4px !important; flex-shrink:0 !important; border-bottom:none !important; }
-      #s-salle .conv-item > div:last-child { display:none !important; }
-      #s-salle .conv-av { width:36px !important; height:36px !important; }
-      #s-salle .msg-row { max-width:84vw !important; }
+
+      /* ══ LAYOUT PRINCIPAL ══ */
+      .sidebar {
+        position: fixed !important;
+        transform: translateX(-220px) !important;
+        transition: transform .28s ease !important;
+        z-index: 999 !important;
+      }
+
+      .sidebar.open {
+        transform: translateX(0) !important;
+      }
+
+      main {
+        margin-left: 0 !important;
+        overflow-x: hidden !important;
+        width: 100vw !important;
+      }
+
+      #ham-btn {
+        display: flex !important;
+      }
+
+      /* ══ SECTIONS : overflow caché ══ */
+      .sec {
+        overflow-x: hidden !important;
+        padding: 0 !important;
+      }
+
+      /* ══ DASHBOARD ══ */
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+      }
+
+      .kpi {
+        padding: 12px 14px !important;
+      }
+
+      /* Dashboard grille "1fr 1fr" → colonne */
+      #s-dash>div>div[style*="grid-template-columns:1fr 1fr"],
+      #s-dash>div[style*="grid-template-columns:1fr 1fr"],
+      #s-dash [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        display: block !important;
+      }
+
+      #dash-cls,
+      #s-dash .card {
+        margin-bottom: 10px !important;
+      }
+
+      /* ══ CAHIER DE TEXTE ══ */
+      #s-ct [style*="grid-template-columns:1fr 340px"],
+      #s-ct [style*="grid-template-columns: 1fr 340px"] {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      #s-ct [style*="grid-template-columns:1fr 1fr"],
+      #s-ct [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      #s-ct .card {
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* ══ RESSOURCES ══ */
+      .res-main-layout {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      #video-grid,
+      #s-res [style*="grid-template-columns:repeat(3"],
+      #s-res [style*="grid-template-columns: repeat(3"] {
+        grid-template-columns: 1fr !important;
+        display: grid !important;
+      }
+
+      .video-card {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      #s-res .card {
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* ══ ORIENTATION ══ */
+      #s-orient [style*="grid-template-columns:1fr 340px"],
+      #s-orient [style*="grid-template-columns: 1fr 340px"] {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      #s-orient [style*="grid-template-columns:1fr 1fr"],
+      #s-orient [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      #orient-list {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ══ NOTES ══ */
+      .notes-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .eleve-list {
+        max-height: 200px !important;
+      }
+
+      #mats-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ══ PROFIL ══ */
+      .profil-wrap {
+        grid-template-columns: 1fr !important;
+      }
+
+      .pf-row {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ══ SALLE DES PROFS ══ */
+      #s-salle .salle-wrap {
+        flex-direction: column !important;
+        height: calc(100dvh - 95px) !important;
+      }
+
+      #s-salle .conv-sidebar {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-height: 90px !important;
+        flex: 0 0 auto !important;
+        border-right: none !important;
+        border-bottom: 1px solid #2A3942 !important;
+      }
+
+      #s-salle .conv-search {
+        display: none !important;
+      }
+
+      #s-salle .conv-list {
+        flex-direction: row !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        padding: 4px 8px !important;
+        gap: 4px !important;
+      }
+
+      #s-salle .conv-item {
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 52px !important;
+        min-height: 0 !important;
+        padding: 4px !important;
+        flex-shrink: 0 !important;
+        border-bottom: none !important;
+      }
+
+      #s-salle .conv-item>div:last-child {
+        display: none !important;
+      }
+
+      #s-salle .conv-av {
+        width: 36px !important;
+        height: 36px !important;
+      }
+
+      #s-salle .msg-row {
+        max-width: 84vw !important;
+      }
+
+      #s-salle .chat-zone {
+        flex: 1 !important;
+        min-height: 0 !important;
+      }
+
+      #s-salle .msgs-bg {
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+      }
+
+      #s-salle .chat-input-row {
+        flex-shrink: 0 !important;
+      }
+
+      /* ══ TOPBAR ══ */
+      .topbar {
+        padding: 0 12px !important;
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+      }
+
+      .pg-top {
+        flex-direction: column !important;
+        gap: 4px !important;
+      }
+
+      /* ══ GÉNÉRAL ══ */
+      .card-hd {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+      }
+
+      .btn-p {
+        font-size: .72rem !important;
+        padding: 6px 10px !important;
+      }
+
+      .cls-tab {
+        font-size: .68rem !important;
+        padding: 4px 8px !important;
+      }
+
+      .cls-tabs {
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+      }
     }
+
+    @media (max-width:400px) {
+      .kpi-row {
+        grid-template-columns: 1fr !important;
+      }
+
+      .kpi {
+        padding: 10px 12px !important;
+      }
+
+      .bubble {
+        font-size: .76rem !important;
+      }
+    }
+
     @keyframes fu {
       from {
         opacity: 0;
@@ -2318,6 +2998,80 @@
     input[type="file"] {
       display: none;
     }
+
+    /* ══ RESSOURCES RESPONSIVE ══ */
+    .res-main-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 14px;
+    }
+
+    .video-grid-wrap {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .video-card {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .video-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+    }
+
+    @media (max-width: 900px) {
+      .res-main-layout {
+        grid-template-columns: 1fr !important;
+      }
+
+      .video-grid-wrap {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .res-main-layout {
+        grid-template-columns: 1fr !important;
+      }
+
+      .video-grid-wrap {
+        grid-template-columns: 1fr !important;
+      }
+
+      .video-card {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      #s-res {
+        overflow-x: hidden !important;
+      }
+    }
+
+
+    /* ══ DOCS LIST MOBILE ══ */
+    @media (max-width: 640px) {
+      #res-list>div {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        padding: 10px 10px !important;
+      }
+
+      #res-list>div>div[style*="flex:1"] {
+        min-width: 0 !important;
+        width: calc(100% - 50px) !important;
+      }
+
+      #res-list>div>span,
+      #res-list>div>button {
+        font-size: .6rem !important;
+        padding: 3px 7px !important;
+      }
+    }
   </style>
   <script src="/socket.io/socket.io.js"></script>
 </head>
@@ -2340,7 +3094,9 @@
         </div>
       </div>
       <div class="sb-user" style="display:flex;align-items:center;gap:9px;">
-        <div id="sb-avatar" style="width:36px;height:36px;min-width:36px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;color:#fff;overflow:hidden;flex-shrink:0;">M</div>
+        <div id="sb-avatar"
+          style="width:36px;height:36px;min-width:36px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;color:#fff;overflow:hidden;flex-shrink:0;">
+          M</div>
         <div style="min-width:0;">
           <div class="sb-user-name" id="sb-name">Chargement…</div>
           <div class="sb-user-mat" id="sb-mat">PROF-2026-XXX</div>
@@ -2369,7 +3125,7 @@
           <path d="M12 20h9" />
           <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
         </svg>Saisie des Notes
-        <span class="badge" id="nb-badge">!</span>
+
       </div>
       <div class="ni" id="ni-ct" onclick="go('ct',this)">
         <svg viewBox="0 0 24 24">
@@ -2398,6 +3154,17 @@
           <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
           <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>Salle des Profs
+      </div>
+      <div class="ni" id="ni-annonces" onclick="go('annonces',this)">
+        <svg viewBox="0 0 24 24">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+          <line x1="6" y1="1" x2="6" y2="4" />
+          <line x1="10" y1="1" x2="10" y2="4" />
+          <line x1="14" y1="1" x2="14" y2="4" />
+        </svg>Annonces
+        <span id="badge-ann-prof"
+          style="display:none;background:#EF4444;color:#fff;font-size:.6rem;font-weight:800;padding:1px 6px;border-radius:10px;margin-left:auto;">!</span>
       </div>
     </div>
     <div class="sb-foot">
@@ -2698,7 +3465,7 @@
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
+        <div class="res-main-layout">
           <!-- Liste ressources : docs + vidéos -->
           <div>
             <!-- Vidéos -->
@@ -2883,241 +3650,287 @@
               </button>
               <div id="res-msg"
                 style="display:none;font-size:.74rem;padding:10px 12px;border-radius:9px;font-weight:600;"></div>
-             </div>
+            </div>
 
-      </div>
-      </div>
+          </div>
+        </div>
       </div>
 
       <!-- ══ ORIENTATION ══ -->
       <div id="s-orient" class="sec">
-            <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
-              <div class="card">
-                <div class="card-hd">
-                  <div>
-                    <div class="card-hd-title">Suivi Orientation · 3ème → Terminale</div>
-                    <div class="card-hd-sub">Points forts/faibles · Conseil de série</div>
-                  </div>
-                  <select id="orient-filter" style="padding:5px 9px;font-size:.72rem;border-radius:7px;"
-                    onchange="renderOrient()">
-                    <option value="">Mes classes</option>
-                  </select>
-                </div>
-                <div style="padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="orient-list"></div>
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
+          <div class="card">
+            <div class="card-hd">
+              <div>
+                <div class="card-hd-title">Suivi Orientation · 3ème → Terminale</div>
+                <div class="card-hd-sub">Points forts/faibles · Conseil de série</div>
               </div>
-              <div class="card" style="padding:18px;">
-                <div style="font-size:.86rem;font-weight:800;color:var(--ink);margin-bottom:12px;">🧭 Avis d'orientation
-                </div>
-                <div style="display:flex;flex-direction:column;gap:9px;">
-                  <div><label>Élève (matricule)</label><input type="text" id="or-el" placeholder="CN-2026-XXXX"></div>
-                  <div><label>Points forts</label><textarea id="or-force" rows="2"
-                      placeholder="Logique, rigueur, créativité…"></textarea></div>
-                  <div><label>Points à améliorer</label><textarea id="or-faib" rows="2"
-                      placeholder="Expression écrite, concentration…"></textarea></div>
-                  <div><label>Série recommandée</label>
-                    <select id="or-serie">
-                      <option value="">— Sélectionner —</option>
-                      <option>Terminale A</option>
-                      <option>Terminale D</option>
-                      <option>1ère A</option>
-                      <option>1ère D</option>
-                      <option>2nde (redoublement)</option>
-                      <option>Orientation CFA</option>
-                    </select>
-                  </div>
-                  <div><label>Commentaire général</label><textarea id="or-comment" rows="3"
-                      placeholder="Avis visible par l'élève, son parent et les alumni…"></textarea></div>
-                </div>
-                <button class="btn-p" style="width:100%;justify-content:center;margin-top:12px;"
-                  onclick="saveOrientation()">
-                  <svg viewBox="0 0 24 24">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>Publier l'avis
-                </button>
-                <div id="or-msg"
-                  style="display:none;margin-top:9px;font-size:.72rem;padding:8px 11px;border-radius:7px;font-weight:600;">
-                </div>
+              <select id="orient-filter" style="padding:5px 9px;font-size:.72rem;border-radius:7px;"
+                onchange="renderOrient()">
+                <option value="">Mes classes</option>
+              </select>
+            </div>
+            <div style="padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="orient-list"></div>
+          </div>
+          <div class="card" style="padding:18px;">
+            <div style="font-size:.86rem;font-weight:800;color:var(--ink);margin-bottom:12px;">🧭 Avis d'orientation
+            </div>
+            <div style="display:flex;flex-direction:column;gap:9px;">
+              <div><label>Élève (matricule)</label><input type="text" id="or-el" placeholder="CN-2026-XXXX"></div>
+              <div><label>Points forts</label><textarea id="or-force" rows="2"
+                  placeholder="Logique, rigueur, créativité…"></textarea></div>
+              <div><label>Points à améliorer</label><textarea id="or-faib" rows="2"
+                  placeholder="Expression écrite, concentration…"></textarea></div>
+              <div><label>Série recommandée</label>
+                <select id="or-serie">
+                  <option value="">— Sélectionner —</option>
+                  <option>Terminale A</option>
+                  <option>Terminale D</option>
+                  <option>1ère A</option>
+                  <option>1ère D</option>
+                  <option>2nde (redoublement)</option>
+                  <option>Orientation CFA</option>
+                </select>
               </div>
+              <div><label>Commentaire général</label><textarea id="or-comment" rows="3"
+                  placeholder="Avis visible par l'élève, son parent et les alumni…"></textarea></div>
+            </div>
+            <button class="btn-p" style="width:100%;justify-content:center;margin-top:12px;"
+              onclick="saveOrientation()">
+              <svg viewBox="0 0 24 24">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>Publier l'avis
+            </button>
+            <div id="or-msg"
+              style="display:none;margin-top:9px;font-size:.72rem;padding:8px 11px;border-radius:7px;font-weight:600;">
             </div>
           </div>
+        </div>
+      </div>
 
       <!-- ══ SALLE DES PROFS (WhatsApp) ══ -->
       <div id="s-salle" class="sec">
-            <div class="salle-wrap">
-              <!-- Sidebar -->
-              <div class="conv-sidebar">
-                <div class="conv-sidebar-hd">
-                  <span class="conv-sidebar-title">💬 Collègues <span id="online-cnt"
-                      style="font-size:.65rem;color:#52B788;font-weight:700;"></span></span>
-                  <div class="conv-hd-btns">
-                    <button class="conv-hd-btn" title="Nouveau groupe"
-                      onclick="toast('Groupes — bientôt disponible','info')">
-                      <svg viewBox="0 0 24 24">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-                <div class="conv-search">
-                  <input type="text" placeholder="🔍 Rechercher…" oninput="filtProfs(this.value)">
-                </div>
-                <div class="conv-list" id="conv-list"></div>
+        <div class="salle-wrap">
+          <!-- Sidebar -->
+          <div class="conv-sidebar">
+            <div class="conv-sidebar-hd">
+              <span class="conv-sidebar-title">💬 Collègues <span id="online-cnt"
+                  style="font-size:.65rem;color:#52B788;font-weight:700;"></span></span>
+              <div class="conv-hd-btns">
+                <button class="conv-hd-btn" title="Nouveau groupe"
+                  onclick="toast('Groupes — bientôt disponible','info')">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                </button>
               </div>
+            </div>
+            <div class="conv-search">
+              <input type="text" placeholder="🔍 Rechercher…" oninput="filtProfs(this.value)">
+            </div>
+            <div class="conv-list" id="conv-list"></div>
+          </div>
 
-              <!-- Zone chat -->
-              <div class="chat-zone" id="chat-zone" style="position:relative;">
-                <!-- Header -->
-                <div class="chat-hd" id="chat-hd">
-                  <div class="chat-hd-av" id="chat-hd-av" style="background:var(--accent);">S</div>
-                  <div style="flex:1;min-width:0;">
-                    <div class="chat-hd-nm" id="chat-hd-nm">Salle commune</div>
-                    <div class="chat-hd-sub" id="chat-hd-sub">Tous les professeurs</div>
-                  </div>
-                  <div class="chat-hd-actions">
-                    <button class="chat-hd-ico" onclick="toggleBgPicker()" title="Changer le fond">
-                      <svg viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="3" />
-                        <path
-                          d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
-                      </svg>
-                    </button>
-                    <button class="chat-hd-ico" onclick="toast('Appel vocal — bientôt disponible','info')">
-                      <svg viewBox="0 0 24 24">
-                        <path
-                          d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.1a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                      </svg>
-                    </button>
-                  </div>
+          <!-- Zone chat -->
+          <div class="chat-zone" id="chat-zone" style="position:relative;">
+            <!-- Header -->
+            <div class="chat-hd" id="chat-hd">
+              <div class="chat-hd-av" id="chat-hd-av" style="background:var(--accent);">S</div>
+              <div style="flex:1;min-width:0;">
+                <div class="chat-hd-nm" id="chat-hd-nm">Salle commune</div>
+                <div class="chat-hd-sub" id="chat-hd-sub">Tous les professeurs</div>
+              </div>
+              <div class="chat-hd-actions">
+                <button class="chat-hd-ico" onclick="toggleBgPicker()" title="Changer le fond">
+                  <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                      d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+                  </svg>
+                </button>
+                <button class="chat-hd-ico" onclick="toast('Appel vocal — bientôt disponible','info')">
+                  <svg viewBox="0 0 24 24">
+                    <path
+                      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.1a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sélecteur de fond -->
+            <div class="bg-picker" id="bg-picker">
+              <div class="bg-picker-title">Choisir un fond</div>
+              <div class="bg-grid" id="bg-grid"></div>
+            </div>
+
+            <!-- Zone messages -->
+            <div class="msgs-bg" id="msgs-bg"></div>
+
+            <!-- Reply bar -->
+            <div class="reply-bar" id="reply-bar">
+              <div class="reply-bar-content">
+                <div class="reply-bar-nm" id="reply-bar-nm">Répondre à</div>
+                <div class="reply-bar-txt" id="reply-bar-txt"></div>
+              </div>
+              <button class="reply-close" onclick="cancelReply()">✕</button>
+            </div>
+
+            <!-- Attach menu -->
+            <div class="attach-menu" id="attach-menu">
+              <div class="attach-item" onclick="triggerAttach('image/*')">
+                <div class="attach-ico" style="background:#BF59CF;">🖼️</div>
+                <span class="attach-lbl">Photos & Images</span>
+              </div>
+              <div class="attach-item" onclick="triggerAttach('video/*')">
+                <div class="attach-ico" style="background:#E53E3E;">🎬</div>
+                <span class="attach-lbl">Vidéo</span>
+              </div>
+              <div class="attach-item" onclick="triggerAttach('.pdf,.doc,.docx,.pptx,.xlsx,.txt')">
+                <div class="attach-ico" style="background:#0063CB;">📄</div>
+                <span class="attach-lbl">Document</span>
+              </div>
+              <div class="attach-item" onclick="triggerAttach('.mp3,.ogg,.wav,.m4a,.aac')">
+                <div class="attach-ico" style="background:#D3396D;">🎵</div>
+                <span class="attach-lbl">Audio</span>
+              </div>
+            </div>
+            <input type="file" id="chat-attach-input" style="display:none;" onchange="sendAttachment(this)">
+
+            <!-- Emoji picker -->
+            <div class="emoji-picker-wrap" id="emoji-picker-wrap"></div>
+
+            <!-- Context menu -->
+            <div class="ctx-menu" id="ctx-menu">
+              <div class="ctx-item" onclick="ctxReply()">
+                <svg viewBox="0 0 24 24">
+                  <polyline points="9 17 4 12 9 7" />
+                  <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+                </svg>
+                Répondre
+              </div>
+              <div class="ctx-item" onclick="ctxCopy()">
+                <svg viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Copier
+              </div>
+              <div class="ctx-item" onclick="ctxDelete()" style="color:#FF8080;">
+                <svg viewBox="0 0 24 24">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14H6L5 6" />
+                  <path d="M10 11v6M14 11v6" />
+                </svg>
+                Supprimer
+              </div>
+            </div>
+
+            <!-- Stickers panel -->
+            <div class="sticker-wrap" id="sticker-wrap">
+              <div style="font-size:.7rem;font-weight:700;color:#8696A0;margin-bottom:6px;">Stickers 🎭</div>
+              <div class="sticker-grid" id="sticker-grid"></div>
+            </div>
+
+            <!-- Sondage overlay -->
+            <div class="poll-overlay" id="poll-overlay">
+              <div class="poll-box">
+                <div style="font-size:.9rem;font-weight:700;color:#E9EDEF;margin-bottom:12px;">📊 Créer un sondage</div>
+                <input id="poll-question" placeholder="Question…"
+                  style="width:100%;background:#2A3942;border:none;border-radius:8px;padding:9px 12px;color:#E9EDEF;font-size:.82rem;outline:none;margin-bottom:8px;">
+                <div id="poll-options-wrap">
+                  <input class="poll-opt-inp" placeholder="Option 1…"
+                    style="width:100%;background:#2A3942;border:none;border-radius:8px;padding:8px 12px;color:#E9EDEF;font-size:.8rem;outline:none;margin-bottom:5px;">
+                  <input class="poll-opt-inp" placeholder="Option 2…"
+                    style="width:100%;background:#2A3942;border:none;border-radius:8px;padding:8px 12px;color:#E9EDEF;font-size:.8rem;outline:none;margin-bottom:5px;">
                 </div>
-
-                <!-- Sélecteur de fond -->
-                <div class="bg-picker" id="bg-picker">
-                  <div class="bg-picker-title">Choisir un fond</div>
-                  <div class="bg-grid" id="bg-grid"></div>
-                </div>
-
-                <!-- Zone messages -->
-                <div class="msgs-bg" id="msgs-bg"></div>
-
-                <!-- Reply bar -->
-                <div class="reply-bar" id="reply-bar">
-                  <div class="reply-bar-content">
-                    <div class="reply-bar-nm" id="reply-bar-nm">Répondre à</div>
-                    <div class="reply-bar-txt" id="reply-bar-txt"></div>
-                  </div>
-                  <button class="reply-close" onclick="cancelReply()">✕</button>
-                </div>
-
-                <!-- Attach menu -->
-                <div class="attach-menu" id="attach-menu">
-                  <div class="attach-item" onclick="triggerAttach('image/*')">
-                    <div class="attach-ico" style="background:#BF59CF;">🖼️</div>
-                    <span class="attach-lbl">Photos & Images</span>
-                  </div>
-                  <div class="attach-item" onclick="triggerAttach('video/*')">
-                    <div class="attach-ico" style="background:#E53E3E;">🎬</div>
-                    <span class="attach-lbl">Vidéo</span>
-                  </div>
-                  <div class="attach-item" onclick="triggerAttach('.pdf,.doc,.docx,.pptx,.xlsx,.txt')">
-                    <div class="attach-ico" style="background:#0063CB;">📄</div>
-                    <span class="attach-lbl">Document</span>
-                  </div>
-                  <div class="attach-item" onclick="triggerAttach('.mp3,.ogg,.wav,.m4a,.aac')">
-                    <div class="attach-ico" style="background:#D3396D;">🎵</div>
-                    <span class="attach-lbl">Audio</span>
-                  </div>
-                </div>
-                <input type="file" id="chat-attach-input" style="display:none;" onchange="sendAttachment(this)">
-
-                <!-- Emoji picker -->
-                <div class="emoji-picker-wrap" id="emoji-picker-wrap"></div>
-
-                <!-- Context menu -->
-                <div class="ctx-menu" id="ctx-menu">
-                  <div class="ctx-item" onclick="ctxReply()">
-                    <svg viewBox="0 0 24 24">
-                      <polyline points="9 17 4 12 9 7" />
-                      <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
-                    </svg>
-                    Répondre
-                  </div>
-                  <div class="ctx-item" onclick="ctxCopy()">
-                    <svg viewBox="0 0 24 24">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                    Copier
-                  </div>
-                  <div class="ctx-item" onclick="ctxDelete()" style="color:#FF8080;">
-                    <svg viewBox="0 0 24 24">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6l-1 14H6L5 6" />
-                      <path d="M10 11v6M14 11v6" />
-                    </svg>
-                    Supprimer
-                  </div>
-                </div>
-
-                <!-- Stickers panel -->
-                <div class="sticker-wrap" id="sticker-wrap">
-                  <div style="font-size:.7rem;font-weight:700;color:#8696A0;margin-bottom:6px;">Stickers 🎭</div>
-                  <div class="sticker-grid" id="sticker-grid"></div>
-                </div>
-
-                <!-- Sondage overlay -->
-                <div class="poll-overlay" id="poll-overlay">
-                  <div class="poll-box">
-                    <div style="font-size:.9rem;font-weight:700;color:#E9EDEF;margin-bottom:12px;">📊 Créer un sondage</div>
-                    <input id="poll-question" placeholder="Question…" style="width:100%;background:#2A3942;border:none;border-radius:8px;padding:9px 12px;color:#E9EDEF;font-size:.82rem;outline:none;margin-bottom:8px;">
-                    <div id="poll-options-wrap">
-                      <input class="poll-opt-inp" placeholder="Option 1…" style="width:100%;background:#2A3942;border:none;border-radius:8px;padding:8px 12px;color:#E9EDEF;font-size:.8rem;outline:none;margin-bottom:5px;">
-                      <input class="poll-opt-inp" placeholder="Option 2…" style="width:100%;background:#2A3942;border:none;border-radius:8px;padding:8px 12px;color:#E9EDEF;font-size:.8rem;outline:none;margin-bottom:5px;">
-                    </div>
-                    <button onclick="addPollOption()" style="background:none;border:none;color:#00A884;font-size:.78rem;font-weight:700;cursor:pointer;margin-bottom:12px;">+ Ajouter option</button>
-                    <div style="display:flex;gap:8px;">
-                      <button onclick="closePoll()" style="flex:1;background:#2A3942;border:none;border-radius:8px;padding:9px;color:#8696A0;font-weight:700;cursor:pointer;">Annuler</button>
-                      <button onclick="sendPoll()" style="flex:1;background:#00A884;border:none;border-radius:8px;padding:9px;color:#fff;font-weight:700;cursor:pointer;">Envoyer</button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Input bar WhatsApp -->
-                <div class="chat-input-row" id="chat-input-row" style="position:relative;">
-                  <button class="chat-tool-btn" onclick="toggleEmoji()" title="Emoji">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                  </button>
-                  <button class="chat-tool-btn" onclick="toggleAttach()" title="Joindre">
-                    <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-                  </button>
-                  <button class="chat-tool-btn" onclick="toggleStickers()" title="Stickers">
-                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 3 4 3 4-3 4-3"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                  </button>
-                  <button class="chat-tool-btn" onclick="openPoll()" title="Sondage">
-                    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                  </button>
-                  <textarea class="chat-inp-box" id="chat-inp" placeholder="Message…" rows="1"
-                    onkeydown="handleChatKey(event)"
-                    oninput="autoResizeInp(this);toggleSendMic();"></textarea>
-                  <button class="chat-send-btn" id="send-btn" style="display:none;" onclick="sendMsg()" title="Envoyer">
-                    <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                  </button>
-                  <button class="chat-mic-btn" id="mic-btn" onclick="toggleRecording()" title="Message vocal">
-                    <svg id="mic-ico" viewBox="0 0 24 24">
-                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-                      <line x1="12" y1="19" x2="12" y2="23"/>
-                      <line x1="8" y1="23" x2="16" y2="23"/>
-                    </svg>
-                  </button>
+                <button onclick="addPollOption()"
+                  style="background:none;border:none;color:#00A884;font-size:.78rem;font-weight:700;cursor:pointer;margin-bottom:12px;">+
+                  Ajouter option</button>
+                <div style="display:flex;gap:8px;">
+                  <button onclick="closePoll()"
+                    style="flex:1;background:#2A3942;border:none;border-radius:8px;padding:9px;color:#8696A0;font-weight:700;cursor:pointer;">Annuler</button>
+                  <button onclick="sendPoll()"
+                    style="flex:1;background:#00A884;border:none;border-radius:8px;padding:9px;color:#fff;font-weight:700;cursor:pointer;">Envoyer</button>
                 </div>
               </div>
             </div>
-          </div>
 
-        </div><!-- .pad -->
+            <!-- Input bar WhatsApp -->
+            <div class="chat-input-row" id="chat-input-row" style="position:relative;">
+              <button class="chat-tool-btn" onclick="toggleEmoji()" title="Emoji">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                  <line x1="9" y1="9" x2="9.01" y2="9" />
+                  <line x1="15" y1="9" x2="15.01" y2="9" />
+                </svg>
+              </button>
+              <button class="chat-tool-btn" onclick="toggleAttach()" title="Joindre">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                </svg>
+              </button>
+              <button class="chat-tool-btn" onclick="toggleStickers()" title="Stickers">
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M8 13s1.5 3 4 3 4-3 4-3" />
+                  <line x1="9" y1="9" x2="9.01" y2="9" />
+                  <line x1="15" y1="9" x2="15.01" y2="9" />
+                </svg>
+              </button>
+              <button class="chat-tool-btn" onclick="openPoll()" title="Sondage">
+                <svg viewBox="0 0 24 24">
+                  <line x1="18" y1="20" x2="18" y2="10" />
+                  <line x1="12" y1="20" x2="12" y2="4" />
+                  <line x1="6" y1="20" x2="6" y2="14" />
+                </svg>
+              </button>
+              <textarea class="chat-inp-box" id="chat-inp" placeholder="Message…" rows="1"
+                onkeydown="handleChatKey(event)" oninput="autoResizeInp(this);toggleSendMic();"></textarea>
+              <button class="chat-send-btn" id="send-btn" style="display:none;" onclick="sendMsg()" title="Envoyer">
+                <svg viewBox="0 0 24 24">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+              </button>
+              <button class="chat-mic-btn" id="mic-btn" onclick="toggleRecording()" title="Message vocal">
+                <svg id="mic-ico" viewBox="0 0 24 24">
+                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- .pad -->
+    <!-- ══ ANNONCES PROFS ══ -->
+    <div id="s-annonces" class="sec" style="padding:0;">
+      <div style="max-width:700px;margin:0 auto;padding:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:900;color:var(--ink);">📢 Annonces
+              Officielles</div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:2px;">Communiqués de la Direction · Visible
+              uniquement par les professeurs</div>
+          </div>
+          <button onclick="loadAnnoncesProf()"
+            style="background:var(--accent-light);color:var(--accent);border:none;border-radius:9px;padding:7px 14px;font-size:.72rem;font-weight:700;cursor:pointer;">🔄
+            Actualiser</button>
+        </div>
+        <div id="ann-prof-list" style="display:flex;flex-direction:column;gap:10px;">
+          <div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">⏳ Chargement...</div>
+        </div>
+      </div>
+    </div>
+
   </main>
   <div class="toast" id="toast"></div>
 
@@ -3128,10 +3941,10 @@
     const SESS = JSON.parse(localStorage.getItem('user_session') || '{}');
     const TOK = SESS?.token || '';
     const API = window.API_BASE ||
-      (location.hostname==='localhost'||location.hostname==='127.0.0.1'
-        ? 'http://'+location.hostname+':5000/api'
-        : location.protocol+'//'+location.host+'/api');
-    const BASE_URL = API.replace('/api','');
+      (location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+        ? 'http://' + location.hostname + ':5000/api'
+        : location.protocol + '//' + location.host + '/api');
+    const BASE_URL = API.replace('/api', '');
     const authH = () => ({ 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' });
     const $ = id => document.getElementById(id);
     const esc = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -3161,9 +3974,9 @@
         const data = await r.json();
         if (data.profil) {
           const p = data.profil;
-          if (p.telephone)  PROF.tel      = p.telephone;
-          if (p.specialite) PROF.diplome  = p.specialite;
-          if (p.biographie) PROF.bio      = p.biographie;
+          if (p.telephone) PROF.tel = p.telephone;
+          if (p.specialite) PROF.diplome = p.specialite;
+          if (p.biographie) PROF.bio = p.biographie;
           if (p.photo_url) {
             PROF.photo = BASE_URL + p.photo_url;
             const av = $('prof-avatar-display');
@@ -3171,7 +3984,7 @@
             updateSbAvatar(PROF.photo);
           }
         }
-      } catch(e) { console.warn('chargerProfilProfesseur:', e.message); }
+      } catch (e) { console.warn('chargerProfilProfesseur:', e.message); }
 
       // ══ Charger les classes depuis l'API dédiée ══
       try {
@@ -3184,16 +3997,16 @@
           PROF.matieres = dCls.matieres && dCls.matieres.length ? dCls.matieres : PROF.matieres.length ? PROF.matieres : ['Mathématiques'];
         } else {
           // Fallback : toutes les classes (prof peut choisir)
-          PROF.classes = ['6ème','5ème','4ème','3ème','2nde A','2nde C','1ère A','1ère D','Tle A','Tle D'];
+          PROF.classes = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
           if (!PROF.matieres.length) PROF.matieres = ['Mathématiques'];
         }
         MES_CLASSES.length = 0;
         PROF.classes.forEach(c => MES_CLASSES.push(c));
         selCls = PROF.classes[0] || '';
         console.log('✅ Classes:', PROF.classes, '| Matières:', PROF.matieres);
-      } catch(e) {
+      } catch (e) {
         console.warn('chargerClasses:', e.message);
-        PROF.classes = ['6ème','5ème','4ème','3ème','2nde A','2nde C','1ère A','1ère D','Tle A','Tle D'];
+        PROF.classes = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
         if (!PROF.matieres.length) PROF.matieres = ['Mathématiques'];
         MES_CLASSES.length = 0;
         PROF.classes.forEach(c => MES_CLASSES.push(c));
@@ -3212,9 +4025,9 @@
     function initSocket() {
       if (salleSocket && salleSocket.connected) return;
       if (typeof io === 'undefined') { console.warn('Socket.io non disponible'); return; }
-      salleSocket = io(BASE_URL, { transports: ['websocket','polling'] });
+      salleSocket = io(BASE_URL, { transports: ['websocket', 'polling'] });
       salleSocket.on('connect', () => {
-        salleSocket.emit('auth', { token:TOK, nom:PROF.nom, prenom:PROF.prenom, code:PROF.code });
+        salleSocket.emit('auth', { token: TOK, nom: PROF.nom, prenom: PROF.prenom, code: PROF.code });
         const ind = document.getElementById('socket-indicator');
         if (ind) ind.style.background = '#4ADE80';
       });
@@ -3226,16 +4039,18 @@
         const cid = msg.conv_id || 'general';
         if (!conversations[cid]) conversations[cid] = [];
         const isMine = msg.from === PROF.code;
-        const m = { id:msg.id||Date.now(), from:msg.from, nm:msg.nom,
-                    txt:msg.txt, t:msg.time, mine:isMine, date:"Aujourd'hui" };
+        const m = {
+          id: msg.id || Date.now(), from: msg.from, nm: msg.nom,
+          txt: msg.txt, t: msg.time, mine: isMine, date: "Aujourd'hui"
+        };
         if (!conversations[cid].find(x => x.id === m.id)) conversations[cid].push(m);
         if (currentConv === cid) { renderMsgs(); setTimeout(scrollMsgs, 50); }
         renderConvList();
-        if (!isMine) toast('💬 '+msg.nom, 'info');
+        if (!isMine) toast('💬 ' + msg.nom, 'info');
       });
       salleSocket.on('user-joined', d => {
         const p = PROFS_LIST.find(x => x.id === d.code); if (p) p.online = true;
-        renderConvList(); toast('🟢 '+(d.prenom||d.nom)+' en ligne','info');
+        renderConvList(); toast('🟢 ' + (d.prenom || d.nom) + ' en ligne', 'info');
       });
       salleSocket.on('user-left', d => {
         const p = PROFS_LIST.find(x => x.id === d.code); if (p) p.online = false;
@@ -3283,8 +4098,10 @@
         conversations[convId] = data.messages.map(m => {
           const url = m.txt || '';
           const ext = url.split('.').pop().toLowerCase();
-          const obj = { id: m.id, from: m.from, nm: m.nom, txt: url,
-            t: m.time, date: m.date, mine: m.from === PROF.code, read: true, media: null };
+          const obj = {
+            id: m.id, from: m.from, nm: m.nom, txt: url,
+            t: m.time, date: m.date, mine: m.from === PROF.code, read: true, media: null
+          };
           // Reconstruire le type média depuis l'URL stockée
           if (m.type === 'img' || /\.(jpg|jpeg|png|gif|webp)$/i.test(url)) {
             obj.media = 'img'; obj.src = BASE_URL + url;
@@ -3304,6 +4121,91 @@
 
 
     // ══════════════════════════════════════════
+    // ══ ANNONCES OFFICIELLES (direction → profs) ══
+    async function loadAnnoncesProf() {
+      const box = document.getElementById('ann-prof-list');
+      if (!box) return;
+      box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem;">⏳ Chargement...</div>';
+      try {
+        // Annonces officielles globales (direction → tous)
+        let annonces = [];
+        try {
+          const r2 = await fetch(BASE_URL + '/api/surveillants/announcements',
+            { headers: { 'Authorization': 'Bearer ' + TOK } });
+          if (r2.ok) {
+            const d2 = await r2.json();
+            const raw2 = Array.isArray(d2) ? d2 : [];
+            // Filtrer : profs ou tous — destinataires en priorité sur type
+            const filtered2 = raw2.filter(a => {
+              const dest = (a.destinataires || a.type || 'tous').toLowerCase();
+              return ['tous', 'all', 'profs', 'professeurs'].includes(dest);
+            });
+            annonces = filtered2.map(a => ({
+              id: a.id,
+              titre: a.titre || 'Annonce',
+              contenu: a.contenu || a.corps_annonce || '',
+              auteur: ((a.prenom || '') + ' ' + (a.nom || 'Direction')).trim(),
+              ts: a.date_publication ? new Date(a.date_publication) : new Date(0),
+              date: a.date_publication
+                ? new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+                + ' à ' + new Date(a.date_publication).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+                : ''
+            }));
+          }
+        } catch (e2) { }
+
+        // Messages de la direction dans la salle (canal general) marqués isDirection
+        try {
+          const r3 = await fetch(BASE_URL + '/api/messages/general?limit=30',
+            { headers: { 'Authorization': 'Bearer ' + TOK } });
+          if (r3.ok) {
+            const d3 = await r3.json();
+            const dirMsgs = (d3.messages || [])
+              .filter(m => !PROF.code || m.from !== PROF.code) // pas les siens
+              .map(m => ({ titre: 'Message de la Direction', contenu: m.txt || '', auteur: m.nom || 'Direction', date: m.time || '' }));
+            annonces = [...annonces, ...dirMsgs];
+          }
+        } catch (e3) { }
+
+        // Trier du plus récent au plus ancien
+        annonces.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+        if (!annonces.length) {
+          box.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">📭 Aucune annonce pour le moment</div>';
+          return;
+        }
+
+        const escH = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        box.innerHTML = annonces.map(a => `
+          <div style="background:#fff;border:1.5px solid #E2E8F0;border-left:4px solid #4F46E5;border-radius:12px;padding:14px 16px;margin-bottom:0;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="font-size:.65rem;font-weight:800;background:#EEF2FF;color:#4F46E5;padding:2px 8px;border-radius:20px;">📢 Direction</span>
+              <span style="font-size:.65rem;color:#94A3B8;">${escH(a.date)}</span>
+            </div>
+            <div style="font-size:.88rem;color:#0F172A;font-weight:700;margin-bottom:4px;">${escH(a.titre)}</div>
+            <div style="font-size:.8rem;color:#374151;line-height:1.6;">${escH(a.contenu)}</div>
+            <div style="font-size:.7rem;color:#94A3B8;margin-top:6px;">— ${escH(a.auteur)}</div>
+          </div>`).join('');
+
+        const badge = document.getElementById('badge-ann-prof');
+        if (badge) badge.style.display = 'none';
+
+      } catch (e) {
+        box.innerHTML = '<div style="text-align:center;padding:20px;color:#EF4444;font-size:.78rem;">Impossible de charger</div>';
+        console.warn('loadAnnoncesProf:', e.message);
+      }
+    }
+
+    // Notification quand la direction envoie un message dans la salle
+    function listenAnnoncesSocket() {
+      if (!salleSocket) return;
+      salleSocket.on('annonce-direction', (msg) => {
+        const badge = document.getElementById('badge-ann-prof');
+        if (badge) { badge.style.display = 'inline'; }
+        toast('📢 Annonce Direction : ' + (msg.titre || 'Nouveau message'), 'info');
+      });
+    }
+
     // INIT
     // ══════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', () => {
@@ -3358,6 +4260,7 @@
       res: { title: 'Ressources & Cours', sub: 'Publications visibles par vos élèves uniquement' },
       orient: { title: 'Orientation Élèves', sub: 'Suivi personnalisé 3ème → Terminale' },
       salle: { title: 'Salle des Profs', sub: '🔒 Espace privé · Invisible pour la Direction' },
+      annonces: { title: 'Annonces Officielles', sub: 'Communiqués de la Direction · Réservé aux professeurs' },
     };
     function go(page, el) {
       document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
@@ -3368,6 +4271,7 @@
       if (p) { $('pg-title').textContent = p.title; $('pg-sub').textContent = p.sub; }
       if (page === 'salle') setTimeout(scrollMsgs, 100);
       if (page === 'orient') loadOrient();
+      if (page === 'annonces') loadAnnoncesProf();
     }
 
     // ══════════════════════════════════════════
@@ -3444,15 +4348,17 @@
             const typeRaw = (x.type || x.type_document || 'cours').toLowerCase();
             const type = /^(mp4|webm|mov|avi|mkv|ogv)$/.test(ext) ? 'video'
               : /^(mp3|ogg|wav|m4a)$/.test(ext) ? 'audio'
-              : /^(jpg|jpeg|png|gif|webp)$/.test(ext) ? 'image' : typeRaw;
-            return { id: x.id_ressource || x.id, titre: x.titre || '—',
+                : /^(jpg|jpeg|png|gif|webp)$/.test(ext) ? 'image' : typeRaw;
+            return {
+              id: x.id_ressource || x.id, titre: x.titre || '—',
               cls: x.cls || x.classe_cible || x.classe_concernee || 'TOUTES',
               type, mat: x.mat || 'Ma matière',
               taille: x.taille || '—', format: ext ? ext.toUpperCase() : '—',
               visible: x.visible !== false,
-              col: COLORS[Math.floor(Math.random()*COLORS.length)],
-              date: x.date || (x.date_ajout ? new Date(x.date_ajout).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}) : '—'),
-              url, videoUrl: url };
+              col: COLORS[Math.floor(Math.random() * COLORS.length)],
+              date: x.date || (x.date_ajout ? new Date(x.date_ajout).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '—'),
+              url, videoUrl: url
+            };
           });
           if (kRes) kRes.textContent = resData.filter(r => r.visible).length;
           // Ressources récentes dans le dashboard
@@ -3467,7 +4373,7 @@
                 <span class="b b-grn" style="flex-shrink:0;">Publié</span>
               </div>`;
             }).join('')
-            : '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem;">Aucune ressource</div>';
+              : '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem;">Aucune ressource</div>';
           }
         }
 
@@ -3481,18 +4387,18 @@
             const avecNote = eleves.filter(e => e.moyenne !== null && e.moyenne !== undefined).length;
             const pct = eleves.length ? Math.round((avecNote / eleves.length) * 100) : 0;
             const moys = eleves.map(e => parseFloat(e.moyenne)).filter(m => !isNaN(m));
-            const moy = moys.length ? (moys.reduce((a,b)=>a+b,0)/moys.length).toFixed(1) : null;
+            const moy = moys.length ? (moys.reduce((a, b) => a + b, 0) / moys.length).toFixed(1) : null;
             return { cls: c, nb: eleves.length, pct, moy };
-          } catch(e) { return { cls: c, nb: 0, pct: 0, moy: null }; }
+          } catch (e) { return { cls: c, nb: 0, pct: 0, moy: null }; }
         }));
 
         // Mettre à jour le total élèves avec la somme réelle
-        const totalReal = clsStats.reduce((s,c)=>s+c.nb,0);
+        const totalReal = clsStats.reduce((s, c) => s + c.nb, 0);
         if (kEl) kEl.textContent = totalReal;
 
         // Moyenne générale
-        const allMoys = clsStats.filter(c=>c.moy).map(c=>parseFloat(c.moy));
-        const moyGen = allMoys.length ? (allMoys.reduce((a,b)=>a+b,0)/allMoys.length).toFixed(1) : '—';
+        const allMoys = clsStats.filter(c => c.moy).map(c => parseFloat(c.moy));
+        const moyGen = allMoys.length ? (allMoys.reduce((a, b) => a + b, 0) / allMoys.length).toFixed(1) : '—';
         if (kMoy) kMoy.textContent = moyGen;
 
         // Barres de progression
@@ -3503,7 +4409,7 @@
             return `<div style="margin-bottom:11px;">
               <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
                 <span style="font-size:.78rem;font-weight:800;">${s.cls} <span style="font-size:.65rem;color:var(--muted);font-weight:600;">(${s.nb} élèves)</span></span>
-                <span style="font-size:.7rem;font-weight:800;color:${col};">${s.pct}% saisi${s.moy ? ' · moy '+s.moy : ''}</span>
+                <span style="font-size:.7rem;font-weight:800;color:${col};">${s.pct}% saisi${s.moy ? ' · moy ' + s.moy : ''}</span>
               </div>
               <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;">
                 <div style="width:${s.pct}%;height:100%;background:${col};border-radius:3px;transition:width .5s;"></div>
@@ -3513,10 +4419,10 @@
         }
 
         // Nb total notes saisies
-        const totalNotes = clsStats.reduce((s,c)=>s+c.nb*(c.pct/100|0),0);
-        if (kNotes) kNotes.textContent = clsStats.reduce((s,c)=>s+Math.round(c.nb*c.pct/100),0);
+        const totalNotes = clsStats.reduce((s, c) => s + c.nb * (c.pct / 100 | 0), 0);
+        if (kNotes) kNotes.textContent = clsStats.reduce((s, c) => s + Math.round(c.nb * c.pct / 100), 0);
 
-      } catch(e) {
+      } catch (e) {
         console.warn('loadDash:', e.message);
       }
     }
@@ -3563,7 +4469,7 @@
             updateSbAvatar(PROF.photo);
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     }
 
     function updateAvatar() {
@@ -3602,7 +4508,7 @@
       PROF._photoFile = f;
       const reader = new FileReader();
       reader.onload = e => {
-        ['pf-avatar','prof-photo'].forEach(id => {
+        ['pf-avatar', 'prof-photo'].forEach(id => {
           const el = document.getElementById(id);
           if (el && el.tagName === 'IMG') el.src = e.target.result;
         });
@@ -3696,7 +4602,7 @@
         } else {
           elevesData = [];
         }
-      } catch(e) {
+      } catch (e) {
         console.warn('loadEleves:', e.message);
         elevesData = [];
       }
@@ -3722,7 +4628,6 @@
       <div style="font-size:.74rem;font-weight:800;color:${e.moy !== null ? (parseFloat(e.moy) >= 10 ? 'var(--accent)' : 'var(--red)') : 'var(--muted)'};">${e.moy !== null ? e.moy : '—'}</div>
     </div>`).join('');
     }
-
     async function selEleveNote(idx) {
       selEleve = elevesData.find(e => e.idx === idx);
       if (!selEleve) return;
@@ -3740,30 +4645,30 @@
       const moyCol = selEleve.moy !== null ? (parseFloat(selEleve.moy) >= 10 ? 'var(--accent)' : 'var(--red)') : 'var(--muted)';
       $('note-panel').innerHTML = `
         <div style="padding:16px;">
-          <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:#F0F7F3;border-radius:10px;border:1.5px solid var(--accent3);margin-bottom:16px;">
-            <div class="eleve-av" style="background:${selEleve.col};width:38px;height:38px;border-radius:10px;">${selEleve.nom.charAt(0)}</div>
-            <div style="flex:1;">
-              <div style="font-size:.88rem;font-weight:800;">${esc(selEleve.prenom)} ${esc(selEleve.nom)}</div>
-              <div style="font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${selEleve.code} · ${selCls}</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:#F0F7F3;border-radius:10px;border:1.5px solid var(--accent3);margin-bottom:16px;">
+                <div class="eleve-av" style="background:${selEleve.col};width:38px;height:38px;border-radius:10px;">${selEleve.nom.charAt(0)}</div>
+                <div style="flex:1;">
+                    <div style="font-size:.88rem;font-weight:800;">${esc(selEleve.prenom)} ${esc(selEleve.nom)}</div>
+                    <div style="font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${selEleve.code} · ${selCls}</div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:1.1rem;font-weight:900;color:${moyCol};">${moyAff}</div>
+                    <div style="font-size:.6rem;color:var(--muted);">Moy. T${tri}</div>
+                </div>
             </div>
-            <div style="text-align:right;">
-              <div style="font-size:1.1rem;font-weight:900;color:${moyCol};">${moyAff}</div>
-              <div style="font-size:.6rem;color:var(--muted);">Moy. T${tri}</div>
+            <div style="font-size:.78rem;font-weight:800;margin-bottom:10px;">
+                Saisie Notes · T${tri} · <span style="color:var(--muted);">${selCls}</span>
             </div>
-          </div>
-          <div style="font-size:.78rem;font-weight:800;margin-bottom:10px;">
-            Saisie Notes · T${tri} · <span style="color:var(--muted);">${selCls}</span>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;" id="mats-grid">
-            <div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--muted);font-size:.75rem;">⏳ Chargement des notes existantes…</div>
-          </div>
-          <div style="display:flex;gap:7px;margin-top:12px;">
-            <input type="text" id="note-com" placeholder="Appréciation (optionnel)" style="flex:1;padding:8px 11px;font-size:.78rem;border:1px solid var(--border);border-radius:8px;outline:none;">
-            <button class="btn-p" onclick="saveNotes()">
-              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Valider
-            </button>
-          </div>
-          <div id="note-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;" id="mats-grid">
+                <div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--muted);font-size:.75rem;">⏳ Chargement des notes existantes…</div>
+            </div>
+            <div style="display:flex;gap:7px;margin-top:12px;">
+                <input type="text" id="note-com" placeholder="Appréciation (optionnel)" style="flex:1;padding:8px 11px;font-size:.78rem;border:1px solid var(--border);border-radius:8px;outline:none;">
+                <button class="btn-p" onclick="saveNotes()">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Valider
+                </button>
+            </div>
+            <div id="note-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
         </div>`;
 
       // Charger les notes déjà saisies pour cet élève
@@ -3774,29 +4679,35 @@
           { headers: { 'Authorization': 'Bearer ' + TOK } }
         );
         const d = await r.json();
-        // Les notes individuelles par matière ne viennent pas encore de cette route
-        // On affiche juste les champs vides prêts à saisir
-      } catch(e) {}
+        if (d.success && d.notes_par_matiere) {
+          // Récupérer les notes existantes
+          d.notes_par_matiere.forEach(n => {
+            const matId = mats.find(m => m.n === n.matiere)?.id;
+            if (matId) existingNotes[matId] = n.note_moyenne;
+          });
+        }
+      } catch (e) { console.warn(e); }
 
       // Rendre la grille des matières
       const grid = document.getElementById('mats-grid');
       if (grid) {
         grid.innerHTML = mats.map((m, i) => `
-          <div style="background:#F5FBF7;border:1.5px solid var(--border);border-radius:10px;padding:11px;">
-            <div style="font-size:.74rem;font-weight:800;color:var(--ink);margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;">
-              ${esc(m.n)}<span style="font-size:.62rem;background:var(--accent3);color:var(--accent);padding:2px 6px;border-radius:4px;font-weight:800;">×${m.c}</span>
-            </div>
-            <input class="nf-inp" id="ni-${i}" data-id-matiere="${m.id}" type="number"
-              min="0" max="20" step="0.5" placeholder="— /20"
-              oninput="updBar(${i},this.value)"
-              value="${existingNotes[m.id] !== undefined ? existingNotes[m.id] : ''}">
-            <div style="height:4px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden;">
-              <div id="nb-${i}" style="width:${existingNotes[m.id] ? (existingNotes[m.id]/20*100) : 0}%;height:100%;background:var(--accent2);border-radius:2px;transition:width .4s;"></div>
-            </div>
-            <div id="na-${i}" style="font-size:.62rem;font-weight:700;text-align:center;margin-top:3px;color:var(--muted);">
-              ${existingNotes[m.id] ? (existingNotes[m.id] >= 10 ? 'Acquis' : 'À revoir') : '—'}
-            </div>
-          </div>`).join('');
+            <div style="background:#F5FBF7;border:1.5px solid var(--border);border-radius:10px;padding:11px;">
+                <div style="font-size:.74rem;font-weight:800;color:var(--ink);margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;">
+                    ${esc(m.n)}<span style="font-size:.62rem;background:var(--accent3);color:var(--accent);padding:2px 6px;border-radius:4px;font-weight:800;">×${m.c}</span>
+                </div>
+                <input class="nf-inp" id="ni-${i}" data-id-matiere="${m.id}" type="number"
+                    min="0" max="20" step="0.5" placeholder="— /20"
+                    oninput="updBar(${i},this.value)"
+                    onchange="validateNote(this)"
+                    value="${existingNotes[m.id] !== undefined ? existingNotes[m.id] : ''}">
+                <div style="height:4px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden;">
+                    <div id="nb-${i}" style="width:${existingNotes[m.id] ? (existingNotes[m.id] / 20 * 100) : 0}%;height:100%;background:var(--accent2);border-radius:2px;transition:width .4s;"></div>
+                </div>
+                <div id="na-${i}" style="font-size:.62rem;font-weight:700;text-align:center;margin-top:3px;color:var(--muted);">
+                    ${existingNotes[m.id] ? (existingNotes[m.id] >= 10 ? 'Acquis' : 'À revoir') : '—'}
+                </div>
+            </div>`).join('');
         // Init des barres si valeurs existantes
         mats.forEach((m, i) => { if (existingNotes[m.id]) updBar(i, existingNotes[m.id]); });
       }
@@ -3808,6 +4719,30 @@
       const a = $('na-' + i); if (a) {
         const lbl = v >= 16 ? 'Excellent' : v >= 14 ? 'Très Bien' : v >= 12 ? 'Bien' : v >= 10 ? 'Assez Bien' : v >= 8 ? 'Passable' : 'Insuffisant';
         a.textContent = val ? lbl : '—'; a.style.color = v >= 10 ? 'var(--accent)' : v >= 8 ? 'var(--amber)' : 'var(--red)';
+      }
+    }
+
+    // Validation de la note pour qu'elle soit entre 0 et 20
+    function validateNote(input) {
+      let val = parseFloat(input.value);
+      if (isNaN(val)) {
+        input.value = '';
+        return;
+      }
+      if (val > 20) {
+        input.value = 20;
+        toast('⚠️ La note ne peut pas dépasser 20/20', 'err');
+        // Mettre à jour la barre de progression
+        const i = input.id.split('-')[1];
+        if (i !== undefined) updBar(parseInt(i), 20);
+      } else if (val < 0) {
+        input.value = 0;
+        toast('⚠️ La note ne peut pas être négative', 'err');
+        const i = input.id.split('-')[1];
+        if (i !== undefined) updBar(parseInt(i), 0);
+      } else {
+        const i = input.id.split('-')[1];
+        if (i !== undefined) updBar(parseInt(i), val);
       }
     }
 
@@ -3824,7 +4759,7 @@
         if (!inp) break;
         const val = parseFloat(inp.value);
         const idMat = parseInt(inp.dataset.idMatiere) || (i + 1);
-        const matName = PROF.matieres[i] || ('Matière ' + (i+1));
+        const matName = PROF.matieres[i] || ('Matière ' + (i + 1));
         if (!isNaN(val) && val >= 0 && val <= 20) {
           notes.push({ id_eleve: selEleve.id, id_matiere: idMat, mat: matName, note: val });
         }
@@ -3842,7 +4777,7 @@
         });
         const data = await r.json();
         if (data.success) {
-          const moy = notes.reduce((s,n) => s + n.note, 0) / notes.length;
+          const moy = notes.reduce((s, n) => s + n.note, 0) / notes.length;
           selEleve.moy = moy.toFixed(1);
           renderEleves(); // mise à jour temps réel
           showMsg(noteMsg, `✅ ${data.message || notes.length + ' note(s) enregistrée(s)'} — Moy: ${moy.toFixed(2)}/20`, 'ok');
@@ -3853,7 +4788,7 @@
         } else {
           showMsg(noteMsg, '❌ ' + (data.message || 'Erreur serveur'), 'err');
         }
-      } catch(e) {
+      } catch (e) {
         showMsg(noteMsg, '❌ Erreur réseau : ' + e.message, 'err');
       }
     }
@@ -3882,7 +4817,7 @@
         } else {
           ctData = [];
         }
-      } catch(e) {
+      } catch (e) {
         console.warn('loadCT:', e.message);
         ctData = [];
       }
@@ -3929,9 +4864,11 @@
         const data = await r.json();
         if (data.success) {
           // Ajouter en haut de la liste immédiatement
-          ctData.unshift({ cls: entry.classe, mat: entry.matiere, titre: entry.titre,
+          ctData.unshift({
+            cls: entry.classe, mat: entry.matiere, titre: entry.titre,
             contenu: entry.contenu, taf: entry.taf, date: entry.date_seance,
-            hdeb: entry.heure_debut, hfin: entry.heure_fin });
+            hdeb: entry.heure_debut, hfin: entry.heure_fin
+          });
           renderCT();
           showMsg($('ct-msg'), '✅ Séance enregistrée en BD', 'ok');
           toast('Cahier de texte mis à jour ✓', 'ok');
@@ -3939,11 +4876,13 @@
         } else {
           showMsg($('ct-msg'), '❌ ' + (data.message || 'Erreur'), 'err');
         }
-      } catch(e) {
+      } catch (e) {
         // Fallback local si API indisponible
-        ctData.unshift({ cls: entry.classe, mat: entry.matiere, titre: entry.titre,
+        ctData.unshift({
+          cls: entry.classe, mat: entry.matiere, titre: entry.titre,
           contenu: entry.contenu, taf: entry.taf, date: entry.date_seance,
-          hdeb: entry.heure_debut, hfin: entry.heure_fin });
+          hdeb: entry.heure_debut, hfin: entry.heure_fin
+        });
         renderCT();
         showMsg($('ct-msg'), '⚠️ Enregistré localement (hors ligne)', 'info');
       }
@@ -3975,23 +4914,24 @@
             const typeRaw = (x.type || x.type_document || 'cours').toLowerCase();
             const type = /^(mp4|webm|mov|avi|mkv|ogv)$/.test(ext) ? 'video'
               : /^(mp3|ogg|wav|m4a)$/.test(ext) ? 'audio'
-              : /^(jpg|jpeg|png|gif|webp)$/.test(ext) ? 'image'
-              : typeRaw;
+                : /^(jpg|jpeg|png|gif|webp)$/.test(ext) ? 'image'
+                  : typeRaw;
             const sz = x.taille || x.taille_fichier;
             return {
-              id:      x.id_ressource || x.id,
-              titre:   x.titre || '—',
+              id: x.id_ressource || x.id,
+              titre: x.titre || '—',
               cls, type,
-              mat:     x.mat || x.matiere || 'Ma matière',
-              taille:  sz ? (sz>1048576?(sz/1048576).toFixed(1)+' Mo':Math.round(sz/1024)+' Ko') : '—',
-              format:  ext ? ext.toUpperCase() : '—',
+              mat: x.mat || x.matiere || 'Ma matière',
+              taille: sz ? (sz > 1048576 ? (sz / 1048576).toFixed(1) + ' Mo' : Math.round(sz / 1024) + ' Ko') : '—',
+              format: ext ? ext.toUpperCase() : '—',
               visible: x.visible !== undefined ? x.visible : (x.est_visible !== false),
-              col:     COLORS[Math.floor(Math.random()*COLORS.length)],
-              date:    x.date || (x.date_ajout||x.date_depot
-                ? new Date(x.date_ajout||x.date_depot).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}) : '—'),
+              col: COLORS[Math.floor(Math.random() * COLORS.length)],
+              date: x.date || (x.date_ajout || x.date_depot
+                ? new Date(x.date_ajout || x.date_depot).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '—'),
               url, videoUrl: url, thumb: ''
             };
-          });        } else {
+          });
+        } else {
           resData = [];
         }
       } catch (e) {
@@ -4031,9 +4971,9 @@
     <div class="video-card">
       <div class="video-thumb" style="background:#0D1F14;position:relative;overflow:hidden;">
         ${fullUrl
-          ? `<video src="${fullUrl}" preload="metadata" style="width:100%;height:100%;object-fit:cover;opacity:.7;" muted></video>`
-          : `<div style="font-size:3rem;opacity:.3;display:flex;align-items:center;justify-content:center;height:100%;">🎥</div>`}
-        <div class="play-overlay" onclick="openVideo('${esc(v.titre)}','${v.url||''}')">
+            ? `<video src="${fullUrl}" preload="metadata" style="width:100%;height:100%;object-fit:cover;opacity:.7;" muted></video>`
+            : `<div style="font-size:3rem;opacity:.3;display:flex;align-items:center;justify-content:center;height:100%;">🎥</div>`}
+        <div class="play-overlay" onclick="openVideo('${esc(v.titre)}','${v.url || ''}')">
           <div class="play-btn-big"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
         </div>
         <div style="position:absolute;top:7px;right:7px;background:rgba(0,0,0,.6);color:#fff;font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:10px;">${v.taille}</div>
@@ -4043,7 +4983,7 @@
         <div style="font-size:.78rem;font-weight:800;color:var(--ink);line-height:1.3;">${esc(v.titre)}</div>
         <div style="font-size:.64rem;color:var(--muted);margin-top:3px;">${v.cls} · ${v.mat} · ${v.date}</div>
         <div style="display:flex;gap:5px;margin-top:6px;">
-          <button onclick="openVideo('${esc(v.titre)}','${v.url||''}')" style="flex:1;padding:4px;font-size:.66rem;font-weight:700;border:1px solid var(--accent3);border-radius:6px;cursor:pointer;background:#E8F5EE;color:var(--accent);font-family:'DM Sans',sans-serif;">▶ Lire</button>
+          <button onclick="openVideo('${esc(v.titre)}','${v.url || ''}')" style="flex:1;padding:4px;font-size:.66rem;font-weight:700;border:1px solid var(--accent3);border-radius:6px;cursor:pointer;background:#E8F5EE;color:var(--accent);font-family:'DM Sans',sans-serif;">▶ Lire</button>
           <button onclick="toggleResVisible(${v.id})" style="flex:1;padding:4px;font-size:.66rem;font-weight:700;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:${v.visible ? '#E8F5EE' : '#FEF2F2'};color:${v.visible ? 'var(--accent)' : 'var(--red)'};font-family:'DM Sans',sans-serif;">${v.visible ? '✓ Visible' : '✗ Masqué'}</button>
           <button onclick="deleteRes(${v.id})" style="padding:4px 8px;font-size:.66rem;font-weight:700;border:1px solid #FECDD3;border-radius:6px;cursor:pointer;background:#FEF2F2;color:var(--red);font-family:'DM Sans',sans-serif;">🗑</button>
         </div>
@@ -4054,22 +4994,22 @@
       // Liste docs
       const typeIco = { cours: '📄', td: '📝', exercice: '✏️', doc: '📎', audio: '🎵', image: '🖼️' };
       const typeLbl = { cours: 'Cours', td: 'TD', exercice: 'Exercice', doc: 'Document', audio: 'Audio', image: 'Image' };
-      const typeBg  = { cours: '#E8F5EE', td: '#EFF6FF', exercice: '#FEF9C3', doc: '#F5F3FF', audio: '#FDF2F8', image: '#ECFDF5' };
+      const typeBg = { cours: '#E8F5EE', td: '#EFF6FF', exercice: '#FEF9C3', doc: '#F5F3FF', audio: '#FDF2F8', image: '#ECFDF5' };
       const typeTxt = { cours: 'var(--accent)', td: '#1D4ED8', exercice: '#854D0E', doc: '#5B21B6', audio: '#9D174D', image: '#059669' };
       $('res-list').innerHTML = docs.length ? docs.map(res => `
-    <div style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-bottom:1px solid #F5F9F6;transition:.15s;" onmouseover="this.style.background='#FAFFFE'" onmouseout="this.style.background=''">
-      <div style="width:36px;height:36px;border-radius:10px;background:${res.col};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">${typeIco[res.type] || '📄'}</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:.8rem;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(res.titre)}</div>
-        <div style="font-size:.65rem;color:var(--muted);margin-top:1px;">${esc(res.cls)} · ${esc(res.mat)} · ${res.taille} · ${res.date}</div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #F5F9F6;transition:.15s;flex-wrap:wrap;" onmouseover="this.style.background='#FAFFFE'" onmouseout="this.style.background=''">
+      <div style="width:34px;height:34px;border-radius:10px;background:${res.col};display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">${typeIco[res.type] || '📄'}</div>
+      <div style="flex:1;min-width:120px;">
+        <div style="font-size:.79rem;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${esc(res.titre)}</div>
+        <div style="font-size:.63rem;color:var(--muted);margin-top:1px;">${esc(res.cls)} · ${res.taille} · ${res.date}</div>
       </div>
-      <span style="padding:2px 8px;border-radius:4px;font-size:.6rem;font-weight:800;background:${typeBg[res.type]||'#F5F3FF'};color:${typeTxt[res.type]||'#5B21B6'};flex-shrink:0;">${typeLbl[res.type] || 'Doc'}</span>
+      <span style="padding:2px 8px;border-radius:4px;font-size:.6rem;font-weight:800;background:${typeBg[res.type] || '#F5F3FF'};color:${typeTxt[res.type] || '#5B21B6'};flex-shrink:0;">${typeLbl[res.type] || 'Doc'}</span>
       ${res.url
-        ? `<button onclick="openVideo('${esc(res.titre)}','${res.url}')" style="padding:4px 10px;font-size:.66rem;font-weight:700;border:1px solid #BBF7D0;border-radius:6px;cursor:pointer;background:#ECFDF5;color:#059669;flex-shrink:0;">📂 Ouvrir</button>`
-        : ''}
+          ? `<button onclick="openVideo('${esc(res.titre)}','${res.url}')" style="padding:4px 10px;font-size:.66rem;font-weight:700;border:1px solid #BBF7D0;border-radius:6px;cursor:pointer;background:#ECFDF5;color:#059669;flex-shrink:0;">📂 Ouvrir</button>`
+          : ''}
       <button onclick="deleteRes(${res.id})" style="padding:4px 8px;font-size:.66rem;border:1px solid #FECDD3;border-radius:6px;cursor:pointer;background:#FEF2F2;color:var(--red);font-family:'DM Sans',sans-serif;">🗑</button>
     </div>`).join('')
-    : '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">Aucun document publié</div>';
+        : '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">Aucun document publié</div>';
     }
 
     async function toggleResVisible(id) {
@@ -4217,8 +5157,8 @@
           const _ext = _file ? _file.name.split('.').pop().toLowerCase() : '';
           const _typeByExt = /^(mp4|webm|mov|avi|mkv|ogv)$/.test(_ext) ? 'video'
             : /^(mp3|ogg|wav|m4a)$/.test(_ext) ? 'audio'
-            : /^(jpg|jpeg|png|gif|webp)$/.test(_ext) ? 'image'
-            : (res.type_ressource || type || 'cours').toLowerCase();
+              : /^(jpg|jpeg|png|gif|webp)$/.test(_ext) ? 'image'
+                : (res.type_ressource || type || 'cours').toLowerCase();
           const _url = res.url || res.url_fichier || '';
           // Ajouter localement sans rechargement
           resData.unshift({
@@ -4228,7 +5168,7 @@
             type: _typeByExt,
             mat: 'Ma matière',
             taille: _file
-              ? (_file.size > 1048576 ? (_file.size/1048576).toFixed(1)+' Mo' : Math.round(_file.size/1024)+' Ko')
+              ? (_file.size > 1048576 ? (_file.size / 1048576).toFixed(1) + ' Mo' : Math.round(_file.size / 1024) + ' Ko')
               : '—',
             format: _ext ? _ext.toUpperCase() : '—',
             visible: true,
@@ -4295,10 +5235,10 @@
         return `<div style="border:1px solid var(--border);border-radius:10px;padding:11px;background:#FAFFFE;cursor:pointer;"
           onclick="selOrientEleve('${esc(e.code_unique)}','${esc(e.prenom)} ${esc(e.nom)}')">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <div style="width:30px;height:30px;border-radius:8px;background:${col};display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;">${e.nom?.charAt(0)||'?'}</div>
+            <div style="width:30px;height:30px;border-radius:8px;background:${col};display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;">${e.nom?.charAt(0) || '?'}</div>
             <div>
               <div style="font-size:.76rem;font-weight:800;color:var(--ink);">${esc(e.prenom)} ${esc(e.nom)}</div>
-              <div style="font-size:.62rem;color:var(--muted);">${esc(e.classe||'')} · ${esc(e.code_unique)}</div>
+              <div style="font-size:.62rem;color:var(--muted);">${esc(e.classe || '')} · ${esc(e.code_unique)}</div>
             </div>
             <div style="margin-left:auto;font-size:.9rem;font-weight:900;color:${col};">${moy ? moy.toFixed(1) : '—'}</div>
           </div>
@@ -4315,11 +5255,11 @@
 
     async function saveOrientation() {
       const eleveCode = $('or-el')?.value.trim();
-      const force     = $('or-force')?.value.trim();
-      const faib      = $('or-faib')?.value.trim();
-      const serie     = $('or-serie')?.value;
-      const comment   = $('or-comment')?.value.trim();
-      const msgEl     = $('or-msg');
+      const force = $('or-force')?.value.trim();
+      const faib = $('or-faib')?.value.trim();
+      const serie = $('or-serie')?.value;
+      const comment = $('or-comment')?.value.trim();
+      const msgEl = $('or-msg');
 
       if (!eleveCode) { showMsg(msgEl, '⚠️ Saisissez le matricule de l\'élève', 'err'); return; }
       if (!comment && !serie) { showMsg(msgEl, '⚠️ Ajoutez au moins un commentaire ou une série', 'err'); return; }
@@ -4336,7 +5276,7 @@
           showMsg(msgEl, '✅ Avis publié avec succès', 'ok');
           toast('Avis d\'orientation publié ✓', 'ok');
           // Réinitialiser le formulaire
-          ['or-el','or-force','or-faib','or-comment'].forEach(id => { const el=$(id); if(el) el.value=''; });
+          ['or-el', 'or-force', 'or-faib', 'or-comment'].forEach(id => { const el = $(id); if (el) el.value = ''; });
           if ($('or-serie')) $('or-serie').value = '';
         } else {
           showMsg(msgEl, '❌ ' + (data.message || 'Erreur'), 'err');
@@ -4354,6 +5294,7 @@
       $('online-cnt').textContent = '0 en ligne';
       initSocket();
       loadMessages('general');
+      setTimeout(listenAnnoncesSocket, 1500);
       loadProfs(); // ← charge les collègues depuis la BD
       // Fermer menus sur clic extérieur
       document.addEventListener('click', e => {
@@ -4464,12 +5405,12 @@
           </div>`;
         } else if (m.media === 'file') {
           const ext2 = (m.fileName || m.src || '').split('.').pop().toLowerCase();
-          const ico = { pdf:'📄', doc:'📝', docx:'📝', pptx:'📊', xlsx:'📊', mp3:'🎵' }[ext2] || '📎';
+          const ico = { pdf: '📄', doc: '📝', docx: '📝', pptx: '📊', xlsx: '📊', mp3: '🎵' }[ext2] || '📎';
           inner += `<div class="bubble-file" style="cursor:pointer;"
-            onclick="openVideo('${esc(m.fileName||'Fichier')}','${m.src||''}')">
+            onclick="openVideo('${esc(m.fileName || 'Fichier')}','${m.src || ''}')">
             <div class="bubble-file-ico">${ico}</div>
             <div class="bubble-file-info">
-              <div class="bubble-file-nm">${esc(m.fileName || (m.src||'').split('/').pop() || 'Fichier')}</div>
+              <div class="bubble-file-nm">${esc(m.fileName || (m.src || '').split('/').pop() || 'Fichier')}</div>
               <div class="bubble-file-sz">${m.fileSize || ''} · Toucher pour ouvrir</div>
             </div>
           </div>`;
@@ -4477,23 +5418,23 @@
           inner += `<span style="font-size:2.2rem;line-height:1;">${m.txt}</span>`;
         } else if (m.type === 'poll') {
           let pd = m.poll;
-          if (!pd && m.txt) { try { pd = JSON.parse(m.txt); } catch(e) {} }
+          if (!pd && m.txt) { try { pd = JSON.parse(m.txt); } catch (e) { } }
           if (pd) {
-            const total = pd.votes.reduce((a,b)=>a+b,0);
+            const total = pd.votes.reduce((a, b) => a + b, 0);
             inner += `<div class="bubble-poll">
               <div style="font-size:.8rem;font-weight:700;color:#E9EDEF;margin-bottom:8px;">📊 ${esc(pd.question)}</div>
-              ${pd.options.map((o,i) => {
-                const pct = total ? Math.round(pd.votes[i]/total*100) : 0;
-                const voted = pd.voters && pd.voters[PROF.code] === i;
-                return `<div class="poll-opt" onclick="votePoll(${m.id},${i})">
+              ${pd.options.map((o, i) => {
+              const pct = total ? Math.round(pd.votes[i] / total * 100) : 0;
+              const voted = pd.voters && pd.voters[PROF.code] === i;
+              return `<div class="poll-opt" onclick="votePoll(${m.id},${i})">
                   <div class="poll-bar" style="width:${pct}%;"></div>
-                  <span style="position:relative;z-index:1;font-weight:${voted?'800':'500'};">${esc(o)}${voted?' ✓':''}</span>
+                  <span style="position:relative;z-index:1;font-weight:${voted ? '800' : '500'};">${esc(o)}${voted ? ' ✓' : ''}</span>
                   <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:.65rem;color:#8696A0;">${pct}%</span>
                 </div>`;
-              }).join('')}
+            }).join('')}
               <div style="font-size:.65rem;color:#8696A0;margin-top:6px;">${total} vote(s)</div>
             </div>`;
-          } else { inner += esc(m.txt||''); }
+          } else { inner += esc(m.txt || ''); }
         } else {
           inner += esc(m.txt || '');
         }
@@ -4514,16 +5455,20 @@
       const inp = $('chat-inp'); if (!inp) return;
       const txt = inp.value.trim(); if (!txt) return;
       if (salleSocket && salleSocket.connected) {
-        salleSocket.emit('msg-salle', { txt, conv_id:currentConv, type:'text',
-          replyTo: replyMsg ? replyMsg.id : null });
+        salleSocket.emit('msg-salle', {
+          txt, conv_id: currentConv, type: 'text',
+          replyTo: replyMsg ? replyMsg.id : null
+        });
       } else {
-        const m = { id:Date.now(), from:PROF.code||'me', nm:PROF.prenom+' '+PROF.nom,
-          txt, t:nowHHMM(), mine:true, date:"Aujourd'hui" };
-        if (!conversations[currentConv]) conversations[currentConv]=[];
+        const m = {
+          id: Date.now(), from: PROF.code || 'me', nm: PROF.prenom + ' ' + PROF.nom,
+          txt, t: nowHHMM(), mine: true, date: "Aujourd'hui"
+        };
+        if (!conversations[currentConv]) conversations[currentConv] = [];
         conversations[currentConv].push(m);
         renderMsgs(); renderConvList();
       }
-      inp.value=''; inp.style.height='auto'; cancelReply();
+      inp.value = ''; inp.style.height = 'auto'; cancelReply();
     }
 
     // ── Pièces jointes → upload réel au serveur ──
@@ -4535,15 +5480,17 @@
       const f = inp.files[0]; if (!f) return;
       inp.value = '';
       const ext = f.name.split('.').pop().toLowerCase();
-      const isImg   = /^(jpg|jpeg|png|gif|webp)$/.test(ext);
+      const isImg = /^(jpg|jpeg|png|gif|webp)$/.test(ext);
       const isVideo = /^(mp4|webm|mov|avi|mkv|ogv)$/.test(ext);
       const isAudio = /^(mp3|ogg|wav|m4a)$/.test(ext);
       const type = isImg ? 'img' : isVideo ? 'video' : isAudio ? 'audio' : 'file';
 
       // Afficher un message "envoi en cours" local
       const localId = Date.now();
-      const localMsg = { id: localId, from: PROF.code, nm: PROF.prenom + ' ' + PROF.nom,
-        txt: '⏳ Envoi de ' + f.name + '…', t: nowHHMM(), mine: true, date: "Aujourd'hui" };
+      const localMsg = {
+        id: localId, from: PROF.code, nm: PROF.prenom + ' ' + PROF.nom,
+        txt: '⏳ Envoi de ' + f.name + '…', t: nowHHMM(), mine: true, date: "Aujourd'hui"
+      };
       if (!conversations[currentConv]) conversations[currentConv] = [];
       conversations[currentConv].push(localMsg);
       renderMsgs(); scrollMsgs();
@@ -4568,10 +5515,12 @@
         if (data.success) {
           // Le socket va diffuser à tous — on l'ajoute aussi localement si pas encore là
           const url = data.url;
-          const msg = { id: data.id, from: PROF.code, nm: PROF.prenom + ' ' + PROF.nom,
+          const msg = {
+            id: data.id, from: PROF.code, nm: PROF.prenom + ' ' + PROF.nom,
             txt: url, t: nowHHMM(), mine: true, date: "Aujourd'hui",
             media: type, src: BASE_URL + url,
-            fileName: data.fileName, fileSize: data.fileSize };
+            fileName: data.fileName, fileSize: data.fileSize
+          };
           if (!conversations[currentConv].find(m => m.id === data.id))
             conversations[currentConv].push(msg);
           renderMsgs(); renderConvList(); scrollMsgs();
@@ -4688,7 +5637,7 @@
       const has = inp && inp.value.trim().length > 0;
       const sendBtn = $('send-btn'), micBtn = $('mic-btn');
       if (sendBtn) sendBtn.style.display = has ? 'flex' : 'none';
-      if (micBtn)  micBtn.style.display  = has ? 'none' : 'flex';
+      if (micBtn) micBtn.style.display = has ? 'none' : 'flex';
     }
 
     function handleChatKey(e) {
@@ -4696,7 +5645,7 @@
     }
 
     // ── Stickers ──
-    const STICKERS = ['😊','😂','🥰','😎','🤔','😅','🙏','👏','👍','❤️','🔥','✅','🎉','💪','📚','✏️','🏫','⏰','📅','🤝','💡','🎓','👋','🌟','🚀','💯','😭','🥳','🤩','😴','🤗','😤','🙌','✌️','👀'];
+    const STICKERS = ['😊', '😂', '🥰', '😎', '🤔', '😅', '🙏', '👏', '👍', '❤️', '🔥', '✅', '🎉', '💪', '📚', '✏️', '🏫', '⏰', '📅', '🤝', '💡', '🎓', '👋', '🌟', '🚀', '💯', '😭', '🥳', '🤩', '😴', '🤗', '😤', '🙌', '✌️', '👀'];
     let stickerShown = false;
     function toggleStickers() {
       stickerShown = !stickerShown;
@@ -4718,8 +5667,10 @@
       if (salleSocket && salleSocket.connected) {
         salleSocket.emit('msg-salle', { txt: s, conv_id: currentConv, type: 'sticker' });
       } else {
-        const m = { id: Date.now(), from: PROF.code, nm: PROF.prenom+' '+PROF.nom,
-          txt: s, t: nowHHMM(), mine: true, date: "Aujourd'hui", type: 'sticker' };
+        const m = {
+          id: Date.now(), from: PROF.code, nm: PROF.prenom + ' ' + PROF.nom,
+          txt: s, t: nowHHMM(), mine: true, date: "Aujourd'hui", type: 'sticker'
+        };
         if (!conversations[currentConv]) conversations[currentConv] = [];
         conversations[currentConv].push(m);
         renderMsgs(); renderConvList();
@@ -4751,8 +5702,10 @@
       if (salleSocket && salleSocket.connected) {
         salleSocket.emit('msg-salle', { txt, conv_id: currentConv, type: 'poll' });
       } else {
-        const m = { id: Date.now(), from: PROF.code, nm: PROF.prenom+' '+PROF.nom,
-          txt, t: nowHHMM(), mine: true, date: "Aujourd'hui", type: 'poll', poll: pollData };
+        const m = {
+          id: Date.now(), from: PROF.code, nm: PROF.prenom + ' ' + PROF.nom,
+          txt, t: nowHHMM(), mine: true, date: "Aujourd'hui", type: 'poll', poll: pollData
+        };
         if (!conversations[currentConv]) conversations[currentConv] = [];
         conversations[currentConv].push(m);
         renderMsgs(); renderConvList();
@@ -4810,45 +5763,46 @@
     function openVideo(titre, url) {
       const old = document.getElementById('vid-modal');
       if (old) old.remove();
-      const fullUrl = url ? (url.startsWith('http') ? url : BASE_URL+url) : '';
-      const ext = (url||'').split('.').pop().toLowerCase();
+      const fullUrl = url ? (url.startsWith('http') ? url : BASE_URL + url) : '';
+      const ext = (url || '').split('.').pop().toLowerCase();
       const overlay = document.createElement('div');
       overlay.id = 'vid-modal';
-      overlay.onclick = function(e) { if(e.target===overlay) overlay.remove(); };
+      overlay.onclick = function (e) { if (e.target === overlay) overlay.remove(); };
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
       const box = document.createElement('div');
       box.style.cssText = 'background:#111;border-radius:14px;overflow:hidden;max-width:860px;width:100%;max-height:90vh;display:flex;flex-direction:column;';
       const hd = document.createElement('div');
       hd.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#1a1a1a;flex-shrink:0;';
       const ttl = document.createElement('span');
-      ttl.textContent = titre||'Document';
+      ttl.textContent = titre || 'Document';
       ttl.style.cssText = 'color:#fff;font-size:.85rem;font-weight:700;';
       const cls = document.createElement('button');
       cls.textContent = '✕';
       cls.style.cssText = 'background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;padding:0 4px;';
-      cls.onclick = function() { overlay.remove(); };
+      cls.onclick = function () { overlay.remove(); };
       hd.appendChild(ttl); hd.appendChild(cls);
       const body = document.createElement('div');
       body.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;background:#000;min-height:280px;';
       if (!fullUrl) {
         body.innerHTML = '<div style="color:#888;padding:40px;text-align:center;font-size:.9rem;">Aucun fichier disponible</div>';
-      } else if (['mp4','webm','mov','avi','mkv','ogg'].includes(ext)) {
-        body.innerHTML = '<video controls autoplay style="max-width:100%;max-height:72vh;"><source src="'+fullUrl+'">Navigateur incompatible.</video>';
-      } else if (ext==='pdf') {
-        body.style.padding='0';
-        body.innerHTML = '<iframe src="'+fullUrl+'" style="width:100%;height:72vh;border:none;"></iframe>';
-      } else if (['jpg','jpeg','png','gif','webp'].includes(ext)) {
-        body.innerHTML = '<img src="'+fullUrl+'" style="max-width:100%;max-height:72vh;object-fit:contain;">';
+      } else if (['mp4', 'webm', 'mov', 'avi', 'mkv', 'ogg'].includes(ext)) {
+        body.innerHTML = '<video controls autoplay style="max-width:100%;max-height:72vh;"><source src="' + fullUrl + '">Navigateur incompatible.</video>';
+      } else if (ext === 'pdf') {
+        body.style.padding = '0';
+        body.innerHTML = '<iframe src="' + fullUrl + '" style="width:100%;height:72vh;border:none;"></iframe>';
+      } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+        body.innerHTML = '<img src="' + fullUrl + '" style="max-width:100%;max-height:72vh;object-fit:contain;">';
       } else {
-        body.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:3rem;margin-bottom:12px;">📄</div><div style="color:#ccc;margin-bottom:16px;">'+esc(titre||'')+'</div><a href="'+fullUrl+'" download target="_blank" style="background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;">⬇️ Télécharger</a></div>';
+        body.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:3rem;margin-bottom:12px;">📄</div><div style="color:#ccc;margin-bottom:16px;">' + esc(titre || '') + '</div><a href="' + fullUrl + '" download target="_blank" style="background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;">⬇️ Télécharger</a></div>';
       }
       box.appendChild(hd); box.appendChild(body); overlay.appendChild(box);
       document.body.appendChild(overlay);
-      document.addEventListener('keydown', function h(e){if(e.key==='Escape'){overlay.remove();document.removeEventListener('keydown',h);}});
+      document.addEventListener('keydown', function h(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', h); } });
     }
 
   </script>
   <script src="responsive-init.js"></script>
+  <script src="/components/notifications.js"></script>
 </body>
 
 </html>

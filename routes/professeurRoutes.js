@@ -107,14 +107,8 @@ router.delete('/ressources/:id', authMiddleware, ctrl.supprimerRessource);
 router.get('/orientation', authMiddleware, ctrl.getOrientation);
 router.post('/orientation', authMiddleware, ctrl.saveOrientation);
 
-// Classes et matières du prof
-router.get('/mes-classes', authMiddleware, ctrl.getMesClasses);
-
-// Cahier de texte
-router.get('/cahier-texte', authMiddleware, ctrl.getCahierTexte);
-router.post('/cahier-texte', authMiddleware, ctrl.saveCahierTexte);
-
-// Liste profs salle
-router.get('/liste-salle', authMiddleware, ctrl.getListeSalle);
+// ── Cahier de texte ──
+router.post('/cahier-texte', authMiddleware, ctrl.saveCT);
+router.get('/cahier-texte', authMiddleware, ctrl.getCT);
 
 module.exports = router;

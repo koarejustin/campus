@@ -278,6 +278,22 @@
   .stats-grid {
     grid-template-columns: repeat(2,1fr) !important;
   }
+
+  /* ── Incidents : formulaire en haut, liste en bas ── */
+  #inc-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+  #inc-grid > .card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    flex: none !important;
+    float: none !important;
+  }
 }
 
 /* ── TRÈS PETIT MOBILE : 380px et moins ───────────────────────── */

@@ -32,12 +32,11 @@ const upload = multer({
 	limits: { fileSize: 2 * 1024 * 1024 }
 });
 
-/**
- * ROUTES SURVEILLANCE - Cahier des charges
- */
-
 // ============== DONNÉES ==============
 router.get('/eleves', authMiddleware, surveillantController.getElevesForClass);
+
+// ============== STATISTIQUES ==============
+router.get('/stats', authMiddleware, surveillantController.getSurveillantStats);
 
 // ============== ABSENCES ==============
 router.post('/absences', authMiddleware, surveillantController.recordAbsence);
@@ -52,20 +51,25 @@ router.get('/convocations', authMiddleware, surveillantController.getConvocation
 router.post('/incidents', authMiddleware, surveillantController.reportIncident);
 router.get('/incidents', authMiddleware, surveillantController.getIncidents);
 
-// ============== MESSAGES ==============
-router.post('/messages', authMiddleware, surveillantController.sendMessage);
-router.get('/messages', authMiddleware, surveillantController.getMessages);
+// ============== MESSAGES - COMMENTÉ (si fonctions manquantes) ==============
+// router.post('/messages', authMiddleware, surveillantController.sendMessage);
+// router.get('/messages', authMiddleware, surveillantController.getMessages);
 
 // ============== ANNONCES ==============
 router.post('/announcements', authMiddleware, surveillantController.publishOfficialAnnouncement);
 router.get('/announcements', surveillantController.getAnnouncements);
 
-// ============== ACTIVITÉS ==============
-router.post('/activities', authMiddleware, surveillantController.createActivity);
-router.get('/activities', surveillantController.getActivities);
+// ============== ACTIVITÉS - COMMENTÉ ==============
+// router.post('/activities', authMiddleware, surveillantController.createActivity);
+// router.get('/activities', surveillantController.getActivities);
+
+// ============== CAHIERS DE TEXTE ==============
+router.get('/cahiers-texte', authMiddleware, surveillantController.getCahiersTexte);
+
+// ============== PHOTO PROFIL ==============
+router.post('/photo', authMiddleware, upload.single('photo'), surveillantController.uploadPhoto);
+
+// ============== SURVEILLANTS (LISTE) ==============
+router.get('/list', authMiddleware, surveillantController.getSurveillants);
 
 module.exports = router;
-
-// Upload photo de profil (Surveillant)
-// Note: route ajoutée après l'export pour rester simple — l'ordre importe peu pour Express
-router.post('/photo', authMiddleware, upload.single('photo'), surveillantController.uploadPhoto);
