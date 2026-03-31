@@ -10,7 +10,7 @@ exports.getProfil = async (req, res) => {
         const profId = req.user?.id;
         const r = await db.query(`
             SELECT c.nom, c.prenom, c.email, c.telephone, c.code_unique,
-                   p.specialite, p.biographie, p.date_arrivee
+                   p.specialite, p.biographie, p.date_arrivee, p.photo_url
             FROM authentification.comptes c
             LEFT JOIN pedagogie.profils_profs p ON p.id_user = c.id_user
             WHERE c.id_user = $1
@@ -18,12 +18,18 @@ exports.getProfil = async (req, res) => {
         if (!r.rows.length) return res.status(404).json({ message: 'Profil introuvable' });
 
         let profil = r.rows[0];
-        try {
-            const rp = await db.query(
-                `SELECT photo_url FROM pedagogie.profils_profs WHERE id_user=$1`, [profId]
-            );
-            if (rp.rows.length) profil.photo_url = rp.rows[0].photo_url;
-        } catch (e) { }
+
+        // Si photo_url n'est pas dans la requête, essayer de la récupérer séparément
+        if (!profil.photo_url) {
+            try {
+                const rp = await db.query(
+                    `SELECT photo_url FROM pedagogie.profils_profs WHERE id_user=$1`, [profId]
+                );
+                if (rp.rows.length && rp.rows[0].photo_url) {
+                    profil.photo_url = rp.rows[0].photo_url;
+                }
+            } catch (e) { }
+        }
 
         res.json({ success: true, profil });
     } catch (e) {
@@ -37,6 +43,7 @@ exports.updateProfil = async (req, res) => {
         const profId = req.user?.id;
         const { telephone, specialite, biographie } = req.body;
 
+        // Mise à jour du téléphone si fourni
         if (telephone) {
             const telClean = String(telephone).replace(/\s/g, '').replace(/[^0-9+]/g, '');
             if (telClean.length >= 8) {
@@ -51,9 +58,11 @@ exports.updateProfil = async (req, res) => {
             }
         }
 
+        // Vérifier si le profil professeur existe
         const existing = await db.query(
             `SELECT id_prof FROM pedagogie.profils_profs WHERE id_user=$1`, [profId]
         );
+
         if (existing.rows.length > 0) {
             await db.query(
                 `UPDATE pedagogie.profils_profs 
@@ -69,33 +78,52 @@ exports.updateProfil = async (req, res) => {
             );
         }
 
+        // ========== CORRECTION PHOTO DE PROFIL ==========
         let photo_url = null;
         if (req.file) {
+            // Construire l'URL complète
+            const baseUrl = `${req.protocol}://${req.get('host')}`;
             photo_url = `/uploads/${req.file.filename}`;
+
             try {
-                await db.query(
-                    `UPDATE pedagogie.profils_profs SET photo_url=$1 WHERE id_user=$2`,
+                // S'assurer que la colonne photo_url existe
+                await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS photo_url TEXT`);
+
+                // Mettre à jour la photo
+                const updatePhoto = await db.query(
+                    `UPDATE pedagogie.profils_profs SET photo_url=$1 WHERE id_user=$2 RETURNING photo_url`,
                     [photo_url, profId]
                 );
-            } catch (e) {
-                try {
-                    await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS photo_url TEXT`);
+
+                if (updatePhoto.rows.length === 0) {
+                    // Si la ligne n'existe pas, l'insérer
                     await db.query(
-                        `UPDATE pedagogie.profils_profs SET photo_url=$1 WHERE id_user=$2`,
-                        [photo_url, profId]
+                        `INSERT INTO pedagogie.profils_profs (id_user, photo_url) VALUES ($1, $2) 
+                         ON CONFLICT (id_user) DO UPDATE SET photo_url=$2`,
+                        [profId, photo_url]
                     );
-                    console.log('✅ Colonne photo_url créée automatiquement');
-                } catch (e2) {
-                    console.warn('⚠️ Impossible de sauvegarder la photo:', e2.message);
-                    photo_url = null;
                 }
+                console.log('✅ Photo uploadée avec succès:', photo_url);
+            } catch (e) {
+                console.warn('⚠️ Erreur sauvegarde photo:', e.message);
+                photo_url = null;
             }
         }
+
+        // Récupérer le profil mis à jour pour le retour
+        const updatedProfil = await db.query(`
+            SELECT c.nom, c.prenom, c.email, c.telephone, c.code_unique,
+                   p.specialite, p.biographie, p.photo_url
+            FROM authentification.comptes c
+            LEFT JOIN pedagogie.profils_profs p ON p.id_user = c.id_user
+            WHERE c.id_user = $1
+        `, [profId]);
 
         res.json({
             success: true,
             message: 'Profil mis à jour',
-            profil: { telephone, specialite, biographie, photo_url }
+            profil: updatedProfil.rows[0] || { telephone, specialite, biographie, photo_url },
+            photo_url: photo_url
         });
     } catch (e) {
         console.error('Erreur updateProfil:', e);
@@ -531,5 +559,207 @@ exports.getCT = async (req, res) => {
     } catch (e) {
         console.error('Erreur getCT:', e);
         res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
+// ═══════════════════════════════════════════
+// DEVOIRS
+// ═══════════════════════════════════════════
+exports.getDevoirs = async (req, res) => {
+    try {
+        const profId = req.user?.id;
+        const { classe } = req.query;
+
+        let query = `
+            SELECT d.*, 
+                   to_char(d.date_limite, 'DD/MM/YYYY') AS date_limite_fr
+            FROM pedagogie.devoirs d
+            WHERE d.id_prof = $1
+        `;
+        const params = [profId];
+
+        if (classe) {
+            query += ` AND d.classe = $2`;
+            params.push(classe);
+        }
+
+        query += ` ORDER BY d.date_limite ASC`;
+
+        const result = await db.query(query, params);
+        res.json({ success: true, devoirs: result.rows });
+    } catch (error) {
+        console.error('Erreur getDevoirs:', error.message);
+        res.json({ success: true, devoirs: [] });
+    }
+};
+
+exports.createDevoir = async (req, res) => {
+    try {
+        const profId = req.user?.id;
+        const { titre, description, matiere, classe, date_limite } = req.body;
+
+        if (!titre || !matiere || !classe || !date_limite) {
+            return res.status(400).json({ success: false, message: 'Titre, matière, classe et date limite requis' });
+        }
+
+        const result = await db.query(`
+            INSERT INTO pedagogie.devoirs (id_prof, titre, description, matiere, classe, date_limite)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *
+        `, [profId, titre, description || '', matiere, classe, date_limite]);
+
+        // Envoyer une notification aux élèves de la classe concernée uniquement
+        try {
+            const notificationService = require('../services/notificationService');
+            const eleves = await db.query(`
+                SELECT c.id_user 
+                FROM authentification.comptes c
+                JOIN vie_scolaire.profils_eleves pe ON c.id_user = pe.id_user
+                WHERE pe.classe_actuelle = $1 AND c.est_actif = true
+            `, [classe]);
+
+            if (eleves.rows.length > 0) {
+                const dateFr = new Date(date_limite).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+                await notificationService.sendNotification(
+                    eleves.rows.map(e => e.id_user),
+                    'DEVOIR',
+                    `📝 Nouveau devoir en ${matiere}`,
+                    `${titre} — À rendre le ${dateFr}`,
+                    '/eleve.html?page=programme&tab=devoirs'
+                );
+                console.log(`🔔 Notification devoir envoyée à ${eleves.rows.length} élèves de ${classe}`);
+            }
+        } catch (notifError) {
+            console.warn('Erreur notification devoir:', notifError.message);
+        }
+
+        res.json({ success: true, message: 'Devoir créé avec succès', devoir: result.rows[0] });
+    } catch (error) {
+        console.error('Erreur createDevoir:', error.message);
+        res.status(500).json({ success: false, message: 'Erreur lors de la création du devoir' });
+    }
+};
+
+exports.updateDevoir = async (req, res) => {
+    try {
+        const profId = req.user?.id;
+        const { id } = req.params;
+        const { titre, description, matiere, classe, date_limite, est_visible } = req.body;
+
+        // Vérifier que le devoir appartient bien au professeur
+        const check = await db.query(
+            'SELECT id_devoir FROM pedagogie.devoirs WHERE id_devoir = $1 AND id_prof = $2',
+            [id, profId]
+        );
+
+        if (check.rows.length === 0) {
+            return res.status(403).json({ success: false, message: 'Non autorisé' });
+        }
+
+        await db.query(`
+            UPDATE pedagogie.devoirs
+            SET titre = COALESCE($1, titre),
+                description = COALESCE($2, description),
+                matiere = COALESCE($3, matiere),
+                classe = COALESCE($4, classe),
+                date_limite = COALESCE($5, date_limite),
+                est_visible = COALESCE($6, est_visible)
+            WHERE id_devoir = $7
+        `, [titre, description, matiere, classe, date_limite, est_visible, id]);
+
+        res.json({ success: true, message: 'Devoir mis à jour' });
+    } catch (error) {
+        console.error('Erreur updateDevoir:', error.message);
+        res.status(500).json({ success: false, message: 'Erreur lors de la mise à jour' });
+    }
+};
+
+exports.deleteDevoir = async (req, res) => {
+    try {
+        const profId = req.user?.id;
+        const { id } = req.params;
+
+        const result = await db.query(
+            'DELETE FROM pedagogie.devoirs WHERE id_devoir = $1 AND id_prof = $2 RETURNING id_devoir',
+            [id, profId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Devoir non trouvé ou non autorisé' });
+        }
+
+        res.json({ success: true, message: 'Devoir supprimé' });
+    } catch (error) {
+        console.error('Erreur deleteDevoir:', error.message);
+        res.status(500).json({ success: false, message: 'Erreur lors de la suppression' });
+    }
+};
+
+// ========== ANNONCES REÇUES (lecture seule) ==========
+exports.getAnnonces = async (req, res) => {
+    try {
+        let annonces = [];
+
+        // 1. Annonces de vie_scolaire.annonces
+        try {
+            const r = await db.query(`
+                SELECT id::text AS id_annonce, titre, contenu,
+                       COALESCE(type,'INFO') AS priorite,
+                       created_at AS date_publication,
+                       destinataires
+                FROM vie_scolaire.annonces
+                WHERE destinataires IN ('tous', 'profs', 'all', 'professeur', 'PROFESSEUR') OR destinataires IS NULL
+                ORDER BY created_at DESC
+                LIMIT 50
+            `);
+            annonces = r.rows;
+        } catch (e) { console.warn('annonces:', e.message); }
+
+        // 2. Annonces de gestion.annonces_officielles
+        try {
+            const r2 = await db.query(`
+                SELECT id_annonce::text AS id_annonce, titre, contenu,
+                       type AS priorite, date_publication,
+                       COALESCE(destinataires, 'tous') as destinataires
+                FROM gestion.annonces_officielles
+                WHERE COALESCE(destinataires, 'tous') IN ('tous', 'profs', 'all', 'professeur')
+                ORDER BY date_publication DESC
+                LIMIT 50
+            `);
+            annonces = [...annonces, ...r2.rows];
+        } catch (e) { console.warn('gestion.annonces_officielles:', e.message); }
+
+        // 3. Annonces de vie_scolaire.annonces_officielles
+        try {
+            const r3 = await db.query(`
+                SELECT id_annonce::text AS id_annonce, titre,
+                       corps_annonce as contenu, priorite, date_publication,
+                       COALESCE(destinataires, 'tous') as destinataires
+                FROM vie_scolaire.annonces_officielles
+                WHERE COALESCE(destinataires, 'tous') IN ('tous', 'profs', 'all', 'professeur')
+                ORDER BY date_publication DESC
+                LIMIT 50
+            `);
+            annonces = [...annonces, ...r3.rows];
+        } catch (e) { console.warn('annonces_officielles:', e.message); }
+
+        // Déduplication par titre + contenu
+        const uniqueMap = new Map();
+        for (const annonce of annonces) {
+            const key = `${annonce.titre}_${annonce.contenu?.substring(0, 100)}`;
+            if (!uniqueMap.has(key)) uniqueMap.set(key, annonce);
+        }
+
+        const annoncesUniques = Array.from(uniqueMap.values());
+        annoncesUniques.sort((a, b) => new Date(b.date_publication) - new Date(a.date_publication));
+
+        res.json({
+            success: true,
+            count: annoncesUniques.length,
+            annonces: annoncesUniques.slice(0, 50)
+        });
+    } catch (error) {
+        console.error('getAnnonces prof:', error.message);
+        res.status(500).json({ success: false, annonces: [] });
     }
 };

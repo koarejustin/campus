@@ -1,59 +1,35 @@
-/* ================================================================
-   CAMPUS NUMÉRIQUE FASO — responsive-init.js
-   Script à inclure dans TOUS les HTML AVANT </body>
-   <script src="responsive-init.js"></script>
-   ================================================================ */
-
 (function () {
-  // Trouver la sidebar (class="sidebar" ou class="sb")
-  const sidebar = document.querySelector('.sidebar') || document.querySelector('.sb');
+  document.addEventListener('DOMContentLoaded', () => {
+    const sidebar = document.querySelector('.sidebar') || document.querySelector('.sb');
+    if (!sidebar) return;
 
-  // Ne rien faire si pas de sidebar (pages simples : login, index, classes)
-  if (!sidebar) return;
+    // Créer le bouton s'il n'existe pas
+    if (!document.getElementById('hamburger-btn')) {
+      const btn = document.createElement('button');
+      btn.className = 'hamburger';
+      btn.id = 'hamburger-btn';
+      btn.innerHTML = '<span></span><span></span><span></span>';
+      document.body.appendChild(btn);
 
-  // ── Créer le bouton hamburger ────────────────────────────────────
-  const hamburger = document.createElement('button');
-  hamburger.className = 'hamburger';
-  hamburger.setAttribute('aria-label', 'Menu');
-  hamburger.setAttribute('id', 'hamburger-btn');
-  hamburger.innerHTML = '<span></span><span></span><span></span>';
-  document.body.appendChild(hamburger);
+      const ov = document.createElement('div');
+      ov.className = 'sidebar-overlay';
+      ov.id = 'sidebar-overlay';
+      document.body.appendChild(ov);
 
-  // ── Créer l'overlay ──────────────────────────────────────────────
-  const overlay = document.createElement('div');
-  overlay.className = 'sidebar-overlay';
-  overlay.id = 'sidebar-overlay';
-  document.body.appendChild(overlay);
+      const toggle = () => {
+        sidebar.classList.toggle('open');
+        btn.classList.toggle('open');
+        ov.classList.toggle('visible');
+        document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+      };
 
-  function openMenu() {
-    sidebar.classList.add('open');
-    hamburger.classList.add('open');
-    overlay.classList.add('visible');
-    document.body.style.overflow = 'hidden';
-  }
+      btn.addEventListener('click', toggle);
+      ov.addEventListener('click', toggle);
 
-  function closeMenu() {
-    sidebar.classList.remove('open');
-    hamburger.classList.remove('open');
-    overlay.classList.remove('visible');
-    document.body.style.overflow = '';
-  }
-
-  hamburger.addEventListener('click', () => {
-    sidebar.classList.contains('open') ? closeMenu() : openMenu();
-  });
-
-  overlay.addEventListener('click', closeMenu);
-
-  // ── Fermer le menu quand on clique sur un item nav ───────────────
-  document.querySelectorAll('.ni').forEach(ni => {
-    ni.addEventListener('click', () => {
-      if (window.innerWidth < 640) closeMenu();
-    });
-  });
-
-  // ── Fermer sur resize si on passe en desktop ─────────────────────
-  window.addEventListener('resize', () => {
-    if (window.innerWidth >= 640) closeMenu();
+      // Fermer sur clic lien
+      document.querySelectorAll('.ni, .sidebar a, .sb a').forEach(el => {
+        el.addEventListener('click', () => { if (window.innerWidth < 769) toggle(); });
+      });
+    }
   });
 })();

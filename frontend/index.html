@@ -17,6 +17,84 @@
         .space-card {
             aspect-ratio: 1 / 0.85;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Image de fond qui remplit toute la carte */
+        .space-card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+            z-index: 0;
+        }
+
+        .space-card:hover .space-card-bg {
+            transform: scale(1.08);
+        }
+
+        /* Overlay sombre pour lisibilité du texte */
+        .space-card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
+            z-index: 1;
+        }
+
+        /* Contenu au-dessus de l'image */
+        .space-card-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .space-card-content h3 {
+            font-size: 1.5rem;
+            font-weight: 900;
+            font-style: italic;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .space-card-content p {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        /* Icône de fallback si pas d'image */
+        .fallback-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+        }
+
+        .fallback-icon i {
+            width: 40px;
+            height: 40px;
         }
 
         /* Animation pour l'apparition du Dashboard */
@@ -49,10 +127,10 @@
         <nav
             class="fixed top-0 w-full h-16 z-[200] px-3 md:px-12 flex items-center justify-between bg-white/80 backdrop-blur-md border-b border-slate-200">
             <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="location.href='index.html'">
-                <div class="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-200">
+                <div id="logo-container" class="bg-indigo-600 p-2 rounded-xl shadow-lg shadow-indigo-200">
                     <i data-lucide="layout-grid" class="text-white w-5 h-5"></i>
                 </div>
-                <span class="text-xl font-black tracking-tighter italic uppercase">ÉCOLE<span
+                <span id="ecole-nom-index" class="text-xl font-black tracking-tighter italic uppercase">ÉCOLE<span
                         class="text-indigo-600">NUM</span></span>
             </div>
 
@@ -84,71 +162,64 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Élèves -->
                 <div onclick="location.href='classes.html'"
-                    class="space-card bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer flex flex-col items-center justify-center group">
-                    <div
-                        class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4">
-                        <i data-lucide="user"></i>
+                    class="space-card bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer"
+                    data-espace="eleves">
+                    <div class="space-card-content">
+                        <h3>Élèves</h3>
+                        <p>Le Grain de Sel & Orientation</p>
                     </div>
-                    <h3 class="font-black italic text-lg uppercase text-slate-800">Élèves</h3>
-                    <p
-                        class="text-[9px] text-slate-400 font-bold tracking-widest mt-2 uppercase italic text-center px-4">
-                        Le Grain de Sel & Orientation</p>
                 </div>
 
+                <!-- Professeurs -->
                 <div onclick="launch('PROFESSEUR', 'Espace Professeur')"
-                    class="space-card bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer flex flex-col items-center justify-center group">
-                    <div
-                        class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-4">
-                        <i data-lucide="book-open"></i>
+                    class="space-card bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer"
+                    data-espace="professeurs">
+                    <div class="space-card-content">
+                        <h3>Professeurs</h3>
+                        <p>Notes & Salle Virtuelle</p>
                     </div>
-                    <h3 class="font-black italic text-lg uppercase text-slate-800">Professeurs</h3>
-                    <p
-                        class="text-[9px] text-slate-400 font-bold tracking-widest mt-2 uppercase italic text-center px-4">
-                        Notes & Salle Virtuelle</p>
                 </div>
 
+                <!-- Parents -->
                 <div onclick="launch('PARENT', 'Espace Parent')"
-                    class="space-card bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer flex flex-col items-center justify-center group">
-                    <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mb-4"><i
-                            data-lucide="heart"></i></div>
-                    <h3 class="font-black italic text-lg uppercase text-slate-800">Parents</h3>
-                    <p
-                        class="text-[9px] text-slate-400 font-bold tracking-widest mt-2 uppercase italic text-center px-4">
-                        Suivi Scolaire de l'Enfant</p>
+                    class="space-card bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer"
+                    data-espace="parents">
+                    <div class="space-card-content">
+                        <h3>Parents</h3>
+                        <p>Suivi Scolaire de l'Enfant</p>
+                    </div>
                 </div>
 
+                <!-- Bureau APE -->
                 <div onclick="launch('APE', 'Bureau APE')"
-                    class="space-card bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer flex flex-col items-center justify-center group">
-                    <div
-                        class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-4">
-                        <i data-lucide="users-round"></i>
+                    class="space-card bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer"
+                    data-espace="ape">
+                    <div class="space-card-content">
+                        <h3>Bureau APE</h3>
+                        <p>Cotisations & Projets</p>
                     </div>
-                    <h3 class="font-black italic text-lg uppercase text-slate-800">Bureau APE</h3>
-                    <p
-                        class="text-[9px] text-slate-400 font-bold tracking-widest mt-2 uppercase italic text-center px-4">
-                        Cotisations & Projets</p>
                 </div>
 
+                <!-- Anciens -->
                 <div onclick="launch('ALUMNI', 'Espace Anciens')"
-                    class="space-card bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer flex flex-col items-center justify-center group">
-                    <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mb-4">
-                        <i data-lucide="history"></i>
+                    class="space-card bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer"
+                    data-espace="alumni">
+                    <div class="space-card-content">
+                        <h3>Anciens</h3>
+                        <p>Réseau Alumni & Mentorat</p>
                     </div>
-                    <h3 class="font-black italic text-lg uppercase text-slate-800">Anciens</h3>
-                    <p
-                        class="text-[9px] text-slate-400 font-bold tracking-widest mt-2 uppercase italic text-center px-4">
-                        Réseau Alumni & Mentorat</p>
                 </div>
 
+                <!-- Direction -->
                 <div onclick="launch('DIRECTION', 'Administration')"
-                    class="space-card bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer flex flex-col items-center justify-center group">
-                    <div class="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center mb-4"><i
-                            data-lucide="settings"></i></div>
-                    <h3 class="font-black italic text-lg uppercase text-slate-800">Direction</h3>
-                    <p
-                        class="text-[9px] text-slate-400 font-bold tracking-widest mt-2 uppercase italic text-center px-4">
-                        Administration & Pilotage</p>
+                    class="space-card bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 cursor-pointer"
+                    data-espace="direction">
+                    <div class="space-card-content">
+                        <h3>Direction</h3>
+                        <p>Administration & Pilotage</p>
+                    </div>
                 </div>
             </div>
         </main>
@@ -171,7 +242,141 @@
     </div>
 
     <script src="script.js"></script>
-    <script>lucide.createIcons();</script>
+    <script>
+        lucide.createIcons();
+
+        // ============================================================
+        // CHARGER LES IMAGES DE FOND POUR LES CARTES D'ESPACES
+        // ============================================================
+        async function chargerImagesEspaces() {
+            const cards = document.querySelectorAll('.space-card');
+
+            for (const card of cards) {
+                const espace = card.getAttribute('data-espace');
+                if (!espace) continue;
+
+                try {
+                    const response = await fetch(`/api/admin/espace-image/${espace}`);
+                    const data = await response.json();
+
+                    if (data.success && data.image && data.image.url_image) {
+                        // Ajouter l'image de fond
+                        const img = document.createElement('img');
+                        img.src = data.image.url_image;
+                        img.className = 'space-card-bg';
+                        img.alt = card.querySelector('h3')?.textContent || espace;
+
+                        // Ajouter l'overlay sombre
+                        const overlay = document.createElement('div');
+                        overlay.className = 'space-card-overlay';
+
+                        // Nettoyer les anciens éléments
+                        const oldBg = card.querySelector('.space-card-bg');
+                        const oldOverlay = card.querySelector('.space-card-overlay');
+                        if (oldBg) oldBg.remove();
+                        if (oldOverlay) oldOverlay.remove();
+
+                        // Ajouter au début
+                        card.insertBefore(overlay, card.firstChild);
+                        card.insertBefore(img, card.firstChild);
+
+                        // Changer la couleur de fond par défaut
+                        card.style.backgroundColor = 'transparent';
+
+                        console.log(`✅ Image de fond chargée pour ${espace}: ${data.image.url_image}`);
+                    } else {
+                        // Fallback : couleur de fond avec dégradé
+                        const colors = {
+                            eleves: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                            professeurs: 'linear-gradient(135deg, #7C3AED, #DB2777)',
+                            parents: 'linear-gradient(135deg, #F43F5E, #F97316)',
+                            ape: 'linear-gradient(135deg, #10B981, #14B8A6)',
+                            alumni: 'linear-gradient(135deg, #F59E0B, #EF4444)',
+                            direction: 'linear-gradient(135deg, #1F2937, #111827)'
+                        };
+                        card.style.background = colors[espace] || 'linear-gradient(135deg, #3B82F6, #1E40AF)';
+                        card.style.backgroundSize = 'cover';
+
+                        // Ajouter une icône en fallback
+                        const icons = {
+                            eleves: 'user',
+                            professeurs: 'book-open',
+                            parents: 'heart',
+                            ape: 'users-round',
+                            alumni: 'history',
+                            direction: 'settings'
+                        };
+
+                        const contentDiv = card.querySelector('.space-card-content');
+                        const existingIcon = contentDiv.querySelector('.fallback-icon');
+                        if (!existingIcon) {
+                            const iconDiv = document.createElement('div');
+                            iconDiv.className = 'fallback-icon';
+                            iconDiv.innerHTML = `<i data-lucide="${icons[espace] || 'circle'}" class="w-10 h-10"></i>`;
+                            contentDiv.insertBefore(iconDiv, contentDiv.firstChild);
+                            lucide.createIcons();
+                        }
+
+                        console.log(`⚠️ Image non trouvée pour ${espace}, fallback avec couleur`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Erreur chargement image pour ${espace}:`, error);
+                    // Fallback couleur
+                    const colors = {
+                        eleves: 'linear-gradient(135deg, #4F46E5, #7C3AED)',
+                        professeurs: 'linear-gradient(135deg, #7C3AED, #DB2777)',
+                        parents: 'linear-gradient(135deg, #F43F5E, #F97316)',
+                        ape: 'linear-gradient(135deg, #10B981, #14B8A6)',
+                        alumni: 'linear-gradient(135deg, #F59E0B, #EF4444)',
+                        direction: 'linear-gradient(135deg, #1F2937, #111827)'
+                    };
+                    card.style.background = colors[espace] || 'linear-gradient(135deg, #3B82F6, #1E40AF)';
+                }
+            }
+        }
+
+        // ============================================================
+        // CHARGER LA CONFIGURATION DE L'ÉCOLE (NOM + LOGO)
+        // ============================================================
+        async function chargerConfigEcole() {
+            try {
+                const response = await fetch('/api/admin/config');
+                const data = await response.json();
+                if (data.success && data.config) {
+                    const nomElem = document.getElementById('ecole-nom-index');
+                    if (nomElem) {
+                        nomElem.textContent = data.config.nom_etablissement;
+                        nomElem.classList.add('text-indigo-600');
+                    }
+
+                    if (data.config.logo_url) {
+                        const logoContainer = document.getElementById('logo-container');
+                        if (logoContainer) {
+                            // Agrandir le conteneur pour un logo plus visible
+                            logoContainer.style.width = '56px';
+                            logoContainer.style.height = '56px';
+                            logoContainer.style.padding = '6px';
+                            logoContainer.style.background = 'linear-gradient(135deg, #4F46E5, #7C3AED)';
+                            logoContainer.style.borderRadius = '14px';
+                            logoContainer.style.display = 'flex';
+                            logoContainer.style.alignItems = 'center';
+                            logoContainer.style.justifyContent = 'center';
+                            logoContainer.innerHTML = `<img src="${data.config.logo_url}" alt="logo" class="w-10 h-10 object-contain">`;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur chargement config:', error);
+            }
+        }
+
+        // Charger au démarrage
+        document.addEventListener('DOMContentLoaded', () => {
+            chargerImagesEspaces();
+            chargerConfigEcole();
+            lucide.createIcons();
+        });
+    </script>
 </body>
 
 </html>

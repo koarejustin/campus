@@ -1,149 +1,153 @@
 // ================================================================
-// SERVICE DE NOTIFICATIONS - VERSION FINALE
+// CAMPUS NUMÉRIQUE FASO — services/notificationService.js
 // ================================================================
-
 const db = require('../config/db');
 
-async function sendNotification(utilisateursIds, type, titre, contenu, lien = null) {
-    if (!utilisateursIds || utilisateursIds.length === 0) return false;
-
+// S'assurer que la table a les bonnes colonnes (migration auto)
+async function ensureColumns() {
     try {
-        const values = [];
-        const placeholders = [];
-
-        for (let i = 0; i < utilisateursIds.length; i++) {
-            const idx = i * 7;
-            placeholders.push(`($${idx + 1}, $${idx + 2}, $${idx + 3}, $${idx + 4}, $${idx + 5}, $${idx + 6}, $${idx + 7})`);
-            values.push(
-                utilisateursIds[i],
-                type,
-                titre,
-                contenu,
-                lien,
-                false,
-                new Date()
-            );
-        }
-
-        await db.query(`
-            INSERT INTO gestion.notifications 
-            (id_user, type, titre, contenu, lien, lue, created_at)
-            VALUES ${placeholders.join(',')}
-        `, values);
-
-        const io = require('../server').getIO();
-        if (io) {
-            for (const id of utilisateursIds) {
-                io.to(`user-${id}`).emit('new-notification', {
-                    type, titre, contenu, lien, created_at: new Date()
-                });
-            }
-        }
-
-        console.log(`✅ Notification envoyée à ${utilisateursIds.length} utilisateur(s)`);
-        return true;
-
-    } catch (err) {
-        console.error('Erreur envoi notification:', err.message);
-        return false;
+        await db.query(`ALTER TABLE gestion.notifications ADD COLUMN IF NOT EXISTS titre VARCHAR(255)`);
+        await db.query(`ALTER TABLE gestion.notifications ADD COLUMN IF NOT EXISTS lien TEXT`);
+        await db.query(`ALTER TABLE gestion.notifications ADD COLUMN IF NOT EXISTS est_lu BOOLEAN NOT NULL DEFAULT false`);
+        // Compatibilité : si la colonne s'appelle "lue" au lieu de "est_lu"
+        await db.query(`ALTER TABLE gestion.notifications ADD COLUMN IF NOT EXISTS lue BOOLEAN NOT NULL DEFAULT false`);
+    } catch (e) {
+        // Silencieux
     }
 }
+ensureColumns().catch(() => {});
 
-async function getUnreadNotifications(userId) {
+// ── Envoyer une notification à un ou plusieurs utilisateurs ──
+// destinataires : UUID string OU tableau de UUID
+exports.sendNotification = async (destinataires, type, titre, contenu, lien = null) => {
     try {
-        const result = await db.query(`
-            SELECT id_notification, type, titre, contenu, lien, created_at
+        const ids = Array.isArray(destinataires) ? destinataires : [destinataires];
+        if (!ids.length) return;
+
+        // Insérer en batch
+        for (const id_user of ids) {
+            await db.query(`
+                INSERT INTO gestion.notifications (id_user, type, titre, contenu, lien, est_lu, lue)
+                VALUES ($1, $2, $3, $4, $5, false, false)
+            `, [id_user, type, titre || '', contenu || '', lien]);
+        }
+
+        // Envoyer via Socket.IO si disponible (temps réel)
+        try {
+            const { getIO } = require('../server');
+            const io = getIO ? getIO() : null;
+            if (io) {
+                for (const id_user of ids) {
+                    io.to(`user_${id_user}`).emit('nouvelle_notification', {
+                        type, titre, contenu, lien,
+                        created_at: new Date().toISOString()
+                    });
+                }
+            }
+        } catch (e) { /* Socket.IO optionnel */ }
+
+        return true;
+    } catch (err) {
+        console.error('sendNotification error:', err.message);
+        return false;
+    }
+};
+
+// ── Récupérer les notifications non lues d'un utilisateur ──
+exports.getUnreadNotifications = async (userId) => {
+    try {
+        const r = await db.query(`
+            SELECT id_notification, type, titre, contenu, lien,
+                   COALESCE(est_lu, lue, false) AS lue,
+                   created_at
             FROM gestion.notifications
-            WHERE id_user = $1 AND lue = false
+            WHERE id_user = $1 AND COALESCE(est_lu, lue, false) = false
             ORDER BY created_at DESC
             LIMIT 50
         `, [userId]);
-        return result.rows;
+        return r.rows;
     } catch (err) {
-        console.error('Erreur récupération notifications:', err.message);
+        console.error('getUnreadNotifications error:', err.message);
         return [];
     }
-}
+};
 
-async function getNotifications(userId, limit = 50, offset = 0) {
+// ── Récupérer toutes les notifications (lues + non lues) ──
+exports.getNotifications = async (userId, limit = 50, offset = 0) => {
     try {
-        const result = await db.query(`
-            SELECT id_notification, type, titre, contenu, lien, lue, created_at
+        const r = await db.query(`
+            SELECT id_notification, type, titre, contenu, lien,
+                   COALESCE(est_lu, lue, false) AS lue,
+                   created_at
             FROM gestion.notifications
             WHERE id_user = $1
             ORDER BY created_at DESC
             LIMIT $2 OFFSET $3
         `, [userId, limit, offset]);
-        return result.rows;
+        return r.rows;
     } catch (err) {
-        console.error('Erreur récupération notifications:', err.message);
+        console.error('getNotifications error:', err.message);
         return [];
     }
-}
+};
 
-async function markNotificationAsRead(notificationId, userId) {
+// ── Compter les notifications non lues ──
+exports.getUnreadCount = async (userId) => {
     try {
-        const result = await db.query(`
+        const r = await db.query(`
+            SELECT COUNT(*) AS count
+            FROM gestion.notifications
+            WHERE id_user = $1 AND COALESCE(est_lu, lue, false) = false
+        `, [userId]);
+        return parseInt(r.rows[0]?.count || 0);
+    } catch (err) {
+        console.error('getUnreadCount error:', err.message);
+        return 0;
+    }
+};
+
+// ── Marquer une notification comme lue ──
+exports.markNotificationAsRead = async (notifId, userId) => {
+    try {
+        const r = await db.query(`
             UPDATE gestion.notifications
-            SET lue = true
+            SET est_lu = true, lue = true
             WHERE id_notification = $1 AND id_user = $2
             RETURNING id_notification
-        `, [notificationId, userId]);
-        return result.rows.length > 0;
+        `, [notifId, userId]);
+        return r.rows.length > 0;
     } catch (err) {
-        console.error('Erreur marquage notification:', err.message);
+        console.error('markNotificationAsRead error:', err.message);
         return false;
     }
-}
+};
 
-async function markAllNotificationsAsRead(userId) {
+// ── Marquer toutes les notifications comme lues ──
+exports.markAllNotificationsAsRead = async (userId) => {
     try {
         await db.query(`
             UPDATE gestion.notifications
-            SET lue = true
-            WHERE id_user = $1 AND lue = false
+            SET est_lu = true, lue = true
+            WHERE id_user = $1
         `, [userId]);
         return true;
     } catch (err) {
-        console.error('Erreur marquage toutes notifications:', err.message);
+        console.error('markAllNotificationsAsRead error:', err.message);
         return false;
     }
-}
+};
 
-async function getUnreadCount(userId) {
+// ── Supprimer une notification ──
+exports.deleteNotification = async (notifId, userId) => {
     try {
-        const result = await db.query(`
-            SELECT COUNT(*) as count
-            FROM gestion.notifications
-            WHERE id_user = $1 AND lue = false
-        `, [userId]);
-        return parseInt(result.rows[0].count);
-    } catch (err) {
-        console.error('Erreur comptage notifications:', err.message);
-        return 0;
-    }
-}
-
-async function deleteNotification(notificationId, userId) {
-    try {
-        const result = await db.query(`
+        const r = await db.query(`
             DELETE FROM gestion.notifications
             WHERE id_notification = $1 AND id_user = $2
             RETURNING id_notification
-        `, [notificationId, userId]);
-        return result.rows.length > 0;
+        `, [notifId, userId]);
+        return r.rows.length > 0;
     } catch (err) {
-        console.error('Erreur suppression notification:', err.message);
+        console.error('deleteNotification error:', err.message);
         return false;
     }
-}
-
-module.exports = {
-    sendNotification,
-    getUnreadNotifications,
-    getNotifications,
-    markNotificationAsRead,
-    markAllNotificationsAsRead,
-    getUnreadCount,
-    deleteNotification
 };

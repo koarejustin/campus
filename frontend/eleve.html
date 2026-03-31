@@ -13,14 +13,16 @@
     // Charger Chart.js avec fallback si CDN indisponible
     (function () {
       var s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+      s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
       s.onerror = function () {
+        console.warn('Chart.js non disponible — graphiques désactivés');
         window.Chart = function (ctx, cfg) {
-          this.data = cfg.data || {}; this.options = cfg.options || {};
-          this.update = function () { }; this.destroy = function () { };
+          this.data = cfg.data || {};
+          this.options = cfg.options || {};
+          this.update = function () { };
+          this.destroy = function () { };
         };
         window.Chart.register = function () { };
-        console.warn('Chart.js non disponible — graphiques désactivés');
       };
       document.head.appendChild(s);
     })();
@@ -1022,6 +1024,93 @@
         background-position: -200% 0;
       }
     }
+
+    /* ══ PROGRAMME & DEVOIRS - STYLE TABLEAU PROPRE ══ */
+    .prog-panel {
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .prog-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .prog-table th {
+      background: #F8FAFF;
+      padding: 12px 16px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .prog-table td {
+      padding: 12px 16px;
+      font-size: 0.8rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .prog-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .prog-table tr:hover td {
+      background: #F8FAFF;
+    }
+
+    .badge-devoir {
+      background: #FEF3C7;
+      color: #D97706;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .badge-composition {
+      background: #FEE2E2;
+      color: #DC2626;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .badge-examen {
+      background: #D1FAE5;
+      color: #059669;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .empty-prog {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .empty-prog-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    .empty-prog-text {
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
   </style>
 </head>
 
@@ -1032,13 +1121,14 @@
     <div class="sb-head">
       <div class="sb-logo">
         <div class="sb-logo-icon">
-          <svg viewBox="0 0 24 24">
+          <img class="ecole-logo hidden" alt="logo" style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
+          <svg class="ecole-logo-fallback" viewBox="0 0 24 24">
             <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
             <path d="M6 12v5c3 3 9 3 12 0v-5" />
           </svg>
         </div>
         <div>
-          <div class="sb-logo-txt">Campus <span>FASO</span></div>
+          <div class="sb-logo-txt ecole-nom">Saint Joseph</div>
           <div class="sb-role">● Espace Élève</div>
         </div>
       </div>
@@ -1147,16 +1237,7 @@
         </svg>
         Orientation
       </div>
-      <div class="ni" onclick="goPage('annonces')" id="ni-annonces">
-        <svg viewBox="0 0 24 24">
-          <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-          <line x1="6" y1="1" x2="6" y2="4" />
-          <line x1="10" y1="1" x2="10" y2="4" />
-          <line x1="14" y1="1" x2="14" y2="4" />
-        </svg>
-        Annonces Officielles
-      </div>
+
     </div>
 
     <div class="sb-foot">
@@ -1179,6 +1260,7 @@
 
     <!-- ══ DASHBOARD ══ -->
     <div class="pg on" id="pg-dashboard">
+
       <div class="pg-hd">
         <div>
           <div class="pg-title">Bonjour, <span id="dash-prenom" style="color:var(--accent)">--</span> 👋</div>
@@ -1235,7 +1317,7 @@
           <div class="chart-wrap"><canvas id="chart-evo"></canvas></div>
         </div>
       </div>
-      <div class="annonce-card" style="margin-bottom:14px;" id="dash-annonce" onclick="goPage('annonces')">
+      <div class="annonce-card" style="margin-bottom:14px;" id="dash-annonce" onclick="goPage('vie-scolaire')">
         <div
           style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;opacity:.7;margin-bottom:4px;">
           📢 Annonce Officielle</div>
@@ -1364,6 +1446,15 @@
         style="padding:0;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 180px);">
         <div id="fc-thread" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
         </div>
+        <div id="fc-reply-bar"
+          style="display:none;align-items:center;gap:8px;padding:8px 12px;background:#EEF2FF;border-top:1px solid #C7D2FE;font-size:0.75rem;">
+          <div style="flex:1;border-left:3px solid #6366F1;padding-left:8px;">
+            <div class="reply-author" style="font-weight:700;color:#4F46E5;"></div>
+            <div class="reply-preview" style="color:#64748B;"></div>
+          </div>
+          <button onclick="cancelReply('classe')"
+            style="background:none;border:none;cursor:pointer;font-size:1rem;color:#94A3B8;padding:0;">✕</button>
+        </div>
         <div class="forum-input-bar">
           <input type="text" class="forum-input" id="fc-input" placeholder="Écrire un message à la classe..."
             onkeydown="if(event.key==='Enter')sendForumMsg('classe')">
@@ -1399,6 +1490,15 @@
             <div class="empty-txt">Sélectionnez une classe ci-dessus</div>
           </div>
         </div>
+        <div id="inter-reply-bar"
+          style="display:none;align-items:center;gap:8px;padding:8px 12px;background:#EEF2FF;border-top:1px solid #C7D2FE;font-size:0.75rem;">
+          <div style="flex:1;border-left:3px solid #6366F1;padding-left:8px;">
+            <div class="reply-author" style="font-weight:700;color:#4F46E5;"></div>
+            <div class="reply-preview" style="color:#64748B;"></div>
+          </div>
+          <button onclick="cancelReply('inter')"
+            style="background:none;border:none;cursor:pointer;font-size:1rem;color:#94A3B8;padding:0;">✕</button>
+        </div>
         <div class="forum-input-bar"><input type="text" class="forum-input" id="inter-input"
             placeholder="Message inter-classes..." onkeydown="if(event.key==='Enter')sendForumMsg('inter')"><button
             class="btn-send" onclick="sendForumMsg('inter')"><svg viewBox="0 0 24 24">
@@ -1422,26 +1522,26 @@
         <div class="tab" onclick="progTab('compos',this)">📋 Compositions</div>
         <div class="tab" onclick="progTab('examens',this)" id="tab-examens" style="display:none">🎓 Examens</div>
       </div>
-      <div id="prog-emploi">
+      <div id="prog-emploi" class="prog-panel">
         <div id="prog-edt-content"></div>
       </div>
-      <div id="prog-devoirs" style="display:none">
+      <div id="prog-devoirs" class="prog-panel" style="display:none">
         <div id="prog-dev-content">
-          <div class="empty">
-            <div class="empty-icon">📝</div>
-            <div class="empty-txt">Chargement des devoirs...</div>
+          <div class="empty-prog">
+            <div class="empty-prog-icon">📝</div>
+            <div class="empty-prog-text">Chargement des devoirs...</div>
           </div>
         </div>
       </div>
-      <div id="prog-compos" style="display:none">
+      <div id="prog-compos" class="prog-panel" style="display:none">
         <div id="prog-comp-content">
-          <div class="empty">
-            <div class="empty-icon">📋</div>
-            <div class="empty-txt">Chargement...</div>
+          <div class="empty-prog">
+            <div class="empty-prog-icon">📋</div>
+            <div class="empty-prog-text">Chargement...</div>
           </div>
         </div>
       </div>
-      <div id="prog-examens" style="display:none">
+      <div id="prog-examens" class="prog-panel" style="display:none">
         <div id="prog-exam-content"></div>
       </div>
     </div>
@@ -1476,16 +1576,26 @@
       <div class="pg-hd">
         <div>
           <div class="pg-title">⭐ Vie Scolaire & Animations</div>
-          <div class="pg-sub">Clubs, tournois, activités — Publié par le Surveillant</div>
+          <div class="pg-sub">Annonces officielles · Clubs · Activités · Événements</div>
         </div>
         <div
           style="font-size:.65rem;background:rgba(123,143,245,.15);color:var(--accent2);padding:5px 10px;border-radius:20px;font-weight:700;">
-          👁️ Lecture seule · Tu peux liker &amp; commenter</div>
+          📢 Publié par la Direction &amp; les Surveillants</div>
       </div>
-      <div id="vs-content" style="display:flex;flex-direction:column;gap:10px;">
+      <div class="tabs" style="margin-bottom:14px;">
+        <div class="tab on" onclick="vsTab('annonces',this)">📢 Annonces officielles</div>
+        <div class="tab" onclick="vsTab('activites',this)">🎭 Activités &amp; Événements</div>
+      </div>
+      <div id="vs-annonces" style="display:flex;flex-direction:column;gap:10px;">
         <div class="empty">
-          <div class="empty-icon">⭐</div>
-          <div class="empty-txt">Chargement des activités...</div>
+          <div class="empty-icon">📢</div>
+          <div class="empty-txt">Chargement...</div>
+        </div>
+      </div>
+      <div id="vs-activites" style="display:none;flex-direction:column;gap:10px;">
+        <div class="empty">
+          <div class="empty-icon">🎭</div>
+          <div class="empty-txt">Chargement...</div>
         </div>
       </div>
     </div>
@@ -1501,21 +1611,6 @@
       <div id="ori-content" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;"></div>
     </div>
 
-    <!-- ══ ANNONCES ══ -->
-    <div class="pg" id="pg-annonces">
-      <div class="pg-hd">
-        <div>
-          <div class="pg-title">📢 Annonces Officielles</div>
-          <div class="pg-sub">Communiqués officiels de la direction — Dates d'examens, événements, informations</div>
-        </div>
-      </div>
-      <div id="ann-content" style="display:flex;flex-direction:column;gap:10px;">
-        <div class="empty">
-          <div class="empty-icon">📢</div>
-          <div class="empty-txt">Chargement des annonces...</div>
-        </div>
-      </div>
-    </div>
 
   </main>
 
@@ -1593,11 +1688,10 @@
       if (id === 'grand-eleves') initGrandEleves();
       if (id === 'vie-scolaire') loadVieScolaire();
       if (id === 'orientation') loadOrientation();
-      if (id === 'annonces') loadAnnonces();
+      if (id === 'vie-scolaire') loadVieScolaire();
       if (id === 'programme') loadProgramme();
     }
 
-    // ==================== DASHBOARD ====================
     // ==================== DASHBOARD ====================
     async function loadDashboard() {
       try {
@@ -1629,11 +1723,8 @@
         document.getElementById('kpi-res').textContent = nbRes;
         if (nbRes > 0) showBadge('badge-res', nbRes);
 
-        // Charger les vraies notes dans le dashboard
         const notesData = notesR.status === 'fulfilled' ? notesR.value : {};
         loadDashNotesFromBulletin(notesData);
-
-        // Charger le graphique d'évolution avec les vraies notes
         loadEvoChartWithRealData();
 
         const annData = annR.status === 'fulfilled' ? annR.value : {};
@@ -1642,6 +1733,7 @@
 
       } catch (e) { console.warn('Dashboard error:', e); }
     }
+
     function loadDashNotesFromBulletin(bulletinData) {
       const el = document.getElementById('dash-notes-list');
       if (!el) return;
@@ -1653,7 +1745,6 @@
         return;
       }
 
-      // Prendre les 4 premières notes pour le dashboard
       const topNotes = notes.slice(0, 4);
 
       el.innerHTML = topNotes.map(n => {
@@ -1673,7 +1764,6 @@
         `;
       }).join('');
 
-      // Ajouter un lien vers la page bulletin si plus de 4 notes
       if (notes.length > 4) {
         el.innerHTML += `
             <div style="text-align: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border);">
@@ -1682,12 +1772,12 @@
         `;
       }
     }
+
     async function loadEvoChartWithRealData() {
       const chartEl = document.getElementById('chart-evo');
       if (!chartEl) return;
 
       try {
-        // Récupérer les moyennes pour les 3 trimestres
         const [t1, t2, t3] = await Promise.all([
           fetch(`${API}/eleves/bulletin?trimestre=1`, { headers: authH() }).then(r => r.json()),
           fetch(`${API}/eleves/bulletin?trimestre=2`, { headers: authH() }).then(r => r.json()),
@@ -1698,7 +1788,6 @@
         const moyT2 = t2.eleve?.moyenne_generale ? parseFloat(t2.eleve.moyenne_generale) : null;
         const moyT3 = t3.eleve?.moyenne_generale ? parseFloat(t3.eleve.moyenne_generale) : null;
 
-        // Préparer les données pour le graphique
         const labels = [];
         const data = [];
 
@@ -1706,7 +1795,6 @@
         if (moyT2 !== null) { labels.push('T2'); data.push(moyT2); }
         if (moyT3 !== null) { labels.push('T3'); data.push(moyT3); }
 
-        // Si pas de données réelles, utiliser des données de démonstration
         if (data.length === 0) {
           labels.push('T1', 'T2', 'T3');
           data.push(12.5, 13.2, 14.8);
@@ -1714,7 +1802,6 @@
 
         const ctx = chartEl.getContext('2d');
 
-        // Détruire l'ancien graphique s'il existe
         if (window.evoChart) {
           window.evoChart.destroy();
         }
@@ -1742,9 +1829,7 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-              legend: {
-                display: false
-              },
+              legend: { display: false },
               tooltip: {
                 callbacks: {
                   label: function (context) {
@@ -1763,13 +1848,8 @@
                   font: { size: 10, weight: 'bold' },
                   color: '#94A3B8'
                 },
-                grid: {
-                  color: 'rgba(0,0,0,0.05)'
-                },
-                ticks: {
-                  stepSize: 5,
-                  font: { size: 10 }
-                }
+                grid: { color: 'rgba(0,0,0,0.05)' },
+                ticks: { stepSize: 5, font: { size: 10 } }
               },
               x: {
                 title: {
@@ -1778,12 +1858,8 @@
                   font: { size: 10, weight: 'bold' },
                   color: '#94A3B8'
                 },
-                grid: {
-                  display: false
-                },
-                ticks: {
-                  font: { size: 11, weight: 'bold' }
-                }
+                grid: { display: false },
+                ticks: { font: { size: 11, weight: 'bold' } }
               }
             }
           }
@@ -1791,7 +1867,6 @@
 
       } catch (e) {
         console.warn('Erreur chargement graphique:', e);
-        // Fallback avec données par défaut
         const ctx = chartEl.getContext('2d');
         if (window.evoChart) window.evoChart.destroy();
         window.evoChart = new Chart(ctx, {
@@ -1817,18 +1892,7 @@
         });
       }
     }
-    function loadEvoChart(stats) {
-      const chartEl = document.getElementById('chart-evo');
-      if (!chartEl) return;
-      const ctx = chartEl.getContext('2d');
-      const moys = stats.statistiques?.evolution_trimestrielle || [{ tri: 'T1', moy: stats.statistiques?.academique?.moyenne || 0 }];
-      new Chart(ctx, {
-        type: 'line',
-        data: { labels: moys.map(m => m.tri || m.trimestre || 'T?'), datasets: [{ label: 'Moyenne', data: moys.map(m => parseFloat(m.moy || m.moyenne || 0)), borderColor: '#3B49DF', backgroundColor: 'rgba(59,73,223,.1)', tension: .4, pointBackgroundColor: '#3B49DF', pointRadius: 4, fill: true }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { min: 0, max: 20 } } }
-      });
-    }
-    // Écouter le changement de trimestre pour mettre à jour les notes du dashboard
+
     document.addEventListener('DOMContentLoaded', () => {
       const dashTri = document.getElementById('dash-tri');
       if (dashTri) {
@@ -1849,7 +1913,7 @@
         document.getElementById('bul-resume').innerHTML = `<div class="kpi" style="padding:14px;"><div class="kpi-label">Classe</div><div style="font-size:1.3rem;font-weight:900;">${e.classe || '--'}</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Moyenne Générale</div><div style="font-size:1.3rem;font-weight:900;color:${moy >= 10 ? 'var(--green)' : 'var(--red)'}">${moy.toFixed(2)}/20</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Trimestre</div><div style="font-size:1.3rem;font-weight:900;">${data.trimestre || tri}</div></div>`;
         const notes = data.notes_par_matiere || [];
         if (!notes.length) { document.getElementById('bul-content').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Aucune note pour ce trimestre</div></div>'; return; }
-        document.getElementById('bul-content').innerHTML = `<table class="tbl"><thead><tr><th>Matière</th><th>Coeff</th><th>Moyenne</th><th>Nb Évals</th><th>Appréciation</th></tr></thead><tbody>${notes.map(n => { const v = parseFloat(n.note_moyenne || n.moyenne || 0); const pct = Math.min(v / 20 * 100, 100); const color = v >= 14 ? 'var(--green)' : v >= 10 ? 'var(--accent)' : 'var(--red)'; const apprec = v >= 16 ? 'Très Bien' : v >= 14 ? 'Bien' : v >= 12 ? 'Assez Bien' : v >= 10 ? 'Passable' : 'Insuffisant'; const badgeClass = v >= 14 ? 'badge-ok' : v >= 10 ? 'badge-blue' : 'badge-red'; return `<tr><td><span style="font-weight:600">${n.matiere || n.libelle_matiere || '—'}</span></td><td><span class="badge-gray">×${n.coefficient || 1}</span></td><td><div style="display:flex;align-items:center;gap:8px;"><span style="font-weight:900;color:${color}">${v.toFixed(2)}</span><div class="mat-bar-wrap"><div class="mat-bar" style="width:${pct}%;background:${color};"></div></div></div></td><td>${n.nb_evaluations || 0}</td><td><span class="${badgeClass}">${apprec}</span></td></tr>`; }).join('')}</tbody></table>`;
+        document.getElementById('bul-content').innerHTML = `<table class="tbl"><thead><tr><th>Matière</th><th>Coeff</th><th>Moyenne</th><th>Nb Évals</th><th>Appréciation</th></tr></thead><tbody>${notes.map(n => { const v = parseFloat(n.note_moyenne || n.moyenne || 0); const pct = Math.min(v / 20 * 100, 100); const color = v >= 14 ? 'var(--green)' : v >= 10 ? 'var(--accent)' : 'var(--red)'; const apprec = v >= 16 ? 'Très Bien' : v >= 14 ? 'Bien' : v >= 12 ? 'Assez Bien' : v >= 10 ? 'Passable' : 'Insuffisant'; const badgeClass = v >= 14 ? 'badge-ok' : v >= 10 ? 'badge-blue' : 'badge-red'; return `<tr><td style="font-weight:600">${n.matiere || n.libelle_matiere || '—'}</td><td><span class="badge-gray">×${n.coefficient || 1}</span></td><td><div style="display:flex;align-items:center;gap:8px;"><span style="font-weight:900;color:${color}">${v.toFixed(2)}</span><div class="mat-bar-wrap"><div class="mat-bar" style="width:${pct}%;background:${color};"></div></div></div></td><td>${n.nb_evaluations || 0}</td><td><span class="${badgeClass}">${apprec}</span></td></tr>`; }).join('')}</tbody></table>`;
       } catch (e) { document.getElementById('bul-content').innerHTML = `<div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:10px;padding:14px;">⚠️ Erreur : ${e.message}</div>`; }
     }
     async function loadBulletinTri() { await loadBulletinPage(); }
@@ -1863,12 +1927,11 @@
         document.getElementById('abs-resume').innerHTML = `<div class="kpi" style="padding:14px;"><div class="kpi-label">Total Absences</div><div style="font-size:1.4rem;font-weight:900;">${tot}</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Justifiées ✅</div><div style="font-size:1.4rem;font-weight:900;color:var(--green)">${just}</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Non Justifiées ⚠️</div><div style="font-size:1.4rem;font-weight:900;color:var(--red)">${nj}</div></div>`;
         const abs = data.absences || [];
         if (!abs.length) { document.getElementById('abs-content').innerHTML = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-txt">Aucune absence enregistrée</div></div>'; return; }
-        document.getElementById('abs-content').innerHTML = `<table class="tbl"><thead><tr><th>Date</th><th>Raison</th><th>Statut</th> </thead><tbody>${abs.map(a => `<tr><td><strong>${new Date(a.date_absence).toLocaleDateString('fr-FR')}</strong></td><td>${a.raison_absence || '—'}</td><td><span class="${a.justifiee ? 'badge-ok' : 'badge-red'}">${a.statut || (a.justifiee ? 'Justifiée' : 'Non justifiée')}</span></td> </tr>`).join('')}</tbody> </table>`;
+        document.getElementById('abs-content').innerHTML = `<table class="tbl"><thead><tr><th>Date</th><th>Raison</th><th>Statut</th></tr></thead><tbody>${abs.map(a => `<tr><td><strong>${new Date(a.date_absence).toLocaleDateString('fr-FR')}</strong></td><td>${a.raison_absence || '—'}</td><td><span class="${a.justifiee ? 'badge-ok' : 'badge-red'}">${a.statut || (a.justifiee ? 'Justifiée' : 'Non justifiée')}</span></td></tr>`).join('')}</tbody></table>`;
       } catch (e) { document.getElementById('abs-content').innerHTML = `<div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:10px;padding:14px;">⚠️ Erreur : ${e.message}</div>`; }
     }
 
     // ==================== CONVOCATIONS ====================
-    // ==================== CONVOCATIONS (STYLE PROPRE) ====================
     async function loadConvocations() {
       try {
         const r = await fetch(`${API}/eleves/convocations`, { headers: authH() });
@@ -1876,132 +1939,81 @@
         const convs = data.convocations || [];
 
         if (!convs.length) {
-          document.getElementById('conv-content').innerHTML = `
-                <div class="empty">
-                    <div class="empty-icon">✅</div>
-                    <div class="empty-txt">Aucune convocation en attente</div>
-                </div>`;
+          document.getElementById('conv-content').innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-txt">Aucune convocation en attente</div></div>`;
           return;
         }
 
-        // Statistiques des convocations
         const urgentes = convs.filter(c => c.statut === 'URGENTE' || c.urgence === 'URGENTE').length;
         const enAttente = convs.filter(c => c.statut === 'EN COURS' || !c.statut).length;
         const recues = convs.filter(c => c.statut === 'ACCUSÉ RECU' || c.accuse_recu === true).length;
 
         document.getElementById('conv-content').innerHTML = `
-            <!-- Statistiques -->
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
-                <div class="kpi" style="padding: 14px; text-align: center;">
-                    <div class="kpi-label" style="color: var(--muted);">Total</div>
-                    <div class="kpi-val" style="font-size: 1.6rem; color: var(--accent);">${convs.length}</div>
-                    <div class="kpi-foot">convocation(s)</div>
-                </div>
-                <div class="kpi" style="padding: 14px; text-align: center;">
-                    <div class="kpi-label" style="color: var(--muted);">Urgentes</div>
-                    <div class="kpi-val" style="font-size: 1.6rem; color: #EF4444;">${urgentes}</div>
-                    <div class="kpi-foot">à traiter</div>
-                </div>
-                <div class="kpi" style="padding: 14px; text-align: center;">
-                    <div class="kpi-label" style="color: var(--muted);">Accusés reçus</div>
-                    <div class="kpi-val" style="font-size: 1.6rem; color: #10B981;">${recues}</div>
-                    <div class="kpi-foot">confirmés</div>
-                </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
+            <div class="kpi" style="padding: 14px; text-align: center;">
+              <div class="kpi-label">Total</div>
+              <div class="kpi-val" style="font-size: 1.6rem; color: var(--accent);">${convs.length}</div>
+              <div class="kpi-foot">convocation(s)</div>
             </div>
-            
-            <!-- Liste des convocations -->
-            <div class="card" style="padding: 0; overflow: hidden;">
-                <div style="padding: 16px 20px; background: #F8FAFF; border-bottom: 1px solid var(--border);">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 1rem;">⚠️</span>
-                        <span style="font-weight: 800; font-size: 0.85rem;">Mes convocations</span>
-                        <span class="badge-blue" style="margin-left: auto;">${convs.length} élément(s)</span>
-                    </div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 0;">
-                    ${convs.map((c, index) => {
+            <div class="kpi" style="padding: 14px; text-align: center;">
+              <div class="kpi-label">Urgentes</div>
+              <div class="kpi-val" style="font-size: 1.6rem; color: #EF4444;">${urgentes}</div>
+              <div class="kpi-foot">à traiter</div>
+            </div>
+            <div class="kpi" style="padding: 14px; text-align: center;">
+              <div class="kpi-label">Accusés reçus</div>
+              <div class="kpi-val" style="font-size: 1.6rem; color: #10B981;">${recues}</div>
+              <div class="kpi-foot">confirmés</div>
+            </div>
+          </div>
+          <div class="card" style="padding: 0; overflow: hidden;">
+            <div style="padding: 16px 20px; background: #F8FAFF; border-bottom: 1px solid var(--border);">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span>⚠️</span>
+                <span style="font-weight: 800; font-size: 0.85rem;">Mes convocations</span>
+                <span class="badge-blue" style="margin-left: auto;">${convs.length} élément(s)</span>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0;">
+              ${convs.map((c, index) => {
           const isUrgent = c.statut === 'URGENTE' || c.urgence === 'URGENTE';
           const isPending = c.statut === 'EN COURS' || !c.statut;
           const isReceived = c.statut === 'ACCUSÉ RECU' || c.accuse_recu === true;
-
           const dateConv = c.date_convocation ? new Date(c.date_convocation) : new Date();
-          const formattedDate = dateConv.toLocaleDateString('fr-FR', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric'
-          });
-          const formattedTime = dateConv.toLocaleTimeString('fr-FR', {
-            hour: '2-digit',
-            minute: '2-digit'
-          });
-
+          const formattedDate = dateConv.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
           const borderColor = isUrgent ? '#EF4444' : isPending ? '#F59E0B' : '#10B981';
           const bgColor = isUrgent ? '#FEF2F2' : isPending ? '#FFFBEB' : '#F0FDF4';
-          const icon = isUrgent ? '🔴' : isPending ? '🟡' : '🟢';
           const statusText = isUrgent ? 'URGENTE' : isPending ? 'En attente' : 'Accusé reçu';
-
           return `
-                            <div style="border-left: 4px solid ${borderColor}; background: ${bgColor}; padding: 16px 20px; border-bottom: 1px solid var(--border); transition: all 0.2s;">
-                                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
-                                    <div style="flex: 1; min-width: 0;">
-                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-                                            <span style="font-size: 0.7rem; font-weight: 800; background: ${borderColor}20; color: ${borderColor}; padding: 3px 10px; border-radius: 20px;">
-                                                ${icon} ${statusText}
-                                            </span>
-                                            <span style="font-size: 0.65rem; color: var(--muted);">Réf: ${c.id || 'CNV-' + (index + 1)}</span>
-                                        </div>
-                                        <div style="font-size: 1rem; font-weight: 800; color: var(--ink); margin-bottom: 6px;">${escHtml(c.sujet || 'Convocation')}</div>
-                                        <div style="font-size: 0.8rem; color: #374151; line-height: 1.5; margin-bottom: 10px;">${escHtml(c.description || 'Aucune description fournie')}</div>
-                                        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-                                            <div style="display: flex; align-items: center; gap: 6px;">
-                                                <span style="font-size: 0.7rem;">📅</span>
-                                                <span style="font-size: 0.7rem; color: var(--muted);">${formattedDate}</span>
-                                            </div>
-                                            <div style="display: flex; align-items: center; gap: 6px;">
-                                                <span style="font-size: 0.7rem;">⏰</span>
-                                                <span style="font-size: 0.7rem; color: var(--muted);">${formattedTime}</span>
-                                            </div>
-                                            ${c.lieu ? `
-                                            <div style="display: flex; align-items: center; gap: 6px;">
-                                                <span style="font-size: 0.7rem;">📍</span>
-                                                <span style="font-size: 0.7rem; color: var(--muted);">${escHtml(c.lieu)}</span>
-                                            </div>
-                                            ` : ''}
-                                        </div>
-                                    </div>
-                                    ${!isReceived ? `
-                                    <div>
-                                        <button onclick="accuserReception('${c.id}')" 
-                                            style="padding: 8px 16px; background: ${isUrgent ? '#EF4444' : '#3B49DF'}; color: white; border: none; border-radius: 10px; font-size: 0.7rem; font-weight: 700; cursor: pointer; transition: all 0.2s;">
-                                            📩 Accuser réception
-                                        </button>
-                                    </div>
-                                    ` : `
-                                    <div style="display: flex; align-items: center; gap: 6px;">
-                                        <span style="font-size: 1rem;">✓</span>
-                                        <span style="font-size: 0.7rem; color: #059669; font-weight: 600;">Accusé reçu</span>
-                                    </div>
-                                    `}
-                                </div>
-                            </div>
-                        `;
-        }).join('')}
+            <div style="border-left: 4px solid ${borderColor}; background: ${bgColor}; padding: 14px 16px; border-bottom: 1px solid var(--border);">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                    <span class="badge-${isUrgent ? 'red' : isPending ? 'blue' : 'ok'}" style="font-size: 0.6rem;">${statusText}</span>
+                    <span style="font-size: 0.65rem; color: var(--muted);">Réf: ${c.id || 'CNV-' + (index + 1)}</span>
+                  </div>
+                  <div style="font-weight: 800; margin-bottom: 4px;">${escHtml(c.sujet || 'Convocation')}</div>
+                  <div style="font-size: 0.75rem; color: #374151;">${escHtml(c.description || '')}</div>
+                  <div style="display: flex; gap: 12px; margin-top: 6px;">
+                    <span style="font-size: 0.7rem;">📅 ${formattedDate}</span>
+                    ${c.lieu ? `<span style="font-size: 0.7rem;">📍 ${escHtml(c.lieu)}</span>` : ''}
+                  </div>
                 </div>
+                ${!isReceived ? `<button onclick="accuserReception('${c.id}')" class="btn-sm" style="padding: 5px 10px; font-size: 0.7rem;">📩 Accuser</button>` : `<span style="color: #10B981;">✓ Accusé reçu</span>`}
+              </div>
             </div>
-            
-            <!-- Note de confidentialité -->
-            <div style="margin-top: 16px; padding: 12px 16px; background: #EEF2FF; border-radius: 12px; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 0.9rem;">🔒</span>
-                <span style="font-size: 0.7rem; color: #4F46E5; font-weight: 500;">Confidentiel - Visible uniquement par vous et votre parent</span>
+          `;
+        }).join('')}
             </div>
+          </div>
+          <div style="margin-top: 16px; padding: 10px; background: #EEF2FF; border-radius: 12px; text-align: center;">
+            <span style="font-size: 0.7rem;">🔒 Visible uniquement par vous et votre parent</span>
+          </div>
         `;
       } catch (e) {
         document.getElementById('conv-content').innerHTML = `<div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:10px;padding:14px;">⚠️ Erreur : ${e.message}</div>`;
       }
     }
 
-    // Fonction pour accuser réception d'une convocation
     async function accuserReception(convId) {
       try {
         const response = await fetch(`${API}/eleves/convocations/${convId}/accuser`, {
@@ -2010,15 +2022,16 @@
         });
         const data = await response.json();
         if (data.success) {
-          toast('✅ Accusé de réception envoyé', 'ok');
-          loadConvocations(); // Recharger la liste
+          alert('✅ Accusé de réception envoyé');
+          loadConvocations();
         } else {
-          toast('❌ Erreur lors de l\'accusé', 'err');
+          alert('❌ Erreur');
         }
       } catch (e) {
-        toast('❌ Erreur réseau', 'err');
+        alert('❌ Erreur réseau');
       }
     }
+
     // ==================== RESSOURCES ====================
     async function loadRessources() {
       try {
@@ -2045,211 +2058,31 @@
       }
 
       const SERVER = window.SERVER_BASE || 'http://localhost:5000';
+      const sortedList = [...list].sort((a, b) => new Date(b.date_ajout) - new Date(a.date_ajout));
 
-      // Fonction pour formater le nom du fichier de manière propre
-      function formatFileName(url, titre) {
-        if (titre && titre !== 'Sans titre' && titre !== '—' && titre.length > 3) {
-          return titre;
-        }
-        if (!url) return 'Document';
-        const fileName = url.split('/').pop();
-        // Supprimer les hash et dates si présents (format: hash timestamp)
-        const cleanName = fileName.replace(/^[a-f0-9]{32}\s?\d{13}?_?/, '').replace(/[_-]/g, ' ');
-        if (cleanName && cleanName.length > 5 && !cleanName.match(/^[a-f0-9]{32}$/)) {
-          return cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
-        }
-        // Détecter le type de fichier
-        const ext = fileName.split('.').pop().toLowerCase();
-        if (ext === 'mp4' || ext === 'webm' || ext === 'mov') return 'Vidéo de cours';
-        if (ext === 'pdf') return 'Document PDF';
-        if (ext === 'mp3' || ext === 'wav') return 'Fichier audio';
-        if (ext === 'jpg' || ext === 'png' || ext === 'jpeg') return 'Image';
-        return 'Document';
-      }
-
-      // Trier par date (plus récent d'abord)
-      const sortedList = [...list].sort((a, b) => {
-        const dateA = a.date_ajout ? new Date(a.date_ajout) : 0;
-        const dateB = b.date_ajout ? new Date(b.date_ajout) : 0;
-        return dateB - dateA;
-      });
-
-      // Séparer par type
-      const isVideo = r => r.type === 'video' || /\.(mp4|webm|mov|avi|mkv|ogv)$/i.test(r.url || '');
-      const isAudio = r => r.type === 'audio' || /\.(mp3|ogg|wav|m4a|flac)$/i.test(r.url || '');
-      const isImage = r => r.type === 'image' || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(r.url || '');
-      const isCours = r => r.type === 'cours' || /\.(pdf)$/i.test(r.url || '');
-      const isTD = r => r.type === 'td' || /\.(doc|docx|odt)$/i.test(r.url || '');
+      const isVideo = r => r.type === 'video' || /\.(mp4|webm|mov)$/i.test(r.url || '');
+      const isAudio = r => r.type === 'audio' || /\.(mp3|ogg|wav)$/i.test(r.url || '');
+      const isImage = r => r.type === 'image' || /\.(jpg|jpeg|png|gif)$/i.test(r.url || '');
+      const isDoc = r => !isVideo(r) && !isAudio(r) && !isImage(r);
 
       const videos = sortedList.filter(isVideo);
       const audios = sortedList.filter(isAudio);
       const images = sortedList.filter(isImage);
-      const docs = sortedList.filter(r => !isVideo(r) && !isAudio(r) && !isImage(r));
+      const docs = sortedList.filter(isDoc);
 
       let html = '';
 
-      // ── SECTION VIDÉOS (grille moderne) ──
       if (videos.length) {
-        html += `
-            <div style="margin-bottom: 28px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
-                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 18px;">🎬</span>
-                    </div>
-                    <div>
-                        <h3 style="font-size: 0.95rem; font-weight: 800; color: var(--ink);">Vidéos de cours</h3>
-                        <p style="font-size: 0.65rem; color: var(--muted);">${videos.length} vidéo${videos.length > 1 ? 's' : ''}</p>
-                    </div>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px;">
-                    ${videos.map(v => {
-          const fullUrl = v.url ? (v.url.startsWith('http') ? v.url : SERVER + v.url) : '';
-          const title = formatFileName(v.url, v.titre);
-          const prof = v.prof || v.professeur || 'Professeur';
-          const date = v.date_ajout ? new Date(v.date_ajout).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
-          return `
-                            <div class="video-card" onclick="openRessource('${v.id}','${v.url || ''}')" style="background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: all 0.25s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                                <div style="position: relative; aspect-ratio: 16/9; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                    ${fullUrl ? `<video src="${fullUrl}" preload="metadata" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.7;"></video>` : '<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>'}
-                                    <div style="position: absolute; width: 48px; height: 48px; background: rgba(0,0,0,0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: transform 0.2s;">
-                                        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: white; stroke: none;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                    </div>
-                                </div>
-                                <div style="padding: 12px 14px;">
-                                    <div style="font-size: 0.85rem; font-weight: 800; color: var(--ink); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escHtml(title)}</div>
-                                    <div style="display: flex; align-items: center; justify-content: space-between;">
-                                        <span style="font-size: 0.6rem; background: #EEF2FF; color: #4F46E5; padding: 3px 10px; border-radius: 20px; font-weight: 600;">${escHtml(prof)}</span>
-                                        ${date ? `<span style="font-size: 0.6rem; color: var(--muted);">📅 ${date}</span>` : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-        }).join('')}
-                </div>
-            </div>
-        `;
+        html += `<div style="margin-bottom: 20px;"><h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 12px;">🎬 Vidéos (${videos.length})</h3><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">${videos.map(v => `<div class="res-card" onclick="openRessource('${v.id}','${v.url || ''}')"><div class="res-icon" style="background:#EEF2FF;">🎬</div><div><div class="res-title">${escHtml(v.titre || 'Vidéo')}</div><div class="res-meta">${v.prof_prenom || ''} ${v.prof_nom || ''}</div></div></div>`).join('')}</div></div>`;
       }
-
-      // ── SECTION AUDIOS ──
       if (audios.length) {
-        html += `
-            <div style="margin-bottom: 28px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
-                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 18px;">🎵</span>
-                    </div>
-                    <div>
-                        <h3 style="font-size: 0.95rem; font-weight: 800; color: var(--ink);">Fichiers audio</h3>
-                        <p style="font-size: 0.65rem; color: var(--muted);">${audios.length} audio${audios.length > 1 ? 's' : ''}</p>
-                    </div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    ${audios.map(a => {
-          const fullUrl = a.url ? (a.url.startsWith('http') ? a.url : SERVER + a.url) : '';
-          const title = formatFileName(a.url, a.titre);
-          const prof = a.prof || a.professeur || 'Professeur';
-          return `
-                            <div onclick="openRessource('${a.id}','${a.url || ''}')" style="background: var(--card); border-radius: 14px; padding: 12px 16px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 14px;">
-                                <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                    <span style="font-size: 22px;">🎵</span>
-                                </div>
-                                <div style="flex: 1; min-width: 0;">
-                                    <div style="font-size: 0.85rem; font-weight: 800; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escHtml(title)}</div>
-                                    <div style="font-size: 0.65rem; color: var(--muted); margin-top: 4px;">👨‍🏫 ${escHtml(prof)}</div>
-                                </div>
-                                <span class="badge-blue" style="font-size: 0.6rem; padding: 4px 10px;">🎵 Audio</span>
-                            </div>
-                        `;
-        }).join('')}
-                </div>
-            </div>
-        `;
+        html += `<div style="margin-bottom: 20px;"><h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 12px;">🎵 Audios (${audios.length})</h3><div style="display: flex; flex-direction: column; gap: 8px;">${audios.map(a => `<div class="res-card" onclick="openRessource('${a.id}','${a.url || ''}')"><div class="res-icon" style="background:#FEF3C7;">🎵</div><div><div class="res-title">${escHtml(a.titre || 'Audio')}</div><div class="res-meta">${a.prof_prenom || ''} ${a.prof_nom || ''}</div></div></div>`).join('')}</div></div>`;
       }
-
-      // ── SECTION IMAGES (grille) ──
       if (images.length) {
-        html += `
-            <div style="margin-bottom: 28px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
-                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 18px;">🖼️</span>
-                    </div>
-                    <div>
-                        <h3 style="font-size: 0.95rem; font-weight: 800; color: var(--ink);">Images & illustrations</h3>
-                        <p style="font-size: 0.65rem; color: var(--muted);">${images.length} image${images.length > 1 ? 's' : ''}</p>
-                    </div>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px;">
-                    ${images.map(img => {
-          const fullUrl = img.url ? (img.url.startsWith('http') ? img.url : SERVER + img.url) : '';
-          const title = formatFileName(img.url, img.titre);
-          return `
-                            <div onclick="openRessource('${img.id}','${img.url || ''}')" style="background: var(--card); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;">
-                                <div style="aspect-ratio: 1/1; background: #F1F5F9; display: flex; align-items: center; justify-content: center;">
-                                    ${fullUrl ? `<img src="${fullUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="">` : '<span style="font-size: 36px;">🖼️</span>'}
-                                </div>
-                                <div style="padding: 10px 8px;">
-                                    <div style="font-size: 0.7rem; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center;">${escHtml(title)}</div>
-                                </div>
-                            </div>
-                        `;
-        }).join('')}
-                </div>
-            </div>
-        `;
+        html += `<div style="margin-bottom: 20px;"><h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 12px;">🖼️ Images (${images.length})</h3><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px;">${images.map(img => `<div class="res-card" onclick="openRessource('${img.id}','${img.url || ''}')" style="flex-direction: column; text-align: center; padding: 8px;"><div class="res-icon" style="background:#D1FAE5; width: 60px; height: 60px; font-size: 28px;">🖼️</div><div class="res-title" style="font-size: 0.7rem;">${escHtml(img.titre || 'Image')}</div></div>`).join('')}</div></div>`;
       }
-
-      // ── SECTION DOCUMENTS (cours, TD, etc.) ──
       if (docs.length) {
-        // Compter les types
-        const coursCount = docs.filter(d => isCours(d) || d.type === 'cours').length;
-        const tdCount = docs.filter(d => isTD(d) || d.type === 'td').length;
-        const autresCount = docs.length - coursCount - tdCount;
-
-        html += `
-            <div style="margin-bottom: 28px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
-                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #3B49DF 0%, #7B8FF5 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 18px;">📚</span>
-                    </div>
-                    <div>
-                        <h3 style="font-size: 0.95rem; font-weight: 800; color: var(--ink);">Documents & Cours</h3>
-                        <p style="font-size: 0.65rem; color: var(--muted);">${docs.length} document${docs.length > 1 ? 's' : ''}</p>
-                    </div>
-                </div>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    ${docs.map(doc => {
-          const fullUrl = doc.url ? (doc.url.startsWith('http') ? doc.url : SERVER + doc.url) : '';
-          const title = formatFileName(doc.url, doc.titre);
-          const prof = doc.prof || doc.professeur || 'Professeur';
-          const isCoursDoc = isCours(doc) || doc.type === 'cours';
-          const isTDDoc = isTD(doc) || doc.type === 'td';
-          const icon = isCoursDoc ? '📘' : isTDDoc ? '📝' : '📎';
-          const label = isCoursDoc ? 'Cours' : isTDDoc ? 'TD / Exercice' : 'Document';
-          const bgGradient = isCoursDoc ? 'linear-gradient(135deg, #3B49DF 0%, #7B8FF5 100%)' : (isTDDoc ? 'linear-gradient(135deg, #F59E0B 0%, #F97316 100%)' : 'linear-gradient(135deg, #64748B 0%, #94A3B8 100%)');
-          const date = doc.date_ajout ? new Date(doc.date_ajout).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
-          return `
-                            <div class="res-card" onclick="openRessource('${doc.id}','${doc.url || ''}')" style="background: var(--card); border-radius: 14px; padding: 14px 18px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 14px;">
-                                <div style="width: 48px; height: 48px; background: ${bgGradient}; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                    <span style="font-size: 24px;">${icon}</span>
-                                </div>
-                                <div style="flex: 1; min-width: 0;">
-                                    <div class="res-title" style="font-size: 0.88rem; font-weight: 800; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escHtml(title)}</div>
-                                    <div class="res-meta" style="font-size: 0.68rem; color: var(--muted); margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                        <span>👨‍🏫 ${escHtml(prof)}</span>
-                                        ${date ? `<span>📅 ${date}</span>` : ''}
-                                        <span class="badge-blue" style="font-size: 0.6rem; padding: 2px 8px;">${label}</span>
-                                    </div>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span style="font-size: 0.7rem; color: #059669; font-weight: 600;">✓ Disponible</span>
-                                </div>
-                            </div>
-                        `;
-        }).join('')}
-                </div>
-            </div>
-        `;
+        html += `<div><h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 12px;">📚 Documents (${docs.length})</h3><div style="display: flex; flex-direction: column; gap: 8px;">${docs.map(doc => `<div class="res-card" onclick="openRessource('${doc.id}','${doc.url || ''}')"><div class="res-icon" style="background:#E8F5EE;">📄</div><div><div class="res-title">${escHtml(doc.titre || 'Document')}</div><div class="res-meta">${doc.prof_prenom || ''} ${doc.prof_nom || ''} · ${doc.classe || ''}</div></div></div>`).join('')}</div></div>`;
       }
 
       box.innerHTML = html;
@@ -2259,31 +2092,10 @@
       if (!url || url === 'null' || url === '') { alert('Aucun fichier attaché à cette ressource.'); return; }
       const SERVER = window.SERVER_BASE || 'http://localhost:5000';
       const fullUrl = url.startsWith('http') ? url : SERVER + url;
-      const ext = url.split('.').pop().toLowerCase();
-      const old = document.getElementById('res-modal');
-      if (old) old.remove();
-      const overlay = document.createElement('div');
-      overlay.id = 'res-modal';
-      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
-      overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
-      const box = document.createElement('div');
-      box.style.cssText = 'background:#111;border-radius:14px;overflow:hidden;max-width:860px;width:100%;max-height:90vh;display:flex;flex-direction:column;';
-      const hd = document.createElement('div');
-      hd.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:#1a1a1a;flex-shrink:0;';
-      hd.innerHTML = `<span style="color:#fff;font-size:.85rem;font-weight:700;">${url.split('/').pop()}</span><button onclick="document.getElementById('res-modal').remove()" style="background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;">✕</button>`;
-      const body = document.createElement('div');
-      body.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;background:#000;min-height:280px;overflow:auto;';
-      if (['mp4', 'webm', 'mov', 'avi', 'ogv'].includes(ext)) body.innerHTML = `<video controls autoplay style="max-width:100%;max-height:72vh;"><source src="${fullUrl}"></video>`;
-      else if (['mp3', 'ogg', 'wav', 'm4a'].includes(ext)) body.innerHTML = `<div style="padding:30px;text-align:center;"><div style="font-size:3rem;">🎵</div><audio controls autoplay style="width:300px;"><source src="${fullUrl}"></audio></div>`;
-      else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) body.innerHTML = `<img src="${fullUrl}" style="max-width:100%;max-height:72vh;object-fit:contain;">`;
-      else if (ext === 'pdf') body.innerHTML = `<iframe src="${fullUrl}" style="width:100%;height:72vh;border:none;"></iframe>`;
-      else body.innerHTML = `<div style="text-align:center;padding:40px;"><div style="font-size:3rem;">📄</div><div style="color:#ccc;margin-bottom:16px;">${url.split('/').pop()}</div><a href="${fullUrl}" download target="_blank" style="background:#25D366;color:#fff;padding:12px 28px;border-radius:10px;text-decoration:none;font-weight:700;">⬇️ Télécharger</a></div>`;
-      box.appendChild(hd); box.appendChild(body); overlay.appendChild(box);
-      document.body.appendChild(overlay);
-      document.addEventListener('keydown', function h(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', h); } });
+      window.open(fullUrl, '_blank');
     }
 
-    // ==================== FORUM DE CLASSE (SIMPLE) ====================
+    // ==================== FORUM DE CLASSE ====================
     let forumMsgs = [];
     let _forumPollInterval = null;
 
@@ -2305,28 +2117,66 @@
           moi: m.id_auteur === currentUser.id,
           texte: m.texte,
           time: m.time || '',
+          reply_to: m.reply_to || null,
           initiales: m.initiales || (m.nom_auteur || '?')[0].toUpperCase(),
           color: '#' + ((parseInt(m.id_auteur || 0) * 2654435761) % 0xFFFFFF).toString(16).padStart(6, '0').slice(0, 6) || '#7C3AED'
         }));
-        renderThread('fc-thread', forumMsgs);
+        renderThread('fc-thread', forumMsgs, 'classe');
       } catch (e) {
         renderThread('fc-thread', []);
       }
     }
 
-    function renderThread(containerId, msgs) {
+    // État de la réponse en cours
+    let _replyTo = { classe: null, inter: null };
+
+    function setReply(type, msgId, auteur, texte) {
+      _replyTo[type] = { id: msgId, auteur, texte };
+      const barId = type === 'classe' ? 'fc-reply-bar' : 'inter-reply-bar';
+      const bar = document.getElementById(barId);
+      if (!bar) return;
+      bar.style.display = 'flex';
+      bar.querySelector('.reply-author').textContent = auteur;
+      bar.querySelector('.reply-preview').textContent = texte.length > 60 ? texte.slice(0, 60) + '…' : texte;
+    }
+
+    function cancelReply(type) {
+      _replyTo[type] = null;
+      const barId = type === 'classe' ? 'fc-reply-bar' : 'inter-reply-bar';
+      const bar = document.getElementById(barId);
+      if (bar) bar.style.display = 'none';
+    }
+
+    function renderThread(containerId, msgs, type) {
       const el = document.getElementById(containerId);
       if (!msgs.length) {
         el.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><div class="empty-txt">Soyez le premier à écrire</div></div>';
         return;
       }
-      const isClasse = containerId === 'fc-thread';
+      // Construire un index id → message pour afficher les citations
+      const msgMap = {};
+      msgs.forEach(m => { msgMap[m.id] = m; });
+
       el.innerHTML = msgs.map(m => {
-        return `<div class="msg-bubble ${m.moi ? 'me' : ''}">
+        const cited = m.reply_to ? msgMap[m.reply_to] : null;
+        const citedHtml = cited ? `
+          <div style="border-left:3px solid #6366F1;padding:4px 8px;margin-bottom:6px;background:rgba(99,102,241,0.08);border-radius:4px;font-size:0.72rem;cursor:pointer;" onclick="document.getElementById('msg-${cited.id}')?.scrollIntoView({behavior:'smooth'})">
+            <span style="font-weight:700;color:#6366F1;">${escHtml(cited.auteur || 'Vous')}</span>
+            <div style="color:#64748B;margin-top:2px;">${escHtml((cited.texte || '').slice(0, 80))}${(cited.texte || '').length > 80 ? '…' : ''}</div>
+          </div>` : '';
+
+        return `<div class="msg-bubble ${m.moi ? 'me' : ''}" id="msg-${m.id}" style="position:relative;">
           <div class="msg-avatar" style="background:${m.color}">${m.initiales}</div>
           <div class="msg-body">
-            <div class="msg-name">${m.moi ? 'Vous' : m.auteur}</div>
-            <div class="msg-txt ${m.moi ? 'mine' : 'other'}">${escHtml(m.texte)}</div>
+            <div class="msg-name">${m.moi ? 'Vous' : escHtml(m.auteur)}</div>
+            <div class="msg-txt ${m.moi ? 'mine' : 'other'}" style="position:relative;">
+              ${citedHtml}
+              <span>${escHtml(m.texte)}</span>
+              <button onclick="setReply('${type || 'classe'}',${m.id},'${escHtml(m.auteur || 'Vous').replace(/'/g, "\'")}','${escHtml(m.texte).replace(/'/g, "\'")}')"
+                title="Répondre"
+                style="position:absolute;top:4px;right:6px;background:none;border:none;cursor:pointer;font-size:0.75rem;opacity:0.5;padding:0;line-height:1;"
+                onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.5'">↩️</button>
+            </div>
             <div class="msg-time">${m.time}</div>
           </div>
         </div>`;
@@ -2340,12 +2190,14 @@
       const txt = input.value.trim();
       if (!txt) return;
       input.value = '';
+      const reply = _replyTo[type];
+      cancelReply(type);
       try {
         if (type === 'classe') {
-          await fetch(`${API}/eleves/forum-classe`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ texte: txt }) });
+          await fetch(`${API}/eleves/forum-classe`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ texte: txt, reply_to: reply?.id || null }) });
           await loadForumClasse();
         } else {
-          await fetch(`${API}/eleves/inter-classes`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ texte: txt, classe_cible: currentInterClasse }) });
+          await fetch(`${API}/eleves/inter-classes`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ texte: txt, classe_cible: currentInterClasse, reply_to: reply?.id || null }) });
           if (currentInterClasse) await reloadInterThread(currentInterClasse);
         }
         if (socket) socket.emit('new-message', { type, classe: currentUser.classe });
@@ -2377,8 +2229,8 @@
       try {
         const r = await fetch(`${API}/eleves/inter-classes?classe_cible=${encodeURIComponent(cls)}`, { headers: authH() });
         const data = await r.json();
-        const msgs = (data.messages || []).map(m => ({ id: m.id, auteur: m.nom_auteur, moi: m.id_auteur === currentUser.id || m.id_auteur === String(currentUser.id), texte: m.texte, time: m.time || '', initiales: m.initiales || (m.nom_auteur || '?')[0], color: moi ? '#3B49DF' : '#7C3AED' }));
-        renderThread('inter-thread', msgs);
+        const msgs = (data.messages || []).map(m => ({ id: m.id, auteur: m.nom_auteur, moi: m.id_auteur === currentUser.id, texte: m.texte, time: m.time || '', reply_to: m.reply_to || null, initiales: m.initiales || (m.nom_auteur || '?')[0], color: '#7C3AED' }));
+        renderThread('inter-thread', msgs, 'inter');
       } catch (e) { }
     }
 
@@ -2398,7 +2250,7 @@
       const peutPublier = (_currentUserRoleSpecial === 'CHEF_CLASSE' || _currentUserRoleSpecial === 'BUREAU_ELEVES');
       if (peutPublier && composeZone) {
         const badgeRole = _currentUserRoleSpecial === 'CHEF_CLASSE' ? '👑 Chef de Classe' : '🏛️ Bureau des Élèves';
-        composeZone.innerHTML = `<div class="compose-bar" style="margin-bottom:10px;"><div class="post-avatar" id="compose-avatar-ge" style="background:var(--accent);">${((currentUser.prenom || '?')[0] + (currentUser.nom || '?')[0]).toUpperCase()}</div><input type="text" class="compose-input" id="compose-input" placeholder="Publier une annonce pour toute l'école..."><select class="tri-sel" id="compose-tag"><option value="ENTRAIDE">🤝 Entraide</option><option value="SPORT">🏅 Sport</option><option value="CONCOURS">📝 Concours</option><option value="CULTURE">🎭 Culture</option><option value="INFO">ℹ️ Info</option></select><button class="btn-sm" onclick="publishPost()">Publier</button></div><div style="font-size:.65rem;color:var(--accent);font-weight:700;margin-bottom:8px;">${badgeRole} — vous pouvez publier ici</div>`;
+        composeZone.innerHTML = `<div class="compose-bar" style="margin-bottom:10px;"><input type="text" class="compose-input" id="compose-input" placeholder="Publier une annonce pour toute l'école..."><select class="tri-sel" id="compose-tag"><option value="ENTRAIDE">🤝 Entraide</option><option value="SPORT">🏅 Sport</option><option value="CONCOURS">📝 Concours</option><option value="CULTURE">🎭 Culture</option><option value="INFO">ℹ️ Info</option></select><button class="btn-sm" onclick="publishPost()">Publier</button></div><div style="font-size:.65rem;color:var(--accent);font-weight:700;margin-bottom:8px;">${badgeRole} — vous pouvez publier ici</div>`;
         if (lectureSeule) lectureSeule.style.display = 'none';
       } else {
         if (composeZone) composeZone.innerHTML = '';
@@ -2431,19 +2283,15 @@
     function renderPosts(posts) {
       const container = document.getElementById('ge-posts');
       if (!container) return;
-      if (!posts.length) { container.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune publication — soyez le premier !</div></div>'; return; }
-      container.innerHTML = posts.map(p => `<div class="post-card" id="post-${p.id}"><div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;"><div class="msg-avatar" style="background:${p.color || '#3B49DF'}">${p.initiales || '?'}</div><div style="flex:1;"><div style="font-size:.82rem;font-weight:700;">${escHtml(p.nom_auteur || 'Élève')} <span style="font-size:.65rem;color:var(--muted);">${p.classe_auteur || ''}</span></div><div style="font-size:.65rem;color:var(--muted);">${p.time || ''}</div></div><span style="background:#EEF2FF;color:#3B49DF;font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:6px;">${p.tag || 'GENERAL'}</span></div><div style="font-size:.85rem;color:#374151;margin-bottom:10px;">${escHtml(p.texte)}</div><div class="post-actions"><button class="post-action-btn" onclick="toggleLike(${p.id}, this)"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span id="likes-${p.id}">${p.likes || 0}</span> J'aime</button></div></div>`).join('');
+      if (!posts.length) { container.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune publication</div></div>'; return; }
+      container.innerHTML = posts.map(p => `<div class="post-card"><div style="display:flex;justify-content:space-between;"><div><strong>${escHtml(p.nom_auteur)}</strong> <span style="font-size:0.7rem;">${p.time}</span></div><span class="badge-blue">${p.tag || 'GENERAL'}</span></div><div style="margin:8px 0;">${escHtml(p.texte)}</div><div class="post-actions"><button class="post-action-btn" onclick="toggleLike(${p.id})"><span>❤️</span> ${p.likes || 0}</button></div></div>`).join('');
     }
 
-    async function toggleLike(postId, btn) {
+    async function toggleLike(postId) {
       try {
         const r = await fetch(`${API}/eleves/grand-eleves/${postId}/like`, { method: 'POST', headers: authH() });
         const d = await r.json();
-        if (d.success) {
-          const span = document.getElementById('likes-' + postId);
-          if (span) span.textContent = parseInt(span.textContent || 0) + (d.liked ? 1 : -1);
-          btn.style.color = d.liked ? 'var(--red)' : '';
-        }
+        if (d.success) loadGrandEleves(_currentGeTag);
       } catch (e) { }
     }
 
@@ -2460,36 +2308,102 @@
 
     // ==================== VIE SCOLAIRE ====================
     async function loadVieScolaire() {
-      const box = document.getElementById('vs-content');
+      await vsLoadAnnonces();
+      await vsLoadActivites();
+    }
+
+    function vsTab(tab, el) {
+      document.getElementById('vs-annonces').style.display = tab === 'annonces' ? 'flex' : 'none';
+      document.getElementById('vs-activites').style.display = tab === 'activites' ? 'flex' : 'none';
+      document.querySelectorAll('#pg-vie-scolaire .tab').forEach(t => t.classList.remove('on'));
+      if (el) el.classList.add('on');
+    }
+
+    async function vsLoadAnnonces() {
+      const box = document.getElementById('vs-annonces');
+      if (!box) return;
+      box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">⏳ Chargement…</div>';
+      try {
+        const r = await fetch(`${API}/eleves/annonces`, { headers: authH() });
+        const data = await r.json();
+        const anns = data.annonces || [];
+        if (!anns.length) {
+          box.innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce officielle pour le moment</div></div>';
+          return;
+        }
+        const typeStyle = {
+          'URGENT': { bg: '#FEE2E2', color: '#991B1B', label: '🔴 URGENT' },
+          'Urgente': { bg: '#FEE2E2', color: '#991B1B', label: '🔴 URGENT' },
+          'INFO': { bg: '#EEF2FF', color: '#3730A3', label: '🔵 INFO' },
+          'Info': { bg: '#EEF2FF', color: '#3730A3', label: '🔵 INFO' },
+        };
+        box.innerHTML = anns.map(a => {
+          const s = typeStyle[a.priorite] || typeStyle[a.type] || { bg: '#F1F5F9', color: '#475569', label: 'ℹ️ INFO' };
+          const date = new Date(a.date_publication || a.created_at);
+          const dateFr = isNaN(date) ? '' : date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+          return `<div class="card" style="border-left:4px solid ${s.color};">
+            <div class="card-hd" style="margin-bottom:8px;">
+              <div>
+                <strong style="font-size:0.85rem;">${escHtml(a.titre || 'Annonce')}</strong>
+                <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">📅 ${dateFr}</div>
+              </div>
+              <span style="background:${s.bg};color:${s.color};padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:800;">${s.label}</span>
+            </div>
+            <div style="font-size:0.8rem;line-height:1.5;">${escHtml(a.contenu || '')}</div>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        box.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger les annonces</div></div>';
+      }
+    }
+
+    async function vsLoadActivites() {
+      const box = document.getElementById('vs-activites');
       if (!box) return;
       box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">⏳ Chargement…</div>';
       try {
         const r = await fetch(`${API}/eleves/activites`, { headers: authH() });
         const data = await r.json();
         const acts = data.activites || [];
-        if (!acts.length) { box.innerHTML = '<div class="empty"><div class="empty-icon">🎭</div><div class="empty-txt">Aucune activité programmée</div></div>'; return; }
-        box.innerHTML = acts.map(a => `<div class="post-card"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;"><div style="flex:1;"><div style="font-size:.96rem;font-weight:800;">${escHtml(a.titre)}</div><div style="font-size:.8rem;color:#374151;">${escHtml(a.description || '')}</div>${a.lieu ? `<div style="font-size:.7rem;color:var(--muted);">📍 ${escHtml(a.lieu)}</div>` : ''}${a.date_debut ? `<div style="font-size:.7rem;color:var(--muted);">📅 ${new Date(a.date_debut).toLocaleDateString('fr-FR')}</div>` : ''}</div><span class="badge-ok">${a.statut || 'À VENIR'}</span></div></div>`).join('');
-      } catch (e) { box.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger les activités</div></div>'; }
+        if (!acts.length) {
+          box.innerHTML = '<div class="empty"><div class="empty-icon">🎭</div><div class="empty-txt">Aucune activité programmée</div></div>';
+          return;
+        }
+        box.innerHTML = acts.map(a => {
+          const sc = a.statut === 'EN COURS' ? { bg: '#D1FAE5', c: '#065F46' } : a.statut === 'TERMINÉE' ? { bg: '#F1F5F9', c: '#64748B' } : { bg: '#EEF2FF', c: '#3730A3' };
+          return `<div class="post-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+              <strong style="font-size:0.85rem;">${escHtml(a.titre)}</strong>
+              <span style="background:${sc.bg};color:${sc.c};padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:700;white-space:nowrap;">${a.statut || 'À VENIR'}</span>
+            </div>
+            <div style="font-size:0.75rem;margin-top:6px;color:var(--muted);">${escHtml(a.description || '')}</div>
+            <div style="font-size:0.7rem;color:var(--muted);margin-top:6px;">
+              📅 ${a.date_debut ? new Date(a.date_debut).toLocaleDateString('fr-FR') : '—'}
+              ${a.lieu ? ` · 📍 ${escHtml(a.lieu)}` : ''}
+            </div>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        box.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger les activités</div></div>';
+      }
     }
 
     // ==================== ORIENTATION ====================
     async function loadOrientation() {
       const classe = currentUser.classe || '';
-      const isExamen = ['3ème', 'Tle A', 'Tle D', 'Tle C', '1ère A', '1ère D'].includes(classe);
       const container = document.getElementById('ori-content');
       if (!container) return;
-      let html = `<div class="ori-card"><div style="font-size:.62rem;font-weight:800;color:var(--muted);">Votre Profil Orientation</div><div class="ori-eleve-name">${currentUser.prenom || '—'} ${currentUser.nom || ''}</div><div class="ori-serie">Classe : ${classe || '—'}</div>${isExamen ? '<div style="font-size:.76rem;">Suivi personnalisé activé pour votre classe d\'examen.</div>' : '<div style="font-size:.76rem;color:var(--muted);">Suivi orientation disponible à partir de la 3ème.</div>'}</div>`;
+      let html = `<div class="ori-card"><div class="ori-eleve-name">${currentUser.prenom || ''} ${currentUser.nom || ''}</div><div class="ori-serie">Classe : ${classe || '—'}</div></div>`;
       try {
         const r = await fetch(`${API}/eleves/orientation`, { headers: authH() });
         const data = await r.json();
         const avis = data.avis || [];
         if (avis.length) {
-          html += `<div class="ori-card"><div class="card-hd-title" style="margin-bottom:10px;">💡 Avis de vos Professeurs</div>`;
-          avis.forEach(a => { html += `<div class="ori-avis" style="margin-bottom:10px;"><div class="ori-avis-role">👨‍🏫 ${escHtml(a.prof_prenom)} ${escHtml(a.prof_nom)}</div>${a.points_forts ? `<div style="font-size:.75rem;color:#059669;">✅ Points forts : ${escHtml(a.points_forts)}</div>` : ''}${a.points_faibles ? `<div style="font-size:.75rem;color:#DC2626;">📌 À améliorer : ${escHtml(a.points_faibles)}</div>` : ''}${a.serie_recommandee ? `<div style="font-size:.75rem;color:#3B49DF;">🎯 Série recommandée : ${escHtml(a.serie_recommandee)}</div>` : ''}${a.commentaire ? `<div class="ori-avis-txt">${escHtml(a.commentaire)}</div>` : ''}</div>`; });
+          html += `<div class="ori-card"><div class="card-hd-title">💡 Avis des Professeurs</div>`;
+          avis.forEach(a => { html += `<div class="ori-avis"><div class="ori-avis-role">👨‍🏫 ${escHtml(a.prof_prenom)} ${escHtml(a.prof_nom)}</div>${a.serie_recommandee ? `<div>🎯 Série recommandée : ${escHtml(a.serie_recommandee)}</div>` : ''}${a.commentaire ? `<div class="ori-avis-txt">${escHtml(a.commentaire)}</div>` : ''}</div>`; });
           html += `</div>`;
-        } else { html += `<div class="ori-card"><div class="card-hd-title">💡 Conseils d'Orientation</div><div style="font-size:.8rem;color:var(--muted);text-align:center;padding:16px;">Aucun avis d'orientation disponible pour l'instant.</div></div>`; }
-      } catch (e) { html += `<div class="ori-card"><div style="color:var(--muted);font-size:.8rem;">Impossible de charger les avis.</div></div>`; }
-      if (isExamen) { html += `<div class="ori-card" style="grid-column:1/-1;"><div class="card-hd-title" style="margin-bottom:12px;">🗺️ Parcours Disponibles au Burkina Faso</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;">${[{ s: 'Série D', d: 'Maths, Sciences, Bio', c: '#3B49DF', bg: '#EEF2FF' }, { s: 'Série C', d: 'Maths, Sciences Physiques', c: '#7C3AED', bg: '#FDF4FF' }, { s: 'Série A', d: 'Lettres, Philosophie', c: '#059669', bg: '#F0FDF4' }, { s: 'Filière Pro', d: 'Comptabilité, Gestion', c: '#D97706', bg: '#FEF3C7' }].map(p => `<div style="background:${p.bg};border-radius:10px;padding:12px;text-align:center;"><div style="font-size:.95rem;font-weight:900;color:${p.c};">${p.s}</div><div style="font-size:.65rem;color:#374151;">${p.d}</div></div>`).join('')}</div></div>`; }
+        } else { html += `<div class="ori-card"><div class="card-hd-title">💡 Conseils d'Orientation</div><div style="text-align:center;padding:16px;">Aucun avis d'orientation disponible</div></div>`; }
+      } catch (e) { html += `<div class="ori-card"><div style="color:var(--muted);">Impossible de charger les avis.</div></div>`; }
       container.innerHTML = html;
     }
 
@@ -2499,176 +2413,272 @@
         const r = await fetch(`${API}/eleves/annonces`, { headers: authH() });
         const data = await r.json();
         const anns = data.annonces || [];
-        if (!anns.length) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce pour le moment</div></div>'; return; }
-        document.getElementById('ann-content').innerHTML = anns.map(a => `<div class="card"><div class="card-hd"><div><div style="font-size:.96rem;font-weight:800;">${a.titre}</div><div style="font-size:.64rem;color:var(--muted);">📅 ${new Date(a.date_publication || a.created_at).toLocaleDateString('fr-FR')}</div></div><span class="badge-blue">${a.type || 'INFO'}</span></div><div style="font-size:.8rem;color:#374151;">${a.contenu || a.message || ''}</div></div>`).join('');
+        if (!anns.length) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce</div></div>'; return; }
+        document.getElementById('ann-content').innerHTML = anns.map(a => `<div class="card"><div class="card-hd"><div><strong>${escHtml(a.titre)}</strong><div style="font-size:0.65rem;">📅 ${new Date(a.date_publication || a.created_at).toLocaleDateString('fr-FR')}</div></div><span class="badge-blue">${a.type || 'INFO'}</span></div><div>${escHtml(a.contenu || '')}</div></div>`).join('');
       } catch (e) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce disponible</div></div>'; }
     }
 
     // ==================== PROGRAMME & DEVOIRS ====================
-    // Garder toutes les constantes existantes de ton code original
     const EMPLOIS_DU_TEMPS = {
-      '3ème': { Lundi: ['Maths', 'Physique', 'Français', 'PAUSE', 'SVT', 'Anglais', 'EPS'], Mardi: ['Français', 'Maths', 'HG', 'PAUSE', 'Physique', 'SVT'], Mercredi: ['Anglais', 'Français', 'Maths', 'PAUSE', 'HG'], Jeudi: ['SVT', 'HG', 'Anglais', 'PAUSE', 'Maths', 'Français'], Vendredi: ['Physique', 'Anglais', 'SVT', 'PAUSE', 'Français', 'Maths'] },
-      'Tle D': { Lundi: ['Maths', 'Physique', 'SVT', 'PAUSE', 'Anglais', 'Maths', 'EPS'], Mardi: ['Physique', 'Maths', 'SVT', 'PAUSE', 'Français', 'Physique', 'Maths'], Mercredi: ['SVT', 'Maths', 'Physique', 'PAUSE', 'Maths'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Physique', 'Maths', 'SVT'], Vendredi: ['Physique', 'SVT', 'Français', 'PAUSE', 'Maths', 'Physique'] }
+      '6ème': { Lundi: ['Français', 'Maths', 'Anglais', 'PAUSE', 'SVT', 'EPS'], Mardi: ['Maths', 'Français', 'HG', 'PAUSE', 'Anglais', 'EPS'], Mercredi: ['SVT', 'HG', 'Français', 'PAUSE', 'Maths'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Français', 'EPS'], Vendredi: ['HG', 'Anglais', 'EPS', 'PAUSE', 'Maths', 'Français'] },
+      '5ème': { Lundi: ['Français', 'Maths', 'Anglais', 'PAUSE', 'SVT', 'EPS'], Mardi: ['Maths', 'Français', 'HG', 'PAUSE', 'Anglais', 'EPS'], Mercredi: ['SVT', 'HG', 'Français', 'PAUSE', 'Maths'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Français', 'EPS'], Vendredi: ['HG', 'Anglais', 'EPS', 'PAUSE', 'Maths', 'Français'] },
+      '4ème': { Lundi: ['Français', 'Maths', 'Anglais', 'PAUSE', 'Physique', 'EPS'], Mardi: ['Maths', 'Français', 'HG', 'PAUSE', 'Anglais', 'SVT'], Mercredi: ['Physique', 'SVT', 'Français', 'PAUSE', 'Maths'], Jeudi: ['Anglais', 'Physique', 'Maths', 'PAUSE', 'Français', 'HG'], Vendredi: ['SVT', 'Anglais', 'HG', 'PAUSE', 'Maths', 'EPS'] },
+      '3ème': { Lundi: ['Maths', 'Physique', 'Français', 'PAUSE', 'SVT', 'Anglais'], Mardi: ['Français', 'Maths', 'HG', 'PAUSE', 'Physique', 'SVT'], Mercredi: ['Anglais', 'Français', 'Maths', 'PAUSE', 'HG'], Jeudi: ['SVT', 'HG', 'Anglais', 'PAUSE', 'Maths', 'Français'], Vendredi: ['Physique', 'Anglais', 'SVT', 'PAUSE', 'Français', 'Maths'] },
+      '2nde A': { Lundi: ['Français', 'Maths', 'Anglais', 'PAUSE', 'HG', 'Philo'], Mardi: ['Maths', 'Français', 'HG', 'PAUSE', 'Anglais', 'SVT'], Mercredi: ['Philo', 'SVT', 'Maths', 'PAUSE', 'Français'], Jeudi: ['Anglais', 'Philo', 'Français', 'PAUSE', 'Maths', 'HG'], Vendredi: ['SVT', 'Anglais', 'HG', 'PAUSE', 'Maths', 'EPS'] },
+      '2nde C': { Lundi: ['Maths', 'Physique', 'SVT', 'PAUSE', 'Français', 'Anglais'], Mardi: ['Physique', 'Maths', 'SVT', 'PAUSE', 'Anglais', 'Français'], Mercredi: ['SVT', 'Maths', 'Physique', 'PAUSE', 'Français'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Physique', 'Français'], Vendredi: ['Physique', 'Anglais', 'Maths', 'PAUSE', 'SVT', 'EPS'] },
+      '1ère A': { Lundi: ['Français', 'Philo', 'Anglais', 'PAUSE', 'HG', 'Maths'], Mardi: ['Philo', 'Français', 'HG', 'PAUSE', 'Anglais', 'Maths'], Mercredi: ['Anglais', 'Philo', 'Français', 'PAUSE', 'HG'], Jeudi: ['Maths', 'Anglais', 'Philo', 'PAUSE', 'Français', 'HG'], Vendredi: ['HG', 'Maths', 'Anglais', 'PAUSE', 'Philo', 'EPS'] },
+      '1ère D': { Lundi: ['Maths', 'Physique', 'SVT', 'PAUSE', 'Français', 'Anglais'], Mardi: ['Physique', 'Maths', 'SVT', 'PAUSE', 'Anglais', 'Français'], Mercredi: ['SVT', 'Maths', 'Physique', 'PAUSE', 'Anglais'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Physique', 'Français'], Vendredi: ['Physique', 'Anglais', 'Maths', 'PAUSE', 'SVT', 'EPS'] },
+      'Tle A': { Lundi: ['Philo', 'Français', 'Anglais', 'PAUSE', 'HG', 'Maths'], Mardi: ['Français', 'Philo', 'HG', 'PAUSE', 'Anglais', 'Maths'], Mercredi: ['Anglais', 'Français', 'Philo', 'PAUSE', 'HG'], Jeudi: ['Maths', 'Anglais', 'Français', 'PAUSE', 'Philo', 'HG'], Vendredi: ['HG', 'Maths', 'Anglais', 'PAUSE', 'Philo', 'EPS'] },
+      'Tle D': { Lundi: ['Maths', 'Physique', 'SVT', 'PAUSE', 'Anglais', 'Français'], Mardi: ['Physique', 'Maths', 'SVT', 'PAUSE', 'Français', 'Anglais'], Mercredi: ['SVT', 'Maths', 'Physique', 'PAUSE', 'Anglais'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Physique', 'Français'], Vendredi: ['Physique', 'Anglais', 'Maths', 'PAUSE', 'SVT', 'EPS'] }
     };
-    const CRENEAUX = [{ h: '07h00-08h00' }, { h: '08h00-09h00' }, { h: '09h00-10h00' }, { h: 'PAUSE' }, { h: '10h15-11h15' }, { h: '11h15-12h00' }, { h: '15h00-16h00' }, { h: '16h00-17h00' }, { h: '17h00-18h00' }];
-    const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
-    const JOURS_COURT = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-    const MAT_COLORS = { 'Mathématiques': '#3B49DF', 'Sciences Physiques': '#7C3AED', 'SVT': '#059669', 'Français': '#DC2626', 'Philosophie': '#7C3AED', 'Histoire-Géo': '#D97706', 'Anglais': '#0EA5E9', 'EPS': '#F97316' };
-    function getMATColor(m) { return MAT_COLORS[m] || '#6366F1'; }
+    const JOURS_SEMAINE = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
+    const CRENEAUX = [{ h: '07h30-09h00', idx: 0 }, { h: '09h00-10h30', idx: 1 }, { h: '10h30-10h45', pause: true, label: 'PAUSE' }, { h: '10h45-12h15', idx: 2 }, { h: '12h15-14h30', pause: true, label: 'DÉJEUNER' }, { h: '14h30-16h00', idx: 3 }, { h: '16h00-17h30', idx: 4 }];
 
-    function progTab(tab, el) {
-      ['emploi', 'devoirs', 'compos', 'examens'].forEach(t => { const e = document.getElementById('prog-' + t); if (e) e.style.display = 'none'; });
-      document.querySelectorAll('#pg-programme .tab').forEach(t => t.classList.remove('on'));
-      const target = document.getElementById('prog-' + tab); if (target) target.style.display = '';
-      if (el) el.classList.add('on');
-      if (tab === 'devoirs') renderDevoirs();
-      if (tab === 'compos') renderCompos();
-    }
-
-    function loadProgramme() {
+    async function loadProgramme() {
       const classe = currentUser.classe || '';
-      const isExamen = ['3ème', 'Tle A', 'Tle D'].includes(classe);
-      const tabEx = document.getElementById('tab-examens');
-      if (tabEx) tabEx.style.display = isExamen ? '' : 'none';
-      renderEmploiDuTemps();
-      renderDevoirs();
+      const estClasseExamen = ['3ème', '3e', 'Tle A', 'Tle D', 'Terminale A', 'Terminale D'].some(c => classe.includes(c));
+      const examensTab = document.getElementById('tab-examens');
+      if (examensTab) {
+        examensTab.style.display = estClasseExamen ? 'inline-flex' : 'none';
+      }
+
+      await renderEmploiDuTemps();
+      await renderDevoirs();
+      await renderCompositions();
+      if (estClasseExamen) await renderExamensBlancs();
     }
 
     function renderEmploiDuTemps() {
       const classe = currentUser.classe || '';
       const edt = EMPLOIS_DU_TEMPS[classe] || EMPLOIS_DU_TEMPS['3ème'];
-      const today = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'][new Date().getDay()];
-
-      // Jours de la semaine (lundi à vendredi uniquement pour l'école)
-      const joursSemaine = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
-      const joursCourts = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'];
-
-      // Créneaux horaires complets
-      const creneaux = [
-        { heure: '07h30 - 09h00', index: 0, label: 'Cours 1' },
-        { heure: '09h00 - 10h30', index: 1, label: 'Cours 2' },
-        { heure: '10h30 - 10h45', index: 2, label: 'PAUSE', pause: true },
-        { heure: '10h45 - 12h15', index: 3, label: 'Cours 3' },
-        { heure: '12h15 - 14h30', index: 4, label: 'PAUSE DÉJEUNER', pause: true },
-        { heure: '14h30 - 16h00', index: 5, label: 'Cours 4' },
-        { heure: '16h00 - 17h30', index: 6, label: 'Cours 5' }
-      ];
 
       let html = `
-        <div class="card" style="overflow: hidden; padding: 0;">
-            <div style="background: linear-gradient(135deg, var(--accent) 0%, #6366F1 100%); padding: 16px 20px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.2rem;">🗓️</span>
-                    <div>
-                        <div style="font-size: 0.85rem; font-weight: 800; color: white;">Emploi du temps</div>
-                        <div style="font-size: 0.65rem; color: rgba(255,255,255,0.7);">Classe : ${classe} • Année scolaire 2025-2026</div>
-                    </div>
-                    <div style="margin-left: auto;">
-                        <div style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.65rem; color: white;">
-                            📍 ${new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="overflow-x: auto; padding: 0;">
-                <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
-                    <thead>
-                        <tr style="background: #F8FAFF; border-bottom: 2px solid var(--border);">
-                            <th style="padding: 12px 16px; text-align: left; font-size: 0.7rem; font-weight: 800; color: var(--muted); text-transform: uppercase;">Horaire</th>
-                            ${joursSemaine.map((jour, i) => `
-                                <th style="padding: 12px 8px; text-align: center; font-size: 0.7rem; font-weight: 800; color: ${today === jour ? 'var(--accent)' : 'var(--muted)'}; background: ${today === jour ? 'rgba(59,73,223,0.05)' : 'transparent'}; border-radius: 8px;">
-                                    ${jour}<br>
-                                    <span style="font-size: 0.55rem; font-weight: 500;">${joursCourts[i]}</span>
-                                </th>
-                            `).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${creneaux.map(creneau => {
-        const isPause = creneau.pause;
-        return `
-                                <tr style="border-bottom: 1px solid var(--border);">
-                                    <td style="padding: 12px 16px; font-size: 0.7rem; font-weight: 700; color: var(--muted); background: #FAFBFF; white-space: nowrap;">
-                                        ${creneau.heure}
-                                    </td>
-                                    ${joursSemaine.map(jour => {
-          const mat = edt[jour] ? (edt[jour][creneau.index] || '—') : '—';
-          const isToday = jour === today;
-          const isMatPause = mat === 'PAUSE';
+        <div style="overflow-x: auto;">
+          <table class="prog-table">
+            <thead>
+              <tr>
+                <th style="width: 100px;">Horaire</th>
+                ${JOURS_SEMAINE.map(j => `<th>${j}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+      `;
 
-          if (isPause || isMatPause) {
-            return `
-                                                <td style="padding: 12px 8px; text-align: center; background: #FEF9E3;">
-                                                    <span style="font-size: 0.65rem; font-weight: 600; color: #D97706; background: #FEF3C7; padding: 4px 12px; border-radius: 16px; display: inline-block;">
-                                                        ☕ Pause
-                                                    </span>
-                                                </td>
-                                            `;
-          }
+      CRENEAUX.forEach(c => {
+        if (c.pause) {
+          html += `
+            <tr style="background: #FEF3C7;">
+              <td style="font-weight: 700; color: #D97706;">${c.h}</td>
+              <td colspan="5" style="text-align: center; color: #D97706;">☕ ${c.label}</td>
+            </tr>
+          `;
+        } else {
+          html += `<tr><td style="font-weight: 600;">${c.h}</td>`;
+          JOURS_SEMAINE.forEach(jour => {
+            const matiere = edt[jour]?.[c.idx] || '—';
+            const style = matiere !== '—' ? 'font-weight: 600;' : 'color: #94A3B8;';
+            html += `<td style="${style}">${matiere}</td>`;
+          });
+          html += `</tr>`;
+        }
+      });
 
-          if (mat === '—') {
-            return `
-                                                <td style="padding: 12px 8px; text-align: center; background: ${isToday ? 'rgba(59,73,223,0.02)' : 'transparent'};">
-                                                    <span style="font-size: 0.65rem; color: var(--muted); opacity: 0.4;">—</span>
-                                                </td>
-                                            `;
-          }
-
-          const matColor = getMATColor(mat);
-          return `
-                                            <td style="padding: 10px 8px; text-align: center; background: ${isToday ? 'rgba(59,73,223,0.03)' : 'transparent'};">
-                                                <div style="background: ${matColor}10; border-left: 3px solid ${matColor}; border-radius: 8px; padding: 8px 6px;">
-                                                    <div style="font-size: 0.7rem; font-weight: 800; color: ${matColor};">${mat}</div>
-                                                </div>
-                                            </td>
-                                        `;
-        }).join('')}
-                                </tr>
-                            `;
-      }).join('')}
-                    </tbody>
-                </table>
-            </div>
-            
-            <div style="padding: 12px 16px; background: #F8FAFF; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="width: 10px; height: 10px; background: #3B49DF; border-radius: 2px;"></span>
-                        <span style="font-size: 0.6rem; color: var(--muted);">Cours</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="width: 10px; height: 10px; background: #F59E0B; border-radius: 2px;"></span>
-                        <span style="font-size: 0.6rem; color: var(--muted);">Pause</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="width: 10px; height: 10px; background: #EF4444; border-radius: 2px;"></span>
-                        <span style="font-size: 0.6rem; color: var(--muted);">Aujourd'hui</span>
-                    </div>
-                </div>
-                <div style="font-size: 0.6rem; color: var(--muted);">
-                    <i data-lucide="info" style="width: 12px; height: 12px; display: inline;"></i>
-                    Emploi du temps officiel • Modifications possibles selon actualités
-                </div>
-            </div>
+      html += `
+            </tbody>
+          </table>
         </div>
-    `;
+      `;
 
       document.getElementById('prog-edt-content').innerHTML = html;
-      if (window.lucide) lucide.createIcons();
+    }
+
+    // Ajoute cette fonction formatDate au début du script (avant renderDevoirs)
+    function formatDate(dateStr) {
+      if (!dateStr) return 'À définir';
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
     async function renderDevoirs() {
-      const el = document.getElementById('prog-dev-content');
-      if (!el) return;
-      el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Aucun devoir programmé</div></div>';
+      const container = document.getElementById('prog-dev-content');
+      if (!container) return;
+
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement des devoirs...</div></div>';
+
+      try {
+        const response = await fetch(`${API}/eleves/devoirs`, { headers: authH() });
+        const data = await response.json();
+        const devoirs = data.devoirs || [];
+
+        if (!devoirs.length) {
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">📝</div><div class="empty-prog-text">Aucun devoir programmé pour le moment</div></div>';
+          return;
+        }
+
+        container.innerHTML = `
+            <table class="prog-table">
+                <thead>
+                    <tr>
+                        <th>Matière</th>
+                        <th>Devoir</th>
+                        <th>Date limite</th>
+                        <th>Professeur</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${devoirs.map(d => `
+                        <tr>
+                            <td><span class="badge-devoir">${escHtml(d.matiere || '—')}</span></td>
+                            <td><strong>${escHtml(d.titre || d.description || 'Devoir')}</strong><br><small style="color: var(--muted);">${escHtml(d.description || '')}</small></td>
+                            <td style="white-space: nowrap;">📅 ${formatDate(d.date_limite || d.date_devoir)}</td>
+                            <td>${escHtml(d.prof_prenom || '')} ${escHtml(d.prof_nom || '')}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+      } catch (e) {
+        console.warn('Erreur chargement devoirs:', e);
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Impossible de charger les devoirs</div></div>';
+      }
+    }
+    async function renderCompositions() {
+      const container = document.getElementById('prog-comp-content');
+      if (!container) return;
+
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement des compositions...</div></div>';
+
+      try {
+        const response = await fetch(`${API}/eleves/compositions`, { headers: authH() });
+        const data = await response.json();
+        const compositions = data.compositions || [];
+
+        if (!compositions.length) {
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">📋</div><div class="empty-prog-text">Aucune composition programmée pour le moment</div></div>';
+          return;
+        }
+
+        container.innerHTML = `
+            <table class="prog-table">
+                <thead>
+                    <tr>
+                        <th>Événement</th>
+                        <th>Date</th>
+                        <th>Détails</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${compositions.map(c => `
+                        <tr>
+                            <td><span class="badge-composition">${escHtml(c.titre || 'Composition')}</span></td>
+                            <td style="white-space: nowrap;">📅 ${c.date_debut_fr}${c.date_fin_fr ? ' → ' + c.date_fin_fr : ''}</td>
+                            <td>${escHtml(c.description || '')}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+      } catch (e) {
+        console.warn('Erreur chargement compositions:', e);
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Impossible de charger les compositions</div></div>';
+      }
     }
 
-    function renderCompos() {
-      const el = document.getElementById('prog-comp-content');
-      if (!el) return;
-      el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Aucune composition programmée</div></div>';
+    async function renderExamensBlancs() {
+      const container = document.getElementById('prog-exam-content');
+      if (!container) return;
+
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement des examens blancs...</div></div>';
+
+      try {
+        const response = await fetch(`${API}/eleves/compositions`, { headers: authH() });
+        const data = await response.json();
+        const examens = data.examensBlancs || [];
+
+        if (!examens.length) {
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">🎓</div><div class="empty-prog-text">Aucun examen blanc programmé</div></div>';
+          return;
+        }
+
+        container.innerHTML = `
+            <table class="prog-table">
+                <thead>
+                    <tr>
+                        <th>Examen Blanc</th>
+                        <th>Date</th>
+                        <th>Informations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${examens.map(e => `
+                        <tr>
+                            <td><span class="badge-examen">${escHtml(e.titre || 'Examen Blanc')}</span></td>
+                            <td style="white-space: nowrap;">📅 ${e.date_debut_fr}${e.date_fin_fr ? ' → ' + e.date_fin_fr : ''}</td>
+                            <td>${escHtml(e.description || '')}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+      } catch (e) {
+        console.warn('Erreur chargement examens blancs:', e);
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Impossible de charger les examens blancs</div></div>';
+      }
     }
+
+    function progTab(tab, el) {
+      ['emploi', 'devoirs', 'compos', 'examens'].forEach(t => {
+        const panel = document.getElementById(`prog-${t}`);
+        if (panel) panel.style.display = 'none';
+      });
+
+      const targetPanel = document.getElementById(`prog-${tab}`);
+      if (targetPanel) targetPanel.style.display = 'block';
+
+      document.querySelectorAll('#pg-programme .tab').forEach(t => t.classList.remove('on'));
+      if (el) el.classList.add('on');
+
+      if (tab === 'devoirs') renderDevoirs();
+      if (tab === 'compos') renderCompositions();
+      if (tab === 'examens') renderExamensBlancs();
+    }
+
+    // ============================================================
+    // CHARGER LA CONFIGURATION DE L'ÉCOLE
+    // ============================================================
+    async function chargerConfigEcole() {
+      try {
+        const response = await fetch('/api/admin/config');
+        const data = await response.json();
+
+        if (data.success && data.config) {
+          // Changer le nom de l'école dans la sidebar
+          const nomElements = document.querySelectorAll('.ecole-nom');
+          nomElements.forEach(el => el.textContent = data.config.nom_etablissement);
+
+          // Changer le logo si présent
+          if (data.config.logo_url) {
+            const logoElements = document.querySelectorAll('.ecole-logo');
+            logoElements.forEach(el => {
+              el.src = data.config.logo_url;
+              el.classList.remove('hidden');
+            });
+            // Masquer le SVG fallback
+            document.querySelectorAll('.ecole-logo-fallback').forEach(el => el.style.display = 'none');
+          }
+        }
+      } catch (error) {
+        console.error('Erreur chargement config:', error);
+      }
+    }
+
+    // ============================================================
+    // INITIALISATION UNIQUE
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      chargerConfigEcole();
+    });
   </script>
   <script src="responsive-init.js"></script>
   <script src="/socket.io/socket.io.js"></script>

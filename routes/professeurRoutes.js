@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const ctrl = require('../controller/professeurController');
+const db = require('../config/db');
 
 // ── Multer config ──
 let uploadFichier, uploadPhoto;
@@ -110,5 +111,144 @@ router.post('/orientation', authMiddleware, ctrl.saveOrientation);
 // ── Cahier de texte ──
 router.post('/cahier-texte', authMiddleware, ctrl.saveCT);
 router.get('/cahier-texte', authMiddleware, ctrl.getCT);
+// Devoirs (pour les professeurs)
+router.get('/devoirs', authMiddleware, ctrl.getDevoirs);
+router.post('/devoirs', authMiddleware, ctrl.createDevoir);
+router.put('/devoirs/:id', authMiddleware, ctrl.updateDevoir);
+router.delete('/devoirs/:id', authMiddleware, ctrl.deleteDevoir);
+// ── Annonces reçues (lecture seule) ──
+router.get('/annonces', authMiddleware, ctrl.getAnnonces);
+// ========== MES CLASSES ET MATIERES ==========
+router.get('/mes-classes', authMiddleware, async (req, res) => {
+    try {
+        const profId = req.user.id;
 
+        // Récupérer les classes du professeur depuis les cahiers de texte
+        const classesResult = await db.query(`
+            SELECT DISTINCT classe FROM pedagogie.cahiers_texte 
+            WHERE id_prof = $1
+        `, [profId]);
+
+        let classes = classesResult.rows.map(r => r.classe);
+
+        // Si pas de classes trouvées, utiliser les classes par défaut
+        if (classes.length === 0) {
+            classes = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
+        }
+
+        // Récupérer les matières du professeur depuis son profil
+        const matieresResult = await db.query(`
+            SELECT specialite FROM pedagogie.profils_profs 
+            WHERE id_user = $1
+        `, [profId]);
+
+        let matieres = matieresResult.rows.map(r => r.specialite).filter(m => m);
+        if (matieres.length === 0) {
+            matieres = ['Mathématiques', 'Français', 'Anglais'];
+        }
+
+        res.json({
+            success: true,
+            classes: classes,
+            matieres: matieres
+        });
+    } catch (error) {
+        console.error('Erreur mes-classes:', error.message);
+        // Fallback
+        res.json({
+            success: true,
+            classes: ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'],
+            matieres: ['Mathématiques', 'Français', 'Anglais']
+        });
+    }
+});
+
+// ========== LISTE DES PROFS POUR LA SALLE ==========
+router.get('/liste-salle', authMiddleware, async (req, res) => {
+    try {
+        const profId = req.user.id;
+
+        const result = await db.query(`
+            SELECT c.id_user, c.code_unique, c.nom, c.prenom, 
+                   p.specialite
+            FROM authentification.comptes c
+            LEFT JOIN pedagogie.profils_profs p ON p.id_user = c.id_user
+            WHERE c.role_actuel = 'PROFESSEUR' 
+            AND c.id_user != $1
+            AND c.est_actif = true
+            ORDER BY c.nom, c.prenom
+        `, [profId]);
+
+        res.json({
+            success: true,
+            profs: result.rows.map(p => ({
+                code_unique: p.code_unique,
+                prenom: p.prenom,
+                nom: p.nom,
+                specialite: p.specialite || 'Professeur'
+            }))
+        });
+    } catch (error) {
+        console.error('Erreur liste-salle:', error.message);
+        res.json({ success: true, profs: [] });
+    }
+});
+// ========== MESSAGES PRIVÉS ==========
+router.get('/messages-prives', authMiddleware, async (req, res) => {
+    try {
+        const profId = req.user.id;
+
+        const messages = await db.query(`
+            SELECT mp.*, 
+                   c.nom as expediteur_nom, 
+                   c.prenom as expediteur_prenom,
+                   c.role_actuel as expediteur_role
+            FROM pedagogie.messages_prives mp
+            JOIN authentification.comptes c ON c.id_user = mp.expediteur_id
+            WHERE mp.destinataire_id = $1 OR mp.expediteur_id = $1
+            ORDER BY mp.created_at DESC
+            LIMIT 100
+        `, [profId]);
+
+        res.json({ success: true, messages: messages.rows });
+    } catch (error) {
+        console.error('Erreur getMessagesPrives:', error);
+        res.json({ success: true, messages: [] });
+    }
+});
+
+router.post('/messages-prives', authMiddleware, async (req, res) => {
+    try {
+        const profId = req.user.id;
+        const { destinataire_id, contenu } = req.body;
+
+        if (!destinataire_id || !contenu) {
+            return res.status(400).json({ message: 'Destinataire et contenu requis' });
+        }
+
+        const result = await db.query(`
+            INSERT INTO pedagogie.messages_prives 
+            (expediteur_id, destinataire_id, contenu, lu, created_at)
+            VALUES ($1, $2, $3, false, NOW())
+            RETURNING *
+        `, [profId, destinataire_id, contenu]);
+
+        // Notification
+        try {
+            const notificationService = require('../services/notificationService');
+            await notificationService.sendNotification(
+                [destinataire_id],
+                'MESSAGE_PRIVE',
+                '💬 Nouveau message privé',
+                `Vous avez reçu un message privé`,
+                '/professeur.html?page=messages'
+            );
+        } catch (e) { }
+
+        res.json({ success: true, message: result.rows[0] });
+    } catch (error) {
+        console.error('Erreur sendMessagePrive:', error);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+});
 module.exports = router;

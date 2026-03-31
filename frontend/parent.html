@@ -23,6 +23,7 @@
       margin: 0;
       overflow: hidden;
       height: 100vh;
+      display: flex;
     }
 
     /* SIDEBAR */
@@ -33,6 +34,7 @@
       border-right: 1px solid #E8EDFF;
       display: flex;
       flex-direction: column;
+      flex-shrink: 0;
     }
 
     .ni {
@@ -76,8 +78,11 @@
     .sec {
       display: none;
       flex: 1;
-      overflow: hidden;
+      min-height: 0;
+      overflow-y: auto;
       flex-direction: column;
+      padding: 20px;
+      gap: 14px;
     }
 
     .sec.on {
@@ -164,26 +169,27 @@
       flex-shrink: 0;
     }
 
-    .banner::before {
+    .banner::before,
+    .banner::after {
       content: '';
       position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .06);
+    }
+
+    .banner::before {
       top: -50px;
       right: -50px;
       width: 200px;
       height: 200px;
-      background: rgba(255, 255, 255, .06);
-      border-radius: 50%;
     }
 
     .banner::after {
-      content: '';
-      position: absolute;
       bottom: -20px;
       left: 38%;
       width: 100px;
       height: 100px;
       background: rgba(255, 255, 255, .04);
-      border-radius: 50%;
     }
 
     /* AVATARS */
@@ -241,173 +247,6 @@
       border-radius: 11px;
     }
 
-
-    .fw-head {
-      background: #128C7E;
-      color: #fff;
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    .fw-msgs {
-      flex: 1;
-      overflow-y: auto;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      background: #ECE5DD;
-    }
-
-    .fw-msgs::-webkit-scrollbar {
-      width: 4px;
-    }
-
-    .fw-msgs::-webkit-scrollbar-thumb {
-      background: #b5a99a;
-      border-radius: 4px;
-    }
-
-    .fw-bar {
-      background: #F0F2F5;
-      padding: 7px 12px;
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      flex-shrink: 0;
-      border-top: 1px solid #ddd;
-    }
-
-    .fw-ta {
-      flex: 1;
-      border: none;
-      outline: none;
-      padding: 9px 14px;
-      border-radius: 22px;
-      background: #fff;
-      font-family: inherit;
-      font-size: .83rem;
-      resize: none;
-      max-height: 110px;
-      min-height: 38px;
-      line-height: 1.4;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
-    }
-
-    .fw-send {
-      width: 40px;
-      height: 40px;
-      background: #128C7E;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: background .15s;
-    }
-
-    .fw-send:hover {
-      background: #075E54;
-    }
-
-    .mrow {
-      display: flex;
-      align-items: flex-end;
-      gap: 7px;
-      max-width: 72%;
-    }
-
-    .mrow.me {
-      align-self: flex-end;
-      flex-direction: row-reverse;
-    }
-
-    .mrow.them {
-      align-self: flex-start;
-    }
-
-    .bub {
-      padding: 7px 11px 5px;
-      border-radius: 10px;
-      position: relative;
-    }
-
-    .bub.me {
-      background: #DCF8C6;
-      border-bottom-right-radius: 3px;
-    }
-
-    .bub.them {
-      background: #fff;
-      border-bottom-left-radius: 3px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
-    }
-
-    .bub-name {
-      font-size: .62rem;
-      font-weight: 800;
-      margin-bottom: 2px;
-    }
-
-    .bub-txt {
-      font-size: .82rem;
-      color: #111B21;
-      line-height: 1.42;
-      word-break: break-word;
-    }
-
-    .bub-ft {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 3px;
-      margin-top: 2px;
-    }
-
-    .bub-time {
-      font-size: .58rem;
-      color: #667781;
-    }
-
-    .bav {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: .62rem;
-      color: #fff;
-      flex-shrink: 0;
-    }
-
-    .bav img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .dsep {
-      text-align: center;
-      margin: 6px 0;
-    }
-
-    .dsep span {
-      background: #e0d8cc;
-      color: #667781;
-      font-size: .62rem;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 7px;
-    }
-
     /* BULLETIN */
     .bul-doc {
       background: #fff;
@@ -424,9 +263,13 @@
       overflow: hidden;
     }
 
-    .bul-hd::before {
+    .bul-hd::before,
+    .bul-hd::after {
       content: '';
       position: absolute;
+    }
+
+    .bul-hd::before {
       top: -40px;
       right: -40px;
       width: 160px;
@@ -436,8 +279,6 @@
     }
 
     .bul-hd::after {
-      content: '';
-      position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
@@ -576,7 +417,6 @@
       }
     }
 
-    /* SCROLL */
     ::-webkit-scrollbar {
       width: 4px;
     }
@@ -588,91 +428,6 @@
 
     input[type="file"] {
       display: none;
-    }
-
-    /* MENU CONTEXTUEL */
-    .ctx-item {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 9px 13px;
-      border-radius: 9px;
-      cursor: pointer;
-      font-size: .78rem;
-      font-weight: 700;
-      color: #1E293B;
-      transition: background .12s;
-    }
-
-    .ctx-item:hover {
-      background: #F1F5F9;
-    }
-
-    /* RÉACTIONS FLOTTANTES */
-    .reactions-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 3px;
-      margin-top: 3px;
-    }
-
-    .react-chip {
-      background: rgba(255, 255, 255, .9);
-      border: 1px solid #E0E0E0;
-      border-radius: 20px;
-      padding: 2px 7px;
-      font-size: .72rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      font-weight: 700;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
-      transition: transform .12s;
-    }
-
-    .react-chip:hover {
-      transform: scale(1.15);
-    }
-
-    .react-chip.mine {
-      background: #E3F2FD;
-      border-color: #90CAF9;
-    }
-
-    /* REPLY QUOTE dans bulle */
-    .reply-quote {
-      background: rgba(0, 0, 0, .06);
-      border-left: 3px solid #128C7E;
-      border-radius: 6px;
-      padding: 5px 8px;
-      margin-bottom: 5px;
-    }
-
-    .reply-quote.me {
-      background: rgba(0, 0, 0, .08);
-      border-color: rgba(0, 100, 0, .4);
-    }
-
-    /* MESSAGE SUPPRIMÉ */
-    .msg-deleted {
-      color: #667781;
-      font-style: italic;
-      font-size: .78rem;
-    }
-
-    /* EMOJI PICKER emojis */
-    #fw-emoji div span {
-      font-size: 1.35rem;
-      cursor: pointer;
-      padding: 3px;
-      border-radius: 7px;
-      transition: background .12s;
-      display: inline-block;
-    }
-
-    #fw-emoji div span:hover {
-      background: rgba(0, 0, 0, .08);
     }
 
     /* MATIÈRE COULEURS */
@@ -723,38 +478,100 @@
     .mc11 {
       background: #A78BFA;
     }
-  </style>
-  <style>
-    /* ══ RESPONSIVE PARENT — corrections mobile ══════════════════ */
 
-    /* ── Fix .fw-wrap manque display:flex ── */
-    .fw-wrap {
-      display: flex !important;
+    /* Correction fond */
+    body {
+      background: #F0F4FF !important;
+      background-image: none !important;
     }
 
-    /* ── MOBILE < 640px ── */
+    body::before {
+      display: none !important;
+    }
+
+    /* MODALE NOTIFICATIONS */
+    .notif-modal {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 320px;
+      max-height: 400px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      z-index: 10000;
+      overflow-y: auto;
+      display: none;
+      flex-direction: column;
+      border: 1px solid #E2E8F0;
+    }
+
+    .notif-modal.open {
+      display: flex;
+    }
+
+    .notif-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #E2E8F0;
+      font-weight: 800;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #F8FAFF;
+    }
+
+    .notif-item {
+      padding: 12px 16px;
+      border-bottom: 1px solid #F1F5F9;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .notif-item:hover {
+      background: #F8FAFF;
+    }
+
+    .notif-item.unread {
+      background: #EEF2FF;
+    }
+
+    .notif-title {
+      font-weight: 800;
+      font-size: 0.75rem;
+      color: #0F172A;
+      margin-bottom: 4px;
+    }
+
+    .notif-desc {
+      font-size: 0.7rem;
+      color: #475569;
+      margin-bottom: 4px;
+    }
+
+    .notif-time {
+      font-size: 0.6rem;
+      color: #94A3B8;
+    }
+
+    .mark-read-btn {
+      font-size: 0.6rem;
+      background: none;
+      border: none;
+      color: #4F46E5;
+      cursor: pointer;
+      margin-top: 4px;
+      text-align: right;
+      width: 100%;
+    }
+
+    /* RESPONSIVE (extrait) */
     @media (max-width: 639px) {
-
-      /* Titre de page : décaler pour ne pas être caché par le hamburger */
-      .sec-hd,
-      .pg-hd,
-      .sec>.hd,
-      [id^="sec-"]>div:first-child>div:first-child {
-        padding-top: 0 !important;
-      }
-
-      /* Sidebar (sb) sur mobile : pleine hauteur avec overflow */
       .sb {
         height: 100vh !important;
         overflow-y: auto !important;
       }
 
-      /* ── Profil : 250px+1fr → 1 colonne ── */
-      #sec-profil>div[style*="grid-template-columns:250px"] {
-        grid-template-columns: 1fr !important;
-      }
-
-      /* ── Bulletin : simplifier le tableau ── */
       .bul-row,
       .bul-th {
         grid-template-columns: 1fr 44px 64px 56px !important;
@@ -762,10 +579,6 @@
         font-size: .7rem !important;
       }
 
-      /* Masquer colonne PROGRES sur très petit écran */
-      /* Bul-row last-child géré plus bas */
-
-      /* ── Toutes les grids → adaptées ── */
       [style*="grid-template-columns:repeat(4,1fr)"] {
         grid-template-columns: repeat(2, 1fr) !important;
       }
@@ -778,57 +591,11 @@
         grid-template-columns: 1fr !important;
       }
 
-      [style*="grid-template-columns:1fr auto 1fr"] {
-        grid-template-columns: 1fr !important;
-      }
-
-      /* ── Forum WhatsApp : forcer hauteur correcte ── */
-      #sec-forum.on {
-        height: calc(100vh - 0px) !important;
-        max-height: 100vh !important;
-        overflow: hidden !important;
-      }
-
-      .fw-msgs {
-        flex: 1 !important;
-        min-height: 0 !important;
-        overflow-y: auto !important;
-      }
-
-      .fw-bar {
-        flex-shrink: 0 !important;
-        position: sticky !important;
-        bottom: 0 !important;
-        z-index: 10 !important;
-      }
-
-      .fw-ta {
-        font-size: .8rem !important;
-      }
-
-      /* ── Bulletin stats ── */
-      [style*="grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px"] {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 8px !important;
-      }
-
-      [style*="grid-template-columns:repeat(3,1fr);gap:11px"] {
-        grid-template-columns: 1fr 1fr !important;
-      }
-
-      /* ── Résumé bulletin bas de page ── */
-      [style*="grid-template-columns:1fr auto 1fr;gap:16px"] {
-        grid-template-columns: 1fr !important;
-        gap: 8px !important;
-      }
-
-      /* ── Cards ── */
       .card {
         padding: 13px 14px !important;
         border-radius: 14px !important;
       }
 
-      /* ── Boutons ── */
       .btn,
       .bp,
       .btn.bp {
@@ -836,100 +603,24 @@
         padding: 8px 12px !important;
       }
 
-      /* ── Messages bulles ── */
       .mrow {
         max-width: 88% !important;
       }
 
-      /* ── Profil photo centré ── */
-      #sec-profil [style*="grid-template-columns:250px"]>div:first-child {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-      }
-
-      /* ── Profil : colonne droite visible + phrase complète ── */
       #sec-profil>div {
         grid-template-columns: 1fr !important;
         display: flex !important;
         flex-direction: column !important;
       }
 
-      #sec-profil .card {
-        overflow: visible !important;
-        width: 100% !important;
-      }
-
-      /* ── Annonces : pleine largeur ── */
-      #sec-annonces,
-      #an-list {
-        width: 100% !important;
-        overflow-x: hidden !important;
-      }
-
-      /* ── Bulletin header : 3 boxes → 1 colonne ── */
-      #sec-bulletin [style*="grid-template-columns:repeat(3,1fr)"] {
-        grid-template-columns: 1fr !important;
-      }
-
-      #sec-bulletin [style*="grid-template-columns: repeat(3"] {
-        grid-template-columns: 1fr !important;
-      }
-
-      /* ── Forum : barre saisie toujours visible ── */
-      #sec-forum.on {
-        display: flex !important;
-        flex-direction: column !important;
-        height: calc(100vh - 56px) !important;
-        overflow: hidden !important;
-      }
-
-      #sec-forum:not(.on) {
-        display: none !important;
-      }
-
-      .fw-wrap {
-        display: flex !important;
-        flex-direction: column !important;
-        flex: 1 !important;
-        min-height: 0 !important;
-        overflow: hidden !important;
-      }
-
-      .fw-msgs {
-        flex: 1 !important;
-        min-height: 0 !important;
-        overflow-y: auto !important;
-      }
-
-      .fw-bar {
-        flex-shrink: 0 !important;
-        background: #F0F2F5 !important;
-        z-index: 10 !important;
-      }
-
-      /* ── Dashboard : header violet pleine largeur ── */
-      #sec-dash [style*="grid-template-columns:1fr 1fr"],
-      #sec-dash [style*="grid-template-columns: 1fr 1fr"] {
-        grid-template-columns: 1fr !important;
-      }
-
-      /* ── Sections : padding-bottom pour ne pas être coupé ── */
       .sec.on {
         padding-bottom: 70px !important;
       }
 
-      /* Sauf le forum qui a sa propre gestion */
-      #sec-forum.on {
-        padding-bottom: 0 !important;
-      }
-
-      /* ── sec-accueil : grille notes+annonces → 1 colonne ── */
       #sec-accueil [style*="grid-template-columns:1fr 1fr"] {
         grid-template-columns: 1fr !important;
       }
 
-      /* ── Bulletin : layout mobile simplifié ── */
       .bul-row {
         display: flex !important;
         flex-direction: column !important;
@@ -942,7 +633,6 @@
         display: none !important;
       }
 
-      /* Ligne : première div = nom matière (flex row) */
       .bul-row>div:first-child {
         display: flex !important;
         align-items: center !important;
@@ -950,30 +640,25 @@
         gap: 8px !important;
       }
 
-      /* Colonne note (3ème div) → inline à droite du nom */
       .bul-row>div:nth-child(3) {
         position: absolute !important;
         right: 14px !important;
       }
 
-      /* Réinitialiser position sur la ligne */
       .bul-row {
         position: relative !important;
       }
 
-      /* Masquer COEF et PTS */
       .bul-row>div:nth-child(2),
       .bul-row>div:nth-child(4) {
         display: none !important;
       }
 
-      /* Barre de progression pleine largeur en bas */
       .bul-row>div:last-child {
         display: block !important;
         padding-right: 60px !important;
       }
 
-      /* ══ BULLETIN : libérer le overflow pour afficher toutes les matières ══ */
       .bul-doc {
         overflow: visible !important;
       }
@@ -983,66 +668,28 @@
         overflow-x: hidden !important;
       }
 
-      /* Tableau des notes : padding réduit sur mobile */
       .bul-hd {
         padding: 18px 16px 16px !important;
       }
 
-      /* Pied bulletin : 3 colonnes → 1 colonne */
       #bul-foot {
         grid-template-columns: 1fr !important;
         gap: 8px !important;
         padding: 14px 16px !important;
       }
 
-      /* En-tête bulletin info boxes → 1 colonne */
       .bul-hd [style*="grid-template-columns"] {
         grid-template-columns: 1fr !important;
       }
 
-      /* ── Forum : hauteur correcte + fw-bar toujours visible ── */
-      #sec-forum.on {
-        display: flex !important;
-        flex-direction: column !important;
-        height: calc(100dvh - 56px) !important;
-        max-height: calc(100dvh - 56px) !important;
-        overflow: hidden !important;
-      }
-
-      #fw-msgs {
-        flex: 1 !important;
-        min-height: 0 !important;
-        overflow-y: auto !important;
-      }
-
-      .fw-bar {
-        flex-shrink: 0 !important;
-        position: relative !important;
-        z-index: 20 !important;
-        background: #F0F2F5 !important;
-        border-top: 2px solid #ddd !important;
-      }
-
-      .fw-ta {
-        font-size: .82rem !important;
-      }
-
-      /* ── Profil : phrase complète visible ── */
-      #sec-profil .card {
-        overflow: visible !important;
-        max-width: 100% !important;
-      }
-
-      #sec-profil [style*="background:#FFF7ED"] {
-        white-space: normal !important;
-        word-break: break-word !important;
-        overflow: visible !important;
-        font-size: .6rem !important;
-        line-height: 1.5 !important;
+      .notif-modal {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+        top: 60px;
       }
     }
 
-    /* ── Tablet 640–1023px ── */
     @media (max-width: 1023px) and (min-width: 640px) {
       [style*="grid-template-columns:repeat(4,1fr)"] {
         grid-template-columns: repeat(2, 1fr) !important;
@@ -1060,530 +707,485 @@
   </style>
 </head>
 
-<body style="display:flex;height:100vh;overflow:hidden;">
+<body style="display:flex; height:100vh; overflow:hidden;">
 
   <!-- ═══ SIDEBAR ═══ -->
   <div class="sb">
-    <div style="padding:16px 16px 12px;border-bottom:1px solid #E8EDFF;flex-shrink:0;">
-      <div style="font-size:1rem;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:-.03em;">
-        ÉCOLE<span style="color:#4F46E5;">NUM</span></div>
-      <div
-        style="font-size:.54rem;font-weight:800;color:#F43F5E;text-transform:uppercase;letter-spacing:.15em;margin-top:1px;">
-        Espace Parent</div>
-    </div>
-    <!-- Mini profil -->
-    <div onclick="go('profil')" onmouseover="this.style.background='#EEF2FF'"
-      onmouseout="this.style.background='#FAFBFF'"
-      style="padding:11px 13px;border-bottom:1px solid #E8EDFF;background:#FAFBFF;display:flex;align-items:center;gap:9px;cursor:pointer;transition:background .15s;">
-      <div id="sb-av" class="ava" style="background:#4F46E5;width:38px;height:38px;">?</div>
-      <div style="min-width:0;flex:1;">
-        <div id="sb-nom"
-          style="font-weight:800;font-size:.74rem;color:#1E293B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-          Chargement…</div>
-        <div id="sb-code"
-          style="font-size:.58rem;color:#94A3B8;font-weight:700;text-transform:uppercase;letter-spacing:.07em;">---
-        </div>
+    <div style="padding:16px 16px 12px; border-bottom:1px solid #E8EDFF; flex-shrink:0;">
+      <div style="font-size:1rem; font-weight:900; font-style:italic; text-transform:uppercase; letter-spacing:-.03em;">
+        <span class="ecole-nom">Saint joseph</span>
+        <div
+          style="font-size:.54rem; font-weight:800; color:#F43F5E; text-transform:uppercase; letter-spacing:.15em; margin-top:1px;">
+          Espace Parent</div>
       </div>
-      <i data-lucide="chevron-right" style="width:13px;height:13px;color:#CBD5E1;flex-shrink:0;"></i>
-    </div>
-    <nav style="flex:1;padding:7px 8px;overflow-y:auto;">
-      <div class="nl">Mon enfant</div>
-      <div class="ni active" onclick="go('accueil')" data-s="accueil"><i data-lucide="layout-dashboard"
-          style="width:14px;height:14px;flex-shrink:0;"></i>Tableau de bord</div>
-      <div class="ni" onclick="go('bulletin')" data-s="bulletin"><i data-lucide="file-text"
-          style="width:14px;height:14px;flex-shrink:0;"></i>Bulletin &amp; Notes</div>
-      <div class="ni" onclick="go('absences')" data-s="absences"><i data-lucide="calendar-x"
-          style="width:14px;height:14px;flex-shrink:0;"></i>Absences<span id="babs" class="bdg"
-          style="background:#FEE2E2;color:#DC2626;margin-left:auto;display:none;"></span></div>
-      <div class="ni" onclick="go('convocations')" data-s="convocations"><i data-lucide="bell-ring"
-          style="width:14px;height:14px;flex-shrink:0;"></i>Convocations<span id="bconv" class="bdg"
-          style="background:#FEF3C7;color:#D97706;margin-left:auto;display:none;"></span></div>
-      <div class="ni" onclick="go('orientation')" data-s="orientation"><i data-lucide="compass"
-          style="width:14px;height:14px;flex-shrink:0;"></i>Orientation</div>
-      <div class="nl" style="margin-top:6px;">Communauté APE</div>
-
-      <div class="ni" onclick="go('cotisations')" data-s="cotisations"><i data-lucide="credit-card"
-          style="width:14px;height:14px;flex-shrink:0;"></i>Cotisations APE</div>
-      <div class="nl" style="margin-top:6px;">École</div>
-      <div class="ni" onclick="go('annonces')" data-s="annonces"><i data-lucide="megaphone"
-          style="width:14px;height:14px;flex-shrink:0;"></i>Annonces</div>
-      <div class="ni" onclick="go('profil')" data-s="profil"><i data-lucide="user-circle"
-          style="width:14px;height:14px;flex-shrink:0;"></i>Mon profil</div>
-    </nav>
-    <div style="padding:7px 8px;border-top:1px solid #E8EDFF;flex-shrink:0;">
-      <div class="ni" style="color:#EF4444;" onclick="deco()"><i data-lucide="log-out"
-          style="width:14px;height:14px;flex-shrink:0;"></i>Se déconnecter</div>
+      <div onclick="go('profil')" onmouseover="this.style.background='#EEF2FF'"
+        onmouseout="this.style.background='#FAFBFF'"
+        style="padding:11px 13px; border-bottom:1px solid #E8EDFF; background:#FAFBFF; display:flex; align-items:center; gap:9px; cursor:pointer; transition:background .15s;">
+        <div id="sb-av" class="ava" style="background:#4F46E5; width:38px; height:38px;">?</div>
+        <div style="min-width:0; flex:1;">
+          <div id="sb-nom"
+            style="font-weight:800; font-size:.74rem; color:#1E293B; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            Chargement…</div>
+          <div id="sb-code"
+            style="font-size:.58rem; color:#94A3B8; font-weight:700; text-transform:uppercase; letter-spacing:.07em;">
+            ---</div>
+        </div>
+        <i data-lucide="chevron-right" style="width:13px; height:13px; color:#CBD5E1; flex-shrink:0;"></i>
+      </div>
+      <nav style="flex:1; padding:7px 8px; overflow-y:auto;">
+        <div class="nl">Mon enfant</div>
+        <div class="ni active" onclick="go('accueil')" data-s="accueil"><i data-lucide="layout-dashboard"
+            style="width:14px;height:14px;"></i>Tableau de bord</div>
+        <div class="ni" onclick="go('bulletin')" data-s="bulletin"><i data-lucide="file-text"
+            style="width:14px;height:14px;"></i>Bulletin &amp; Notes</div>
+        <div class="ni" onclick="go('absences')" data-s="absences"><i data-lucide="calendar-x"
+            style="width:14px;height:14px;"></i>Absences<span id="babs" class="bdg"
+            style="background:#FEE2E2;color:#DC2626;margin-left:auto;display:none;"></span></div>
+        <div class="ni" onclick="go('convocations')" data-s="convocations"><i data-lucide="bell-ring"
+            style="width:14px;height:14px;"></i>Convocations<span id="bconv" class="bdg"
+            style="background:#FEF3C7;color:#D97706;margin-left:auto;display:none;"></span></div>
+        <div class="ni" onclick="go('orientation')" data-s="orientation"><i data-lucide="compass"
+            style="width:14px;height:14px;"></i>Orientation</div>
+        <div class="nl" style="margin-top:6px;">Communauté APE</div>
+        <div class="ni" onclick="go('cotisations')" data-s="cotisations"><i data-lucide="credit-card"
+            style="width:14px;height:14px;"></i>Cotisations APE</div>
+        <div class="nl" style="margin-top:6px;">École</div>
+        <div class="ni" onclick="go('annonces')" data-s="annonces"><i data-lucide="megaphone"
+            style="width:14px;height:14px;"></i>Annonces</div>
+        <div class="ni" onclick="go('profil')" data-s="profil"><i data-lucide="user-circle"
+            style="width:14px;height:14px;"></i>Mon profil</div>
+      </nav>
+      <div style="padding:7px 8px; border-top:1px solid #E8EDFF; flex-shrink:0;">
+        <div class="ni" style="color:#EF4444;" onclick="deco()"><i data-lucide="log-out"
+            style="width:14px;height:14px;"></i>Se déconnecter</div>
+      </div>
     </div>
   </div>
 
-  <!-- ═══ MAIN ═══ -->
-  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden;height:100vh;">
-
-    <!-- ══ TOPBAR AVEC CLOCHE ══ -->
-    <div
-      style="display:flex;justify-content:flex-end;align-items:center;padding:12px 20px;background:#fff;border-bottom:1px solid #E8EDFF;">
-      <div id="notif-btn" style="position:relative;cursor:pointer;padding:8px;">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-        <span id="notif-badge"
-          style="position:absolute;top:-5px;right:-5px;background:#EF4444;color:white;border-radius:50%;padding:2px 5px;font-size:10px;display:none;">0</span>
-      </div>
-    </div>
-
-    <!-- ══ ACCUEIL ══ -->
-    <div id="sec-accueil" class="sec on" style="overflow-y:auto;padding:20px;gap:14px;">
-      <!-- BANNER -->
-      <div class="banner">
-        <div style="display:flex;align-items:center;gap:18px;position:relative;z-index:1;flex-wrap:wrap;">
-          <!-- Avatar parent cliquable -->
-          <div style="position:relative;flex-shrink:0;">
-            <div id="av-p" class="avc"
-              style="width:74px;height:74px;font-size:1.7rem;background:#6D28D9;border:3px solid rgba(255,255,255,.42);"
-              onclick="document.getElementById('fp').click()">
-              <span id="av-p-t">?</span>
-              <div class="ov"><i data-lucide="camera" style="width:18px;height:18px;color:#fff;"></i></div>
-            </div>
-            <div onclick="document.getElementById('fp').click()"
-              style="position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;background:#4F46E5;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;">
-              <i data-lucide="camera" style="width:10px;height:10px;color:#fff;"></i>
-            </div>
-            <input type="file" id="fp" accept="image/*" onchange="uploadPhoto(this)">
-          </div>
-
-          <div style="flex:1;min-width:150px;">
-            <div
-              style="font-size:.58rem;font-weight:800;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.12em;margin-bottom:3px;">
-              Parent · Espace Privé</div>
-            <div id="acc-nom" style="font-size:1.35rem;font-weight:900;letter-spacing:-.02em;line-height:1.1;">
-              Chargement…</div>
-            <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap;align-items:center;">
-              <span id="acc-prof"
-                style="font-size:.66rem;color:rgba(255,255,255,.7);font-weight:600;display:none;"></span>
-              <span id="acc-tel"
-                style="font-size:.66rem;color:rgba(255,255,255,.7);font-weight:600;display:none;"></span>
-              <span id="acc-ape"
-                style="font-size:.56rem;font-weight:800;background:rgba(255,255,255,.18);padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.07em;"></span>
-            </div>
-          </div>
-
-          <!-- Enfant card -->
-          <div
-            style="background:rgba(255,255,255,.13);border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:11px;border:1px solid rgba(255,255,255,.14);">
-            <div id="av-e" class="avc"
-              style="width:48px;height:48px;font-size:1rem;background:#7C3AED;border:2px solid rgba(255,255,255,.38);">
-              <span id="av-e-t">?</span>
-            </div>
-            <div>
-              <div
-                style="font-size:.56rem;color:rgba(255,255,255,.5);font-weight:700;text-transform:uppercase;letter-spacing:.1em;">
-                Mon enfant</div>
-              <div id="acc-en" style="font-size:.88rem;font-weight:900;margin-top:2px;">---</div>
-              <div id="acc-ec" style="font-size:.62rem;color:rgba(255,255,255,.62);margin-top:1px;">---</div>
-            </div>
-          </div>
-
-          <div style="text-align:right;flex-shrink:0;">
-            <div style="font-size:.56rem;color:rgba(255,255,255,.45);font-weight:700;text-transform:uppercase;">
-              Matricule</div>
-            <div id="acc-code" style="font-size:.82rem;font-weight:900;font-family:monospace;margin-top:1px;">---</div>
+  <!-- ═══ MAIN CONTENT (flex column) ═══ -->
+  <div style="flex:1; display:flex; flex-direction:column; overflow:hidden; height:100%; min-height:0;">
+    <!-- CONTENEUR DES SECTIONS (prend tout l'espace restant) -->
+    <div style="flex:1; min-height:0; overflow-y:auto;">
+      <!-- ACCUEIL -->
+      <div id="sec-accueil" class="sec on">
+        <!-- Cloche de notifications (uniquement ici) -->
+        <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+          <div id="notif-btn"
+            style="position:relative; cursor:pointer; padding:8px; background:white; border-radius:50%; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span id="notif-badge"
+              style="position:absolute; top:-5px; right:-5px; background:#EF4444; color:white; border-radius:50%; padding:2px 5px; font-size:10px; display:none;">0</span>
           </div>
         </div>
-      </div>
 
-      <!-- Stats -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;">
-        <div class="card" style="text-align:center;">
-          <div id="st-moy" style="font-size:1.55rem;font-weight:900;color:#4F46E5;">—</div>
-          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:3px;">Moyenne
-            /20</div>
-        </div>
-        <div class="card" style="text-align:center;">
-          <div id="st-abs" style="font-size:1.55rem;font-weight:900;color:#EF4444;">0</div>
-          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:3px;">Absences
-          </div>
-        </div>
-        <div class="card" style="text-align:center;">
-          <div id="st-cv" style="font-size:1.55rem;font-weight:900;color:#F59E0B;">0</div>
-          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:3px;">
-            Convocations</div>
-        </div>
-        <div class="card" style="text-align:center;">
-          <div id="st-rang" style="font-size:1.55rem;font-weight:900;color:#10B981;">—</div>
-          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:3px;">Rang
-            classe</div>
-        </div>
-      </div>
-
-      <!-- Alerte -->
-      <div id="al-cv"
-        style="display:none;background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F59E0B;border-radius:14px;padding:12px 16px;flex-direction:row;align-items:flex-start;gap:10px;">
-        <i data-lucide="alert-triangle" style="width:18px;height:18px;color:#F59E0B;flex-shrink:0;margin-top:1px;"></i>
-        <div>
-          <div style="font-size:.76rem;font-weight:800;color:#92400E;">Convocation en attente</div>
-          <div id="al-cv-t" style="font-size:.68rem;color:#B45309;margin-top:2px;"></div>
-          <button onclick="go('convocations')"
-            style="margin-top:4px;font-size:.6rem;font-weight:800;color:#D97706;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Voir
-            →</button>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;">
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
-            <div style="font-size:.74rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;">📊
-              Dernières notes</div>
-            <button onclick="go('bulletin')"
-              style="font-size:.6rem;font-weight:800;color:#4F46E5;background:none;border:none;cursor:pointer;">Bulletin
-              →</button>
-          </div>
-          <div id="ap-n">
-            <div style="text-align:center;padding:14px;">
-              <div class="spin"></div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
-            <div style="font-size:.74rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;">📣
-              Annonces</div>
-            <button onclick="go('annonces')"
-              style="font-size:.6rem;font-weight:800;color:#4F46E5;background:none;border:none;cursor:pointer;">Tout
-              →</button>
-          </div>
-          <div id="ap-a">
-            <div style="text-align:center;padding:14px;">
-              <div class="spin"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ BULLETIN PREMIUM ══ -->
-    <div id="sec-bulletin" class="sec" style="overflow-y:auto;padding:20px;gap:14px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">📊
-          Bulletin de <span id="bul-en" style="color:#4F46E5;">mon enfant</span></h2>
-        <div style="display:flex;gap:7px;align-items:center;">
-          <button class="btn bp bs tri" onclick="selTri(1,this)">Trim. 1</button>
-          <button class="btn bo bs tri" onclick="selTri(2,this)">Trim. 2</button>
-          <button class="btn bo bs tri" onclick="selTri(3,this)">Trim. 3</button>
-          <button class="btn bg bs" id="btn-pdf" onclick="dlPDF()">
-            <i data-lucide="download" style="width:12px;height:12px;"></i>PDF
-          </button>
-        </div>
-      </div>
-
-      <!-- BULLETIN OFFICIEL -->
-      <div class="bul-doc" id="bul-doc">
-        <!-- EN-TÊTE OFFICIEL -->
-        <div class="bul-hd">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1;">
-            <div>
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-                <div
-                  style="width:40px;height:40px;background:rgba(255,255,255,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">
-                  🏫</div>
-                <div>
-                  <div style="font-size:1rem;font-weight:900;font-style:italic;letter-spacing:-.02em;">ÉCOLE<span
-                      style="color:#60A5FA;">NUM</span></div>
-                  <div style="font-size:.58rem;color:rgba(255,255,255,.45);font-weight:600;">Campus Numérique · Burkina
-                    Faso</div>
-                </div>
+        <div class="banner">
+          <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap; position:relative; z-index:1;">
+            <div style="position:relative; flex-shrink:0;">
+              <div id="av-p" class="avc"
+                style="width:74px; height:74px; font-size:1.7rem; background:#6D28D9; border:3px solid rgba(255,255,255,.42);"
+                onclick="document.getElementById('fp').click()">
+                <span id="av-p-t">?</span>
+                <div class="ov"><i data-lucide="camera" style="width:18px;height:18px;color:#fff;"></i></div>
               </div>
-              <div style="font-size:.56rem;font-weight:700;color:rgba(255,255,255,.35);margin-top:4px;">B.P. 0001 ·
-                Ouagadougou · burkina-faso.ecolenum.bf</div>
+              <div onclick="document.getElementById('fp').click()"
+                style="position:absolute; bottom:-2px; right:-2px; width:22px; height:22px; background:#4F46E5; border:2px solid #fff; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:2;">
+                <i data-lucide="camera" style="width:10px;height:10px;color:#fff;"></i>
+              </div>
+              <input type="file" id="fp" accept="image/*" onchange="uploadPhoto(this)">
+            </div>
+            <div style="flex:1; min-width:150px;">
+              <div
+                style="font-size:.58rem; font-weight:800; color:rgba(255,255,255,.55); text-transform:uppercase; letter-spacing:.12em;">
+                Parent · Espace Privé</div>
+              <div id="acc-nom" style="font-size:1.35rem; font-weight:900; letter-spacing:-.02em; line-height:1.1;">
+                Chargement…</div>
+              <div style="display:flex; gap:8px; margin-top:5px; flex-wrap:wrap;">
+                <span id="acc-prof"
+                  style="font-size:.66rem; color:rgba(255,255,255,.7); font-weight:600; display:none;"></span>
+                <span id="acc-tel"
+                  style="font-size:.66rem; color:rgba(255,255,255,.7); font-weight:600; display:none;"></span>
+                <span id="acc-ape"
+                  style="font-size:.56rem; font-weight:800; background:rgba(255,255,255,.18); padding:2px 8px; border-radius:20px; text-transform:uppercase;"></span>
+              </div>
+            </div>
+            <div
+              style="background:rgba(255,255,255,.13); border-radius:14px; padding:11px 14px; display:flex; align-items:center; gap:11px; border:1px solid rgba(255,255,255,.14);">
+              <div id="av-e" class="avc"
+                style="width:48px; height:48px; font-size:1rem; background:#7C3AED; border:2px solid rgba(255,255,255,.38);">
+                <span id="av-e-t">?</span></div>
+              <div>
+                <div style="font-size:.56rem; color:rgba(255,255,255,.5); font-weight:700; text-transform:uppercase;">
+                  Mon enfant</div>
+                <div id="acc-en" style="font-size:.88rem; font-weight:900;">---</div>
+                <div id="acc-ec" style="font-size:.62rem; color:rgba(255,255,255,.62);">---</div>
+              </div>
             </div>
             <div style="text-align:right;">
-              <div
-                style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 14px;">
-                <div
-                  style="font-size:.56rem;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;">
-                  Année scolaire</div>
-                <div style="font-size:.88rem;font-weight:900;margin-top:2px;">2025 — 2026</div>
-                <div id="bul-tri-b"
-                  style="margin-top:5px;background:rgba(255,255,255,.15);border-radius:8px;padding:2px 9px;font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.8);">
-                  1er Trimestre</div>
-              </div>
-            </div>
-          </div>
-
-          <div
-            style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);position:relative;z-index:1;">
-            <div
-              style="font-size:.6rem;font-weight:800;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.15em;">
-              Bulletin de Notes</div>
-            <div id="bul-nom-h"
-              style="font-size:1.6rem;font-weight:900;letter-spacing:-.02em;margin-top:4px;line-height:1;">---</div>
-          </div>
-
-          <div
-            style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;position:relative;z-index:1;">
-            <div
-              style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.1);">
-              <div
-                style="font-size:.54rem;font-weight:800;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.09em;">
+              <div style="font-size:.56rem; color:rgba(255,255,255,.45); font-weight:700; text-transform:uppercase;">
                 Matricule</div>
-              <div id="bul-mat-h" style="font-size:.82rem;font-weight:800;margin-top:2px;font-family:monospace;">---
-              </div>
-            </div>
-            <div
-              style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.1);">
-              <div
-                style="font-size:.54rem;font-weight:800;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.09em;">
-                Classe</div>
-              <div id="bul-cls-h" style="font-size:.82rem;font-weight:800;margin-top:2px;">---</div>
-            </div>
-            <div
-              style="background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.1);">
-              <div
-                style="font-size:.54rem;font-weight:800;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.09em;">
-                Établissement</div>
-              <div style="font-size:.82rem;font-weight:800;margin-top:2px;">Lycée ÉcoleNum</div>
+              <div id="acc-code" style="font-size:.82rem; font-weight:900; font-family:monospace;">---</div>
             </div>
           </div>
         </div>
 
-        <!-- TABLEAU NOTES -->
-        <div>
-          <div class="bul-th">
-            <span>Matière</span>
-            <span style="text-align:center;">Coef</span>
-            <span style="text-align:center;">Note /20</span>
-            <span style="text-align:center;">Pts</span>
-            <span>Progression &amp; Appréciation</span>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:11px;">
+          <div class="card" style="text-align:center;">
+            <div id="st-moy" style="font-size:1.55rem; font-weight:900; color:#4F46E5;">—</div>
+            <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Moyenne /20</div>
           </div>
-          <div id="bul-rows">
-            <div style="text-align:center;padding:36px;">
-              <div class="spin" style="margin:0 auto 8px;"></div>
-              <div style="font-size:.76rem;font-weight:700;color:#94A3B8;">Chargement du bulletin…</div>
-            </div>
+          <div class="card" style="text-align:center;">
+            <div id="st-abs" style="font-size:1.55rem; font-weight:900; color:#EF4444;">0</div>
+            <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Absences</div>
           </div>
-        </div>
-
-        <!-- PIED BULLETIN -->
-        <div id="bul-foot"
-          style="background:#F8FAFF;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:18px 24px;border-top:2px solid #E8EDFF;">
-          <div style="text-align:center;">
-            <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.09em;">
-              Moyenne générale</div>
-            <div id="bul-moy" style="font-size:2rem;font-weight:900;color:#4F46E5;line-height:1;margin-top:4px;">—</div>
-            <div style="font-size:.62rem;color:#94A3B8;margin-top:1px;">/20</div>
+          <div class="card" style="text-align:center;">
+            <div id="st-cv" style="font-size:1.55rem; font-weight:900; color:#F59E0B;">0</div>
+            <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Convocations</div>
           </div>
-          <div style="text-align:center;">
-            <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.09em;">
-              Mention</div>
-            <div id="bul-mention" style="font-size:.96rem;font-weight:900;color:#1E293B;margin-top:4px;">—</div>
-            <div id="bul-appr" style="font-size:.62rem;color:#64748B;margin-top:2px;font-style:italic;"></div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.09em;">
-              Total points</div>
-            <div id="bul-pts" style="font-size:2rem;font-weight:900;color:#10B981;line-height:1;margin-top:4px;">—</div>
-            <div id="bul-coef" style="font-size:.62rem;color:#94A3B8;margin-top:1px;">coef : —</div>
+          <div class="card" style="text-align:center;">
+            <div id="st-rang" style="font-size:1.55rem; font-weight:900; color:#10B981;">—</div>
+            <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Rang classe</div>
           </div>
         </div>
 
-        <!-- SIGNATURES -->
-        <div
-          style="padding:16px 24px 20px;display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;border-top:1px solid #E8EDFF;">
-          <div style="text-align:center;">
-            <div style="height:40px;border-bottom:1px dashed #CBD5E1;margin:0 20px;"></div>
-            <div
-              style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:6px;letter-spacing:.09em;">
-              Signature du parent</div>
-          </div>
-          <div style="text-align:center;">
-            <div style="font-size:.62rem;font-weight:700;color:#94A3B8;font-style:italic;">Document officiel numérique
-            </div>
-            <div id="bul-date" style="font-size:.56rem;color:#CBD5E1;margin-top:2px;"></div>
-          </div>
-          <div style="text-align:center;">
-            <div style="height:40px;border-bottom:1px dashed #CBD5E1;margin:0 20px;"></div>
-            <div
-              style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:6px;letter-spacing:.09em;">
-              Cachet de la direction</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ ABSENCES ══ -->
-    <div id="sec-absences" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
-      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">📋
-        Absences de <span id="abs-en" style="color:#4F46E5;">mon enfant</span></h2>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;">
-        <div class="card" style="text-align:center;background:#FEF2F2;border-color:#FECACA;">
-          <div id="ab-inj" style="font-size:1.8rem;font-weight:900;color:#DC2626;">0</div>
-          <div style="font-size:.56rem;font-weight:800;color:#EF4444;text-transform:uppercase;margin-top:3px;">Non
-            justifiées</div>
-        </div>
-        <div class="card" style="text-align:center;background:#F0FDF4;border-color:#BBF7D0;">
-          <div id="ab-jus" style="font-size:1.8rem;font-weight:900;color:#16A34A;">0</div>
-          <div style="font-size:.56rem;font-weight:800;color:#22C55E;text-transform:uppercase;margin-top:3px;">
-            Justifiées</div>
-        </div>
-        <div class="card" style="text-align:center;">
-          <div id="ab-tot" style="font-size:1.8rem;font-weight:900;color:#1E293B;">0</div>
-          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-top:3px;">Total
-          </div>
-        </div>
-      </div>
-      <div class="card" id="ab-list"></div>
-    </div>
-
-    <!-- ══ CONVOCATIONS ══ -->
-    <div id="sec-convocations" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
-      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">📩
-        Convocations de <span id="cv-en" style="color:#4F46E5;">mon enfant</span></h2>
-      <div id="cv-list"></div>
-      <div style="font-size:.62rem;color:#94A3B8;font-style:italic;text-align:center;">🔒 Visible uniquement par vous et
-        votre enfant.</div>
-    </div>
-
-    <!-- ══ ORIENTATION ══ -->
-    <div id="sec-orientation" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
-      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">🧭
-        Orientation de <span id="ori-en" style="color:#4F46E5;">mon enfant</span></h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-        <div>
-          <div style="font-size:.68rem;font-weight:800;color:#475569;text-transform:uppercase;margin-bottom:8px;">💡
-            Avis des professeurs</div>
-          <div class="card" style="border-left:3px solid #4F46E5;background:#EEF2FF;margin-bottom:10px;">
-            <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
-              <div class="ava" style="background:#4F46E5;width:28px;height:28px;font-size:.6rem;">MC</div>
-              <div>
-                <div style="font-size:.72rem;font-weight:800;">Mme Coulibaly</div><span class="bdg"
-                  style="background:#DBEAFE;color:#1D4ED8;">MATHS</span>
-              </div>
-            </div>
-            <p style="font-size:.7rem;color:#475569;line-height:1.5;margin:0;">Excellent niveau en sciences. Recommande
-              filières scientifiques (MPSI, PCSI) ou Informatique.</p>
-          </div>
-        </div>
-        <div>
-          <div style="font-size:.68rem;font-weight:800;color:#475569;text-transform:uppercase;margin-bottom:8px;">✍️ Mon
-            avis de parent</div>
-          <div class="card">
-            <textarea class="inp" id="ori-msg"
-              placeholder="Partagez votre point de vue sur l'orientation de votre enfant…" rows="4"></textarea>
-            <button class="btn bp" style="width:100%;margin-top:10px;justify-content:center;" onclick="envOri()">Publier
+        <div id="al-cv"
+          style="display:none; background:#FFF7ED; border:1px solid #FED7AA; border-left:4px solid #F59E0B; border-radius:14px; padding:12px 16px; flex-direction:row; align-items:flex-start; gap:10px;">
+          <i data-lucide="alert-triangle" style="width:18px; height:18px; color:#F59E0B;"></i>
+          <div>
+            <div style="font-size:.76rem; font-weight:800; color:#92400E;">Convocation en attente</div>
+            <div id="al-cv-t" style="font-size:.68rem; color:#B45309;"></div>
+            <button onclick="go('convocations')"
+              style="margin-top:4px; font-size:.6rem; font-weight:800; color:#D97706; background:none; border:none; cursor:pointer; text-decoration:underline;">Voir
               →</button>
           </div>
         </div>
-      </div>
-    </div>
 
-
-    <!-- ══ COTISATIONS ══ -->
-    <div id="sec-cotisations" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
-      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">💰
-        Mes Cotisations APE</h2>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;">
-        <div class="card" style="text-align:center;background:#F0FDF4;border-color:#BBF7D0;">
-          <div style="font-size:.56rem;font-weight:800;color:#16A34A;text-transform:uppercase;margin-bottom:4px;">Payé
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:13px;">
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:11px;">
+              <div style="font-size:.74rem; font-weight:900; color:#1E293B; text-transform:uppercase;">📊 Dernières
+                notes</div>
+              <button onclick="go('bulletin')"
+                style="font-size:.6rem; font-weight:800; color:#4F46E5; background:none; border:none; cursor:pointer;">Bulletin
+                →</button>
+            </div>
+            <div id="ap-n">
+              <div style="text-align:center; padding:14px;">
+                <div class="spin"></div>
+              </div>
+            </div>
           </div>
-          <div id="cp" style="font-size:1.2rem;font-weight:900;color:#16A34A;">—</div>
-        </div>
-        <div class="card" style="text-align:center;background:#FEF2F2;border-color:#FECACA;">
-          <div style="font-size:.56rem;font-weight:800;color:#DC2626;text-transform:uppercase;margin-bottom:4px;">
-            Restant</div>
-          <div id="cr" style="font-size:1.2rem;font-weight:900;color:#DC2626;">—</div>
-        </div>
-        <div class="card" style="text-align:center;">
-          <div style="font-size:.56rem;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-bottom:4px;">Total
-            annuel</div>
-          <div id="ct" style="font-size:1.2rem;font-weight:900;color:#1E293B;">—</div>
+          <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:11px;">
+              <div style="font-size:.74rem; font-weight:900; color:#1E293B; text-transform:uppercase;">📣 Annonces</div>
+              <button onclick="go('annonces')"
+                style="font-size:.6rem; font-weight:800; color:#4F46E5; background:none; border:none; cursor:pointer;">Tout
+                →</button>
+            </div>
+            <div id="ap-a">
+              <div style="text-align:center; padding:14px;">
+                <div class="spin"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="card" id="ch"></div>
-    </div>
 
-    <!-- ══ ANNONCES ══ -->
-    <div id="sec-annonces" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
-      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">📣
-        Annonces officielles</h2>
-      <div id="an-list"></div>
-    </div>
-
-    <!-- ══ PROFIL ══ -->
-    <div id="sec-profil" class="sec" style="overflow-y:auto;padding:20px;gap:13px;">
-      <h2 style="font-size:1rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin:0;">👤
-        Mon profil</h2>
-      <div style="display:grid;grid-template-columns:250px 1fr;gap:16px;align-items:start;">
-        <div class="card" style="text-align:center;">
-          <div style="position:relative;display:inline-block;margin-bottom:11px;">
+      <!-- BULLETIN -->
+      <div id="sec-bulletin" class="sec">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">📊
+            Bulletin de <span id="bul-en" style="color:#4F46E5;">mon enfant</span></h2>
+          <div style="display:flex; gap:7px;">
+            <button class="btn bp bs tri" onclick="selTri(1,this)">Trim. 1</button>
+            <button class="btn bo bs tri" onclick="selTri(2,this)">Trim. 2</button>
+            <button class="btn bo bs tri" onclick="selTri(3,this)">Trim. 3</button>
+            <button class="btn bg bs" id="btn-pdf" onclick="dlPDF()"><i data-lucide="download"
+                style="width:12px;height:12px;"></i>PDF</button>
+          </div>
+        </div>
+        <div class="bul-doc" id="bul-doc">
+          <div class="bul-hd">
             <div
-              style="width:86px;height:86px;border-radius:50%;margin:0 auto;overflow:hidden;background:#EEF2FF;border:3px solid #E0E7FF;display:flex;align-items:center;justify-content:center;font-size:1.9rem;font-weight:900;color:#4F46E5;cursor:pointer;"
-              id="pr-av" onclick="document.getElementById('fp2').click()">
-              <span id="pr-av-t">?</span>
+              style="display:flex; justify-content:space-between; align-items:flex-start; position:relative; z-index:1;">
+              <div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                  <div
+                    style="width:40px; height:40px; background:rgba(255,255,255,.12); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+                    🏫</div>
+                  <div>
+                    <div style="font-size:1rem; font-weight:900; font-style:italic;">ÉCOLE<span
+                        style="color:#60A5FA;">NUM</span></div>
+                    <div style="font-size:.58rem; color:rgba(255,255,255,.45);">Campus Numérique · Burkina Faso</div>
+                  </div>
+                </div>
+                <div style="font-size:.56rem; color:rgba(255,255,255,.35);">B.P. 0001 · Ouagadougou ·
+                  burkina-faso.ecolenum.bf</div>
+              </div>
+              <div style="text-align:right;">
+                <div
+                  style="background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.18); border-radius:12px; padding:8px 14px;">
+                  <div style="font-size:.56rem; font-weight:800; color:rgba(255,255,255,.4); text-transform:uppercase;">
+                    Année scolaire</div>
+                  <div style="font-size:.88rem; font-weight:900;">2025 — 2026</div>
+                  <div id="bul-tri-b"
+                    style="margin-top:5px; background:rgba(255,255,255,.15); border-radius:8px; padding:2px 9px; font-size:.58rem; font-weight:800; text-transform:uppercase;">
+                    1er Trimestre</div>
+                </div>
+              </div>
             </div>
-            <input type="file" id="fp2" accept="image/*" onchange="uploadPhoto(this)">
-            <div onclick="document.getElementById('fp2').click()"
-              style="position:absolute;bottom:-1px;right:-1px;background:#4F46E5;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;cursor:pointer;">
-              <i data-lucide="pencil" style="width:10px;height:10px;color:#fff;"></i>
+            <div style="margin-top:18px; padding-top:16px; border-top:1px solid rgba(255,255,255,.1);">
+              <div style="font-size:.6rem; font-weight:800; color:rgba(255,255,255,.4); text-transform:uppercase;">
+                Bulletin de Notes</div>
+              <div id="bul-nom-h" style="font-size:1.6rem; font-weight:900; letter-spacing:-.02em; line-height:1;">---
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px;">
+              <div
+                style="background:rgba(255,255,255,.08); border-radius:10px; padding:10px 12px; border:1px solid rgba(255,255,255,.1);">
+                <div style="font-size:.54rem; font-weight:800; color:rgba(255,255,255,.45); text-transform:uppercase;">
+                  Matricule</div>
+                <div id="bul-mat-h" style="font-size:.82rem; font-weight:800; font-family:monospace;">---</div>
+              </div>
+              <div
+                style="background:rgba(255,255,255,.08); border-radius:10px; padding:10px 12px; border:1px solid rgba(255,255,255,.1);">
+                <div style="font-size:.54rem; font-weight:800; color:rgba(255,255,255,.45); text-transform:uppercase;">
+                  Classe</div>
+                <div id="bul-cls-h" style="font-size:.82rem; font-weight:800;">---</div>
+              </div>
+              <div
+                style="background:rgba(255,255,255,.08); border-radius:10px; padding:10px 12px; border:1px solid rgba(255,255,255,.1);">
+                <div style="font-size:.54rem; font-weight:800; color:rgba(255,255,255,.45); text-transform:uppercase;">
+                  Établissement</div>
+                <div style="font-size:.82rem; font-weight:800;">Lycée ÉcoleNum</div>
+              </div>
             </div>
           </div>
-          <div id="pr-nc" style="font-size:.92rem;font-weight:900;color:#1E293B;"></div>
-          <div id="pr-cc" style="font-size:.62rem;color:#94A3B8;font-weight:700;font-family:monospace;margin-top:2px;">
+          <div>
+            <div class="bul-th"><span>Matière</span><span style="text-align:center;">Coef</span><span
+                style="text-align:center;">Note /20</span><span style="text-align:center;">Pts</span><span>Progression
+                &amp; Appréciation</span></div>
+            <div id="bul-rows">
+              <div style="text-align:center; padding:36px;">
+                <div class="spin" style="margin:0 auto 8px;"></div>
+                <div style="font-size:.76rem; font-weight:700; color:#94A3B8;">Chargement du bulletin…</div>
+              </div>
+            </div>
           </div>
-          <div id="pr-ac" style="margin-top:6px;"></div>
-          <div style="margin-top:10px;background:#EEF2FF;border-radius:11px;padding:9px;">
-            <div style="font-size:.54rem;font-weight:800;color:#6366F1;text-transform:uppercase;margin-bottom:3px;">Mon
-              enfant</div>
-            <div id="pr-en" style="font-size:.78rem;font-weight:800;color:#1E293B;">—</div>
-            <div id="pr-ec" style="font-size:.62rem;color:#6366F1;">—</div>
+          <div id="bul-foot"
+            style="background:#F8FAFF; display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:18px 24px; border-top:2px solid #E8EDFF;">
+            <div style="text-align:center;">
+              <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Moyenne générale
+              </div>
+              <div id="bul-moy" style="font-size:2rem; font-weight:900; color:#4F46E5;">—</div>
+              <div style="font-size:.62rem; color:#94A3B8;">/20</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Mention</div>
+              <div id="bul-mention" style="font-size:.96rem; font-weight:900; color:#1E293B;">—</div>
+              <div id="bul-appr" style="font-size:.62rem; color:#64748B;"></div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Total points
+              </div>
+              <div id="bul-pts" style="font-size:2rem; font-weight:900; color:#10B981;">—</div>
+              <div id="bul-coef" style="font-size:.62rem; color:#94A3B8;">coef : —</div>
+            </div>
           </div>
-          <button class="btn bp" style="width:100%;margin-top:11px;justify-content:center;"
-            onclick="document.getElementById('fp2').click()">📷 Changer la photo</button>
+          <div
+            style="padding:16px 24px 20px; display:grid; grid-template-columns:1fr auto 1fr; gap:16px; align-items:center; border-top:1px solid #E8EDFF;">
+            <div style="text-align:center;">
+              <div style="height:40px; border-bottom:1px dashed #CBD5E1;"></div>
+              <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Signature du
+                parent</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:.62rem; font-weight:700; color:#94A3B8; font-style:italic;">Document officiel
+                numérique</div>
+              <div id="bul-date" style="font-size:.56rem; color:#CBD5E1;"></div>
+            </div>
+            <div style="text-align:center;">
+              <div style="height:40px; border-bottom:1px dashed #CBD5E1;"></div>
+              <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Cachet de la
+                direction</div>
+            </div>
+          </div>
         </div>
-        <div class="card">
-          <div
-            style="font-size:.74rem;font-weight:900;color:#1E293B;text-transform:uppercase;font-style:italic;margin-bottom:14px;">
-            Informations personnelles</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;">
-            <div><label
-                style="font-size:.58rem;font-weight:800;color:#94A3B8;text-transform:uppercase;display:block;margin-bottom:4px;">Prénom</label><input
-                class="inp" id="pr-pn" disabled style="background:#F8FAFF;color:#64748B;"></div>
-            <div><label
-                style="font-size:.58rem;font-weight:800;color:#94A3B8;text-transform:uppercase;display:block;margin-bottom:4px;">Nom</label><input
-                class="inp" id="pr-nn" disabled style="background:#F8FAFF;color:#64748B;"></div>
-            <div><label
-                style="font-size:.58rem;font-weight:800;color:#4F46E5;text-transform:uppercase;display:block;margin-bottom:4px;">Profession
-                ✎</label><input class="inp" id="pr-pf" placeholder="Ex: Enseignant…"></div>
-            <div><label
-                style="font-size:.58rem;font-weight:800;color:#4F46E5;text-transform:uppercase;display:block;margin-bottom:4px;">Téléphone
-                ✎</label><input class="inp" id="pr-tl" placeholder="+226 70 00 00 00"></div>
-            <div style="grid-column:1/-1;"><label
-                style="font-size:.58rem;font-weight:800;color:#4F46E5;text-transform:uppercase;display:block;margin-bottom:4px;">Adresse
-                ✎</label><input class="inp" id="pr-ad" placeholder="Quartier, ville"></div>
-            <div style="grid-column:1/-1;"><label
-                style="font-size:.58rem;font-weight:800;color:#4F46E5;text-transform:uppercase;display:block;margin-bottom:4px;">À
-                propos ✎</label><textarea class="inp" id="pr-bi" rows="2" placeholder="Quelques mots…"></textarea></div>
+      </div>
+
+      <!-- ABSENCES -->
+      <div id="sec-absences" class="sec">
+        <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">📋
+          Absences de <span id="abs-en" style="color:#4F46E5;">mon enfant</span></h2>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:11px;">
+          <div class="card" style="text-align:center; background:#FEF2F2; border-color:#FECACA;">
+            <div id="ab-inj" style="font-size:1.8rem; font-weight:900; color:#DC2626;">0</div>
+            <div style="font-size:.56rem; font-weight:800; color:#EF4444;">Non justifiées</div>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:13px;">
-            <button class="btn bp" id="btn-sv" onclick="saveProfil()"
-              style="flex:1;justify-content:center;">Enregistrer</button>
-            <span id="sv-ok" style="font-size:.7rem;font-weight:700;color:#10B981;display:none;">✅ Enregistré !</span>
+          <div class="card" style="text-align:center; background:#F0FDF4; border-color:#BBF7D0;">
+            <div id="ab-jus" style="font-size:1.8rem; font-weight:900; color:#16A34A;">0</div>
+            <div style="font-size:.56rem; font-weight:800; color:#22C55E;">Justifiées</div>
           </div>
-          <div
-            style="margin-top:11px;padding:9px 13px;background:#FFF7ED;border-radius:11px;font-size:.62rem;color:#92400E;font-weight:700;">
-            ⚠️ Le prénom et le nom sont gérés par l'administration.</div>
+          <div class="card" style="text-align:center;">
+            <div id="ab-tot" style="font-size:1.8rem; font-weight:900; color:#1E293B;">0</div>
+            <div style="font-size:.56rem; font-weight:800; color:#94A3B8;">Total</div>
+          </div>
+        </div>
+        <div class="card" id="ab-list"></div>
+      </div>
+
+      <!-- CONVOCATIONS -->
+      <div id="sec-convocations" class="sec">
+        <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">📩
+          Convocations de <span id="cv-en" style="color:#4F46E5;">mon enfant</span></h2>
+        <div id="cv-list"></div>
+        <div style="font-size:.62rem; color:#94A3B8; font-style:italic; text-align:center;">🔒 Visible uniquement par
+          vous et votre enfant.</div>
+      </div>
+
+      <!-- ORIENTATION -->
+      <div id="sec-orientation" class="sec">
+        <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">🧭
+          Orientation de <span id="ori-en" style="color:#4F46E5;">mon enfant</span></h2>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+          <div>
+            <div style="font-size:.68rem; font-weight:800; color:#475569; text-transform:uppercase;">💡 Avis des
+              professeurs</div>
+            <div class="card" style="border-left:3px solid #4F46E5; background:#EEF2FF;">
+              <div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">
+                <div class="ava" style="background:#4F46E5; width:28px; height:28px; font-size:.6rem;">MC</div>
+                <div>
+                  <div style="font-size:.72rem; font-weight:800;">Mme Coulibaly</div><span class="bdg"
+                    style="background:#DBEAFE; color:#1D4ED8;">MATHS</span>
+                </div>
+              </div>
+              <p style="font-size:.7rem; color:#475569; line-height:1.5;">Excellent niveau en sciences. Recommande
+                filières scientifiques (MPSI, PCSI) ou Informatique.</p>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:.68rem; font-weight:800; color:#475569; text-transform:uppercase;">✍️ Mon avis de
+              parent</div>
+            <div class="card">
+              <textarea class="inp" id="ori-msg"
+                placeholder="Partagez votre point de vue sur l'orientation de votre enfant…" rows="4"></textarea>
+              <button class="btn bp" style="width:100%; margin-top:10px; justify-content:center;"
+                onclick="envOri()">Publier →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COTISATIONS -->
+      <div id="sec-cotisations" class="sec">
+        <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">💰 Mes
+          Cotisations APE</h2>
+        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:11px;">
+          <div class="card" style="text-align:center; background:#F0FDF4; border-color:#BBF7D0;">
+            <div style="font-size:.56rem; font-weight:800; color:#16A34A;">Payé</div>
+            <div id="cp" style="font-size:1.2rem; font-weight:900; color:#16A34A;">—</div>
+          </div>
+          <div class="card" style="text-align:center; background:#FEF2F2; border-color:#FECACA;">
+            <div style="font-size:.56rem; font-weight:800; color:#DC2626;">Restant</div>
+            <div id="cr" style="font-size:1.2rem; font-weight:900; color:#DC2626;">—</div>
+          </div>
+          <div class="card" style="text-align:center;">
+            <div style="font-size:.56rem; font-weight:800; color:#94A3B8;">Total annuel</div>
+            <div id="ct" style="font-size:1.2rem; font-weight:900; color:#1E293B;">—</div>
+          </div>
+        </div>
+        <div class="card" id="ch"></div>
+      </div>
+
+      <!-- ANNONCES -->
+      <div id="sec-annonces" class="sec">
+        <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">📣
+          Annonces officielles</h2>
+        <div id="an-list"></div>
+      </div>
+
+      <!-- PROFIL -->
+      <div id="sec-profil" class="sec">
+        <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">👤 Mon
+          profil</h2>
+        <div style="display:grid; grid-template-columns:250px 1fr; gap:16px; align-items:start;">
+          <div class="card" style="text-align:center;">
+            <div style="position:relative; display:inline-block; margin-bottom:11px;">
+              <div id="pr-av"
+                style="width:86px; height:86px; border-radius:50%; margin:0 auto; overflow:hidden; background:#EEF2FF; border:3px solid #E0E7FF; display:flex; align-items:center; justify-content:center; font-size:1.9rem; font-weight:900; color:#4F46E5; cursor:pointer;"
+                onclick="document.getElementById('fp2').click()"><span id="pr-av-t">?</span></div>
+              <input type="file" id="fp2" accept="image/*" onchange="uploadPhoto(this)">
+              <div onclick="document.getElementById('fp2').click()"
+                style="position:absolute; bottom:-1px; right:-1px; background:#4F46E5; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border:2px solid #fff; cursor:pointer;">
+                <i data-lucide="pencil" style="width:10px;height:10px;color:#fff;"></i></div>
+            </div>
+            <div id="pr-nc" style="font-size:.92rem; font-weight:900; color:#1E293B;"></div>
+            <div id="pr-cc" style="font-size:.62rem; color:#94A3B8; font-weight:700; font-family:monospace;"></div>
+            <div id="pr-ac" style="margin-top:6px;"></div>
+            <div style="margin-top:10px; background:#EEF2FF; border-radius:11px; padding:9px;">
+              <div style="font-size:.54rem; font-weight:800; color:#6366F1; text-transform:uppercase;">Mon enfant</div>
+              <div id="pr-en" style="font-size:.78rem; font-weight:800; color:#1E293B;">—</div>
+              <div id="pr-ec" style="font-size:.62rem; color:#6366F1;">—</div>
+            </div>
+            <button class="btn bp" style="width:100%; margin-top:11px; justify-content:center;"
+              onclick="document.getElementById('fp2').click()">📷 Changer la photo</button>
+          </div>
+          <div class="card">
+            <div
+              style="font-size:.74rem; font-weight:900; color:#1E293B; text-transform:uppercase; margin-bottom:14px;">
+              Informations personnelles</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
+              <div><label
+                  style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Prénom</label><input
+                  class="inp" id="pr-pn" disabled style="background:#F8FAFF; color:#64748B;"></div>
+              <div><label
+                  style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Nom</label><input
+                  class="inp" id="pr-nn" disabled style="background:#F8FAFF; color:#64748B;"></div>
+              <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Profession
+                  ✎</label><input class="inp" id="pr-pf" placeholder="Ex: Enseignant…"></div>
+              <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Téléphone
+                  ✎</label><input class="inp" id="pr-tl" placeholder="+226 70 00 00 00"></div>
+              <div style="grid-column:1/-1;"><label
+                  style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Adresse
+                  ✎</label><input class="inp" id="pr-ad" placeholder="Quartier, ville"></div>
+              <div style="grid-column:1/-1;"><label
+                  style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">À propos
+                  ✎</label><textarea class="inp" id="pr-bi" rows="2" placeholder="Quelques mots…"></textarea></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; margin-top:13px;">
+              <button class="btn bp" id="btn-sv" onclick="saveProfil()"
+                style="flex:1; justify-content:center;">Enregistrer</button>
+              <span id="sv-ok" style="font-size:.7rem; font-weight:700; color:#10B981; display:none;">✅ Enregistré
+                !</span>
+            </div>
+            <div
+              style="margin-top:11px; padding:9px 13px; background:#FFF7ED; border-radius:11px; font-size:.62rem; color:#92400E;">
+              ⚠️ Le prénom et le nom sont gérés par l'administration.</div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL -->
+  <!-- MODAL GÉNÉRIQUE -->
   <div class="mbg" id="mod">
     <div class="mo">
-      <div id="mod-t" style="font-size:.96rem;font-weight:900;margin-bottom:8px;"></div>
-      <div id="mod-m" style="font-size:.78rem;color:#64748B;margin-bottom:18px;"></div>
-      <button class="btn bp" style="width:100%;justify-content:center;"
+      <div id="mod-t" style="font-size:.96rem; font-weight:900; margin-bottom:8px;"></div>
+      <div id="mod-m" style="font-size:.78rem; color:#64748B; margin-bottom:18px;"></div><button class="btn bp"
+        style="width:100%; justify-content:center;"
         onclick="document.getElementById('mod').classList.remove('on')">OK</button>
     </div>
+  </div>
+
+  <!-- MODALE NOTIFICATIONS (ajoutée dynamiquement) -->
+  <div id="notif-modal" class="notif-modal">
+    <div class="notif-header">
+      <span>🔔 Notifications</span>
+      <button id="close-notif-modal" style="background:none; border:none; cursor:pointer; font-size:1rem;">✕</button>
+    </div>
+    <div id="notif-list"></div>
   </div>
 
   <script>
@@ -1613,30 +1215,176 @@
     const dlg = (t, m) => { document.getElementById('mod-t').textContent = t; document.getElementById('mod-m').textContent = m; document.getElementById('mod').classList.add('on'); };
     const api = (path, opts = {}) => fetch(API + path, { ...opts, headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json', ...(opts.headers || {}) } }).then(r => r.json());
 
+    /* ═════════════ NOTIFICATIONS ═════════════ */
+    let notifData = [];
+    let notifUnreadCount = 0;
+
+    async function fetchNotifications() {
+      try {
+        const res = await fetch(`${API}/notifications`, { headers: { 'Authorization': 'Bearer ' + TOK } });
+        const data = await res.json();
+        if (data.success) {
+          notifData = data.notifications || [];
+          notifUnreadCount = data.unreadCount || 0;
+          updateNotifBadge();
+        } else {
+          notifData = [];
+          notifUnreadCount = 0;
+          updateNotifBadge();
+        }
+      } catch (e) {
+        console.warn('Erreur chargement notifications:', e);
+        notifData = [];
+        notifUnreadCount = 0;
+        updateNotifBadge();
+      }
+    }
+
+    function updateNotifBadge() {
+      const badge = document.getElementById('notif-badge');
+      if (badge) {
+        if (notifUnreadCount > 0) {
+          badge.textContent = notifUnreadCount > 99 ? '99+' : notifUnreadCount;
+          badge.style.display = 'block';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+
+    function renderNotifications() {
+      const container = document.getElementById('notif-list');
+      if (!container) return;
+      if (!notifData.length) {
+        container.innerHTML = '<div style="padding:16px; text-align:center; color:#94A3B8;">Aucune notification</div>';
+        return;
+      }
+      container.innerHTML = notifData.map(n => `
+        <div class="notif-item ${!n.lu ? 'unread' : ''}" data-id="${n.id}" data-link="${n.lien || ''}" data-type="${n.type}">
+          <div class="notif-title">${esc(n.titre || 'Notification')}</div>
+          <div class="notif-desc">${esc(n.message || '')}</div>
+          <div class="notif-time">${ago(n.created_at)}</div>
+          ${!n.lu ? `<button class="mark-read-btn" data-id="${n.id}">Marquer comme lue</button>` : ''}
+        </div>
+      `).join('');
+      // Attacher les événements
+      document.querySelectorAll('.notif-item').forEach(el => {
+        el.addEventListener('click', async (e) => {
+          if (e.target.classList.contains('mark-read-btn')) return;
+          const id = el.dataset.id;
+          const link = el.dataset.link;
+          // Marquer comme lue si nécessaire
+          if (el.classList.contains('unread')) {
+            await markNotificationAsRead(id);
+          }
+          // Fermer le modal
+          document.getElementById('notif-modal').classList.remove('open');
+          // Redirection si lien présent
+          if (link) {
+            const params = new URLSearchParams(link.split('?')[1]);
+            const page = params.get('page');
+            if (page && typeof go === 'function') go(page);
+            else if (link.startsWith('#')) window.location.hash = link;
+            else window.location.href = link;
+          }
+        });
+        const markBtn = el.querySelector('.mark-read-btn');
+        if (markBtn) {
+          markBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const id = markBtn.dataset.id;
+            await markNotificationAsRead(id);
+          });
+        }
+      });
+    }
+
+    async function markNotificationAsRead(id) {
+      try {
+        const res = await fetch(`${API}/notifications/${id}/read`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' }
+        });
+        if (res.ok) {
+          const notif = notifData.find(n => n.id == id);
+          if (notif && !notif.lu) {
+            notif.lu = true;
+            notifUnreadCount--;
+            updateNotifBadge();
+            renderNotifications();
+          }
+        } else {
+          console.warn('Erreur lors du marquage comme lu');
+        }
+      } catch (e) { console.warn(e); }
+    }
+
+    async function markAllNotificationsAsRead() {
+      try {
+        const res = await fetch(`${API}/notifications/read-all`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        if (res.ok) {
+          notifData.forEach(n => n.lu = true);
+          notifUnreadCount = 0;
+          updateNotifBadge();
+          renderNotifications();
+        }
+      } catch (e) { console.warn(e); }
+    }
+
+    // Initialisation des notifications
+    function initNotifications() {
+      const notifBtn = document.getElementById('notif-btn');
+      const modal = document.getElementById('notif-modal');
+      const closeBtn = document.getElementById('close-notif-modal');
+      if (notifBtn) {
+        notifBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await fetchNotifications();
+          renderNotifications();
+          modal.classList.toggle('open');
+        });
+      }
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => modal.classList.remove('open'));
+      }
+      window.addEventListener('click', (e) => {
+        if (modal.classList.contains('open') && !modal.contains(e.target) && e.target !== notifBtn && !notifBtn?.contains(e.target)) {
+          modal.classList.remove('open');
+        }
+      });
+      setInterval(() => {
+        if (document.getElementById('sec-accueil').classList.contains('on')) {
+          fetchNotifications();
+        }
+      }, 30000);
+      fetchNotifications();
+    }
+
     /* ═════════════ NAVIGATION ═════════════ */
     function go(id) {
-      document.querySelectorAll('.sec').forEach(s => { s.classList.remove('on'); });
+      document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
       document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
       const sec = document.getElementById('sec-' + id);
       if (sec) sec.classList.add('on');
       document.querySelectorAll('[data-s="' + id + '"]').forEach(n => n.classList.add('active'));
 
-      // Navigation simplifiée sans forum
       if (id === 'bulletin') loadBulletin(triActif);
       if (id === 'absences') loadAbs();
       if (id === 'convocations') loadConv();
       if (id === 'cotisations') loadCot();
       if (id === 'annonces') loadAnn();
-      // if (id === 'orientation') loadOrientation(); // À créer si besoin
       if (id === 'profil') loadProfil();
       if (id === 'accueil') {
         loadApercu();
         loadAbsCpt();
         loadCvCpt();
       }
-
       if (window.lucide) lucide.createIcons();
     }
+
     /* ═════════════ PROFIL ═════════════ */
     async function loadProfil() {
       try { const d = await api('/parents/profil'); if (d.success) P = d.profil; else throw 0; }
@@ -1645,17 +1393,8 @@
       loadEnfant();
     }
 
-    function setAvEl(el, p, n, photo, size, radius) {
-      const bg = clr((n || '') + (p || ''));
-      el.style.background = photo ? 'transparent' : bg;
-      el.style.borderRadius = radius || '12px';
-      if (photo) { el.innerHTML = `<img src="${photo}" style="width:${size};height:${size};object-fit:cover;border-radius:inherit;" alt="">`; }
-      else { el.innerHTML = ini(p, n); el.style.display = 'flex'; el.style.alignItems = 'center'; el.style.justifyContent = 'center'; }
-    }
-
     function renderProfil() {
       const { prenom, nom, code_unique, profession, telephone, statut_ape, photo_url } = P;
-      // Banner
       document.getElementById('acc-nom').textContent = prenom + ' ' + nom;
       document.getElementById('acc-code').textContent = code_unique;
       const avTx = document.getElementById('av-p-t');
@@ -1665,16 +1404,11 @@
       if (profession) { const el = document.getElementById('acc-prof'); el.textContent = '💼 ' + profession; el.style.display = 'inline'; }
       if (telephone) { const el = document.getElementById('acc-tel'); el.textContent = '📞 ' + telephone; el.style.display = 'inline'; }
       document.getElementById('acc-ape').textContent = statut_ape || 'MEMBRE';
-      // Sidebar
       const sbAv = document.getElementById('sb-av');
       if (photo_url) { sbAv.innerHTML = `<img src="${photo_url}" style="width:38px;height:38px;object-fit:cover;border-radius:11px;" alt="">`; sbAv.style.background = 'transparent'; }
       else { sbAv.textContent = ini(prenom, nom); sbAv.style.background = clr(nom + prenom); }
       document.getElementById('sb-nom').textContent = prenom + ' ' + nom;
       document.getElementById('sb-code').textContent = code_unique;
-
-      // SUPPRIMÉ : Forum avatar bar (fwAv)
-
-      // Page profil
       const prAvT = document.getElementById('pr-av-t');
       if (photo_url) { prAvT.innerHTML = `<img src="${photo_url}" style="width:86px;height:86px;object-fit:cover;border-radius:50%;" alt="">`; }
       else { prAvT.textContent = ini(prenom, nom); }
@@ -1689,13 +1423,12 @@
       document.getElementById('pr-bi').value = P.biographie || P.bio || '';
       if (window.lucide) lucide.createIcons();
     }
-    /* ═════════════ ENFANT ═════════════ */
+
     async function loadEnfant() {
       try {
         const d = await api('/parents/mes-enfants');
         if (d.success && d.enfants?.length > 0) {
           E = d.enfants[0];
-          // Support nom_complet ou prenom+nom séparément
           let prenom = E.prenom || '', nom = E.nom || '';
           if ((!prenom || !nom) && E.nom_complet) {
             const parts = E.nom_complet.trim().split(' ');
@@ -1707,11 +1440,9 @@
           const moy = E.moyenne_generale && E.moyenne_generale !== 'N/A' ? parseFloat(E.moyenne_generale).toFixed(2) : '—';
           document.getElementById('acc-en').textContent = nomE;
           document.getElementById('acc-ec').textContent = cls;
-          // Avatar enfant (initiales)
           const avE = document.getElementById('av-e-t');
           avE.textContent = ini(prenom, nom);
           document.getElementById('av-e').style.background = clr((nom || '') + (prenom || ''));
-          // Mettre à jour partout
           ['bul-en', 'abs-en', 'cv-en', 'ori-en'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = nomE; });
           document.getElementById('pr-en').textContent = nomE;
           document.getElementById('pr-ec').textContent = cls;
@@ -1720,24 +1451,14 @@
           document.getElementById('bul-cls-h').textContent = cls;
           document.getElementById('st-moy').textContent = moy;
         }
-      } catch (e) {
-        // Garder les --- mais continuer les chargements
-        console.warn('Enfant non chargé:', e);
-      }
+      } catch (e) { console.warn('Enfant non chargé:', e); }
       loadApercu();
       loadAbsCpt();
       loadCvCpt();
-      // Si on est déjà sur la page bulletin, recharger avec les vraies données
-      if (document.getElementById('sec-bulletin').classList.contains('on')) {
-        loadBulletin(triActif);
-      }
+      if (document.getElementById('sec-bulletin').classList.contains('on')) loadBulletin(triActif);
     }
 
-    /* ═════════════ APERÇU ═════════════ */
-    const NDEMO = []; // Plus de données fictives
-
     async function loadApercu() {
-      // Notes
       try {
         const id = E.id_enfant;
         const d = id ? await api(`/parents/bulletin-enfant?enfant_id=${id}&trimestre=1`) : { success: false };
@@ -1745,39 +1466,36 @@
         document.getElementById('ap-n').innerHTML = ns.slice(0, 3).map(n => {
           const v = parseFloat(n.valeur_note || n.note || 10);
           return `<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid #F1F5F9;">
-              <div style="flex:1;min-width:0;"><div style="font-size:.73rem;font-weight:700;color:#1E293B;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${icn(n.nom_matiere)} ${esc(n.nom_matiere || 'Matière')}</div>
-              <div class="nb" style="margin-top:3px;"><div class="nf" style="width:${(v / 20) * 100}%;background:${nCol(v)};"></div></div></div>
-              <span style="font-size:.84rem;font-weight:900;color:${nCol(v)};flex-shrink:0;">${v.toFixed(1)}</span></div>`;
+            <div style="flex:1;min-width:0;"><div style="font-size:.73rem;font-weight:700;color:#1E293B;overflow:hidden;text-overflow:ellipsis;">${icn(n.nom_matiere)} ${esc(n.nom_matiere || 'Matière')}</div>
+            <div class="nb" style="margin-top:3px;"><div class="nf" style="width:${(v / 20) * 100}%;background:${nCol(v)};"></div></div></div>
+            <span style="font-size:.84rem;font-weight:900;color:${nCol(v)};">${v.toFixed(1)}</span></div>`;
         }).join('');
       } catch { document.getElementById('ap-n').innerHTML = '<div style="font-size:.7rem;color:#94A3B8;text-align:center;padding:12px;">Notes non disponibles</div>'; }
-      // Annonces
       try {
         const d = await api('/parents/annonces');
         if (d.success && d.annonces?.length > 0) {
           document.getElementById('ap-a').innerHTML = d.annonces.slice(0, 2).map(a => `
-              <div style="background:#F8FAFF;border:1px solid #E0E7FF;border-radius:11px;padding:8px 10px;margin-bottom:7px;">
-                <div style="font-size:.73rem;font-weight:800;color:#1E293B;">${esc(a.titre || 'Annonce')}</div>
-                <div style="font-size:.63rem;color:#64748B;margin-top:2px;">${esc((a.contenu || '').substring(0, 65))}…</div>
-              </div>`).join('');
+            <div style="background:#F8FAFF;border:1px solid #E0E7FF;border-radius:11px;padding:8px 10px;margin-bottom:7px;">
+              <div style="font-size:.73rem;font-weight:800;color:#1E293B;">${esc(a.titre || 'Annonce')}</div>
+              <div style="font-size:.63rem;color:#64748B;">${esc((a.contenu || '').substring(0, 65))}…</div>
+            </div>`).join('');
         } else apADm();
       } catch { apADm(); }
     }
-    function apADm() { document.getElementById('ap-a').innerHTML = '<div style="text-align:center;padding:12px;color:#94A3B8;font-size:.75rem;">Aucune annonce récente</div>'; }
+    function apADm() { document.getElementById('ap-a').innerHTML = '<div style="text-align:center;padding:12px;color:#94A3B8;">Aucune annonce récente</div>'; }
 
-    /* ═════════════ BULLETIN ═════════════ */
     async function loadBulletin(tri) {
       triActif = tri;
       const tn = ['', '1er Trimestre', '2e Trimestre', '3e Trimestre'];
       document.getElementById('bul-tri-b').textContent = tn[tri];
       document.getElementById('bul-date').textContent = 'Généré le ' + new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
-      document.getElementById('bul-rows').innerHTML = '<div style="text-align:center;padding:36px;"><div class="spin" style="margin:0 auto 8px;"></div><div style="font-size:.74rem;font-weight:700;color:#94A3B8;">Chargement…</div></div>';
+      document.getElementById('bul-rows').innerHTML = '<div style="text-align:center;padding:36px;"><div class="spin"></div><div style="font-size:.74rem;font-weight:700;color:#94A3B8;">Chargement…</div></div>';
       let notes = null;
       try {
         const id = E.id_enfant;
         if (id) {
           const d = await api(`/parents/bulletin-enfant?enfant_id=${id}&trimestre=${tri}`);
           if (d.success) {
-            // Récupérer les notes (compatibilité notes ET notes_par_matiere)
             const rawNotes = d.notes || d.notes_par_matiere || [];
             if (rawNotes.length > 0) {
               notes = rawNotes.map(n => ({
@@ -1786,7 +1504,6 @@
                 coefficient: parseInt(n.coefficient || 1)
               }));
             }
-            // Remplir le header avec les infos de l'enfant
             if (d.enfant) {
               const en = d.enfant;
               const nomE = en.nom_complet || ((en.prenom || '') + ' ' + (en.nom || '')).trim() || '---';
@@ -1794,7 +1511,6 @@
               document.getElementById('bul-mat-h').textContent = en.code_unique || E.code_unique || '---';
               document.getElementById('bul-cls-h').textContent = en.classe || en.classe_actuelle || E.classe || '---';
               if (en.moyenne_generale) document.getElementById('st-moy').textContent = parseFloat(en.moyenne_generale).toFixed(2);
-              // Mettre à jour E aussi
               if (!E.code_unique && en.code_unique) E.code_unique = en.code_unique;
               if (!E.classe && en.classe) E.classe = en.classe;
             }
@@ -1814,17 +1530,11 @@
         const nc = nCol(v);
         const app = v >= 15 ? 'Excellent' : v >= 13 ? 'Très bien' : v >= 12 ? 'Bien' : v >= 10 ? 'Assez bien' : v >= 8 ? 'Peut mieux faire' : 'Insuffisant';
         return `<div class="bul-row">
-          <div style="display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;color:#1E293B;">
-            <span style="width:8px;height:8px;border-radius:50%;background:${col};flex-shrink:0;"></span>
-            ${icn(n.nom_matiere || '')} ${esc(n.nom_matiere || '—')}
-          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;color:#1E293B;"><span style="width:8px;height:8px;border-radius:50%;background:${col};"></span>${icn(n.nom_matiere || '')} ${esc(n.nom_matiere || '—')}</div>
           <div style="text-align:center;font-size:.74rem;font-weight:700;color:#64748B;">${c}</div>
           <div style="text-align:center;font-size:.98rem;font-weight:900;color:${nc};">${v.toFixed(2)}</div>
           <div style="text-align:center;font-size:.78rem;font-weight:800;color:#1E293B;">${pts.toFixed(1)}</div>
-          <div>
-            <div class="nb"><div class="nf" style="width:0%;background:${col};" data-w="${(v / 20) * 100}"></div></div>
-            <div style="font-size:.62rem;color:#94A3B8;margin-top:2px;font-style:italic;">${app}</div>
-          </div>
+          <div><div class="nb"><div class="nf" style="width:0%;background:${col};" data-w="${(v / 20) * 100}"></div></div><div style="font-size:.62rem;color:#94A3B8;font-style:italic;">${app}</div></div>
         </div>`;
       }).join('');
       document.getElementById('bul-rows').innerHTML = rows;
@@ -1841,12 +1551,11 @@
     }
 
     function selTri(n, btn) {
-      document.querySelectorAll('.tri').forEach(b => { b.className = 'btn bo bs tri'; });
+      document.querySelectorAll('.tri').forEach(b => b.className = 'btn bo bs tri');
       btn.className = 'btn bp bs tri';
       loadBulletin(n);
     }
 
-    /* ═════════════ TÉLÉCHARGEMENT PDF ═════════════ */
     async function dlPDF() {
       const btn = document.getElementById('btn-pdf');
       btn.innerHTML = '<div class="spin" style="width:12px;height:12px;border-width:2px;"></div> Génération…';
@@ -1875,46 +1584,91 @@
       if (window.lucide) lucide.createIcons();
     }
 
-    /* ═════════════ ABSENCES ═════════════ */
     async function loadAbsCpt() {
       try { const d = await api('/parents/absences-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : '')); if (d.success) { const inj = (d.absences || []).filter(a => !a.justifiee).length, tot = (d.absences || []).length; document.getElementById('st-abs').textContent = tot; if (inj > 0) { const b = document.getElementById('babs'); b.textContent = inj; b.style.display = 'inline'; } } } catch { }
     }
+
+    function formatDateAbs(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
     async function loadAbs() {
       try {
         const d = await api('/parents/absences-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : ''));
         if (d.success && d.absences) {
           const a = d.absences, inj = a.filter(x => !x.justifiee).length, jus = a.filter(x => x.justifiee).length;
-          document.getElementById('ab-inj').textContent = inj; document.getElementById('ab-jus').textContent = jus; document.getElementById('ab-tot').textContent = a.length;
+          document.getElementById('ab-inj').textContent = inj;
+          document.getElementById('ab-jus').textContent = jus;
+          document.getElementById('ab-tot').textContent = a.length;
           document.getElementById('ab-list').innerHTML = a.length ? a.map(ab => `
-              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;">
-                <div style="width:7px;height:7px;border-radius:50%;background:${ab.justifiee ? '#10B981' : '#EF4444'};flex-shrink:0;"></div>
-                <div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">${esc(ab.date_absence || ab.date)} — ${esc(ab.matiere || 'Cours')}</div>
-                <div style="font-size:.6rem;color:#94A3B8;margin-top:1px;">${esc(ab.motif || ab.raison || 'Non renseigné')}</div></div>
-                <span class="bdg" style="background:${ab.justifiee ? '#D1FAE5' : '#FEE2E2'};color:${ab.justifiee ? '#065F46' : '#991B1B'};">${ab.justifiee ? 'Justifiée' : 'Non justifiée'}</span>
-              </div>`).join('') : '<div style="text-align:center;color:#CBD5E1;padding:22px;font-size:.78rem;font-weight:700;">✅ Aucune absence</div>';
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;">
+              <div style="width:7px;height:7px;border-radius:50%;background:${ab.justifiee ? '#10B981' : '#EF4444'};"></div>
+              <div style="flex:1;">
+                <div style="font-size:.76rem;font-weight:700;">${formatDateAbs(ab.date_absence)} — ${esc(ab.matiere || 'Cours')}</div>
+                <div style="font-size:.6rem;color:#94A3B8;">${esc(ab.raison_absence || 'Non renseigné')}</div>
+              </div>
+              <span class="bdg" style="background:${ab.justifiee ? '#D1FAE5' : '#FEE2E2'};color:${ab.justifiee ? '#065F46' : '#991B1B'};">${ab.justifiee ? 'Justifiée' : 'Non justifiée'}</span>
+            </div>`).join('') : '<div style="text-align:center;color:#CBD5E1;padding:22px;">✅ Aucune absence</div>';
         } else abDm();
       } catch { abDm(); }
     }
-    function abDm() { document.getElementById('ab-inj').textContent = 0; document.getElementById('ab-jus').textContent = 0; document.getElementById('ab-tot').textContent = 0; document.getElementById('ab-list').innerHTML = '<div style="text-align:center;color:#CBD5E1;padding:22px;font-size:.78rem;font-weight:700;">✅ Aucune absence enregistrée</div>'; }
+    function abDm() { document.getElementById('ab-inj').textContent = 0; document.getElementById('ab-jus').textContent = 0; document.getElementById('ab-tot').textContent = 0; document.getElementById('ab-list').innerHTML = '<div style="text-align:center;color:#CBD5E1;padding:22px;">✅ Aucune absence enregistrée</div>'; }
 
-    /* ═════════════ CONVOCATIONS ═════════════ */
     async function loadCvCpt() {
-      try { const d = await api('/parents/convocations-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : '')); if (d.success) { const nb = (d.convocations || []).length; document.getElementById('st-cv').textContent = nb; if (nb > 0) { const b = document.getElementById('bconv'); b.textContent = nb; b.style.display = 'inline'; const c = d.convocations[0]; const al = document.getElementById('al-cv'); al.style.display = 'flex'; document.getElementById('al-cv-t').textContent = (c.motif || c.objet || 'Convocation') + ' — ' + (c.date_convocation || c.date || ''); } } } catch { }
+      try { const d = await api('/parents/convocations-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : '')); if (d.success) { const nb = (d.convocations || []).length; document.getElementById('st-cv').textContent = nb; if (nb > 0) { const b = document.getElementById('bconv'); b.textContent = nb; b.style.display = 'inline'; const c = d.convocations[0]; const al = document.getElementById('al-cv'); al.style.display = 'flex'; document.getElementById('al-cv-t').textContent = (c.motif || c.objet || 'Convocation') + ' — ' + formatDateConv(c.date_convocation); } } } catch { }
     }
+
+    function formatDateConv(dateStr) {
+      if (!dateStr) return 'À confirmer';
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
     async function loadConv() {
       try {
         const d = await api('/parents/convocations-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : ''));
         if (d.success && d.convocations?.length > 0) {
-          document.getElementById('cv-list').innerHTML = d.convocations.map(c => `
-              <div style="background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F59E0B;border-radius:14px;padding:13px;margin-bottom:9px;">
-                <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;"><span class="bdg" style="background:#FDE68A;color:#92400E;">CONVOCATION</span><span style="font-size:.78rem;font-weight:800;">${esc(c.motif || c.objet || 'Convocation')}</span></div>
-                <div style="font-size:.7rem;color:#78350F;line-height:1.5;">${esc(c.description || c.contenu || 'Merci de vous présenter.')}</div>
-                <div style="font-size:.6rem;font-weight:800;color:#D97706;text-transform:uppercase;margin-top:6px;">📅 ${esc(c.date_convocation || c.date || 'À confirmer')}</div>
-              </div>`).join('');
+          document.getElementById('cv-list').innerHTML = d.convocations.map(c => {
+            const estAccuse = c.statut === 'ACCUSE_RECU' || c.accuse_recu === true;
+            return `
+            <div style="background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F59E0B;border-radius:14px;padding:13px;margin-bottom:9px;">
+              <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
+                <span class="bdg" style="background:#FDE68A;color:#92400E;">CONVOCATION</span>
+                <span style="font-size:.78rem;font-weight:800;">${esc(c.motif || c.objet || 'Convocation')}</span>
+              </div>
+              <div style="font-size:.7rem;color:#78350F;">${esc(c.description || c.contenu || 'Merci de vous présenter.')}</div>
+              <div style="font-size:.6rem;font-weight:800;color:#D97706;margin-top:6px;">📅 ${formatDateConv(c.date_convocation || c.date)}</div>
+              ${!estAccuse ? `<div style="margin-top:8px;"><button onclick="accuserReception('${c.id_convocation}')" class="btn-sm" style="background:#4F46E5; color:#fff; padding:5px 12px; border-radius:20px; font-size:.65rem;">📩 Accuser réception</button></div>` : '<div style="margin-top:8px;"><span class="badge-ok">✓ Accusé reçu</span></div>'}
+            </div>`;
+          }).join('');
         } else cvDm();
       } catch { cvDm(); }
     }
-    function cvDm() { document.getElementById('cv-list').innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:.8rem;">Aucune convocation</div>'; }
+    function cvDm() { document.getElementById('cv-list').innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;">Aucune convocation</div>'; }
+
+    async function accuserReception(convId) {
+      try {
+        const response = await fetch(`${API}/parents/convocations/${convId}/accuser`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
+        if (data.success) {
+          dlg('✅ Accusé reçu', 'Votre accusé de réception a bien été enregistré.');
+          loadConv(); // recharge la liste
+        } else {
+          dlg('❌ Erreur', data.message || 'Impossible d\'accuser réception.');
+        }
+      } catch (e) {
+        console.error(e);
+        dlg('Erreur', 'Problème de connexion.');
+      }
+    }
+
     async function loadCot() {
       try {
         const d = await api('/parents/cotisations');
@@ -1924,18 +1678,17 @@
           document.getElementById('cr').textContent = (c.montant_restant || 0).toLocaleString('fr-FR') + ' FCFA';
           document.getElementById('ct').textContent = (c.montant_total || 10000).toLocaleString('fr-FR') + ' FCFA';
           document.getElementById('ch').innerHTML = (c.historique || []).map(h => `
-              <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;">
-                <i data-lucide="${h.statut === 'payé' ? 'check-circle' : 'clock'}" style="width:16px;height:16px;color:${h.statut === 'payé' ? '#10B981' : '#EF4444'};flex-shrink:0;"></i>
-                <div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">${esc(h.libelle || 'Cotisation')}</div><div style="font-size:.6rem;color:#94A3B8;">${esc(h.date || '')}</div></div>
-                <span style="font-weight:900;font-size:.8rem;color:${h.statut === 'payé' ? '#10B981' : '#EF4444'};">${(h.montant || 0).toLocaleString('fr-FR')} FCFA</span>
-              </div>`).join('');
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;">
+              <i data-lucide="${h.statut === 'payé' ? 'check-circle' : 'clock'}" style="width:16px;height:16px;color:${h.statut === 'payé' ? '#10B981' : '#EF4444'};"></i>
+              <div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">${esc(h.libelle || 'Cotisation')}</div><div style="font-size:.6rem;color:#94A3B8;">${esc(h.date || '')}</div></div>
+              <span style="font-weight:900;font-size:.8rem;color:${h.statut === 'payé' ? '#10B981' : '#EF4444'};">${(h.montant || 0).toLocaleString('fr-FR')} FCFA</span>
+            </div>`).join('');
           if (window.lucide) lucide.createIcons();
         } else cotDm();
       } catch { cotDm(); }
     }
-    function cotDm() { document.getElementById('cp').textContent = '0 FCFA'; document.getElementById('cr').textContent = '0 FCFA'; document.getElementById('ct').textContent = '0 FCFA'; document.getElementById('ch').innerHTML = '<div style="text-align:center;padding:16px;color:#94A3B8;font-size:.8rem;">Aucune cotisation enregistrée</div>'; }
+    function cotDm() { document.getElementById('cp').textContent = '0 FCFA'; document.getElementById('cr').textContent = '0 FCFA'; document.getElementById('ct').textContent = '0 FCFA'; document.getElementById('ch').innerHTML = '<div style="text-align:center;padding:16px;color:#94A3B8;">Aucune cotisation enregistrée</div>'; }
 
-    /* ═════════════ ANNONCES ═════════════ */
     async function loadAnn() {
       try {
         const d = await api('/parents/annonces');
@@ -1943,20 +1696,44 @@
           document.getElementById('an-list').innerHTML = d.annonces.map(a => {
             const urg = (a.priorite || '').toLowerCase().includes('urgent') || (a.titre || '').toLowerCase().includes('urgent');
             return `<div class="card" style="border-left:4px solid ${urg ? '#EF4444' : '#4F46E5'};margin-bottom:10px;">
-                  <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span class="bdg" style="background:${urg ? '#FEE2E2' : '#EEF2FF'};color:${urg ? '#EF4444' : '#4F46E5'};">${urg ? 'URGENT' : 'INFO'}</span><span style="font-size:.78rem;font-weight:800;">${esc(a.titre || 'Annonce')}</span></div>
-                  <div style="font-size:.7rem;color:#475569;line-height:1.5;">${esc(a.contenu || '')}</div>
-                  <div style="font-size:.58rem;color:#CBD5E1;margin-top:6px;font-weight:700;">Direction · ${ago(a.created_at || a.date_publication)}</div>
-                </div>`;
+              <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span class="bdg" style="background:${urg ? '#FEE2E2' : '#EEF2FF'};color:${urg ? '#EF4444' : '#4F46E5'};">${urg ? 'URGENT' : 'INFO'}</span><span style="font-size:.78rem;font-weight:800;">${esc(a.titre || 'Annonce')}</span></div>
+              <div style="font-size:.7rem;color:#475569;">${esc(a.contenu || '')}</div>
+              <div style="font-size:.58rem;color:#CBD5E1;margin-top:6px;">Direction · ${ago(a.created_at || a.date_publication)}</div>
+            </div>`;
           }).join('');
         } else annDm();
       } catch { annDm(); }
     }
-    function annDm() { document.getElementById('an-list').innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:.8rem;">Aucune annonce disponible</div>'; }
+    function annDm() { document.getElementById('an-list').innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;">Aucune annonce disponible</div>'; }
 
-    /* ═════════════ ORIENTATION ═════════════ */
-    function envOri() { const m = document.getElementById('ori-msg').value.trim(); if (!m) return; dlg('Conseil envoyé', 'Votre avis a été partagé avec les professeurs.'); document.getElementById('ori-msg').value = ''; }
+    async function envOri() {
+      const message = document.getElementById('ori-msg').value.trim();
+      if (!message) {
+        dlg('Champ vide', 'Veuillez écrire un avis avant de publier.');
+        return;
+      }
+      if (!E.id_enfant) {
+        dlg('Erreur', 'Aucun enfant associé.');
+        return;
+      }
+      try {
+        const res = await fetch(`${API}/parents/orientation-avis`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enfant_id: E.id_enfant, commentaire: message })
+        });
+        const data = await res.json();
+        if (data.success) {
+          dlg('Conseil envoyé', 'Votre avis a été partagé avec les professeurs et sera visible par votre enfant.');
+          document.getElementById('ori-msg').value = '';
+        } else {
+          dlg('Erreur', data.message || 'Impossible d\'envoyer l\'avis.');
+        }
+      } catch (e) {
+        dlg('Erreur', 'Problème de connexion.');
+      }
+    }
 
-    /* ═════════════ PROFIL SAVE ═════════════ */
     async function saveProfil() {
       const btn = document.getElementById('btn-sv'); btn.disabled = true; btn.textContent = 'Enregistrement…';
       try {
@@ -1977,21 +1754,18 @@
       btn.disabled = false; btn.textContent = 'Enregistrer';
     }
 
-    /* ═════════════ UPLOAD PHOTO ═════════════ */
     function uploadPhoto(input) {
       const f = input.files[0]; if (!f) return;
       if (f.size > 2 * 1024 * 1024) { dlg('Photo trop lourde', 'Maximum 2 Mo.'); return; }
       const rd = new FileReader();
       rd.onload = async e => {
         const url = e.target.result;
-        // Mise à jour instantanée de tous les avatars parent
         const imgC = s => `<img src="${url}" style="width:${s};height:${s};object-fit:cover;border-radius:50%;" alt="">`;
         document.getElementById('av-p-t').innerHTML = imgC('74px');
         document.getElementById('av-p').style.background = 'transparent';
         document.getElementById('pr-av-t').innerHTML = imgC('86px');
         document.getElementById('sb-av').innerHTML = `<img src="${url}" style="width:38px;height:38px;object-fit:cover;border-radius:11px;" alt="">`;
         document.getElementById('sb-av').style.background = 'transparent';
-        // SUPPRIMÉ : les lignes avec fw-av (forum supprimé)
         P.photo_url = url;
         try {
           await api('/parents/profil', { method: 'PUT', body: JSON.stringify({ photo_url: url }) });
@@ -2001,50 +1775,36 @@
       rd.readAsDataURL(f);
     }
 
-    /* ═════════════ DÉCO ═════════════ */
     function deco() {
-      // stopForum(); // ← COMMENTEZ CETTE LIGNE
       localStorage.clear();
       window.location.replace('login.html?role=PARENT&context=Espace%20Parent');
     }
-    /* ═════════════ INIT ═════════════ */
+
+    // Initialisation
     loadProfil();
-    // Activer bouton T1 sans charger le bulletin (attend que l'enfant soit chargé)
     const tri1 = document.querySelector('.tri');
     if (tri1) tri1.className = 'btn bp bs tri';
     lucide.createIcons();
+    initNotifications();
+
+    // Chargement config école
+    async function chargerConfigEcole() {
+      try {
+        const response = await fetch('/api/admin/config');
+        const data = await response.json();
+        if (data.success && data.config) {
+          document.querySelectorAll('.ecole-nom').forEach(el => el.textContent = data.config.nom_etablissement);
+          if (data.config.logo_url) {
+            document.querySelectorAll('.ecole-logo').forEach(el => { el.src = data.config.logo_url; el.classList.remove('hidden'); });
+          }
+        }
+      } catch (error) { console.error('Erreur chargement config:', error); }
+    }
+    document.addEventListener('DOMContentLoaded', () => { chargerConfigEcole(); });
   </script>
   <script src="responsive-init.js"></script>
-  <!-- ... -->
-
-  <!-- Inclure le script de Socket.IO -->
   <script src="/socket.io/socket.io.js"></script>
-
-  <script>
-    // ...
-
-    // Écoute l'événement pour envoyer les messages d'absences aux élèves
-    function sendAbsence() {
-      const data = {
-        conv_id: 'general',
-        message: 'Absence enregistrée',
-      };
-
-      // Envoyer les messages d'absences aux élèves via Socket.IO
-      if (io) {
-        io.emit('sendAbsence', data);
-      }
-    }
-
-    // ...
-
-    // Initialise Socket.IO
-    const socket = io();
-
-    // ...
-  </script>
   <script src="/components/notifications.js"></script>
-  <!-- ... -->
 </body>
 
 </html>

@@ -782,4 +782,131 @@ exports.getMessages = async (req, res) => {
         console.error('Erreur getMessages:', error);
         res.status(500).json({ message: 'Erreur' });
     }
+    // Ajouter cette fonction dans surveillantController.js
+    exports.accuserReception = async (req, res) => {
+        try {
+            const { id } = req.params;
+            const userId = req.user?.id;
+
+            // Vérifier que la convocation existe et appartient à l'élève du parent
+            const conv = await db.query(
+                `SELECT c.*, pe.id_user as eleve_id
+             FROM gestion.convocations c
+             JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_eleve
+             WHERE c.id_convocation = $1`,
+                [id]
+            );
+
+            if (!conv.rows.length) {
+                return res.status(404).json({ message: 'Convocation non trouvée' });
+            }
+
+            // Mettre à jour le statut
+            await db.query(
+                `UPDATE gestion.convocations 
+             SET statut = 'ACCUSE_RECU', 
+                 date_accuse = NOW(),
+                 accuse_par = $1
+             WHERE id_convocation = $2`,
+                [userId, id]
+            );
+
+            // Notifier la direction
+            try {
+                const notificationService = require('../services/notificationService');
+                await notificationService.sendNotification(
+                    ['DIRECTION'],
+                    'CONVOCATION',
+                    '📬 Accusé de réception',
+                    `Un parent a accusé réception de la convocation #${id}`,
+                    '/direction.html?page=conv'
+                );
+            } catch (e) { }
+
+            res.json({ success: true, message: 'Accusé de réception enregistré' });
+        } catch (error) {
+            console.error('Erreur accusé réception:', error);
+            res.status(500).json({ message: 'Erreur serveur' });
+        }
+    };
+};
+// ========== ACCUSÉ DE RÉCEPTION CONVOCATION ==========
+exports.accuserReception = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const parentId = req.user?.id;
+
+        if (!id) {
+            return res.status(400).json({ message: 'ID de convocation requis' });
+        }
+
+        // Vérifier que la convocation existe et que le parent a le droit d'accuser réception
+        const conv = await db.query(`
+            SELECT c.*, pe.id_user as eleve_id
+            FROM gestion.convocations c
+            JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_eleve
+            WHERE c.id_convocation = $1
+        `, [id]);
+
+        if (!conv.rows.length) {
+            return res.status(404).json({ message: 'Convocation non trouvée' });
+        }
+
+        // Vérifier que le parent est bien lié à cet élève
+        const relation = await db.query(`
+            SELECT id_parent FROM vie_scolaire.relations_parents_eleves 
+            WHERE id_eleve = $1 AND id_parent = $2
+        `, [conv.rows[0].eleve_id, parentId]);
+
+        if (relation.rows.length === 0) {
+            return res.status(403).json({ message: 'Vous n\'êtes pas autorisé à accuser réception pour cet élève' });
+        }
+
+        // Vérifier si la colonne statut existe
+        try {
+            await db.query(`ALTER TABLE gestion.convocations ADD COLUMN IF NOT EXISTS statut VARCHAR(50) DEFAULT 'ENVOYEE'`);
+            await db.query(`ALTER TABLE gestion.convocations ADD COLUMN IF NOT EXISTS date_accuse TIMESTAMP`);
+            await db.query(`ALTER TABLE gestion.convocations ADD COLUMN IF NOT EXISTS accuse_par UUID`);
+        } catch (e) { /* colonnes déjà existantes */ }
+
+        // Mettre à jour le statut
+        await db.query(`
+            UPDATE gestion.convocations 
+            SET statut = 'ACCUSE_RECU', 
+                date_accuse = NOW(),
+                accuse_par = $1
+            WHERE id_convocation = $2
+        `, [parentId, id]);
+
+        // Notifier la direction (optionnel)
+        try {
+            // Récupérer les IDs des utilisateurs avec rôle DIRECTION ou SURVEILLANT
+            const directionUsers = await db.query(`
+                SELECT id_user FROM authentification.comptes 
+                WHERE role_actuel IN ('DIRECTION', 'SURVEILLANT') AND est_actif = true
+            `);
+
+            if (directionUsers.rows.length > 0) {
+                const notificationService = require('../services/notificationService');
+                await notificationService.sendNotification(
+                    directionUsers.rows.map(u => u.id_user),
+                    'CONVOCATION',
+                    '📬 Accusé de réception',
+                    `Un parent a accusé réception de la convocation #${id}`,
+                    '/direction.html?page=conv'
+                );
+            }
+        } catch (e) {
+            console.warn('Erreur notification direction:', e.message);
+        }
+
+        res.json({
+            success: true,
+            message: 'Accusé de réception enregistré avec succès'
+        });
+
+    } catch (error) {
+        console.error('Erreur accuserReception:', error);
+        res.status(500).json({ message: 'Erreur serveur: ' + error.message });
+    }
 };

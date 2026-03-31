@@ -1,285 +1,358 @@
-// ================================================================
-// NOTIFICATIONS - VERSION FINALE (AUTO SON + REDIRECTION)
-// ================================================================
+/* ================================================================
+   CAMPUS NUMÉRIQUE FASO — /components/notifications.js
+   Fonctionnalités :
+   - Cloche dans le header avec badge compteur
+   - Panel déroulant avec liste des notifications
+   - Clic sur une notification → redirection vers la bonne page
+   - Son à chaque nouvelle notification
+   - Polling toutes les 30s pour détecter les nouvelles notifs
+   ================================================================ */
 
-console.log('🔔 Chargement des notifications...');
+(function () {
 
-// Créer un élément audio préchargé (contourne les restrictions)
-const notificationAudio = new Audio();
-// Son court en base64 (bip simple)
-notificationAudio.src = 'data:audio/wav;base64,U3RlYWQgbm90aWZpY2F0aW9uIHNvdW5k';
-notificationAudio.volume = 0.6;
-notificationAudio.load();
-
-// Jouer le son immédiatement sans attendre l'interaction
-function playSound() {
+  /* ── 1. Son de notification via Web Audio API (pas de fichier .mp3 requis) ── */
+  function playNotifSound() {
     try {
-        notificationAudio.currentTime = 0;
-        notificationAudio.play().catch(e => {
-            // Fallback si le son ne marche pas
-            console.log('Fallback son');
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.frequency.value = 880;
-            gain.gain.value = 0.2;
-            osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.2);
-            osc.stop(audioCtx.currentTime + 0.2);
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-        });
-    } catch (e) { }
-}
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
 
-// Fonction de redirection
-function redirectTo(notif) {
-    console.log('🔀 Redirection:', notif.type, notif.lien);
+      // Note 1 : Do
+      const o1 = ctx.createOscillator();
+      const g1 = ctx.createGain();
+      o1.connect(g1); g1.connect(ctx.destination);
+      o1.type = 'sine';
+      o1.frequency.setValueAtTime(880, ctx.currentTime);
+      o1.frequency.exponentialRampToValueAtTime(1100, ctx.currentTime + 0.1);
+      g1.gain.setValueAtTime(0.3, ctx.currentTime);
+      g1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      o1.start(ctx.currentTime);
+      o1.stop(ctx.currentTime + 0.3);
 
-    if (notif.lien && notif.lien !== '#') {
-        window.location.href = notif.lien;
-        return;
+      // Note 2 : Mi (légèrement après)
+      const o2 = ctx.createOscillator();
+      const g2 = ctx.createGain();
+      o2.connect(g2); g2.connect(ctx.destination);
+      o2.type = 'sine';
+      o2.frequency.setValueAtTime(1320, ctx.currentTime + 0.15);
+      g2.gain.setValueAtTime(0.2, ctx.currentTime + 0.15);
+      g2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      o2.start(ctx.currentTime + 0.15);
+      o2.stop(ctx.currentTime + 0.5);
+
+    } catch (e) {
+      // Web Audio pas supporté, pas grave
     }
+  }
 
-    const type = (notif.type || '').toUpperCase();
-    const pages = {
-        'NOTE': '/eleve.html?page=bulletin',
-        'RESSOURCE': '/eleve.html?page=ressources',
-        'ORIENTATION': '/eleve.html?page=orientation',
-        'ABSENCE': '/eleve.html?page=absences',
-        'CONVOCATION': '/eleve.html?page=convocations'
-    };
+  /* ── 2. Mapping type de notification → page de redirection ── */
+  const NOTIF_REDIRECT = {
+    'DEVOIR':        (lien) => lien || '/eleve.html?page=programme&tab=devoirs',
+    'COMPOSITION':   (lien) => lien || '/eleve.html?page=programme&tab=compos',
+    'EXAMEN_BLANC':  (lien) => lien || '/eleve.html?page=programme&tab=examens',
+    'FORUM_CLASSE':  (lien) => lien || '/eleve.html?page=forum-classe',
+    'INTER_CLASSE':  (lien) => lien || '/eleve.html?page=inter-classes',
+    'GRAND_ELEVES':  (lien) => lien || '/eleve.html?page=grand-eleves',
+    'ANNONCE':       (lien) => lien || '/eleve.html?page=annonces',
+    'CONVOCATION':   (lien) => lien || '/eleve.html?page=convocations',
+    'ABSENCE':       (lien) => lien || '/eleve.html?page=absences',
+    'ORIENTATION':   (lien) => lien || '/eleve.html?page=orientation',
+  };
 
-    if (pages[type]) {
-        window.location.href = pages[type];
+  /* ── 3. Naviguer vers la page cible (fonctionne avec goPage si dispo) ── */
+  function naviguerVers(lien, type) {
+    // Calculer l'URL cible
+    const resolver = NOTIF_REDIRECT[type];
+    const urlCible = resolver ? resolver(lien) : (lien || null);
+
+    if (!urlCible) return;
+
+    // Extraire page et tab depuis l'URL
+    const url = new URL(urlCible, window.location.origin);
+    const page = url.searchParams.get('page');
+    const tab  = url.searchParams.get('tab');
+
+    // Si on est déjà sur eleve.html et que goPage existe
+    if (typeof window.goPage === 'function' && page) {
+      window.goPage(page);
+      // Si un onglet est précisé, l'activer après un court délai
+      if (tab) {
+        setTimeout(() => {
+          const tabEl = document.querySelector(`#pg-${page} .tab[onclick*="'${tab}'"]`);
+          if (typeof window.progTab === 'function') {
+            window.progTab(tab, tabEl);
+          }
+        }, 300);
+      }
     } else {
-        document.getElementById('notif-btn')?.click();
+      // Navigation classique
+      window.location.href = urlCible;
     }
-}
+  }
 
-function initNotifications() {
-    console.log('🔔 initNotifications appelée');
+  /* ── 4. Formater la date de façon lisible ── */
+  function formatDate(dateStr) {
+    try {
+      const d = new Date(dateStr);
+      const now = new Date();
+      const diff = Math.floor((now - d) / 1000);
+      if (diff < 60)     return 'À l\'instant';
+      if (diff < 3600)   return `Il y a ${Math.floor(diff / 60)} min`;
+      if (diff < 86400)  return `Il y a ${Math.floor(diff / 3600)} h`;
+      return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+    } catch (e) { return ''; }
+  }
 
-    // Trouver ou créer le conteneur
-    let topbar = document.querySelector('.topbar, .pg-hd, header, nav');
-    if (!topbar) {
-        const container = document.createElement('div');
-        container.className = 'topbar';
-        container.style.cssText = 'display:flex; justify-content:flex-end; align-items:center; padding:10px 20px;';
-        document.body.insertBefore(container, document.body.firstChild);
-        topbar = container;
-    }
+  /* ── 5. Icône selon le type de notif ── */
+  function iconePourType(type) {
+    const icons = {
+      'DEVOIR':       '📝',
+      'COMPOSITION':  '📋',
+      'EXAMEN_BLANC': '🎓',
+      'FORUM_CLASSE': '💬',
+      'INTER_CLASSE': '💬',
+      'GRAND_ELEVES': '🌍',
+      'ANNONCE':      '📢',
+      'CONVOCATION':  '⚠️',
+      'ABSENCE':      '📅',
+      'ORIENTATION':  '🎯',
+    };
+    return icons[type] || '🔔';
+  }
 
-    if (document.getElementById('notif-btn')) return;
+  /* ── 6. Construire et injecter la cloche dans la page ── */
+  function injecterCloche() {
+    // Chercher le header du dashboard ou le pg-hd du premier panneau visible
+    const pgHd = document.querySelector('.pg-hd');
+    if (!pgHd || document.getElementById('notif-btn')) return;
 
-    // Créer l'interface
-    const container = document.createElement('div');
-    container.style.position = 'relative';
-    container.style.display = 'inline-block';
-    container.style.marginLeft = 'auto';
-    container.innerHTML = `
-        <button id="notif-btn" style="position:relative; background:none; border:none; cursor:pointer; padding:8px;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-            <span id="notif-badge" style="position:absolute; top:-5px; right:-5px; background:red; color:white; border-radius:50%; padding:2px 5px; font-size:10px; display:none;">0</span>
-        </button>
-        <div id="notif-dropdown" style="position:absolute; right:0; top:40px; width:320px; background:white; border-radius:12px; box-shadow:0 4px 20px rgba(0,0,0,0.15); display:none; z-index:1000; border:1px solid #e5e7eb;">
-            <div style="padding:12px 16px; border-bottom:1px solid #e5e7eb; font-weight:bold; color:#1f2937;">🔔 Notifications</div>
-            <div id="notif-list" style="max-height:400px; overflow-y:auto;">
-                <div style="padding:20px; text-align:center; color:#9ca3af;">📭 Aucune notification</div>
-            </div>
-            <div style="padding:10px; text-align:center; border-top:1px solid #e5e7eb;">
-                <button id="mark-all-read" style="background:none; border:none; color:#4F46E5; cursor:pointer; font-size:13px;">Tout marquer comme lu</button>
-            </div>
-        </div>
+    // Créer le bouton cloche
+    const btn = document.createElement('div');
+    btn.id = 'notif-btn';
+    btn.style.cssText = `
+      position: relative; cursor: pointer; width: 40px; height: 40px;
+      background: var(--bg2, #F1F5F9); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0; transition: background 0.2s;
+      border: 1px solid var(--border, #E2E8F0);
     `;
+    btn.innerHTML = `
+      🔔
+      <span id="notif-badge" style="
+        display: none; position: absolute; top: -3px; right: -3px;
+        background: #EF4444; color: white; font-size: 0.55rem;
+        font-weight: 800; border-radius: 50%; min-width: 17px; height: 17px;
+        display: none; align-items: center; justify-content: center;
+        padding: 0 3px; border: 2px solid white; line-height: 1;
+      ">0</span>
+    `;
+    btn.addEventListener('click', togglePanel);
+    pgHd.appendChild(btn);
 
-    topbar.appendChild(container);
+    // Créer le panel
+    const panel = document.createElement('div');
+    panel.id = 'notif-panel';
+    panel.style.cssText = `
+      display: none; position: fixed; top: 60px; right: 16px;
+      width: min(360px, calc(100vw - 32px));
+      background: var(--card-bg, white); border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 9999;
+      border: 1px solid var(--border, #E2E8F0); overflow: hidden;
+      max-height: 80vh;
+    `;
+    panel.innerHTML = `
+      <div style="
+        padding: 14px 16px; font-weight: 800; font-size: 0.85rem;
+        border-bottom: 1px solid var(--border, #E2E8F0);
+        display: flex; justify-content: space-between; align-items: center;
+      ">
+        🔔 Notifications
+        <button id="notif-mark-all" style="
+          font-size: 0.65rem; font-weight: 700; color: #6366F1;
+          background: none; border: none; cursor: pointer; padding: 0;
+        ">Tout marquer lu</button>
+      </div>
+      <div id="notif-list" style="overflow-y: auto; max-height: calc(80vh - 50px);"></div>
+    `;
+    document.body.appendChild(panel);
 
-    const btn = document.getElementById('notif-btn');
-    const dropdown = document.getElementById('notif-dropdown');
+    document.getElementById('notif-mark-all').addEventListener('click', marquerToutLu);
 
-    btn.onclick = (e) => {
-        e.stopPropagation();
-        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
-        chargerNotifications();
-    };
+    // Fermer le panel si clic en dehors
+    document.addEventListener('click', function (e) {
+      if (!btn.contains(e.target) && !panel.contains(e.target)) {
+        panel.style.display = 'none';
+      }
+    });
+  }
 
-    document.onclick = () => dropdown.style.display = 'none';
-    dropdown.onclick = (e) => e.stopPropagation();
+  /* ── 7. Ouvrir / fermer le panel ── */
+  function togglePanel() {
+    const panel = document.getElementById('notif-panel');
+    if (!panel) return;
+    const isOpen = panel.style.display !== 'none';
+    panel.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) chargerNotifications();
+  }
 
-    function chargerNotifications() {
-        const token = localStorage.getItem('token');
-        if (!token) return;
+  /* ── 8. Charger les notifications depuis l'API ── */
+  async function chargerNotifications() {
+    const list = document.getElementById('notif-list');
+    if (!list) return;
 
-        fetch('/api/notifications/unread', {
-            headers: { 'Authorization': 'Bearer ' + token }
-        })
-            .then(r => r.json())
-            .then(data => {
-                const list = document.getElementById('notif-list');
-                const badge = document.getElementById('notif-badge');
-                const notifs = data.notifications || [];
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:#94A3B8;font-size:0.8rem;">Chargement...</div>';
 
-                if (notifs.length === 0) {
-                    list.innerHTML = '<div style="padding:20px; text-align:center; color:#9ca3af;">📭 Aucune notification</div>';
-                    badge.style.display = 'none';
-                } else {
-                    list.innerHTML = notifs.map(n => `
-                    <div class="notif-item" data-id="${n.id_notification}" data-type="${n.type}" data-lien="${n.lien || ''}" style="padding:12px 16px; border-bottom:1px solid #f3f4f6; cursor:pointer; transition:background 0.2s;">
-                        <div style="font-weight:bold; color:#1f2937;">${escapeHtml(n.titre || n.type)}</div>
-                        <div style="font-size:13px; color:#6b7280; margin-top:2px;">${escapeHtml(n.contenu || '')}</div>
-                        <div style="font-size:11px; color:#9ca3af; margin-top:4px;">${formatDate(n.created_at)}</div>
-                    </div>
-                `).join('');
+    try {
+      const session = JSON.parse(localStorage.getItem('user_session') || '{}');
+      const token = session.token;
+      if (!token) return;
 
-                    badge.textContent = notifs.length;
-                    badge.style.display = 'inline-block';
+      const r = await fetch('/api/notifications?limit=30', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      const data = await r.json();
+      const notifs = data.notifications || [];
 
-                    document.querySelectorAll('.notif-item').forEach(item => {
-                        item.onclick = (e) => {
-                            e.stopPropagation();
-                            const id = item.dataset.id;
-                            const type = item.dataset.type;
-                            const lien = item.dataset.lien;
+      if (!notifs.length) {
+        list.innerHTML = '<div style="padding:30px;text-align:center;"><div style="font-size:2rem;margin-bottom:8px;">🔕</div><div style="color:#94A3B8;font-size:0.8rem;">Aucune notification</div></div>';
+        return;
+      }
 
-                            fetch(`/api/notifications/${id}/read`, {
-                                method: 'PUT',
-                                headers: { 'Authorization': 'Bearer ' + token }
-                            }).finally(() => {
-                                if (lien && lien !== '#') {
-                                    window.location.href = lien;
-                                } else if (type === 'NOTE') {
-                                    window.location.href = '/eleve.html?page=bulletin';
-                                } else if (type === 'RESSOURCE') {
-                                    window.location.href = '/eleve.html?page=ressources';
-                                } else if (type === 'ORIENTATION') {
-                                    window.location.href = '/eleve.html?page=orientation';
-                                } else if (type === 'ABSENCE') {
-                                    window.location.href = '/eleve.html?page=absences';
-                                } else if (type === 'CONVOCATION') {
-                                    window.location.href = '/eleve.html?page=convocations';
-                                } else {
-                                    dropdown.style.display = 'none';
-                                    chargerNotifications();
-                                }
-                            });
-                        };
-                        item.onmouseenter = () => item.style.backgroundColor = '#f9fafb';
-                        item.onmouseleave = () => item.style.backgroundColor = 'transparent';
-                    });
-                }
-            })
-            .catch(e => console.error('Erreur:', e));
+      list.innerHTML = notifs.map(n => {
+        const icone = iconePourType(n.type);
+        const date  = formatDate(n.created_at);
+        const lue   = n.lue || n.est_lu;
+        return `
+          <div data-id="${n.id_notification || n.id}" data-type="${n.type || ''}" data-lien="${n.lien || ''}"
+            onclick="window._notifClick(this)"
+            style="
+              padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border-light, #F1F5F9);
+              display: flex; gap: 12px; align-items: flex-start;
+              background: ${lue ? 'transparent' : 'rgba(99,102,241,0.04)'};
+              transition: background 0.15s;
+            "
+            onmouseenter="this.style.background='rgba(99,102,241,0.08)'"
+            onmouseleave="this.style.background='${lue ? 'transparent' : 'rgba(99,102,241,0.04)'}'"
+          >
+            <div style="font-size:1.2rem;flex-shrink:0;margin-top:2px;">${icone}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:${lue ? '500' : '700'};font-size:0.8rem;color:var(--text,#1E293B);line-height:1.3;margin-bottom:3px;">
+                ${escH(n.titre || '')}
+              </div>
+              <div style="font-size:0.72rem;color:#64748B;line-height:1.4;">${escH(n.contenu || '')}</div>
+              <div style="font-size:0.65rem;color:#94A3B8;margin-top:4px;">${date}</div>
+            </div>
+            ${!lue ? '<div style="width:8px;height:8px;background:#6366F1;border-radius:50%;flex-shrink:0;margin-top:6px;"></div>' : ''}
+          </div>
+        `;
+      }).join('');
+
+    } catch (e) {
+      list.innerHTML = '<div style="padding:20px;text-align:center;color:#EF4444;font-size:0.75rem;">Erreur de chargement</div>';
     }
+  }
 
-    document.getElementById('mark-all-read').onclick = () => {
-        const token = localStorage.getItem('token');
-        fetch('/api/notifications/read-all', {
-            method: 'PUT',
-            headers: { 'Authorization': 'Bearer ' + token }
-        }).then(() => {
-            chargerNotifications();
-            document.getElementById('notif-badge').style.display = 'none';
+  /* ── 9. Clic sur une notification : marquer lu + rediriger ── */
+  window._notifClick = async function (el) {
+    const id   = el.dataset.id;
+    const type = el.dataset.type;
+    const lien = el.dataset.lien;
+
+    // Marquer comme lu
+    try {
+      const session = JSON.parse(localStorage.getItem('user_session') || '{}');
+      if (session.token && id) {
+        await fetch(`/api/notifications/${id}/read`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + session.token }
         });
-    };
+      }
+    } catch (e) {}
 
-    chargerNotifications();
-    setInterval(chargerNotifications, 5000);
+    // Fermer le panel
+    const panel = document.getElementById('notif-panel');
+    if (panel) panel.style.display = 'none';
 
-    function escapeHtml(text) {
-        if (!text) return '';
-        return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // Rediriger
+    naviguerVers(lien, type);
+  };
+
+  /* ── 10. Marquer tout comme lu ── */
+  async function marquerToutLu() {
+    try {
+      const session = JSON.parse(localStorage.getItem('user_session') || '{}');
+      if (!session.token) return;
+      await fetch('/api/notifications/read-all', {
+        method: 'PUT',
+        headers: { 'Authorization': 'Bearer ' + session.token }
+      });
+      mettreAJourBadge(0);
+      chargerNotifications();
+    } catch (e) {}
+  }
+
+  /* ── 11. Mettre à jour le badge compteur sur la cloche ── */
+  function mettreAJourBadge(count) {
+    const badge = document.getElementById('notif-badge');
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count > 99 ? '99+' : count;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
     }
+  }
 
-    function formatDate(dateStr) {
-        const date = new Date(dateStr);
-        const now = new Date();
-        const diff = Math.floor((now - date) / 1000);
-        if (diff < 10) return 'à l\'instant';
-        if (diff < 60) return `il y a ${diff} sec`;
-        if (diff < 3600) return `il y a ${Math.floor(diff / 60)} min`;
-        if (diff < 86400) return `il y a ${Math.floor(diff / 3600)} h`;
-        return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+  /* ── 12. Polling : vérifie les nouvelles notifs toutes les 30s ── */
+  let _lastCount = 0;
+
+  async function verifierNouvellesNotifs() {
+    try {
+      const session = JSON.parse(localStorage.getItem('user_session') || '{}');
+      if (!session.token) return;
+
+      const r = await fetch('/api/notifications/count', {
+        headers: { 'Authorization': 'Bearer ' + session.token }
+      });
+      const data = await r.json();
+      const count = data.count || 0;
+
+      mettreAJourBadge(count);
+
+      // S'il y a plus de notifs qu'avant → jouer le son
+      if (count > _lastCount && _lastCount >= 0) {
+        const diff = count - _lastCount;
+        // Jouer le son autant de fois qu'il y a de nouvelles notifs (max 3)
+        const nbSons = Math.min(diff, 3);
+        for (let i = 0; i < nbSons; i++) {
+          setTimeout(() => playNotifSound(), i * 400);
+        }
+      }
+      _lastCount = count;
+
+    } catch (e) {
+      // Silencieux si erreur réseau
     }
+  }
 
-    // Socket.io pour notifications instantanées
-    if (typeof io !== 'undefined') {
-        const socket = io();
-        socket.on('connect', () => {
-            const token = localStorage.getItem('token');
-            const user = JSON.parse(localStorage.getItem('user_session') || '{}');
-            socket.emit('auth', { token, code: user.code_unique });
-            console.log('🔌 Socket connecté');
-        });
+  /* ── Utilitaire ── */
+  function escH(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
 
-        socket.on('new-notification', (notif) => {
-            console.log('🔔 Notification reçue!', notif);
+  /* ── 13. Initialisation ── */
+  function init() {
+    injecterCloche();
+    _lastCount = -1; // -1 pour ne pas jouer de son au premier chargement
+    verifierNouvellesNotifs();
+    // Polling toutes les 30 secondes
+    setInterval(verifierNouvellesNotifs, 30000);
+  }
 
-            // JOUER LE SON AUTOMATIQUEMENT
-            playSound();
+  // Démarrer après que le DOM soit chargé
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    // DOM déjà prêt (script chargé après le DOM)
+    setTimeout(init, 500);
+  }
 
-            // Animer la cloche
-            const btnNotif = document.getElementById('notif-btn');
-            if (btnNotif) {
-                btnNotif.style.transform = 'scale(1.2)';
-                setTimeout(() => btnNotif.style.transform = '', 300);
-            }
-
-            // Recharger les notifications
-            chargerNotifications();
-
-            // Afficher un toast
-            const toast = document.createElement('div');
-            toast.innerHTML = `
-                <div style="background:#4F46E5; color:white; padding:12px 18px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.2); cursor:pointer;">
-                    <div style="font-weight:bold;">🔔 ${escapeHtml(notif.titre || 'Notification')}</div>
-                    <div style="font-size:12px; margin-top:4px;">${escapeHtml(notif.contenu || '')}</div>
-                </div>
-            `;
-            toast.style.cssText = 'position:fixed; bottom:20px; right:20px; z-index:10000; animation: slideIn 0.3s ease-out;';
-
-            if (!document.getElementById('notif-animation')) {
-                const style = document.createElement('style');
-                style.id = 'notif-animation';
-                style.textContent = `@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
-                document.head.appendChild(style);
-            }
-
-            document.body.appendChild(toast);
-
-            toast.onclick = () => {
-                if (notif.lien && notif.lien !== '#') {
-                    window.location.href = notif.lien;
-                } else {
-                    const type = notif.type || '';
-                    if (type === 'NOTE') window.location.href = '/eleve.html?page=bulletin';
-                    else if (type === 'RESSOURCE') window.location.href = '/eleve.html?page=ressources';
-                    else if (type === 'ORIENTATION') window.location.href = '/eleve.html?page=orientation';
-                    else if (type === 'ABSENCE') window.location.href = '/eleve.html?page=absences';
-                    else if (type === 'CONVOCATION') window.location.href = '/eleve.html?page=convocations';
-                    else document.getElementById('notif-btn').click();
-                }
-            };
-
-            setTimeout(() => {
-                if (toast && toast.parentElement) {
-                    toast.style.opacity = '0';
-                    toast.style.transform = 'translateX(100%)';
-                    toast.style.transition = 'all 0.3s';
-                    setTimeout(() => toast.remove(), 300);
-                }
-            }, 5000);
-        });
-    }
-}
-
-// Démarrer
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initNotifications);
-} else {
-    initNotifications();
-}
+})();

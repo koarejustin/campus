@@ -827,6 +827,7 @@
     .tbl {
       width: 100%;
       border-collapse: collapse;
+      table-layout: auto;
     }
 
     .tbl th {
@@ -838,6 +839,7 @@
       padding: 8px 12px;
       text-align: left;
       border-bottom: 2px solid #F1F5F9;
+      white-space: nowrap;
     }
 
     .tbl td {
@@ -845,6 +847,7 @@
       font-size: .8rem;
       color: #334155;
       border-bottom: 1px solid #F8FAFF;
+      vertical-align: middle;
     }
 
     .tbl tr:last-child td {
@@ -853,6 +856,11 @@
 
     .tbl tr:hover td {
       background: #FAFBFF;
+    }
+
+    /* Alignement tableau absences */
+    #abs-table-body td {
+      vertical-align: middle;
     }
 
     /* ══ BADGE ══ */
@@ -1103,8 +1111,52 @@
         transform: rotate(360deg);
       }
     }
+
+    .abs-type-card {
+      transition: all 0.2s ease;
+    }
+
+    .abs-type-card:hover {
+      transform: translateY(-1px);
+    }
+
+    .dir-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dir-modal-overlay.open,
+    .dir-modal-overlay[style*="display: flex"] {
+      display: flex !important;
+    }
   </style>
   <style>
+
+    /* ══ CLASSES CHECKBOXES COMPOSITION ══ */
+    .cls-chk-lbl {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 9px;
+      border: 1.5px solid #E2E8F0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .74rem;
+      font-weight: 600;
+      color: #374151;
+      transition: all .15s;
+      background: #fff;
+      user-select: none;
+    }
+    .cls-chk-lbl:hover { border-color: #A5B4FC; background: #EEF2FF; }
+    .cls-chk-lbl input[type=checkbox] { width: 14px; height: 14px; accent-color: #4F46E5; cursor: pointer; flex-shrink: 0; }
+    .cls-chk-lbl:has(input:checked) { border-color: #4F46E5; background: #EEF2FF; color: #3730A3; font-weight: 700; }
+
     /* ══ RESPONSIVE DIRECTION — corrections mobile ══════════════ */
 
     @media (max-width: 639px) {
@@ -1691,6 +1743,416 @@
     #sidebar-overlay.show {
       display: block;
     }
+
+    /* Tableau des absences */
+    .abs-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .abs-table th {
+      background: #F8FAFF;
+      padding: 14px 16px;
+      text-align: left;
+      font-size: .7rem;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      border-bottom: 2px solid #E2E8F0;
+      position: sticky;
+      top: 0;
+    }
+
+    .abs-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #F1F5F9;
+      vertical-align: middle;
+      transition: background .15s;
+    }
+
+    .abs-table tr:hover td {
+      background: #FAFBFF;
+    }
+
+    /* Badges de statut */
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 30px;
+      font-size: .7rem;
+      font-weight: 700;
+    }
+
+    .badge-nj {
+      background: #FEF2F2;
+      color: #991B1B;
+    }
+
+    .badge-j {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
+    .badge-retard {
+      background: #FEF9C3;
+      color: #854D0E;
+    }
+
+    /* Boutons d'action */
+    .action-btn {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: .68rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      border: none;
+      font-family: inherit;
+    }
+
+    .btn-justify {
+      background: #10B981;
+      color: #fff;
+    }
+
+    .btn-justify:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    .btn-edit {
+      background: #3B82F6;
+      color: #fff;
+    }
+
+    .btn-edit:hover {
+      background: #2563EB;
+      transform: translateY(-1px);
+    }
+
+    .btn-delete {
+      background: #EF4444;
+      color: #fff;
+    }
+
+    .btn-delete:hover {
+      background: #DC2626;
+      transform: translateY(-1px);
+    }
+
+    /* Filtres */
+    .filter-btn {
+      background: #F1F5F9;
+      color: #475569;
+      border: none;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .filter-btn.active {
+      background: #4F46E5;
+      color: #fff;
+    }
+
+    .filter-btn:hover:not(.active) {
+      background: #E2E8F0;
+    }
+
+    /* Pagination */
+    #prev-page-btn:disabled,
+    #next-page-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .dir-modal {
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dir-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 20px;
+    }
+
+    /* Correction du modal absence */
+    #m-absence .dir-modal {
+      max-height: 90vh !important;
+      overflow-y: auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+
+    #m-absence .dir-modal>div:last-child {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 20px;
+    }
+
+    /* Forcer l'affichage du bouton */
+    #m-absence button[onclick="saveAbsence()"] {
+      display: flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+    }
+  </style>
+
+  <!-- ══════════════════════════════════════════════════════
+       RESPONSIVE MOBILE — Fixes ciblés pour les 4 sections
+       ══════════════════════════════════════════════════════ -->
+  <style>
+    @media (max-width: 639px) {
+
+      /* ═══════════════════════════════════════
+         SECTION ÉLÈVES
+         ═══════════════════════════════════════ */
+
+      /* Header: recherche + bouton → colonne */
+      #s-eleves .card>div:first-child {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+      }
+
+      /* Ligne boutons (search + ajouter) → colonne full */
+      #s-eleves .card>div:first-child>div:last-child {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+      }
+
+      /* Champ recherche pleine largeur */
+      #el-srch {
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Bouton ajouter pleine largeur */
+      #btn-add-el {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+
+      /* Tableau élèves: scroll horizontal */
+      #el-wrap {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
+
+      #el-wrap table {
+        min-width: 520px !important;
+        white-space: nowrap !important;
+      }
+
+      /* ═══════════════════════════════════════
+         SECTION ABSENCES
+         ═══════════════════════════════════════ */
+
+      /* Stats 4 colonnes → 2x2 */
+      #s-abs>div[style*="grid-template-columns:repeat(4,1fr)"],
+      #s-abs>div[style*="grid-template-columns: repeat(4, 1fr)"] {
+        grid-template-columns: repeat(2, 1fr) !important;
+        display: grid !important;
+      }
+
+      /* Stat cards: taille chiffre réduite */
+      #s-abs .stat-card [style*="font-size:2rem"],
+      #s-abs .stat-card [style*="font-size: 2rem"] {
+        font-size: 1.4rem !important;
+      }
+
+      /* Header section absences → colonne */
+      #s-abs>div:nth-child(1) {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+      }
+
+      #s-abs>div:nth-child(1)>div:last-child {
+        width: 100% !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+
+      #s-abs>div:nth-child(1)>div:last-child button {
+        width: 100% !important;
+        justify-content: center !important;
+      }
+
+      /* Filtres + recherche → colonne */
+      #s-abs .card>div[style*="justify-content:space-between"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+      }
+
+      #s-abs .card>div[style*="justify-content:space-between"]>div:first-child {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+      }
+
+      /* Champ recherche absences pleine largeur */
+      #abs-search {
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Pagination → colonne centrée */
+      #s-abs [style*="justify-content:space-between"][style*="padding:16px"] {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 10px !important;
+        text-align: center !important;
+      }
+
+      /* ═══════════════════════════════════════
+         SECTION CONVOCATIONS
+         ═══════════════════════════════════════ */
+
+      /* Stats 3 colonnes → 1 colonne */
+      #s-conv>div[style*="grid-template-columns:repeat(3,1fr)"],
+      #s-conv>div[style*="grid-template-columns: repeat(3, 1fr)"] {
+        grid-template-columns: 1fr !important;
+        display: grid !important;
+        gap: 8px !important;
+      }
+
+      /* Stat card convoc → horizontal compact */
+      #s-conv>div:first-child>div {
+        padding: 12px 14px !important;
+        border-radius: 12px !important;
+      }
+
+      #s-conv>div:first-child [style*="font-size:1.5rem"] {
+        font-size: 1.2rem !important;
+      }
+
+      /* Conv grid (form + historique) → 1 colonne */
+      #conv-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+      }
+
+      #conv-grid > .card {
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+      }
+
+      /* En-tête colonnes historique → scroll horizontal */
+      #s-conv [style*="grid-template-columns:100px 1fr 120px"] {
+        min-width: 480px !important;
+      }
+
+      #cv-list {
+        overflow-x: auto !important;
+      }
+
+      /* Champ recherche conv pleine largeur */
+      #cv-srch {
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      /* Header historique → colonne */
+      #s-conv .card>div[style*="justify-content:space-between"]:first-child {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+      }
+
+      #s-conv .card>div[style*="justify-content:space-between"]:first-child>div:last-child {
+        width: 100% !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        align-items: stretch !important;
+      }
+
+      /* Grille date+heure convocation → 1 colonne */
+      #s-conv [style*="grid-template-columns:1fr 1fr"],
+      #s-conv [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* ═══════════════════════════════════════
+         SECTION INCIDENTS
+         ═══════════════════════════════════════ */
+
+      /* Force colonne sur mobile avec form en haut */
+      #inc-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+      }
+
+      #inc-grid > .card {
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        flex: none !important;
+      }
+
+      /* Formulaire incidents: champs pleine largeur */
+      .abs-form {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+      }
+
+      .abs-form > div {
+        width: 100% !important;
+      }
+
+      .abs-form input,
+      .abs-form select,
+      .abs-form textarea {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        font-size: .83rem !important;
+      }
+
+      /* Liste incidents: cards full width */
+      #inc-list {
+        max-height: none !important;
+      }
+
+      /* Items dans inc-list → full width et jolis */
+      #inc-list > div {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        word-break: break-word !important;
+      }
+
+      /* Actions incidents (row avec boutons) → wrap */
+      #inc-list [style*="display:flex"] {
+        flex-wrap: wrap !important;
+      }
+    }
+
+    /* ── Très petit mobile (< 400px) ── */
+    @media (max-width: 400px) {
+      #s-abs>div[style*="grid-template-columns:repeat(4,1fr)"],
+      #s-abs>div[style*="grid-template-columns: repeat(4, 1fr)"] {
+        grid-template-columns: 1fr 1fr !important;
+      }
+
+      #s-conv>div[style*="grid-template-columns:repeat(3,1fr)"],
+      #s-conv>div[style*="grid-template-columns: repeat(3, 1fr)"] {
+        grid-template-columns: 1fr !important;
+      }
+
+      .filter-btn {
+        padding: 6px 10px !important;
+        font-size: .68rem !important;
+      }
+    }
   </style>
 </head>
 
@@ -1701,10 +2163,12 @@
     <!-- Logo -->
     <div class="logo-wrap">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        <div class="logo-icon"><i data-lucide="shield-check" style="width:17px;height:17px;color:#fff;"></i></div>
+        <div class="logo-icon" id="logo-icon-wrap">
+          <img class="ecole-logo hidden" alt="logo" style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
+          <i class="ecole-logo-fallback" data-lucide="shield-check" style="width:17px;height:17px;color:#fff;"></i>
+        </div>
         <div>
-          <div style="font-size:.9rem;font-weight:900;color:#fff;font-style:italic;letter-spacing:-.02em;">CAMPUS<span
-              style="color:#818CF8;">FASO</span></div>
+          <div style="font-size:.9rem;font-weight:900;color:#fff;font-style:italic;letter-spacing:-.02em;" class="ecole-nom">CAMPUS<span style="color:#818CF8;">FASO</span></div>
           <div id="sb-role-lbl"
             style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.15em;font-weight:700;">
             Direction</div>
@@ -1765,6 +2229,10 @@
         <div class="ni ni-locked-vis" id="ni-agenda" data-page="agenda">
           <i data-lucide="calendar" class="ni-icon"></i><span>Agenda</span>
           <span class="dir-tag" id="dt-agenda">DIR</span>
+        </div>
+        <div class="ni ni-locked-vis" id="ni-compo" data-page="compo">
+          <i data-lucide="pen-square" class="ni-icon"></i><span>Compositions</span>
+          <span class="dir-tag" id="dt-compo">DIR</span>
         </div>
         <div class="ni ni-locked-vis" id="ni-elections" data-page="elections">
           <i data-lucide="award" class="ni-icon"></i><span>Élections</span>
@@ -1962,246 +2430,254 @@
         </div>
       </div>
     </div>
-
     <!-- ══════════ GESTION ÉLÈVES ══════════ -->
     <div id="s-eleves" class="sec">
       <div class="card" style="padding:20px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Liste des élèves</div>
-          <div style="display:flex;gap:8px;">
-            <input type="text" id="el-srch" placeholder="Rechercher…" style="width:210px;" oninput="filtEl()">
-            <button class="btn-p" style="font-size:.72rem;" id="btn-add-el" onclick="openAddEleve()"><i
-                data-lucide="plus" style="width:12px;height:12px;"></i>Ajouter</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="font-size:.9rem; font-weight:800; color:#0F172A;">📋 Liste des élèves</div>
+          <div style="display:flex; gap:8px;">
+            <div style="position:relative;">
+              <i data-lucide="search"
+                style="position:absolute; left:10px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:#94A3B8;"></i>
+              <input type="text" id="el-srch" placeholder="Rechercher (nom, prénom, matricule)..."
+                style="width:220px; padding:8px 12px 8px 32px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:.8rem; outline:none;"
+                oninput="filtEl()" onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
+            </div>
+            <button class="btn-p" style="font-size:.72rem; background:linear-gradient(135deg,#4F46E5,#7C3AED);"
+              id="btn-add-el" onclick="openAddEleve()">
+              <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un élève
+            </button>
           </div>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;" id="cls-filter">
-          <button class="b b-ind sel-cls" onclick="filtCls('',this)">Toutes</button>
-          <button class="b" style="cursor:pointer;" onclick="filtCls('6ème',this)">6ème</button>
-          <button class="b" style="cursor:pointer;" onclick="filtCls('5ème',this)">5ème</button>
-          <button class="b" style="cursor:pointer;" onclick="filtCls('4ème',this)">4ème</button>
-          <button class="b" style="cursor:pointer;" onclick="filtCls('3ème',this)">3ème</button>
-          <button class="b" style="cursor:pointer;" onclick="filtCls('2nde A',this)">2nde A</button>
-          <button class="b" style="cursor:pointer;" onclick="filtCls('2nde C',this)">2nde C</button>
-          <button class="b" style="cursor:pointer;" onclick="filtCls('1ère A',this)">1ère A</button>
-          <button class="b" style="cursor:pointer;" onclick="filtCls('1ère D',this)">1ère D</button>
-          <button class="b" style="cursor:pointer;" onclick="filtCls('Tle A',this)">Tle A</button>
-          <button class="b" style="cursor:pointer;" onclick="filtCls('Tle D',this)">Tle D</button>
+
+        <!-- Filtres par classe -->
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;" id="cls-filter">
+          <button class="b b-ind sel-cls" onclick="filtCls('',this)"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer;">📚
+            Toutes</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('6ème',this)">6ème</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('5ème',this)">5ème</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('4ème',this)">4ème</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('3ème',this)">3ème</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('2nde A',this)">2nde A</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('2nde C',this)">2nde C</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('1ère A',this)">1ère A</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('1ère D',this)">1ère D</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('Tle A',this)">Tle A</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('Tle D',this)">Tle D</button>
         </div>
+
+        <!-- Tableau des élèves -->
         <div id="el-wrap" style="overflow-x:auto;">
-          <div style="text-align:center;padding:40px;color:#94A3B8;">⏳ Chargement…</div>
+          <div style="text-align:center; padding:60px 20px;">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+              <i data-lucide="loader-2"
+                style="width:32px; height:32px; color:#94A3B8; animation:spin 1s linear infinite;"></i>
+              <span style="font-size:.85rem; color:#94A3B8;">Chargement des élèves...</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ══════════ ABSENCES ══════════ -->
+    <!-- ══════════ GESTION DES ABSENCES ══════════ -->
     <div id="s-abs" class="sec">
 
-      <!-- Bande stats en haut -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
-        <div
-          style="background:linear-gradient(135deg,#FEF2F2,#FFE4E6);border:1px solid #FECDD3;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
-          <div
-            style="width:40px;height:40px;background:#EF4444;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i data-lucide="x-circle" style="width:18px;height:18px;color:#fff;"></i>
-          </div>
-          <div>
-            <div style="font-size:1.5rem;font-weight:900;color:#991B1B;" id="abs-stat-nj">0</div>
-            <div style="font-size:.65rem;font-weight:700;color:#B91C1C;text-transform:uppercase;letter-spacing:.06em;">
-              Non justifiées</div>
+      <!-- Header avec titre et actions -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <div>
+          <div style="font-size:1.3rem; font-weight:900; color:#0F172A;">📋 Gestion des absences</div>
+          <div style="font-size:.75rem; color:#64748B; margin-top:4px;">Suivi en temps réel des présences et absences
           </div>
         </div>
-        <div
-          style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border:1px solid #BBF7D0;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
-          <div
-            style="width:40px;height:40px;background:#10B981;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#fff;"></i>
-          </div>
-          <div>
-            <div style="font-size:1.5rem;font-weight:900;color:#065F46;" id="abs-stat-j">0</div>
-            <div style="font-size:.65rem;font-weight:700;color:#047857;text-transform:uppercase;letter-spacing:.06em;">
-              Justifiées</div>
+        <div style="display:flex; gap:12px;">
+          <button onclick="openAddAbsence()" class="btn-p" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);">
+            <i data-lucide="plus" style="width:14px;height:14px;"></i> Nouvelle absence
+          </button>
+          <button onclick="exportAbsencesToExcel()" class="btn-g" style="background:#F1F5F9;">
+            <i data-lucide="download" style="width:14px;height:14px;"></i> Exporter
+          </button>
+        </div>
+      </div>
+
+      <!-- STATS CARDS STYLE MODERNE -->
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;">
+        <div class="stat-card"
+          style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE); border-radius:20px; padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:2rem; font-weight:900; color:#1E40AF;" id="stat-total">0</div>
+              <div style="font-size:.7rem; font-weight:700; color:#2563EB; text-transform:uppercase; margin-top:4px;">
+                Total absences</div>
+            </div>
+            <div
+              style="width:48px; height:48px; background:#3B82F6; border-radius:16px; display:flex; align-items:center; justify-content:center;">
+              <i data-lucide="calendar-x" style="width:24px; height:24px; color:#fff;"></i>
+            </div>
           </div>
         </div>
-        <div
-          style="background:linear-gradient(135deg,#FFF7ED,#FFEDD5);border:1px solid #FED7AA;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
-          <div
-            style="width:40px;height:40px;background:#F59E0B;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i data-lucide="clock" style="width:18px;height:18px;color:#fff;"></i>
-          </div>
-          <div>
-            <div style="font-size:1.5rem;font-weight:900;color:#92400E;" id="abs-stat-ret">0</div>
-            <div style="font-size:.65rem;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.06em;">
-              Retards</div>
+        <div class="stat-card"
+          style="background:linear-gradient(135deg,#FEF2F2,#FFE4E6); border-radius:20px; padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:2rem; font-weight:900; color:#991B1B;" id="stat-nj">0</div>
+              <div style="font-size:.7rem; font-weight:700; color:#DC2626; text-transform:uppercase; margin-top:4px;">
+                Non justifiées</div>
+            </div>
+            <div
+              style="width:48px; height:48px; background:#EF4444; border-radius:16px; display:flex; align-items:center; justify-content:center;">
+              <i data-lucide="x-circle" style="width:24px; height:24px; color:#fff;"></i>
+            </div>
           </div>
         </div>
-        <div
-          style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:1px solid #BFDBFE;border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;">
-          <div
-            style="width:40px;height:40px;background:#3B82F6;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i data-lucide="calendar-x" style="width:18px;height:18px;color:#fff;"></i>
+        <div class="stat-card"
+          style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7); border-radius:20px; padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:2rem; font-weight:900; color:#065F46;" id="stat-j">0</div>
+              <div style="font-size:.7rem; font-weight:700; color:#10B981; text-transform:uppercase; margin-top:4px;">
+                Justifiées</div>
+            </div>
+            <div
+              style="width:48px; height:48px; background:#10B981; border-radius:16px; display:flex; align-items:center; justify-content:center;">
+              <i data-lucide="check-circle-2" style="width:24px; height:24px; color:#fff;"></i>
+            </div>
           </div>
-          <div>
-            <div style="font-size:1.5rem;font-weight:900;color:#1D4ED8;" id="abs-stat-tot">0</div>
-            <div style="font-size:.65rem;font-weight:700;color:#2563EB;text-transform:uppercase;letter-spacing:.06em;">
-              Total ce mois</div>
+        </div>
+        <div class="stat-card"
+          style="background:linear-gradient(135deg,#FFF7ED,#FFEDD5); border-radius:20px; padding:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size:2rem; font-weight:900; color:#92400E;" id="stat-retard">0</div>
+              <div style="font-size:.7rem; font-weight:700; color:#F59E0B; text-transform:uppercase; margin-top:4px;">
+                Retards</div>
+            </div>
+            <div
+              style="width:48px; height:48px; background:#F59E0B; border-radius:16px; display:flex; align-items:center; justify-content:center;">
+              <i data-lucide="clock" style="width:24px; height:24px; color:#fff;"></i>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="sec-form-grid" id="abs-grid">
-        <!-- Formulaire saisie -->
-        <div style="display:flex;flex-direction:column;gap:12px;">
-          <div class="card" style="padding:22px;">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
-              <div
-                style="width:34px;height:34px;background:linear-gradient(135deg,#EF4444,#DC2626);border-radius:10px;display:flex;align-items:center;justify-content:center;">
-                <i data-lucide="clipboard-plus" style="width:15px;height:15px;color:#fff;"></i>
-              </div>
-              <div>
-                <div style="font-size:.88rem;font-weight:800;color:#0F172A;">Nouvelle absence</div>
-                <div style="font-size:.65rem;color:#94A3B8;font-weight:600;">Visible par l'élève et son parent</div>
-              </div>
-            </div>
-
-            <div style="display:flex;flex-direction:column;gap:10px;">
-              <div>
-                <label style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
-                  <i data-lucide="layers" style="width:11px;height:11px;color:#64748B;"></i>Classe
-                </label>
-                <select id="af-cls"
-                  style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-weight:600;font-family:inherit;outline:none;background:#F8FAFF;color:#0F172A;cursor:pointer;"
-                  onchange="loadElevesClasse()">
-                  <option value="">— Sélectionner —</option>
-                  <option>6ème</option>
-                  <option>5ème</option>
-                  <option>4ème</option>
-                  <option>3ème</option>
-                  <option>2nde A</option>
-                  <option>2nde C</option>
-                  <option>1ère A</option>
-                  <option>1ère D</option>
-                  <option>Tle A</option>
-                  <option>Tle D</option>
-                </select>
-              </div>
-              <div>
-                <label style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
-                  <i data-lucide="user" style="width:11px;height:11px;color:#64748B;"></i>Matricule élève
-                </label>
-                <input id="af-mat" type="text" placeholder="CN-2026-XXXX"
-                  style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;outline:none;"
-                  onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                <div>
-                  <label style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
-                    <i data-lucide="calendar" style="width:11px;height:11px;color:#64748B;"></i>Date
-                  </label>
-                  <input id="af-date" type="date"
-                    style="width:100%;padding:9px 10px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;outline:none;"
-                    onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
-                </div>
-                <div>
-                  <label style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
-                    <i data-lucide="tag" style="width:11px;height:11px;color:#64748B;"></i>Type
-                  </label>
-                  <select id="af-type"
-                    style="width:100%;padding:9px 10px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;outline:none;background:#fff;">
-                    <option value="false">❌ Non justifiée</option>
-                    <option value="true">✅ Justifiée</option>
-                    <option value="retard">⏰ Retard</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label style="display:flex;align-items:center;gap:5px;margin-bottom:5px;">
-                  <i data-lucide="message-square" style="width:11px;height:11px;color:#64748B;"></i>Motif <span
-                    style="color:#CBD5E1;font-weight:400;">(optionnel)</span>
-                </label>
-                <textarea id="af-motif" rows="2" placeholder="Raison de l'absence…"
-                  style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;outline:none;resize:none;"
-                  onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
-              </div>
-            </div>
-
-            <button onclick="saveAbsence()"
-              style="width:100%;margin-top:14px;padding:11px;background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;border:none;border-radius:10px;font-size:.82rem;font-weight:800;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;"
-              onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
-              <i data-lucide="save" style="width:14px;height:14px;"></i>Enregistrer l'absence
-            </button>
-            <div id="af-msg"
-              style="display:none;margin-top:10px;font-size:.74rem;padding:9px 12px;border-radius:8px;font-weight:600;">
-            </div>
+      <!-- FILTRES ET RECHERCHE -->
+      <div class="card" style="padding:16px 20px; margin-bottom:20px;">
+        <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button onclick="filtAbs('all',this)" class="filter-btn active"
+              style="padding:8px 16px; border-radius:30px; font-size:.75rem; font-weight:700;">Toutes</button>
+            <button onclick="filtAbs('nj',this)" class="filter-btn"
+              style="padding:8px 16px; border-radius:30px; font-size:.75rem; font-weight:700;">❌ Non justifiées</button>
+            <button onclick="filtAbs('j',this)" class="filter-btn"
+              style="padding:8px 16px; border-radius:30px; font-size:.75rem; font-weight:700;">✅ Justifiées</button>
+            <button onclick="filtAbs('retard',this)" class="filter-btn"
+              style="padding:8px 16px; border-radius:30px; font-size:.75rem; font-weight:700;">⏰ Retards</button>
           </div>
+          <div style="position:relative;">
+            <i data-lucide="search"
+              style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:#94A3B8;"></i>
+            <input type="text" id="abs-search" placeholder="Rechercher par nom, prénom ou matricule..."
+              style="padding:10px 12px 10px 38px; width:280px; border:1.5px solid #E2E8F0; border-radius:30px; font-size:.8rem; outline:none; transition:all .2s;"
+              oninput="renderAbsTable()" onfocus="this.style.borderColor='#4F46E5'"
+              onblur="this.style.borderColor='#E2E8F0'">
+          </div>
+        </div>
+      </div>
 
-          <!-- Filtre rapide -->
-          <div class="card" style="padding:14px;">
-            <div
-              style="font-size:.72rem;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;">
-              Filtres rapides</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
-              <button onclick="filtAbs('all',this)" class="abs-filt-btn abs-filt-on"
-                style="padding:7px 8px;border:1.5px solid #4F46E5;background:#EEF2FF;color:#4F46E5;border-radius:8px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:inherit;">Toutes</button>
-              <button onclick="filtAbs('nj',this)" class="abs-filt-btn"
-                style="padding:7px 8px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;">Non
-                justifiées</button>
-              <button onclick="filtAbs('j',this)" class="abs-filt-btn"
-                style="padding:7px 8px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;">Justifiées</button>
-              <button onclick="filtAbs('ret',this)" class="abs-filt-btn"
-                style="padding:7px 8px;border:1.5px solid #E2E8F0;background:#fff;color:#64748B;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;">Retards</button>
+      <!-- TABLEAU PROFESSIONNEL DES ABSENCES -->
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="padding:16px 20px; background:#F8FAFF; border-bottom:1px solid #E8EDF2;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span style="font-size:.85rem; font-weight:800; color:#0F172A;">📋 Registre des absences</span>
+              <span id="abs-count-badge"
+                style="margin-left:8px; padding:2px 8px; background:#E2E8F0; border-radius:20px; font-size:.7rem; font-weight:700; color:#475569;">0</span>
+            </div>
+            <div style="font-size:.7rem; color:#94A3B8;">
+              Dernière mise à jour: <span id="last-update">--</span>
             </div>
           </div>
         </div>
 
-        <!-- Liste absences -->
-        <div class="card" style="padding:22px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <div>
-              <div style="font-size:.92rem;font-weight:800;color:#0F172A;">Registre des absences</div>
-              <div style="font-size:.7rem;color:#94A3B8;margin-top:2px;" id="abs-list-sub">Chargement…</div>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <input type="text" id="abs-srch" placeholder="Rechercher…"
-                style="width:160px;padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.76rem;font-family:inherit;outline:none;"
-                oninput="renderAbsList()" onfocus="this.style.borderColor='#4F46E5'"
-                onblur="this.style.borderColor='#E2E8F0'">
-              <!-- Bouton export visible seulement DIRECTION -->
-              <button id="btn-abs-export"
-                style="padding:7px 12px;background:#F1F5F9;color:#475569;border:none;border-radius:8px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;display:none;"
-                onclick="exportAbsences()">
-                <i data-lucide="download" style="width:12px;height:12px;display:inline;"></i> Export
-              </button>
-            </div>
-          </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr style="background:#F8FAFF; border-bottom:2px solid #E2E8F0;">
+                <th
+                  style="padding:14px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.08em;">
+                  Matricule</th>
+                <th
+                  style="padding:14px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.08em;">
+                  Élève</th>
+                <th
+                  style="padding:14px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.08em;">
+                  Classe</th>
+                <th
+                  style="padding:14px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.08em;">
+                  Date</th>
+                <th
+                  style="padding:14px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.08em;">
+                  Statut</th>
+                <th
+                  style="padding:14px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.08em;">
+                  Motif</th>
+                <th
+                  style="padding:14px 16px; text-align:center; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.08em;">
+                  Actions</th>
+              </tr>
+            </thead>
+            <tbody id="abs-table-body">
+              <tr>
+                <td colspan="7" style="text-align:center; padding:60px 20px;">
+                  <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+                    <i data-lucide="loader-2"
+                      style="width:32px; height:32px; color:#94A3B8; animation:spin 1s linear infinite;"></i>
+                    <span style="font-size:.85rem; color:#94A3B8;">Chargement des absences...</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-          <!-- En-tête colonnes -->
-          <div
-            style="display:grid;grid-template-columns:100px 1fr 80px 90px 90px auto;gap:8px;padding:7px 12px;background:#F8FAFF;border-radius:8px;margin-bottom:8px;border:1px solid #F1F5F9;">
-            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
-              Matricule</div>
-            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
-              Élève</div>
-            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
-              Classe</div>
-            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
-              Date</div>
-            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
-              Statut</div>
-            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
-              Actions</div>
+        <!-- Pagination -->
+        <div
+          style="padding:16px 20px; border-top:1px solid #F1F5F9; display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:.7rem; color:#94A3B8;">
+            Affichage <span id="page-start">0</span> à <span id="page-end">0</span> sur <span id="total-count">0</span>
+            absence(s)
           </div>
-
-          <div id="abs-list" style="max-height:430px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;">
-            <div style="text-align:center;padding:40px;color:#CBD5E1;">
-              <i data-lucide="loader-2"
-                style="width:24px;height:24px;display:block;margin:0 auto 8px;animation:spin 1s linear infinite;"></i>
-              Chargement des absences…
-            </div>
+          <div style="display:flex; gap:8px;">
+            <button onclick="prevPage()" id="prev-page-btn"
+              style="padding:6px 12px; border:1px solid #E2E8F0; border-radius:8px; background:#fff; cursor:pointer; font-size:.7rem; font-weight:600;">◀
+              Précédent</button>
+            <button onclick="nextPage()" id="next-page-btn"
+              style="padding:6px 12px; border:1px solid #E2E8F0; border-radius:8px; background:#fff; cursor:pointer; font-size:.7rem; font-weight:600;">Suivant
+              ▶</button>
           </div>
         </div>
       </div>
     </div>
-
     <!-- ══════════ CONVOCATIONS ══════════ -->
     <div id="s-conv" class="sec">
 
@@ -2523,17 +2999,17 @@
           <div style="display:flex;flex-direction:column;gap:10px;">
             <div><label>Destinataires</label>
               <select id="msg-dest">
-                <option value="all">Tous (profs + parents + élèves)</option>
-                <option value="profs">Corps enseignant uniquement</option>
-                <option value="parents">Parents uniquement</option>
-                <option value="eleves">Élèves uniquement</option>
-                <option value="surveillants">Surveillants uniquement</option>
+                <option value="all">📢 Tous (profs + parents + élèves)</option>
+                <option value="profs">👨‍🏫 Professeurs uniquement</option>
+                <option value="parents">👨‍👩‍👧 Parents uniquement</option>
+                <option value="eleves">👨‍🎓 Élèves uniquement</option>
+                <option value="surveillants">🛡️ Surveillants uniquement</option>
               </select>
             </div>
-            <div><label>Titre</label><input id="msg-titre" type="text" placeholder="Objet du message"></div>
-            <div><label>Message</label><textarea id="msg-contenu" rows="5"
+            <div><label>Titre *</label><input id="msg-titre" type="text" placeholder="Objet du message"></div>
+            <div><label>Message *</label><textarea id="msg-contenu" rows="5"
                 placeholder="Rédigez votre message officiel…"></textarea></div>
-            <div><label>Type</label>
+            <div><label>Type d'annonce</label>
               <select id="msg-type">
                 <option value="info">ℹ️ Information</option>
                 <option value="urgent">🚨 Urgent</option>
@@ -2541,10 +3017,44 @@
                 <option value="felicitations">🏆 Félicitations</option>
               </select>
             </div>
+            <div class="info-msg"
+              style="font-size:.7rem;color:#64748B;padding:8px;background:#F8FAFF;border-radius:8px;">
+              💡 Les notifications seront envoyées immédiatement aux destinataires
+            </div>
           </div>
           <button class="btn-p" style="width:100%;justify-content:center;margin-top:12px;" onclick="sendFluxMsg()">
             <i data-lucide="send" style="width:13px;height:13px;"></i>Publier officiellement
           </button>
+        </div>
+      </div>
+    </div>
+    <!-- ══ MODAL MESSAGE PRIVÉ PROFESSEUR ══ -->
+    <div id="modal-msg-prive" class="dir-modal-overlay" onclick="if(event.target===this)closeMsgPrive()">
+      <div class="dir-modal" style="max-width:450px;">
+        <div class="dir-modal-head">
+          <div id="mp-av" class="dir-modal-av" style="background:#4F46E5;">?</div>
+          <div style="flex:1;min-width:0;">
+            <div id="mp-titre" style="font-size:.9rem;font-weight:900;color:#0F172A;"></div>
+            <div id="mp-sous" style="font-size:.68rem;color:#94A3B8;margin-top:2px;"></div>
+          </div>
+          <button class="dir-modal-close" onclick="closeMsgPrive()">
+            <i data-lucide="x" style="width:16px;height:16px;color:#64748B;"></i>
+          </button>
+        </div>
+        <div class="dir-modal-body">
+          <input type="hidden" id="mp-id">
+          <label style="font-size:.74rem;font-weight:800;color:#475569;margin-bottom:6px;display:block;">Message
+            privé</label>
+          <textarea id="mp-msg" rows="5" placeholder="Message confidentiel (visible uniquement par ce professeur)…"
+            style="width:100%;padding:10px 13px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;resize:none;outline:none;"></textarea>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button onclick="closeMsgPrive()"
+              style="flex:1;padding:10px;background:#F1F5F9;border:none;border-radius:8px;font-size:.78rem;font-weight:700;color:#475569;cursor:pointer;">Annuler</button>
+            <button onclick="sendMsgPrive()"
+              style="flex:2;padding:10px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+              <i data-lucide="send" style="width:14px;height:14px;"></i>Envoyer en privé
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -2558,50 +3068,84 @@
             <div style="display:flex;gap:8px;">
               <input type="text" id="corps-srch" placeholder="Rechercher prof…" style="width:180px;"
                 oninput="filtCorps()">
-              <button class="btn-p" style="font-size:.72rem;" onclick="openAddCorps()"><i data-lucide="plus"
-                  style="width:12px;height:12px;"></i>Ajouter</button>
+
             </div>
           </div>
           <div id="corps-list">
             <div style="text-align:center;padding:30px;color:#94A3B8;">Chargement…</div>
           </div>
         </div>
-        <!-- Panel actions direction -->
-        <div class="card" style="padding:20px;">
-          <div style="font-size:.9rem;font-weight:800;color:#0F172A;margin-bottom:14px;">📋 Demander les notes</div>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <div><label>Professeur</label><input id="req-prof" type="text" placeholder="Nom ou matricule"></div>
-            <div><label>Classe concernée</label>
-              <select id="req-cls">
-                <option>6ème</option>
-                <option>5ème</option>
-                <option>4ème</option>
-                <option>3ème</option>
-                <option>2nde A</option>
-                <option>2nde C</option>
-                <option>1ère A</option>
-                <option>1ère D</option>
-                <option>Tle A</option>
-                <option>Tle D</option>
-              </select>
+        <!-- Panel actions direction — ONGLETS -->
+        <div style="display:flex;flex-direction:column;gap:0;">
+          <div class="card" style="padding:0;overflow:hidden;">
+            <!-- Onglets -->
+            <div style="display:flex;border-bottom:2px solid #F1F5F9;">
+              <button id="tab-notes-btn" onclick="switchCorpsTab('notes')"
+                style="flex:1;padding:10px 4px;font-size:.7rem;font-weight:800;border:none;background:#4F46E5;color:#fff;cursor:pointer;font-family:inherit;">📋
+                Notes</button>
+              <button id="tab-cahiers-btn" onclick="switchCorpsTab('cahiers')"
+                style="flex:1;padding:10px 4px;font-size:.7rem;font-weight:800;border:none;background:#F8FAFF;color:#64748B;cursor:pointer;font-family:inherit;">📓
+                Cahiers</button>
+              <button id="tab-msgs-btn" onclick="switchCorpsTab('msgs')"
+                style="flex:1;padding:10px 4px;font-size:.7rem;font-weight:800;border:none;background:#F8FAFF;color:#64748B;cursor:pointer;font-family:inherit;position:relative;">
+                💬 Messages
+                <span id="msgs-badge"
+                  style="display:none;position:absolute;top:4px;right:4px;background:#EF4444;color:#fff;font-size:.55rem;font-weight:900;padding:1px 5px;border-radius:10px;">0</span>
+              </button>
             </div>
-            <div><label>Trimestre</label>
-              <select id="req-tri">
-                <option value="1">Trimestre 1</option>
-                <option value="2">Trimestre 2</option>
-                <option value="3">Trimestre 3</option>
-              </select>
+            <!-- TAB: Notes -->
+            <div id="tab-notes" style="padding:16px;display:block;">
+              <div style="font-size:.82rem;font-weight:800;color:#0F172A;margin-bottom:10px;">Demander les notes</div>
+              <div style="display:flex;flex-direction:column;gap:9px;">
+                <div><label>Professeur</label><input id="req-prof" type="text" placeholder="Nom ou matricule"></div>
+                <div><label>Classe</label>
+                  <select id="req-cls">
+                    <option>6ème</option>
+                    <option>5ème</option>
+                    <option>4ème</option>
+                    <option>3ème</option>
+                    <option>2nde A</option>
+                    <option>2nde C</option>
+                    <option>1ère A</option>
+                    <option>1ère D</option>
+                    <option>Tle A</option>
+                    <option>Tle D</option>
+                  </select>
+                </div>
+                <div><label>Trimestre</label>
+                  <select id="req-tri">
+                    <option value="1">Trimestre 1</option>
+                    <option value="2">Trimestre 2</option>
+                    <option value="3">Trimestre 3</option>
+                  </select>
+                </div>
+                <div><label>Message (optionnel)</label><textarea id="req-msg" rows="2"
+                    placeholder="Instructions…"></textarea></div>
+              </div>
+              <button class="btn-p" style="width:100%;justify-content:center;margin-top:10px;"
+                onclick="demanderNotes()">
+                <i data-lucide="mail" style="width:13px;height:13px;"></i>Envoyer la demande
+              </button>
             </div>
-            <div><label>Message (optionnel)</label><textarea id="req-msg" rows="2"
-                placeholder="Rappel de délai, instructions…"></textarea></div>
-          </div>
-          <button class="btn-p" style="width:100%;justify-content:center;margin-top:10px;" onclick="demanderNotes()">
-            <i data-lucide="mail" style="width:13px;height:13px;"></i>Envoyer la demande
-          </button>
-          <div style="height:1px;background:#F1F5F9;margin:16px 0;"></div>
-          <div style="font-size:.9rem;font-weight:800;color:#0F172A;margin-bottom:14px;">📓 Cahiers de texte</div>
-          <div id="cahiers-list" style="max-height:180px;overflow-y:auto;">
-            <div style="text-align:center;padding:20px;color:#94A3B8;font-size:.78rem;">Chargement…</div>
+            <!-- TAB: Cahiers -->
+            <div id="tab-cahiers" style="padding:16px;display:none;">
+              <div style="font-size:.82rem;font-weight:800;color:#0F172A;margin-bottom:10px;">📓 Cahiers de texte</div>
+              <div id="cahiers-list" style="max-height:300px;overflow-y:auto;">
+                <div style="text-align:center;padding:20px;color:#94A3B8;font-size:.78rem;">Chargement…</div>
+              </div>
+            </div>
+            <!-- TAB: Messages privés -->
+            <div id="tab-msgs" style="padding:16px;display:none;">
+              <div style="background:#EEF2FF;border:1px solid #C7D2FE;border-radius:12px;padding:16px;text-align:center;">
+                <div style="font-size:1.8rem;margin-bottom:8px;">💬</div>
+                <div style="font-size:.82rem;font-weight:800;color:#3730A3;margin-bottom:6px;">Messages Privés</div>
+                <div style="font-size:.73rem;color:#4F46E5;line-height:1.6;">
+                  Pour envoyer un message privé à un professeur,<br>
+                  cliquez sur le bouton <strong>💬 Message</strong><br>
+                  dans la fiche du professeur (liste à gauche).
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -2699,31 +3243,31 @@
       <div class="compta-hero">
         <div style="display:flex;gap:0;margin-bottom:20px;position:relative;z-index:1;">
           <div class="cstat" style="padding-left:0;">
-            <div class="cstat-v">125 000</div>
-            <div class="cstat-l">Solde trésor (FCFA)</div>
+            <div class="cstat-v" id="compta-total">0 FCFA</div>
+            <div class="cstat-l">Total cotisations</div>
           </div>
           <div class="cstat">
-            <div class="cstat-v" style="color:#4ADE80;">87 500</div>
-            <div class="cstat-l">Cotisations reçues</div>
+            <div class="cstat-v" style="color:#4ADE80;" id="compta-paye">0 FCFA</div>
+            <div class="cstat-l">Montant reçu</div>
           </div>
           <div class="cstat">
-            <div class="cstat-v" style="color:#FB923C;">37 500</div>
+            <div class="cstat-v" style="color:#FB923C;" id="compta-attente">0 FCFA</div>
             <div class="cstat-l">En attente</div>
           </div>
           <div class="cstat">
-            <div class="cstat-v">350 / 500</div>
-            <div class="cstat-l">Familles à jour</div>
+            <div class="cstat-v" id="compta-taux">—</div>
+            <div class="cstat-l">Taux recouvrement</div>
           </div>
         </div>
         <!-- Barre progression -->
         <div style="position:relative;z-index:1;">
           <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
             <span style="font-size:.68rem;color:rgba(255,255,255,.5);font-weight:700;">Taux de recouvrement</span>
-            <span style="font-size:.78rem;font-weight:900;color:#4ADE80;">70%</span>
+            <span style="font-size:.78rem;font-weight:900;color:#4ADE80;" id="compta-taux-pct">—%</span>
           </div>
           <div style="height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;">
-            <div
-              style="width:70%;height:100%;background:linear-gradient(90deg,#10B981,#4ADE80);border-radius:4px;transition:width 1.2s .3s;">
+            <div id="compta-bar"
+              style="width:0%;height:100%;background:linear-gradient(90deg,#10B981,#4ADE80);border-radius:4px;transition:width 1.2s .3s;">
             </div>
           </div>
           <div
@@ -2804,12 +3348,12 @@
         <div class="card" style="padding:18px;">
           <div style="font-size:.88rem;font-weight:800;color:#0F172A;margin-bottom:14px;">Ajouter un événement</div>
           <div style="display:flex;flex-direction:column;gap:9px;">
-            <div><label>Titre</label><input id="ev-titre" type="text" placeholder="Nom de l'événement"></div>
-            <div><label>Date</label><input id="ev-date" type="date"></div>
-            <div><label>Heure</label><input id="ev-heure" type="time"></div>
-            <div><label>Lieu</label><input id="ev-lieu" type="text" placeholder="Salle, Local…"></div>
+            <div><label>Titre</label><input id="ev-titre-side" type="text" placeholder="Nom de l'événement"></div>
+            <div><label>Date</label><input id="ev-date-side" type="date"></div>
+            <div><label>Heure</label><input id="ev-heure-side" type="time"></div>
+            <div><label>Lieu</label><input id="ev-lieu-side" type="text" placeholder="Salle, Local…"></div>
             <div><label>Type</label>
-              <select id="ev-type">
+              <select id="ev-type-side">
                 <option value="reunion">Réunion</option>
                 <option value="conseil">Conseil pédagogique</option>
                 <option value="examen">Examen / Composition</option>
@@ -2817,11 +3361,169 @@
                 <option value="autre">Autre</option>
               </select>
             </div>
-            <div><label>Description</label><textarea id="ev-desc" rows="2" placeholder="Détails…"></textarea></div>
+            <div><label>Description</label><textarea id="ev-desc-side" rows="2" placeholder="Détails…"></textarea></div>
           </div>
-          <button class="btn-p" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveEvent()">
+          <button class="btn-p" style="width:100%;justify-content:center;margin-top:10px;" onclick="saveAgendaSide()">
             <i data-lucide="calendar-plus" style="width:13px;height:13px;"></i>Enregistrer
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ COMPOSITIONS & EXAMENS (DIR) ══════════ -->
+    <div id="s-compo" class="sec">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <div>
+          <div style="font-size:1.2rem;font-weight:900;color:#0F172A;">📝 Compositions & Examens</div>
+          <div style="font-size:.75rem;color:#64748B;margin-top:3px;">Planification des épreuves — Examens réservés aux
+            classes terminales</div>
+        </div>
+        <button class="btn-p" onclick="openAddCompo()" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);">
+          <i data-lucide="plus" style="width:13px;height:13px;"></i> Nouvelle épreuve
+        </button>
+      </div>
+
+      <!-- Onglets Composition / Examen -->
+      <div style="display:flex;gap:8px;margin-bottom:18px;">
+        <button onclick="filtCompo('all',this)" class="filter-btn active"
+          style="padding:8px 18px;border-radius:30px;font-size:.75rem;font-weight:700;">Toutes</button>
+        <button onclick="filtCompo('composition',this)" class="filter-btn"
+          style="padding:8px 18px;border-radius:30px;font-size:.75rem;font-weight:700;">📋 Compositions</button>
+        <button onclick="filtCompo('examen',this)" class="filter-btn"
+          style="padding:8px 18px;border-radius:30px;font-size:.75rem;font-weight:700;">🎓 Examens officiels</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:16px;">
+        <!-- Liste épreuves -->
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div
+            style="padding:14px 18px;background:#F8FAFF;border-bottom:1px solid #E2E8F0;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:.85rem;font-weight:800;color:#0F172A;">Programme des épreuves</span>
+            <span id="compo-count"
+              style="padding:2px 8px;background:#E2E8F0;border-radius:20px;font-size:.7rem;font-weight:700;color:#475569;">0</span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;">
+              <thead>
+                <tr style="background:#F8FAFF;border-bottom:2px solid #E2E8F0;">
+                  <th
+                    style="padding:12px 14px;text-align:left;font-size:.68rem;font-weight:800;color:#475569;text-transform:uppercase;">
+                    Titre</th>
+                  <th
+                    style="padding:12px 14px;text-align:left;font-size:.68rem;font-weight:800;color:#475569;text-transform:uppercase;">
+                    Classe(s)</th>
+                  <th
+                    style="padding:12px 14px;text-align:left;font-size:.68rem;font-weight:800;color:#475569;text-transform:uppercase;">
+                    Matière</th>
+                  <th
+                    style="padding:12px 14px;text-align:left;font-size:.68rem;font-weight:800;color:#475569;text-transform:uppercase;">
+                    Date</th>
+                  <th
+                    style="padding:12px 14px;text-align:left;font-size:.68rem;font-weight:800;color:#475569;text-transform:uppercase;">
+                    Type</th>
+                  <th
+                    style="padding:12px 14px;text-align:center;font-size:.68rem;font-weight:800;color:#475569;text-transform:uppercase;">
+                    Actions</th>
+                </tr>
+              </thead>
+              <tbody id="compo-tbody">
+                <tr>
+                  <td colspan="6" style="text-align:center;padding:40px;color:#94A3B8;font-size:.8rem;">⏳ Chargement…
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Formulaire ajout -->
+        <div class="card" style="padding:18px;" id="compo-form-card">
+          <div style="font-size:.88rem;font-weight:800;color:#0F172A;margin-bottom:14px;" id="compo-form-title">➕ Nouvelle épreuve</div>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <!-- Titre -->
+            <div>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Titre *</label>
+              <input id="cp-titre" type="text" placeholder="Ex: Composition T1 — Trimestre 1"
+                style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;box-sizing:border-box;">
+            </div>
+            <!-- Type -->
+            <div>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Type *</label>
+              <select id="cp-type" onchange="onCompoTypeChange()"
+                style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;">
+                <option value="composition">📋 Composition</option>
+                <option value="examen_blanc">📝 Examen Blanc</option>
+                <option value="examen">🎓 Examen officiel (BEPC/BAC)</option>
+              </select>
+            </div>
+            <!-- Classes — checkboxes -->
+            <div id="cp-classes-wrap">
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:6px;">Classe(s) concernée(s) *</label>
+              <div id="cp-classes-checks" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="6ème"><span>6ème</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="5ème"><span>5ème</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="4ème"><span>4ème</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="3ème"><span>3ème ⭐ BEPC</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="2nde A"><span>2nde A</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="2nde C"><span>2nde C</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="1ère A"><span>1ère A</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="1ère D"><span>1ère D</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="Tle A"><span>Tle A ⭐ BAC</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="Tle D"><span>Tle D ⭐ BAC</span></label>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:5px;">
+                <button type="button" onclick="selectAllClasses(true)" style="flex:1;padding:4px 8px;border:1px solid #E2E8F0;border-radius:6px;background:#F8FAFF;font-size:.65rem;font-weight:700;cursor:pointer;font-family:inherit;color:#4F46E5;">✓ Toutes</button>
+                <button type="button" onclick="selectAllClasses(false)" style="flex:1;padding:4px 8px;border:1px solid #E2E8F0;border-radius:6px;background:#F8FAFF;font-size:.65rem;font-weight:700;cursor:pointer;font-family:inherit;color:#94A3B8;">✕ Aucune</button>
+              </div>
+            </div>
+            <!-- Date + Heure -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div>
+                <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Date *</label>
+                <input id="cp-date" type="date"
+                  style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;">
+              </div>
+              <div>
+                <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Heure</label>
+                <input id="cp-heure" type="time" value="08:00"
+                  style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;">
+              </div>
+            </div>
+            <!-- Durée de la composition -->
+            <div>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Durée de la composition (minutes)</label>
+              <select id="cp-duree"
+                style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;">
+                <option value="60">1h00</option>
+                <option value="90">1h30</option>
+                <option value="120" selected>2h00</option>
+                <option value="150">2h30</option>
+                <option value="180">3h00</option>
+                <option value="210">3h30</option>
+                <option value="240">4h00</option>
+              </select>
+            </div>
+            <!-- Salle -->
+            <div>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Salle / Lieu</label>
+              <input id="cp-salle" type="text" placeholder="Ex: Salle A, Grand Hall…"
+                style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;box-sizing:border-box;">
+            </div>
+            <!-- Notes/Instructions -->
+            <div>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Instructions (optionnel)</label>
+              <textarea id="cp-notes" rows="2" placeholder="Matériel autorisé, consignes…"
+                style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
+            </div>
+            <div id="cp-msg" style="display:none;font-size:.73rem;padding:8px;border-radius:7px;"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn-p" style="flex:1;justify-content:center;" onclick="saveCompo()">
+              <i data-lucide="save" style="width:13px;height:13px;"></i> Enregistrer
+            </button>
+            <button onclick="resetCompoForm()"
+              style="padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:9px;background:#F8FAFF;color:#64748B;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;">Annuler</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2912,6 +3614,23 @@
     const esc = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     // ══════════════════════════════════════
+    // CONFIG ÉCOLE (NOM + LOGO)
+    // ══════════════════════════════════════
+    async function chargerConfigEcole() {
+      try {
+        const response = await fetch('/api/admin/config');
+        const data = await response.json();
+        if (data.success && data.config) {
+          document.querySelectorAll('.ecole-nom').forEach(el => el.textContent = data.config.nom_etablissement);
+          if (data.config.logo_url) {
+            document.querySelectorAll('.ecole-logo').forEach(el => { el.src = data.config.logo_url; el.classList.remove('hidden'); });
+            document.querySelectorAll('.ecole-logo-fallback').forEach(el => el.style.display = 'none');
+          }
+        }
+      } catch (error) { console.error('Erreur chargement config:', error); }
+    }
+
+    // ══════════════════════════════════════
     // INIT
     // ══════════════════════════════════════
     document.addEventListener('DOMContentLoaded', async () => {
@@ -2919,18 +3638,28 @@
       ROLE = (SESS.role_actuel || '').toUpperCase();
       if (ROLE !== 'DIRECTION' && ROLE !== 'SURVEILLANT') { location.href = 'login.html'; return; }
 
+      chargerConfigEcole();
       applyRole();
       loadStats();
       buildSparks();
-      // Délai pour garantir que le canvas perfChart est bien dans le DOM visible
       setTimeout(() => { buildPerf('t1'); }, 120);
       renderEdt();
       loadQuickSign();
+      loadAbsences();
+      loadAgenda(); // ← mini agenda dashboard
 
       // default date
       const td = new Date().toISOString().split('T')[0];
-      ['af-date', 'inc-dt', 'pay-dt', 'ev-date'].forEach(id => { if ($(id)) $(id).value = td; });
+      ['af-date-m', 'inc-dt', 'pay-dt', 'ev-date-side', 'cp-date'].forEach(id => { if ($(id)) $(id).value = td; });
       if (window.lucide) lucide.createIcons();
+
+      // Auto-refresh comptabilité toutes les 60s (temps réel)
+      setInterval(() => {
+        const compPage = document.getElementById('s-compta');
+        if (compPage && compPage.classList.contains('on')) {
+          loadCompta();
+        }
+      }, 60000);
     });
 
     // ══════════════════════════════════════
@@ -2944,11 +3673,9 @@
       $('sb-role-tag').className = ROLE === 'DIRECTION' ? 'role-dir' : 'role-surv';
 
       if (ROLE === 'SURVEILLANT') {
-        // Masquer panel direction, montrer panel surv
         $('right-panel-dir').style.display = 'none';
         $('right-panel-surv').style.display = 'block';
-        // Rendre les menus DIR cliquables mais redirigent vers access denied
-        ['ni-flux', 'ni-corps', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-elections'].forEach(id => {
+        ['ni-flux', 'ni-corps', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections'].forEach(id => {
           const el = $(id);
           if (el) {
             el.classList.remove('ni-locked-vis');
@@ -2956,8 +3683,8 @@
           }
         });
       } else {
-        // DIRECTION : activer menus DIR
-        ['ni-flux', 'ni-corps', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-elections'].forEach(id => {
+        // DIRECTION : activer tous les menus DIR
+        ['ni-flux', 'ni-corps', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections'].forEach(id => {
           const el = $(id); const page = el?.dataset.page;
           if (el && page) {
             el.classList.remove('ni-locked-vis');
@@ -2965,7 +3692,7 @@
           }
         });
         // Supprimer les badges DIR
-        ['dt-flux', 'dt-corps', 'dt-sign', 'dt-compta', 'dt-agenda', 'dt-elections'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
+        ['dt-flux', 'dt-corps', 'dt-sign', 'dt-compta', 'dt-agenda', 'dt-compo', 'dt-elections'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
       }
     }
 
@@ -2988,10 +3715,11 @@
       sign: { sec: 's-sign', title: 'Signatures & Documents', sub: 'Validation électronique des bulletins et documents officiels' },
       compta: { sec: 's-compta', title: 'Comptabilité', sub: 'Gestion financière · Cotisations APE · Suivi des paiements' },
       agenda: { sec: 's-agenda', title: 'Agenda Direction', sub: 'Calendrier des événements officiels' },
+      compo: { sec: 's-compo', title: 'Compositions & Examens', sub: 'Planification des épreuves — Examens réservés aux classes terminales' },
       elections: { sec: 's-elections', title: 'Élections Scolaires', sub: 'Chef de Classe & Bureau des Élèves — Nomination officielle' },
     };
     function go(page, navEl) {
-      if (ROLE === 'SURVEILLANT' && ['flux', 'corps', 'sign', 'compta', 'agenda', 'elections'].includes(page)) { toast('🔒 Accès réservé Direction', 'err'); return; }
+      if (ROLE === 'SURVEILLANT' && ['flux', 'corps', 'sign', 'compta', 'agenda', 'compo', 'elections'].includes(page)) { toast('🔒 Accès réservé Direction', 'err'); return; }
       const cfg = PAGES[page]; if (!cfg) return;
       document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
       document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
@@ -2999,9 +3727,8 @@
       if (navEl) navEl.classList.add('on');
       $('pg-title').textContent = cfg.title;
       $('pg-sub').textContent = cfg.sub;
-      // lazy load
       if (page === 'eleves' && !eleveData.length) loadEleves();
-      if (page === 'abs') loadAbsList();
+      if (page === 'abs') loadAbsences();
       if (page === 'conv') loadConvList();
       if (page === 'inc') loadIncList();
       if (page === 'flux') loadFlux();
@@ -3009,9 +3736,9 @@
       if (page === 'sign' && !signData.length) loadSignatures();
       if (page === 'compta' && !compData.length) loadCompta();
       if (page === 'agenda') loadAgenda();
+      if (page === 'compo') loadCompositions();
       if (page === 'elections') loadElections();
     }
-
     // ══════════════════════════════════════
     // STATS
     // ══════════════════════════════════════
@@ -3231,18 +3958,57 @@
         const ok = !clsFil || normCls(e.classe) === normCls(clsFil);
         return ok && (!q || (e.nom + e.prenom + e.code).toLowerCase().includes(q));
       });
-      if (!r.length) { $('el-wrap').innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:.8rem;">Aucun résultat</div>'; return; }
-      $('el-wrap').innerHTML = `<table class="tbl">
-    <thead><tr><th>Matricule</th><th>Nom complet</th><th>Classe</th><th>Moy.</th><th>Absences</th><th>Actions</th></tr></thead>
-    <tbody>${r.map(e => `<tr>
-      <td style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#4F46E5;">${esc(e.code)}</td>
-      <td style="font-weight:700;">${esc(e.prenom)} ${esc(e.nom)}</td>
-      <td><span class="b b-ind">${esc(e.classe)}</span></td>
-      <td style="font-weight:900;color:${parseFloat(e.moy) >= 10 ? '#15803D' : '#DC2626'};">${e.moy}/20</td>
-      <td><span class="b ${e.absences > 5 ? 'b-red' : 'b-grn'}">${e.absences}</span></td>
-      <td><button class="btn-p" style="padding:5px 10px;font-size:.67rem;" onclick="voirEleve('${esc(e.code)}')">Voir</button></td>
-    </tr>`).join('')}</tbody>
-  </table>`;
+
+      const container = document.getElementById('el-wrap');
+      if (!container) return;
+
+      if (!r.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:#94A3B8;font-size:.8rem;">📭 Aucun élève trouvé</div>';
+        return;
+      }
+
+      container.innerHTML = `
+    <table class="tbl" style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="background:#F8FAFF; border-bottom:2px solid #E2E8F0;">
+          <th style="padding:12px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569;">Matricule</th>
+          <th style="padding:12px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569;">Nom complet</th>
+          <th style="padding:12px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569;">Classe</th>
+          <th style="padding:12px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569;">Moyenne</th>
+          <th style="padding:12px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569;">Absences</th>
+          <th style="padding:12px 16px; text-align:center; font-size:.7rem; font-weight:800; color:#475569;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${r.map(e => `
+          <tr style="border-bottom:1px solid #F1F5F9;" onmouseover="this.style.background='#FAFBFF'" onmouseout="this.style.background=''">
+            <td style="padding:12px 16px;">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:700; color:#4F46E5;">${esc(e.code)}</span>
+            </td>
+            <td style="padding:12px 16px;">
+              <span style="font-size:.8rem; font-weight:800; color:#0F172A;">${esc(e.prenom)} ${esc(e.nom)}</span>
+            </td>
+            <td style="padding:12px 16px;">
+              <span style="padding:3px 10px; background:#EEF2FF; color:#4F46E5; border-radius:20px; font-size:.68rem; font-weight:700;">${esc(e.classe)}</span>
+            </td>
+            <td style="padding:12px 16px;">
+              <span style="font-weight:900; color:${parseFloat(e.moy) >= 10 ? '#15803D' : '#DC2626'};">${e.moy}/20</span>
+            </td>
+            <td style="padding:12px 16px;">
+              <span class="b ${e.absences > 5 ? 'b-red' : 'b-grn'}" style="padding:3px 8px; border-radius:20px;">${e.absences}</span>
+            </td>
+            <td style="padding:12px 16px; text-align:center;">
+              <button class="btn-p" style="padding:4px 10px; font-size:.68rem; background:#3B82F6;" onclick="voirEleve('${esc(e.code)}')">
+                <i data-lucide="eye" style="width:12px;height:12px;"></i> Voir
+              </button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+      if (window.lucide) lucide.createIcons();
     }
     function filtEl() { renderEleves(); }
     function filtCls(cls, el) {
@@ -3291,10 +4057,13 @@
       }
       modal.style.display = 'flex';
       modal.innerHTML = '<div style="background:#fff;border-radius:16px;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);">'
-        + '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #F1F5F9;">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #F1F5F9;position:sticky;top:0;background:#fff;z-index:2;border-radius:16px 16px 0 0;">'
         + '<span style="font-size:.95rem;font-weight:800;color:#0F172A;">📋 Fiche Élève</span>'
-        + '<button id="btn-close-eleve" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#94A3B8;">✕</button>'
+        + '<button id="btn-close-eleve" style="background:#F1F5F9;border:none;border-radius:50%;width:32px;height:32px;font-size:1rem;cursor:pointer;color:#475569;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>'
         + '</div><div id="modal-eleve-body" style="padding:20px;"><div style="text-align:center;padding:30px;color:#94A3B8;">⏳ Chargement…</div></div></div>';
+      // Câbler le bouton ✕ immédiatement après injection du HTML
+      const _btnClose = document.getElementById('btn-close-eleve');
+      if (_btnClose) _btnClose.onclick = () => { modal.style.display = 'none'; };
 
       try {
         const d = await api('/admin/eleve/' + encodeURIComponent(id));
@@ -3421,167 +4190,6 @@
       }
     }
 
-    // ══════════════════════════════════════
-    // ABSENCES — données locales + API
-    // ══════════════════════════════════════
-    let absData = [], absFil = 'all';
-
-    async function loadAbsList() {
-      try {
-        const d = await api('/surveillants/absences');
-        absData = d.absences || d.data || genAbsMock();
-      } catch { absData = genAbsMock(); }
-      updateAbsStats();
-      renderAbsList();
-      // Bouton export visible seulement DIRECTION
-      const btnExp = $('btn-abs-export');
-      if (btnExp) btnExp.style.display = ROLE === 'DIRECTION' ? 'block' : 'none';
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function genAbsMock() {
-      const noms = [['SAWADOGO', 'Moussa', 'Tle D'], ['KABORE', 'Aicha', '2nde A'], ['TRAORE', 'Yasmine', '3ème'],
-      ['OUEDRAOGO', 'Idrissa', '1ère A'], ['NANA', 'Fatimata', '6ème'], ['ZONGO', 'Adama', '5ème'],
-      ['COMPAORE', 'Sylvie', 'Tle A'], ['TAPSOBA', 'Abdoul', '4ème'], ['DIALLO', 'Seydou', '2nde C'], ['SOME', 'Mariam', '1ère D']];
-      return Array.from({ length: 18 }, (_, i) => {
-        const n = noms[i % 10]; const types = ['nj', 'j', 'ret'];
-        return {
-          id_absence: i + 1, code_unique: 'CN-2026-' + (2000 + i), nom: n[0], prenom: n[1], classe: n[2],
-          date_absence: new Date(Date.now() - (i * 2) * 86400000).toISOString().split('T')[0],
-          justifiee: i % 3 === 1, retard: i % 5 === 4, raison_absence: i % 3 === 0 ? '' : ['Maladie', 'Deuil familial', 'Transport'][i % 3]
-        };
-      });
-    }
-
-    function updateAbsStats() {
-      const nj = absData.filter(a => !a.justifiee && !a.retard).length;
-      const j = absData.filter(a => a.justifiee).length;
-      const ret = absData.filter(a => a.retard).length;
-      if ($('abs-stat-nj')) $('abs-stat-nj').textContent = nj;
-      if ($('abs-stat-j')) $('abs-stat-j').textContent = j;
-      if ($('abs-stat-ret')) $('abs-stat-ret').textContent = ret;
-      if ($('abs-stat-tot')) $('abs-stat-tot').textContent = absData.length;
-      if ($('abs-list-sub')) $('abs-list-sub').textContent = absData.length + ' absence(s) enregistrée(s)';
-    }
-
-    function filtAbs(type, btn) {
-      absFil = type;
-      document.querySelectorAll('.abs-filt-btn').forEach(b => {
-        b.style.background = '#fff'; b.style.color = '#64748B'; b.style.borderColor = '#E2E8F0';
-      });
-      if (btn) { btn.style.background = '#EEF2FF'; btn.style.color = '#4F46E5'; btn.style.borderColor = '#4F46E5'; }
-      renderAbsList();
-    }
-
-    function renderAbsList() {
-      const q = ($('abs-srch')?.value || '').toLowerCase();
-      let r = absData.filter(a => {
-        if (absFil === 'nj') return !a.justifiee && !a.retard;
-        if (absFil === 'j') return a.justifiee;
-        if (absFil === 'ret') return a.retard;
-        return true;
-      }).filter(a => !q || (a.nom + a.prenom + a.code_unique + a.classe).toLowerCase().includes(q));
-
-      if (!r.length) {
-        $('abs-list').innerHTML = '<div style="text-align:center;padding:40px;color:#CBD5E1;font-size:.82rem;">Aucune absence trouvée</div>';
-        return;
-      }
-
-      $('abs-list').innerHTML = r.map(a => {
-        const isNJ = !a.justifiee && !a.retard;
-        const isJ = a.justifiee;
-        const isRet = a.retard;
-        const statStyle = isNJ ? 'background:#FEE2E2;color:#991B1B;' : isJ ? 'background:#DCFCE7;color:#166534;' : 'background:#FEF9C3;color:#854D0E;';
-        const statLabel = isNJ ? '❌ Non justifiée' : isJ ? '✅ Justifiée' : '⏰ Retard';
-
-        // Actions selon rôle
-        let actions = '';
-        if (!isJ) {
-          actions += `<button onclick="justifierAbs(${a.id_absence || a.id})" style="padding:4px 9px;background:#F0FDF4;color:#15803D;border:1.5px solid #BBF7D0;border-radius:7px;font-size:.67rem;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;" title="Marquer comme justifiée">Justifier</button>`;
-        }
-        // DIRECTION peut modifier ou supprimer
-        if (ROLE === 'DIRECTION') {
-          actions += ` <button onclick="editAbs(${a.id_absence || a.id})" style="padding:4px 9px;background:#EFF6FF;color:#1D4ED8;border:1.5px solid #BFDBFE;border-radius:7px;font-size:.67rem;font-weight:800;cursor:pointer;font-family:inherit;" title="Modifier">✏️</button>`;
-          actions += ` <button onclick="suppAbs(${a.id_absence || a.id})" style="padding:4px 9px;background:#FEF2F2;color:#DC2626;border:1.5px solid #FECDD3;border-radius:7px;font-size:.67rem;font-weight:800;cursor:pointer;font-family:inherit;" title="Supprimer">🗑</button>`;
-        }
-
-        return `<div style="display:grid;grid-template-columns:100px 1fr 80px 90px 90px auto;gap:8px;align-items:center;padding:9px 12px;border:1px solid #F1F5F9;border-radius:9px;background:#fff;transition:.15s;" onmouseover="this.style.background='#F8FAFF';this.style.borderColor='#E0E7FF'" onmouseout="this.style.background='#fff';this.style.borderColor='#F1F5F9'">
-      <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#7C3AED;font-weight:700;">${esc(a.code_unique || '—')}</div>
-      <div>
-        <div style="font-size:.8rem;font-weight:800;color:#0F172A;">${esc(a.prenom || '')} ${esc(a.nom || '—')}</div>
-        ${a.raison_absence ? `<div style="font-size:.67rem;color:#94A3B8;margin-top:1px;">${esc(a.raison_absence)}</div>` : ''}
-      </div>
-      <div><span style="padding:3px 8px;background:#EEF2FF;color:#4F46E5;border-radius:6px;font-size:.65rem;font-weight:800;">${esc(a.classe || '—')}</span></div>
-      <div style="font-size:.73rem;color:#475569;font-weight:600;">${(a.date_absence || '').substring(0, 10)}</div>
-      <div><span style="padding:3px 8px;border-radius:6px;font-size:.65rem;font-weight:800;${statStyle}">${statLabel}</span></div>
-      <div style="display:flex;gap:4px;">${actions}</div>
-    </div>`;
-      }).join('');
-    }
-
-    async function saveAbsence() {
-      const msg = $('af-msg');
-      const p = {
-        classe: $('af-cls').value,
-        code_unique_eleve: $('af-mat').value.trim(),
-        date_absence: $('af-date').value,
-        justifiee: $('af-type').value === 'true',
-        retard: $('af-type').value === 'retard',
-        raison_absence: $('af-motif').value
-      };
-      if (!p.code_unique_eleve) { showMsg(msg, '⚠️ Matricule de l\'élève requis', 'err'); return; }
-      if (!p.date_absence) { showMsg(msg, '⚠️ Date requise', 'err'); return; }
-      try {
-        const d = await api('/surveillants/absences', { method: 'POST', body: JSON.stringify(p) });
-        if (d.success || d.message?.toLowerCase().includes('enregistr') || d.id_absence) {
-          showMsg(msg, '✅ Absence enregistrée — notifié à l\'élève et son parent', 'ok');
-          $('af-mat').value = ''; $('af-motif').value = '';
-          toast('Absence enregistrée ✓', 'ok');
-          // Recharger depuis la BD pour avoir les vraies données
-          setTimeout(() => loadAbsList(), 500);
-        } else showMsg(msg, 'Erreur : ' + (d.message || 'Vérifier le matricule'), 'err');
-      } catch { showMsg(msg, 'Erreur réseau — vérifier la connexion', 'err'); }
-    }
-
-    async function justifierAbs(id) {
-      try {
-        await api('/surveillants/absences/justification', { method: 'PUT', body: JSON.stringify({ id_absence: id, justifiee: true }) });
-        const a = absData.find(x => (x.id_absence || x.id) === id); if (a) { a.justifiee = true; a.retard = false; }
-        updateAbsStats(); renderAbsList(); toast('Absence justifiée', 'ok');
-      } catch {
-        // Local fallback
-        const a = absData.find(x => (x.id_absence || x.id) === id); if (a) { a.justifiee = true; a.retard = false; }
-        updateAbsStats(); renderAbsList(); toast('Justifiée (local)', 'ok');
-      }
-    }
-
-    function editAbs(id) {
-      const a = absData.find(x => (x.id_absence || x.id) === id); if (!a) return;
-      // Pré-remplir le formulaire
-      if ($('af-mat')) $('af-mat').value = a.code_unique || '';
-      if ($('af-date')) $('af-date').value = a.date_absence || '';
-      if ($('af-type')) $('af-type').value = a.justifiee ? 'true' : a.retard ? 'retard' : 'false';
-      if ($('af-motif')) $('af-motif').value = a.raison_absence || '';
-      toast('Formulaire pré-rempli — modifiez et ré-enregistrez', 'info');
-    }
-
-    function suppAbs(id) {
-      if (!confirm('Supprimer cette absence ?')) return;
-      absData = absData.filter(x => (x.id_absence || x.id) !== id);
-      updateAbsStats(); renderAbsList(); toast('Absence supprimée', 'ok');
-    }
-
-    function exportAbsences() {
-      const rows = [['Matricule', 'Prénom', 'Nom', 'Classe', 'Date', 'Statut', 'Motif'],
-      ...absData.map(a => [a.code_unique, a.prenom, a.nom, a.classe, a.date_absence, a.justifiee ? 'Justifiée' : a.retard ? 'Retard' : 'Non justifiée', a.raison_absence || ''])];
-      const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'absences.csv'; a.click();
-      URL.revokeObjectURL(url); toast('Export CSV téléchargé', 'ok');
-    }
-
-    function loadElevesClasse() { /* placeholder — API à brancher */ }
 
     // ══════════════════════════════════════
     // CONVOCATIONS
@@ -3969,6 +4577,74 @@
       }
     }
 
+    // ── Onglets Corps Enseignant ──
+    function switchCorpsTab(tab) {
+      ['notes', 'cahiers', 'msgs'].forEach(t => {
+        const panel = $(('tab-' + t));
+        const btn = $(('tab-' + t + '-btn'));
+        if (!panel || !btn) return;
+        const active = t === tab;
+        panel.style.display = active ? 'block' : 'none';
+        btn.style.background = active ? '#4F46E5' : '#F8FAFF';
+        btn.style.color = active ? '#fff' : '#64748B';
+      });
+      if (tab === 'msgs') loadMsgsSalle();
+      if (tab === 'cahiers') loadCahiersDir();
+    }
+
+    async function loadMsgsSalle() {
+      const box = $('msgs-salle-list');
+      if (!box) return;
+      box.innerHTML = '<div style="text-align:center;padding:16px;color:#94A3B8;font-size:.75rem;">⏳ Chargement…</div>';
+      try {
+        const res = await fetch('/api/messages/general?limit=30', {
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        const data = await res.json();
+        const msgs = data.messages || data.data || [];
+        if (!msgs.length) {
+          box.innerHTML = '<div style="text-align:center;padding:16px;color:#94A3B8;font-size:.75rem;">Aucun message envoyé</div>';
+          return;
+        }
+        box.innerHTML = msgs.reverse().map(m => {
+          const isDir = m.isDirection || m.from_code?.startsWith('DIR') || (m.from_nom || '').toLowerCase().includes('direction');
+          const bg = isDir ? '#EEF2FF' : '#F8FAFF';
+          const bc = isDir ? '#4F46E5' : '#94A3B8';
+          const time = m.time || (m.date_envoi ? new Date(m.date_envoi).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '');
+          return `<div style="background:${bg};border-left:3px solid ${bc};border-radius:7px;padding:8px 10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+              <span style="font-size:.68rem;font-weight:800;color:${bc};">${esc(m.from_nom || m.nom || 'Direction')}</span>
+              <span style="font-size:.62rem;color:#94A3B8;">${time}</span>
+            </div>
+            <div style="font-size:.75rem;color:#0F172A;">${esc(m.txt || m.contenu || m.content || '')}</div>
+          </div>`;
+        }).join('');
+        // Badge messages
+        const badge = $('msgs-badge');
+        if (badge) { badge.style.display = 'none'; }
+      } catch (e) {
+        box.innerHTML = '<div style="text-align:center;padding:12px;color:#EF4444;font-size:.75rem;">❌ Erreur chargement</div>';
+      }
+    }
+
+    async function sendMsgSalleQuick() {
+      const txt = $('msg-salle-quick')?.value.trim();
+      if (!txt) { toast('Message vide', 'err'); return; }
+      try {
+        const d = await api('/admin/message-prof', {
+          method: 'POST',
+          body: JSON.stringify({ message: txt })
+        });
+        if (d.success || d.message) {
+          toast('✅ Message envoyé à la salle des profs', 'ok');
+          $('msg-salle-quick').value = '';
+          setTimeout(loadMsgsSalle, 300);
+        } else {
+          toast('❌ ' + (d.message || 'Erreur'), 'err');
+        }
+      } catch (e) { toast('❌ Erreur réseau', 'err'); }
+    }
+
     async function loadCahiersDirection() {
       const el = $('cahiers-list');
       if (!el) return;
@@ -4016,8 +4692,8 @@
         <button class="btn-p" style="padding:5px 10px;font-size:.68rem;" onclick="voirCahier('${p.id}')">
           <i data-lucide="book-open" style="width:12px;height:12px;"></i>Cahier
         </button>
-        <button class="btn-p" style="padding:5px 10px;font-size:.68rem;" onclick="msgProf('${p.id}')">
-          <i data-lucide="message-square" style="width:12px;height:12px;"></i>Message
+        <button class="btn-p" style="padding:5px 10px;font-size:.68rem;background:#7C3AED;" onclick="msgPrive('${p.id}', '${esc(p.nom)}', '${esc(p.mat)}')">
+          <i data-lucide="lock" style="width:12px;height:12px;"></i>Msg privé
         </button>
       </div>
     </div>`).join('');
@@ -4092,6 +4768,7 @@
         if (btn) { btn.disabled = false; btn.textContent = '✉️ Envoyer'; }
       }
     }
+
 
     /* ── Modal Cahier de texte ── */
     async function voirCahier(id) {
@@ -4227,126 +4904,260 @@
         const d = await api('/admin/agenda');
         const evts = d.evenements || [];
         const el = $('ag-list');
-        if (!el) return;
-        if (!evts.length) {
-          el.innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:.78rem;">Aucun événement — cliquez Ajouter</div>';
-          return;
-        }
         const palettes = [['#4F46E5', '#EFF6FF', '#3730A3'], ['#F59E0B', '#FFFBEB', '#92400E'], ['#10B981', '#F0FDF4', '#065F46'], ['#EF4444', '#FEF2F2', '#991B1B']];
-        el.innerHTML = evts.map((ev, i) => {
-          const [bc, bg, tc] = palettes[i % palettes.length];
-          return '<div class="ag-item" style="border-color:' + bc + ';background:' + bg + ';margin-bottom:8px;">'
-            + '<div style="font-size:.6rem;font-weight:800;color:' + tc + ';text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">' + esc(ev.date_debut || '') + '</div>'
-            + '<div style="font-size:.85rem;font-weight:800;color:#0F172A;">' + esc(ev.titre) + '</div>'
-            + (ev.description ? '<div style="font-size:.72rem;color:#475569;margin-top:2px;">' + esc(ev.description) + '</div>' : '')
-            + '</div>';
-        }).join('');
+
+        function fmtDate(d) {
+          if (!d) return '—';
+          // Gérer le format DD/MM/YYYY HH:MM renvoyé par to_char PostgreSQL
+          let dt;
+          if (typeof d === 'string' && /^\d{2}\/\d{2}\/\d{4}/.test(d)) {
+            const parts = d.split(' ');
+            const [day, month, year] = parts[0].split('/');
+            const time = parts[1] || '00:00';
+            dt = new Date(`${year}-${month}-${day}T${time}`);
+          } else {
+            dt = new Date(d);
+          }
+          if (isNaN(dt)) return d;
+          return dt.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: 'short' });
+        }
+
+        // Remplir la liste complète (section Agenda)
+        if (el) {
+          if (!evts.length) {
+            el.innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:.78rem;">Aucun événement — cliquez Ajouter</div>';
+          } else {
+            el.innerHTML = evts.map((ev, i) => {
+              const [bc, bg, tc] = palettes[i % palettes.length];
+              return '<div class="ag-item" style="border-color:' + bc + ';background:' + bg + ';margin-bottom:8px;border-left:3px solid ' + bc + ';border-radius:8px;padding:10px 12px;">'
+                + '<div style="font-size:.6rem;font-weight:800;color:' + tc + ';text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;">' + fmtDate(ev.date_debut) + '</div>'
+                + '<div style="font-size:.85rem;font-weight:800;color:#0F172A;">' + esc(ev.titre) + '</div>'
+                + (ev.description ? '<div style="font-size:.72rem;color:#475569;margin-top:2px;">' + esc(ev.description) + '</div>' : '')
+                + '</div>';
+            }).join('');
+          }
+        }
+
+        // Remplir le mini widget du tableau de bord
+        const miniBox = $('agenda-items');
+        if (miniBox) {
+          const now = new Date();
+          function parseAgendaDate(s) {
+            if (!s) return null;
+            if (typeof s === 'string' && /^\d{2}\/\d{2}\/\d{4}/.test(s)) {
+              const parts = s.split(' '); const [day, month, year] = parts[0].split('/');
+              return new Date(`${year}-${month}-${day}T${parts[1] || '00:00'}`);
+            }
+            return new Date(s);
+          }
+          const upcoming = evts.filter(ev => {
+            const d = parseAgendaDate(ev.date_debut);
+            return d && !isNaN(d) && d >= now;
+          }).slice(0, 4);
+          if (!upcoming.length) {
+            miniBox.innerHTML = '<div style="font-size:.73rem;color:#94A3B8;text-align:center;padding:10px 0;">Aucun événement à venir</div>';
+          } else {
+            miniBox.innerHTML = upcoming.map((ev, i) => {
+              const [bc, bg, tc] = palettes[i % palettes.length];
+              return `<div style="display:flex;align-items:center;gap:9px;padding:7px 10px;background:${bg};border-radius:8px;border-left:3px solid ${bc};">
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:.75rem;font-weight:800;color:#0F172A;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(ev.titre)}</div>
+                  <div style="font-size:.65rem;color:${tc};font-weight:700;margin-top:1px;">${fmtDate(ev.date_debut)}</div>
+                </div>
+              </div>`;
+            }).join('');
+          }
+        }
       } catch (e) {
         console.warn('loadAgenda:', e.message);
+        const miniBox = $('agenda-items');
+        if (miniBox) miniBox.innerHTML = '<div style="font-size:.73rem;color:#94A3B8;text-align:center;padding:8px;">Impossible de charger</div>';
       }
     }
 
-    async function saveAgenda() {
-      const titre = document.getElementById('ev-titre')?.value?.trim();
-      const dateVal = document.getElementById('ev-date')?.value;
-      const heureVal = document.getElementById('ev-heure')?.value || '08:00';
-      const date = dateVal ? dateVal + 'T' + heureVal : null;
-      const desc = document.getElementById('ev-desc')?.value?.trim();
-      const type = document.getElementById('ev-type')?.value || 'general';
-      if (!titre || !date) { toast('Titre et date requis', 'err'); return; }
+    async function saveAgendaFromFields(titre, dateVal, heureVal, desc, type) {
+      const date = dateVal ? (dateVal.includes('T') ? dateVal : dateVal + 'T' + (heureVal || '08:00')) : null;
+      if (!titre || !date) { toast('Titre et date requis', 'err'); return false; }
       try {
         const d = await api('/admin/agenda', {
           method: 'POST',
-          body: JSON.stringify({ titre, date_debut: date, description: desc, type_activite: type })
+          body: JSON.stringify({ titre, date_debut: date, description: desc, type_activite: type || 'general' })
         });
-        if (d.success || d.message) {
+        if (d.success || d.id || d.message) {
           toast('✅ Événement ajouté', 'ok');
-          closeModal('m-event');
-          // Vider les champs
-          ['ev-titre', 'ev-desc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
           setTimeout(() => loadAgenda(), 300);
+          return true;
         } else {
-          toast('❌ ' + (d.message || 'Erreur'), 'err');
+          toast('❌ ' + (d.message || 'Erreur'), 'err'); return false;
         }
-      } catch (e) { toast('Erreur: ' + e.message, 'err'); }
+      } catch (e) { toast('Erreur: ' + e.message, 'err'); return false; }
+    }
+    async function saveAgenda() {
+      // Lit les champs du MODAL m-event
+      const titre = document.getElementById('ev-titre')?.value?.trim();
+      const dateVal = document.getElementById('ev-date')?.value;
+      const desc = document.getElementById('ev-desc')?.value?.trim();
+      const type = document.getElementById('ev-type')?.value || 'general';
+      const ok = await saveAgendaFromFields(titre, dateVal, '', desc, type);
+      if (ok) {
+        closeModal('m-event');
+        ['ev-titre', 'ev-desc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      }
+    }
+    async function saveAgendaSide() {
+      // Lit les champs du panel latéral (IDs -side)
+      const titre = document.getElementById('ev-titre-side')?.value?.trim();
+      const dateVal = document.getElementById('ev-date-side')?.value;
+      const heureVal = document.getElementById('ev-heure-side')?.value || '08:00';
+      const desc = document.getElementById('ev-desc-side')?.value?.trim();
+      const type = document.getElementById('ev-type-side')?.value || 'general';
+      const ok = await saveAgendaFromFields(titre, dateVal, heureVal, desc, type);
+      if (ok) {
+        ['ev-titre-side', 'ev-desc-side', 'ev-lieu-side'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      }
     }
 
     async function loadCompta() {
       try {
-        // Données réelles depuis /admin/cotisations
         const d = await api('/admin/cotisations');
-        const cots = d.cotisations || d.paiements || d.data || [];
+        const cots = d.cotisations || [];
+
         if (cots.length) {
           compData = cots.map(c => ({
-            fam: c.famille || c.nom_famille || (c.nom || '') + ' ' + (c.prenom || ''),
+            id: c.id,
+            famille: c.famille || (c.nom || '') + ' ' + (c.prenom || ''),
             eleve: (c.prenom_eleve || c.prenom || '') + ' ' + (c.nom_eleve || c.nom || ''),
-            cls: c.classe_actuelle || c.classe || '—',
+            classe: c.classe_actuelle || c.classe || '—',
             code: c.code_unique || c.eleve_code || '—',
-            mnt: parseFloat(c.montant || 0),
+            montant: parseFloat(c.montant || 0),
             date: c.date_paiement || c.created_at || '',
-            statut: c.statut || 'en attente'
+            statut: c.statut || 'en attente',
+            mode_paiement: c.mode_paiement || '—'
           }));
         } else {
-          // Fallback : récupérer les élèves et afficher sans statut fictif
-          const ed = await api('/admin/eleves');
-          const eleves = ed.eleves || [];
-          compData = eleves.slice(0, 50).map(e => ({
-            fam: (e.nom || '') + ' ' + (e.prenom || ''),
-            eleve: (e.prenom || '') + ' ' + (e.nom || ''),
-            cls: e.classe || '—',
-            code: e.code_unique,
-            mnt: 0,
-            date: '',
-            statut: 'non enregistré'
-          }));
+          compData = [];
         }
+
+        // Calculer les totaux réels
+        const totalPaye = compData.filter(c => c.statut === 'payé').reduce((s, c) => s + c.montant, 0);
+        const totalAttente = compData.filter(c => c.statut === 'en attente').reduce((s, c) => s + c.montant, 0);
+        const totalRetard = compData.filter(c => c.statut === 'retard').reduce((s, c) => s + c.montant, 0);
+        const totalGeneral = totalPaye + totalAttente + totalRetard;
+        const nbPaye = compData.filter(c => c.statut === 'payé').length;
+        const nbTotal = compData.length;
+        const taux = nbTotal > 0 ? Math.round(nbPaye / nbTotal * 100) : 0;
+
+        // Mettre à jour les stats hero
+        const setEl = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+        setEl('compta-paye', totalPaye.toLocaleString() + ' FCFA');
+        setEl('compta-attente', totalAttente.toLocaleString() + ' FCFA');
+        setEl('compta-total', totalGeneral.toLocaleString() + ' FCFA');
+        setEl('compta-taux', nbPaye + ' / ' + nbTotal);
+        setEl('compta-taux-pct', taux + '%');
+        const bar = document.getElementById('compta-bar');
+        if (bar) setTimeout(() => { bar.style.width = taux + '%'; }, 200);
+
         renderCompta();
         buildDonut();
       } catch (e) {
         console.warn('loadCompta:', e.message);
-        compData = []; renderCompta(); buildDonut();
+        compData = [];
+        renderCompta();
+        buildDonut();
       }
     }
     function renderCompta() {
       const q = ($('cpt-srch')?.value || '').toLowerCase();
       const f = ($('cpt-filt')?.value || '').toLowerCase();
-      const r = compData.filter(c => (!q || (c.fam + c.eleve + c.cls).toLowerCase().includes(q)) && (!f || c.statut === f));
-      $('cpt-wrap').innerHTML = `<table class="tbl">
-    <thead><tr><th>Famille</th><th>Élève</th><th>Classe</th><th>Montant</th><th>Date</th><th>Statut</th><th>Action</th></tr></thead>
-    <tbody>${r.map((c, i) => `<tr>
-      <td style="font-weight:700;">${esc(c.fam)}</td>
-      <td>${esc(c.eleve)}</td>
-      <td><span class="b b-ind">${esc(c.cls)}</span></td>
-      <td style="font-family:'JetBrains Mono',monospace;font-weight:800;">${c.mnt.toLocaleString()} FCFA</td>
-      <td style="font-size:.75rem;color:#64748B;">${c.date || '—'}</td>
-      <td><span class="${c.statut === 'payé' ? 'pay-ok' : c.statut === 'retard' ? 'pay-late' : 'pay-pend'}">${c.statut}</span></td>
-      <td>${c.statut !== 'payé' ? `<button class="btn-p" style="padding:5px 9px;font-size:.67rem;" onclick="marquerPaye(${i})">Marquer payé</button>` : '<span style="color:#94A3B8;font-size:.7rem;">✓</span>'}</td>
-    </tr>`).join('')}</tbody>
+      const r = compData.filter(c => {
+        const searchStr = ((c.famille || '') + (c.eleve || '') + (c.classe || '') + (c.code || '')).toLowerCase();
+        return (!q || searchStr.includes(q)) && (!f || c.statut === f);
+      });
+      if (!r.length) {
+        $('cpt-wrap').innerHTML = '<div style="text-align:center;padding:40px;color:#94A3B8;font-size:.8rem;">Aucun résultat</div>';
+        return;
+      }
+      $('cpt-wrap').innerHTML = `<table class="tbl" style="width:100%;border-collapse:collapse;">
+    <thead><tr style="background:#F8FAFF;border-bottom:2px solid #E2E8F0;">
+      <th style="padding:12px 14px;text-align:left;font-size:.7rem;font-weight:800;color:#475569;text-transform:uppercase;">Famille</th>
+      <th style="padding:12px 14px;text-align:left;font-size:.7rem;font-weight:800;color:#475569;text-transform:uppercase;">Élève</th>
+      <th style="padding:12px 14px;text-align:left;font-size:.7rem;font-weight:800;color:#475569;text-transform:uppercase;">Classe</th>
+      <th style="padding:12px 14px;text-align:left;font-size:.7rem;font-weight:800;color:#475569;text-transform:uppercase;">Montant</th>
+      <th style="padding:12px 14px;text-align:left;font-size:.7rem;font-weight:800;color:#475569;text-transform:uppercase;">Date</th>
+      <th style="padding:12px 14px;text-align:left;font-size:.7rem;font-weight:800;color:#475569;text-transform:uppercase;">Statut</th>
+      <th style="padding:12px 14px;text-align:center;font-size:.7rem;font-weight:800;color:#475569;text-transform:uppercase;">Action</th>
+    </tr></thead>
+    <tbody>${r.map((c, i) => {
+        const dateStr = c.date ? new Date(c.date).toLocaleDateString('fr-FR') : '—';
+        const statutCls = c.statut === 'payé' ? 'pay-ok' : c.statut === 'retard' ? 'pay-late' : 'pay-pend';
+        return `<tr style="border-bottom:1px solid #F1F5F9;" onmouseover="this.style.background='#FAFBFF'" onmouseout="this.style.background=''">
+        <td style="padding:13px 14px;font-weight:700;color:#0F172A;">${esc(c.famille || '—')}</td>
+        <td style="padding:13px 14px;color:#374151;">${esc(c.eleve || '—')}</td>
+        <td style="padding:13px 14px;"><span class="b b-ind">${esc(c.classe || '—')}</span></td>
+        <td style="padding:13px 14px;font-family:'JetBrains Mono',monospace;font-weight:800;color:#0F172A;">${(c.montant || 0).toLocaleString()} FCFA</td>
+        <td style="padding:13px 14px;font-size:.75rem;color:#64748B;">${dateStr}</td>
+        <td style="padding:13px 14px;"><span class="${statutCls}">${c.statut || '—'}</span></td>
+        <td style="padding:13px 14px;text-align:center;">${c.statut !== 'payé'
+            ? `<button class="btn-p" style="padding:5px 9px;font-size:.67rem;" onclick="marquerPaye(${compData.indexOf(c)})">✓ Marquer payé</button>`
+            : '<span style="color:#10B981;font-size:.75rem;font-weight:800;">✓ Payé</span>'
+          }</td>
+      </tr>`;
+      }).join('')}</tbody>
   </table>`;
     }
     function filtCompta() { if (compData.length) renderCompta(); }
-    function marquerPaye(i) {
-      compData[i].statut = 'payé'; compData[i].date = new Date().toISOString().split('T')[0];
-      renderCompta(); buildDonut(); toast('Paiement validé — le parent sera notifié', 'ok');
+    async function marquerPaye(i) {
+      if (!confirm('Marquer ce paiement comme reçu ?')) return;
+      compData[i].statut = 'payé';
+      compData[i].date = new Date().toISOString().split('T')[0];
+      // Sauvegarder en DB
+      try {
+        await api('/admin/paiement', {
+          method: 'POST',
+          body: JSON.stringify({
+            famille: compData[i].famille,
+            montant: compData[i].montant,
+            date_paiement: compData[i].date,
+            eleve_code: compData[i].code
+          })
+        });
+      } catch (e) { /* continuer si l'API n'existe pas encore */ }
+      renderCompta();
+      buildDonut();
+      // Recalculer les totaux
+      const totalPaye = compData.filter(c => c.statut === 'payé').reduce((s, c) => s + c.montant, 0);
+      const totalAttente = compData.filter(c => c.statut === 'en attente').reduce((s, c) => s + c.montant, 0);
+      const totalRetard = compData.filter(c => c.statut === 'retard').reduce((s, c) => s + c.montant, 0);
+      const el1 = document.getElementById('compta-paye'); if (el1) el1.textContent = totalPaye.toLocaleString() + ' FCFA';
+      const el2 = document.getElementById('compta-attente'); if (el2) el2.textContent = totalAttente.toLocaleString() + ' FCFA';
+      const el3 = document.getElementById('compta-total'); if (el3) el3.textContent = (totalPaye + totalAttente + totalRetard).toLocaleString() + ' FCFA';
+      toast('✅ Paiement validé', 'ok');
     }
     async function savePaiement() {
-      const fam = $('pay-fam').value?.trim();
-      const mnt = parseFloat($('pay-mnt').value) || 0;
+      const fam = $('pay-fam')?.value?.trim();
+      const mnt = parseFloat($('pay-mnt')?.value) || 0;
       const dt = $('pay-dt')?.value || new Date().toISOString().split('T')[0];
       if (!fam || !mnt) { toast('Famille et montant requis', 'err'); return; }
       try {
-        // Trouver l'élève correspondant dans compData ou par code
-        const eleve = compData.find(e => (e.fam || '').toLowerCase().includes(fam.toLowerCase()) || (e.code || '') === fam);
+        const eleve = compData.find(e =>
+          (e.famille || '').toLowerCase().includes(fam.toLowerCase()) || (e.code || '') === fam
+        );
         await api('/admin/paiement', {
           method: 'POST',
           body: JSON.stringify({ famille: fam, montant: mnt, date_paiement: dt, eleve_code: eleve?.code || fam })
         });
-      } catch (e) { /* API peut ne pas exister encore, on continue */ }
-      // Mise à jour locale immédiate
-      const existing = compData.find(e => (e.fam || '').toLowerCase().includes(fam.toLowerCase()) || (e.code || '') === fam);
-      if (existing) { existing.statut = 'payé'; existing.date_pmt = dt; }
-      else compData.push({ fam, eleve: fam, cls: '—', mnt, date: dt, statut: 'payé' });
+      } catch (e) { /* API peut ne pas exister encore */ }
+      const existing = compData.find(e =>
+        (e.famille || '').toLowerCase().includes(fam.toLowerCase()) || (e.code || '') === fam
+      );
+      if (existing) { existing.statut = 'payé'; existing.date = dt; existing.montant = mnt; }
+      else compData.push({ famille: fam, eleve: fam, classe: '—', montant: mnt, date: dt, statut: 'payé', code: fam });
       renderCompta(); buildDonut();
+      // Recalculer totaux
+      const totalPaye = compData.filter(c => c.statut === 'payé').reduce((s, c) => s + c.montant, 0);
+      const totalGeneral = compData.reduce((s, c) => s + c.montant, 0);
+      const el1 = document.getElementById('compta-paye'); if (el1) el1.textContent = totalPaye.toLocaleString() + ' FCFA';
+      const el3 = document.getElementById('compta-total'); if (el3) el3.textContent = totalGeneral.toLocaleString() + ' FCFA';
       toast('✅ Paiement enregistré', 'ok');
       $('pay-fam').value = ''; if ($('pay-mnt')) $('pay-mnt').value = '';
     }
@@ -4354,16 +5165,29 @@
       const ok = compData.filter(c => c.statut === 'payé').length;
       const pend = compData.filter(c => c.statut === 'en attente').length;
       const late = compData.filter(c => c.statut === 'retard').length;
+      const mOk = compData.filter(c => c.statut === 'payé').reduce((s, c) => s + c.montant, 0);
+      const mPend = compData.filter(c => c.statut === 'en attente').reduce((s, c) => s + c.montant, 0);
+      const mLate = compData.filter(c => c.statut === 'retard').reduce((s, c) => s + c.montant, 0);
       if (donutChart) donutChart.destroy();
       const ctx = $('donutChart'); if (!ctx) return;
       donutChart = new Chart(ctx, {
         type: 'doughnut',
-        data: { labels: ['Payé', 'En attente', 'Retard'], datasets: [{ data: [ok, pend, late], backgroundColor: ['#10B981', '#F59E0B', '#EF4444'], borderWidth: 0, hoverOffset: 4 }] },
+        data: {
+          labels: ['Payé', 'En attente', 'Retard'],
+          datasets: [{ data: [ok || 0, pend || 0, late || 0], backgroundColor: ['#10B981', '#F59E0B', '#EF4444'], borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+        },
         options: {
-          responsive: true, maintainAspectRatio: false, cutout: '72%',
+          responsive: true, maintainAspectRatio: false, cutout: '70%',
           plugins: {
-            legend: { position: 'bottom', labels: { font: { size: 10, weight: '700' }, padding: 10, usePointStyle: true } },
-            tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed} familles` } }
+            legend: { position: 'bottom', labels: { font: { size: 11, weight: '700' }, padding: 12, usePointStyle: true } },
+            tooltip: {
+              callbacks: {
+                label: c => {
+                  const amts = [mOk, mPend, mLate];
+                  return ` ${c.label}: ${c.parsed} famille(s) — ${amts[c.dataIndex].toLocaleString()} FCFA`;
+                }
+              }
+            }
           }
         }
       });
@@ -4471,8 +5295,189 @@
     function saveEvent() { saveAgenda(); }
 
     // ══════════════════════════════════════
-    // HELPERS
+    // COMPOSITIONS & EXAMENS
     // ══════════════════════════════════════
+    let compoData = [];
+    let compoFilter = 'all';
+    const EXAM_CLASSES = ['3ème', 'Tle A', 'Tle D'];
+
+    async function loadCompositions() {
+      const tbody = $('compo-tbody');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#94A3B8;">⏳ Chargement…</td></tr>';
+      try {
+        const d = await api('/admin/compositions');
+        compoData = d.compositions || [];
+      } catch (e) {
+        compoData = [];
+        console.warn('loadCompositions:', e.message);
+      }
+      renderCompositions();
+    }
+
+    function renderCompositions() {
+      const tbody = $('compo-tbody');
+      const countBadge = $('compo-count');
+      if (!tbody) return;
+      let filtered = compoData;
+      if (compoFilter === 'composition') filtered = compoData.filter(c => c.type !== 'examen');
+      if (compoFilter === 'examen') filtered = compoData.filter(c => c.type === 'examen');
+      if (countBadge) countBadge.textContent = filtered.length;
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:50px;color:#94A3B8;">
+          <div style="font-size:2rem;margin-bottom:8px;">📋</div>
+          <div style="font-size:.82rem;font-weight:600;">Aucune épreuve programmée</div>
+          <div style="font-size:.72rem;margin-top:4px;">Cliquez sur "Nouvelle épreuve" pour commencer</div>
+        </td></tr>`;
+        return;
+      }
+      const typeColors = { composition: ['#4F46E5', '#EFF6FF'], examen_blanc: ['#F59E0B', '#FFFBEB'], examen: ['#EF4444', '#FEF2F2'] };
+      const typeLabels = { composition: '📋 Composition', examen_blanc: '📝 Examen Blanc', examen: '🎓 Examen officiel' };
+      tbody.innerHTML = filtered.map(c => {
+        const [tc, bg] = typeColors[c.type] || ['#64748B', '#F8FAFF'];
+        const label = typeLabels[c.type] || c.type;
+        const classes = Array.isArray(c.classes) ? c.classes.join(', ') : (c.classe || c.classes || '—');
+        const dateStr = c.date_debut ? new Date(c.date_debut).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : (c.date || '—');
+        return `<tr style="border-bottom:1px solid #F1F5F9;transition:background .15s;" onmouseover="this.style.background='#FAFBFF'" onmouseout="this.style.background=''">
+          <td style="padding:13px 14px;font-weight:800;color:#0F172A;">${esc(c.titre || c.title || '—')}</td>
+          <td style="padding:13px 14px;"><span style="font-size:.72rem;background:#EEF2FF;color:#4F46E5;padding:3px 8px;border-radius:20px;font-weight:700;">${esc(classes)}</span></td>
+          <td style="padding:13px 14px;font-size:.8rem;color:#475569;">${esc(c.matiere || '—')}</td>
+          <td style="padding:13px 14px;font-size:.78rem;color:#475569;white-space:nowrap;">${dateStr}</td>
+          <td style="padding:13px 14px;"><span style="background:${bg};color:${tc};padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:800;">${label}</span></td>
+          <td style="padding:13px 14px;text-align:center;">
+            <div style="display:flex;gap:6px;justify-content:center;">
+              <button onclick="editCompo('${c.id || c.id_composition}')" style="padding:5px 9px;border:1px solid #E2E8F0;border-radius:7px;background:#fff;cursor:pointer;font-size:.72rem;">✏️</button>
+              <button onclick="deleteCompo('${c.id || c.id_composition}')" style="padding:5px 9px;border:1px solid #FECACA;border-radius:7px;background:#FEF2F2;color:#DC2626;cursor:pointer;font-size:.72rem;">🗑️</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    function filtCompo(type, btn) {
+      compoFilter = type;
+      document.querySelectorAll('#s-compo .filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderCompositions();
+    }
+
+    function onCompoTypeChange() {
+      const type = $('cp-type')?.value;
+      document.querySelectorAll('.cp-cls-cb').forEach(cb => cb.checked = false);
+      if (type === 'examen' || type === 'examen_blanc') {
+        document.querySelectorAll('.cp-cls-cb').forEach(cb => {
+          cb.checked = ['3ème', 'Tle A', 'Tle D'].some(c => cb.value.startsWith(c));
+        });
+        toast('💡 Classes BEPC/BAC pré-sélectionnées', 'info');
+      }
+    }
+
+    function openAddCompo() {
+      resetCompoForm();
+      const today = new Date().toISOString().split('T')[0];
+      const dateEl = $('cp-date'); if (dateEl) dateEl.value = today;
+    }
+
+    function resetCompoForm() {
+      ['cp-titre', 'cp-salle', 'cp-notes'].forEach(id => { const e = $(id); if (e) e.value = ''; });
+      const duree = $('cp-duree'); if (duree) duree.value = '120';
+      const type = $('cp-type'); if (type) type.value = 'composition';
+      // Décocher toutes les classes
+      document.querySelectorAll('.cp-cls-cb').forEach(cb => cb.checked = false);
+      const msg = $('cp-msg'); if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+      const title = $('compo-form-title'); if (title) title.textContent = '➕ Nouvelle épreuve';
+      const hiddenId = $('cp-edit-id'); if (hiddenId) hiddenId.remove();
+    }
+
+
+    // ── Helpers classes checkboxes ──
+    function getSelectedClasses() {
+      return Array.from(document.querySelectorAll('.cp-cls-cb:checked')).map(cb => cb.value);
+    }
+    function selectAllClasses(val) {
+      document.querySelectorAll('.cp-cls-cb').forEach(cb => cb.checked = val);
+    }
+
+    async function saveCompo() {
+      const titre = $('cp-titre')?.value.trim();
+      const type = $('cp-type')?.value;
+      const date = $('cp-date')?.value;
+      const heure = $('cp-heure')?.value || '08:00';
+      const salle = $('cp-salle')?.value?.trim() || '';
+      const duree = parseInt($('cp-duree')?.value) || 120;
+      const notes = $('cp-notes')?.value?.trim() || '';
+      const classes = getSelectedClasses();
+      const msgEl = $('cp-msg');
+
+      if (!titre) { toast('⚠️ Titre requis', 'err'); return; }
+      if (!date) { toast('⚠️ Date requise', 'err'); return; }
+      if (!classes.length) { toast('⚠️ Sélectionnez au moins une classe', 'err'); return; }
+      if (type === 'examen' && !classes.every(c => ['3ème', 'Tle A', 'Tle D'].some(ec => c.startsWith(ec)))) {
+        if (!confirm('⚠️ Les examens officiels sont normalement réservés aux 3ème, Tle A et Tle D. Continuer ?')) return;
+      }
+
+      if (msgEl) {
+        msgEl.style.cssText = 'display:block;background:#EEF2FF;color:#4F46E5;padding:8px 12px;border-radius:7px;font-size:.73rem;border:1px solid #C7D2FE;';
+        msgEl.textContent = '⏳ Enregistrement en cours…';
+      }
+
+      const editId = $('cp-edit-id')?.value;
+      const payload = { titre, type, matiere: '', date_debut: date + 'T' + heure + ':00', salle, duree_minutes: duree, description: notes, classes };
+
+      try {
+        const d = editId
+          ? await api('/admin/compositions/' + editId, { method: 'PUT', body: JSON.stringify(payload) })
+          : await api('/admin/compositions', { method: 'POST', body: JSON.stringify(payload) });
+
+        if (d.success || d.id || d.id_composition) {
+          toast('✅ Épreuve ' + (editId ? 'modifiée' : 'enregistrée') + ' avec succès !', 'ok');
+          resetCompoForm();
+          await loadCompositions();
+        } else {
+          const errMsg = d.message || d.error || 'Erreur serveur';
+          if (msgEl) {
+            msgEl.style.cssText = 'display:block;background:#FEF2F2;color:#DC2626;padding:8px 12px;border-radius:7px;font-size:.73rem;border:1px solid #FECACA;';
+            msgEl.textContent = '❌ ' + errMsg;
+          }
+          toast('❌ ' + errMsg, 'err');
+        }
+      } catch (e) {
+        if (msgEl) {
+          msgEl.style.cssText = 'display:block;background:#FEF2F2;color:#DC2626;padding:8px 12px;border-radius:7px;font-size:.73rem;border:1px solid #FECACA;';
+          msgEl.textContent = '❌ Erreur réseau : ' + e.message;
+        }
+        toast('❌ Erreur réseau', 'err');
+      }
+    }
+
+    async function deleteCompo(id) {
+      if (!confirm('⚠️ Supprimer définitivement cette épreuve ?')) return;
+      try {
+        const d = await api('/admin/compositions/' + id, { method: 'DELETE' });
+        toast('🗑️ Épreuve supprimée', 'ok');
+        await loadCompositions();
+      } catch (e) { toast('❌ Erreur suppression', 'err'); }
+    }
+
+    function editCompo(id) {
+      const c = compoData.find(x => String(x.id || x.id_composition) === String(id));
+      if (!c) return;
+      $('compo-form-title').textContent = '✏️ Modifier l\'épreuve';
+      $('cp-titre').value = c.titre || c.title || '';
+      $('cp-type').value = c.type || 'composition';
+      const d = c.date_debut || c.date || '';
+      if (d) { const parts = d.split('T'); $('cp-date').value = parts[0]; if (parts[1]) $('cp-heure').value = parts[1].slice(0, 5); }
+      $('cp-salle').value = c.salle || '';
+      $('cp-duree').value = c.duree_minutes || 120;
+      $('cp-notes').value = c.description || '';
+      const classes = Array.isArray(c.classes) ? c.classes : (c.classe ? [c.classe] : []);
+      document.querySelectorAll('.cp-cls-cb').forEach(cb => {
+        cb.checked = classes.some(cl => cb.value === cl || cl.startsWith(cb.value.split(' ')[0]));
+      });
+      let hiddenId = $('cp-edit-id');
+      if (!hiddenId) { hiddenId = document.createElement('input'); hiddenId.type = 'hidden'; hiddenId.id = 'cp-edit-id'; $('compo-form-card').appendChild(hiddenId); }
+      hiddenId.value = id;
+      $('compo-form-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
     function showMsg(el, txt, type) {
       if (!el) return;
       el.style.display = 'block'; el.textContent = txt;
@@ -4486,17 +5491,23 @@
       t.textContent = msg; t.className = `toast toast-${type === 'ok' ? 'ok' : type === 'err' ? 'err' : 'info'} show`;
       setTimeout(() => t.classList.remove('show'), 2800);
     }
+    // ── Fonctions modales uniques ──
     function openModal(id) {
       const el = document.getElementById(id);
-      if (el) {
-        el.style.display = 'flex';
-      }
+      if (!el) return;
+      el.style.display = 'flex';
+      // Déclencher l'animation CSS en ajoutant la classe open avec léger délai
+      setTimeout(() => el.classList.add('open'), 10);
     }
     function closeModal(id) {
       if (id) {
         const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
+        if (!el) return;
+        el.classList.remove('open');
+        // Attendre la fin de l'animation avant de cacher
+        setTimeout(() => { el.style.display = 'none'; }, 250);
       } else {
+        // Fermeture du modal générique #ov
         const ov = $('ov'); if (ov) ov.classList.remove('open');
       }
     }
@@ -4532,6 +5543,34 @@
         if (btn) setTimeout(fixGrids, 80);
       });
     })();
+    // ========== SÉLECTION TYPE ABSENCE ==========
+    function selectAbsType(val, el) {
+      // Mettre à jour la valeur cachée
+      const input = document.getElementById('af-type-m');
+      if (input) input.value = val;
+      // Styles des cartes
+      document.querySelectorAll('.abs-type-card').forEach(card => {
+        card.style.borderColor = '#E2E8F0';
+        card.style.background = '#fff';
+        card.style.fontWeight = '600';
+      });
+      if (el) {
+        const colors = { 'false': '#EF4444', 'true': '#10B981', 'retard': '#F59E0B' };
+        el.style.borderColor = colors[val] || '#4F46E5';
+        el.style.background = val === 'false' ? '#FEF2F2' : val === 'true' ? '#ECFDF5' : '#FFFBEB';
+        el.style.fontWeight = '800';
+      }
+    }
+   
+
+    function nextPage() {
+      const filtered = getFilteredAbsences();
+      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderAbsTable();
+      }
+    }
 
   </script>
 
@@ -4688,11 +5727,412 @@
       if (sb) sb.classList.remove('open');
       if (ov) ov.classList.remove('show');
     }
+    // ============== MESSAGES PRIVÉS AUX PROFESSEURS ==============
+
+    // Ouvrir la modale pour envoyer un message privé
+    function msgPrive(profId, profNom, profMatiere) {
+      const modal = document.getElementById('modal-msg-prive');
+      if (!modal) return;
+
+      // Remplir les infos
+      document.getElementById('mp-titre').textContent = profNom;
+      document.getElementById('mp-sous').textContent = profMatiere || 'Professeur';
+      document.getElementById('mp-av').textContent = profNom.charAt(0).toUpperCase();
+      document.getElementById('mp-id').value = profId;
+      document.getElementById('mp-msg').value = '';
+
+      // Afficher la modale
+      modal.style.display = 'flex';
+      setTimeout(() => modal.classList.add('open'), 10);
+      document.getElementById('mp-msg').focus();
+    }
+
+    // Fermer la modale
+    function closeMsgPrive() {
+      const modal = document.getElementById('modal-msg-prive');
+      if (modal) {
+        modal.classList.remove('open');
+        setTimeout(() => modal.style.display = 'none', 250);
+      }
+    }
+
+    // Envoyer le message privé
+    async function sendMsgPrive() {
+      const profId = document.getElementById('mp-id').value;
+      const message = document.getElementById('mp-msg').value.trim();
+      const btn = document.querySelector('#modal-msg-prive button[onclick="sendMsgPrive()"]');
+
+      if (!message) {
+        toast('✏️ Veuillez saisir un message', 'err');
+        document.getElementById('mp-msg').style.borderColor = '#EF4444';
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<div class="spin" style="width:14px;height:14px;"></div> Envoi...';
+      }
+
+      try {
+        const d = await api('/admin/message-prof', {
+          method: 'POST',
+          body: JSON.stringify({
+            destinataire: profId,
+            message: message,
+            prive: true
+          })
+        });
+
+        if (d.success || d.message?.includes('envoyé')) {
+          toast('✅ Message privé envoyé avec succès', 'ok');
+          closeMsgPrive();
+        } else {
+          toast('❌ ' + (d.message || 'Erreur lors de l\'envoi'), 'err');
+        }
+      } catch (e) {
+        console.error('Erreur envoi message:', e);
+        toast('❌ Erreur réseau: ' + e.message, 'err');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="send" style="width:14px;height:14px;"></i>Envoyer en privé';
+          if (window.lucide) lucide.createIcons();
+        }
+      }
+    }
+    // ========== NOUVELLES FONCTIONS POUR LA GESTION DES ABSENCES ==========
+
+    let absencesData = [];
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    let currentFilter = 'all';
+
+    async function loadAbsences() {
+      try {
+        const response = await fetch('/api/surveillants/absences', {
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        const data = await response.json();
+        absencesData = data.absences || [];
+        updateAbsStats();
+        renderAbsTable();
+        const updateEl = document.getElementById('last-update');
+        if (updateEl) updateEl.textContent = new Date().toLocaleTimeString();
+      } catch (error) {
+        console.error('Erreur chargement absences:', error);
+        absencesData = [];
+        renderAbsTable();
+      }
+    }
+
+    function updateAbsStats() {
+      const total = absencesData.length;
+      const nj = absencesData.filter(a => !a.justifiee && !a.retard).length;
+      const j = absencesData.filter(a => a.justifiee).length;
+      const retard = absencesData.filter(a => a.retard).length;
+
+      const statTotal = document.getElementById('stat-total');
+      const statNj = document.getElementById('stat-nj');
+      const statJ = document.getElementById('stat-j');
+      const statRetard = document.getElementById('stat-retard');
+      const totalCount = document.getElementById('total-count');
+
+      if (statTotal) statTotal.textContent = total;
+      if (statNj) statNj.textContent = nj;
+      if (statJ) statJ.textContent = j;
+      if (statRetard) statRetard.textContent = retard;
+      if (totalCount) totalCount.textContent = total;
+    }
+
+    function getFilteredAbsences() {
+      const searchInput = document.getElementById('abs-search');
+      const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+
+      let filtered = absencesData.filter(a => {
+        if (currentFilter === 'nj') return !a.justifiee && !a.retard;
+        if (currentFilter === 'j') return a.justifiee;
+        if (currentFilter === 'retard') return a.retard;
+        return true;
+      });
+
+      if (searchTerm) {
+        filtered = filtered.filter(a =>
+          (a.nom || '').toLowerCase().includes(searchTerm) ||
+          (a.prenom || '').toLowerCase().includes(searchTerm) ||
+          (a.code_unique || '').toLowerCase().includes(searchTerm)
+        );
+      }
+
+      return filtered;
+    }
+
+    function renderAbsTable() {
+      const filtered = getFilteredAbsences();
+      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const pageData = filtered.slice(start, end);
+
+      const pageStart = document.getElementById('page-start');
+      const pageEnd = document.getElementById('page-end');
+      const absCountBadge = document.getElementById('abs-count-badge');
+      const prevBtn = document.getElementById('prev-page-btn');
+      const nextBtn = document.getElementById('next-page-btn');
+
+      if (pageStart) pageStart.textContent = filtered.length ? start + 1 : 0;
+      if (pageEnd) pageEnd.textContent = Math.min(end, filtered.length);
+      if (absCountBadge) absCountBadge.textContent = filtered.length;
+      if (prevBtn) prevBtn.disabled = currentPage === 1;
+      if (nextBtn) nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+
+      const tbody = document.getElementById('abs-table-body');
+      if (!tbody) return;
+
+      if (pageData.length === 0) {
+        tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center; padding:60px 20px;">
+          <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+            <i data-lucide="inbox" style="width:40px; height:40px; color:#CBD5E1;"></i>
+            <span style="font-size:.85rem; color:#94A3B8;">Aucune absence trouvée</span>
+          </div>
+        </td>
+      </tr>`;
+        if (window.lucide) lucide.createIcons();
+        return;
+      }
+
+      tbody.innerHTML = pageData.map(a => {
+        const isNJ = !a.justifiee && !a.retard;
+        const isJ = a.justifiee;
+        const isRet = a.retard;
+
+        let badgeHtml = '';
+        if (isNJ) badgeHtml = '<span class="badge-status badge-nj"><i data-lucide="x-circle" style="width:12px;height:12px;"></i> Non justifiée</span>';
+        else if (isJ) badgeHtml = '<span class="badge-status badge-j"><i data-lucide="check-circle-2" style="width:12px;height:12px;"></i> Justifiée</span>';
+        else if (isRet) badgeHtml = '<span class="badge-status badge-retard"><i data-lucide="clock" style="width:12px;height:12px;"></i> Retard</span>';
+
+        let actionsHtml = '';
+        if (!isJ) {
+          actionsHtml += `<button class="action-btn btn-justify" onclick="justifierAbsence('${a.id_absence}')">✓ Justifier</button>`;
+        }
+        if (ROLE === 'DIRECTION') {
+          actionsHtml += `<button class="action-btn btn-edit" onclick="editAbsence('${a.id_absence}')">✏️</button>`;
+          actionsHtml += `<button class="action-btn btn-delete" onclick="deleteAbsence('${a.id_absence}')">🗑</button>`;
+        }
+
+        function formatDateAbs(dateStr) {
+          if (!dateStr) return '—';
+          const date = new Date(dateStr);
+          if (isNaN(date.getTime())) return dateStr;
+          return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        return `
+      <tr>
+        <td style="padding:14px 16px;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:700; color:#4F46E5;">${escapeHtmlAbs(a.code_unique || '—')}</span>
+        </td>
+        <td style="padding:14px 16px;">
+          <div style="font-weight:800; color:#0F172A;">${escapeHtmlAbs(a.prenom || '')} ${escapeHtmlAbs(a.nom || '')}</div>
+        </td>
+        <td style="padding:14px 16px;">
+          <span style="padding:3px 10px; background:#EEF2FF; color:#4F46E5; border-radius:20px; font-size:.68rem; font-weight:700;">${escapeHtmlAbs(a.classe_actuelle || a.classe || '—')}</span>
+        </td>
+        <td style="padding:14px 16px;">
+          <span style="font-size:.78rem; color:#475569;">${formatDateAbs(a.date_absence)}</span>
+        </td>
+        <td style="padding:14px 16px;">${badgeHtml}</td>
+        <td style="padding:14px 16px;">
+          <span style="font-size:.72rem; color:#64748B;">${escapeHtmlAbs(a.raison_absence || '—')}</span>
+        </td>
+        <td style="padding:14px 16px;">
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">${actionsHtml || '<span style="font-size:.7rem; color:#94A3B8;">—</span>'}</div>
+        </td>
+      </tr>`;
+      }).join('');
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function escapeHtmlAbs(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>]/g, function (m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    function filtAbs(type, btn) {
+      currentFilter = type;
+      currentPage = 1;
+
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      renderAbsTable();
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderAbsTable();
+      }
+    }
+
+    function nextPage() {
+      const filtered = getFilteredAbsences();
+      const totalPages = Math.ceil(filtered.length / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderAbsTable();
+      }
+    }
+
+    async function justifierAbsence(id) {
+      if (!confirm('Voulez-vous marquer cette absence comme justifiée ?')) return;
+
+      try {
+        const response = await fetch('/api/surveillants/absences/justification', {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_absence: id, justifiee: true })
+        });
+        const data = await response.json();
+        if (data.message || data.success) {
+          toast('✅ Absence justifiée avec succès', 'ok');
+          loadAbsences();
+        } else {
+          toast('❌ Erreur lors de la justification', 'err');
+        }
+      } catch (error) {
+        toast('❌ Erreur réseau', 'err');
+      }
+    }
+
+    async function deleteAbsence(id) {
+      if (!confirm('⚠️ Supprimer définitivement cette absence ?')) return;
+
+      try {
+        // Direction utilise l'API admin, surveillant utilise surveillants
+        const route = ROLE === 'DIRECTION' ? `/api/admin/absences/${id}` : `/api/surveillants/absences/${id}`;
+        const response = await fetch(route, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        const resData = response.ok ? { success: true } : await response.json().catch(() => ({}));
+        if (response.ok || resData.success) {
+          toast('🗑️ Absence supprimée avec succès', 'ok');
+          loadAbsences();
+        } else {
+          toast('❌ ' + (resData.message || 'Erreur lors de la suppression'), 'err');
+        }
+      } catch (error) {
+        toast('❌ Erreur réseau', 'err');
+      }
+    }
+
+    function editAbsence(id) {
+      // Fonction à implémenter selon vos besoins
+      toast('✏️ Fonction de modification à venir', 'info');
+    }
+
+    function exportAbsencesToExcel() {
+      const filtered = getFilteredAbsences();
+      const rows = [['Matricule', 'Élève', 'Classe', 'Date', 'Statut', 'Motif']];
+
+      filtered.forEach(a => {
+        let statut = '';
+        if (a.justifiee) statut = 'Justifiée';
+        else if (a.retard) statut = 'Retard';
+        else statut = 'Non justifiée';
+
+        rows.push([
+          a.code_unique || '',
+          `${a.prenom || ''} ${a.nom || ''}`,
+          a.classe_actuelle || a.classe || '',
+          new Date(a.date_absence).toLocaleDateString('fr-FR'),
+          statut,
+          a.raison_absence || ''
+        ]);
+      });
+
+      const csv = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `absences_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('📥 Export CSV téléchargé', 'ok');
+    }
+
+    // ========== OUVERTURE MODAL ABSENCE ==========
+    function openAddAbsence() {
+      const modal = document.getElementById('m-absence');
+      if (!modal) return;
+
+      modal.style.display = 'flex';
+      modal.classList.add('open');   // ← AJOUTER CETTE LIGNE
+
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('af-date-m');
+      if (dateInput) dateInput.value = today;
+
+      const matInput = document.getElementById('af-mat-m');
+      if (matInput) matInput.value = '';
+
+      const motifInput = document.getElementById('af-motif-m');
+      if (motifInput) motifInput.value = '';
+
+      const typeInput = document.getElementById('af-type-m');
+      if (typeInput) typeInput.value = 'false';
+
+      document.querySelectorAll('.abs-type-card').forEach(card => {
+        card.style.borderColor = '#E2E8F0';
+        card.style.background = '#fff';
+        card.style.fontWeight = '600';
+      });
+
+      const defaultCard = document.querySelector('.abs-type-card[data-type="false"]');
+      if (defaultCard) {
+        defaultCard.style.borderColor = '#EF4444';
+        defaultCard.style.background = '#FEF2F2';
+        defaultCard.style.fontWeight = '800';
+      }
+
+      setTimeout(() => {
+        const m = document.getElementById('af-mat-m');
+        if (m) m.focus();
+      }, 100);
+    }
+
+    // ========== SÉLECTION TYPE ABSENCE ==========
+    function selectAbsType(val, el) {
+      // Mettre à jour la valeur cachée
+      const input = document.getElementById('af-type-m');
+      if (input) input.value = val;
+
+      // Styles des cartes
+      document.querySelectorAll('.abs-type-card').forEach(card => {
+        card.style.borderColor = '#E2E8F0';
+        card.style.background = '#fff';
+        card.style.fontWeight = '600';
+      });
+
+      if (el) {
+        const colors = { 'false': '#EF4444', 'true': '#10B981', 'retard': '#F59E0B' };
+        el.style.borderColor = colors[val] || '#4F46E5';
+        el.style.background = val === 'false' ? '#FEF2F2' : val === 'true' ? '#ECFDF5' : '#FFFBEB';
+        el.style.fontWeight = '800';
+      }
+    }
+
 
   </script>
-
-  <!-- ... -->
-
 
   <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
@@ -4786,7 +6226,211 @@
       </div>
     </div>
   </div>
-  <script src="/components/notifications.js"></script>
+  <!-- ══ MODAL NOUVELLE ABSENCE (VERSION MODERNE) ══ -->
+  <div id="m-absence" class="dir-modal-overlay" onclick="if(event.target===this)closeModal('m-absence')"
+    style="display:none;">
+    <div class="dir-modal" style="max-width:520px; border-radius:24px; overflow:hidden;">
+
+      <!-- Header avec gradient -->
+      <div style="background:linear-gradient(135deg, #4F46E5, #7C3AED); padding:20px 24px; color:#fff;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div
+            style="width:40px; height:40px; background:rgba(255,255,255,0.2); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="calendar-x" style="width:20px; height:20px; color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.1rem; font-weight:800;">📋 Enregistrer une absence</div>
+            <div style="font-size:.65rem; opacity:0.8; margin-top:2px;">Remplissez les informations ci-dessous</div>
+          </div>
+          <button onclick="closeModal('m-absence')"
+            style="margin-left:auto; background:rgba(255,255,255,0.15); border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; color:#fff; display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="x" style="width:16px; height:16px;"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Corps du formulaire -->
+      <div style="padding:24px;">
+
+        <!-- Matricule avec icône -->
+        <div style="margin-bottom:18px;">
+          <label
+            style="display:block; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;">
+            <i data-lucide="user" style="width:12px; height:12px; display:inline; margin-right:4px;"></i>
+            Matricule de l'élève *
+          </label>
+          <div style="position:relative;">
+            <i data-lucide="search"
+              style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:#94A3B8;"></i>
+            <input id="af-mat-m" type="text" placeholder="Ex: CN-2026-0001"
+              style="width:100%; padding:12px 12px 12px 38px; border:1.5px solid #E2E8F0; border-radius:12px; font-size:.85rem; font-family:monospace; letter-spacing:.04em; outline:none; transition:all .2s;"
+              onfocus="this.style.borderColor='#4F46E5'; this.style.boxShadow='0 0 0 3px rgba(79,70,229,0.1)'"
+              onblur="this.style.borderColor='#E2E8F0'; this.style.boxShadow='none'">
+          </div>
+          <div style="font-size:.6rem; color:#94A3B8; margin-top:4px;">💡 Le matricule est disponible dans le profil de
+            l'élève</div>
+        </div>
+
+        <!-- Classe et Date (2 colonnes) -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:18px;">
+          <div>
+            <label
+              style="display:block; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;">
+              <i data-lucide="layers" style="width:12px; height:12px; display:inline; margin-right:4px;"></i>
+              Classe
+            </label>
+            <select id="af-cls-m"
+              style="width:100%; padding:12px; border:1.5px solid #E2E8F0; border-radius:12px; font-size:.8rem; background:#fff; outline:none; transition:all .2s; cursor:pointer;"
+              onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
+              <option value="">— Sélectionner —</option>
+              <option>6ème</option>
+              <option>5ème</option>
+              <option>4ème</option>
+              <option>3ème</option>
+              <option>2nde A</option>
+              <option>2nde C</option>
+              <option>1ère A</option>
+              <option>1ère D</option>
+              <option>Tle A</option>
+              <option>Tle D</option>
+            </select>
+          </div>
+          <div>
+            <label
+              style="display:block; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;">
+              <i data-lucide="calendar" style="width:12px; height:12px; display:inline; margin-right:4px;"></i>
+              Date *
+            </label>
+            <input id="af-date-m" type="date"
+              style="width:100%; padding:12px; border:1.5px solid #E2E8F0; border-radius:12px; font-size:.8rem; font-family:inherit; outline:none; transition:all .2s;"
+              onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
+          </div>
+        </div>
+
+        <!-- Type d'absence (cartes avec icônes) -->
+        <div style="margin-bottom:18px;">
+          <label
+            style="display:block; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">
+            <i data-lucide="flag" style="width:12px; height:12px; display:inline; margin-right:4px;"></i>
+            Type d'absence
+          </label>
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div onclick="selectAbsType('false', this)" class="abs-type-card" data-type="false"
+              style="flex:1; display:flex; align-items:center; gap:8px; padding:10px 12px; border:1.5px solid #E2E8F0; border-radius:12px; cursor:pointer; transition:all .2s; background:#fff;">
+              <i data-lucide="x-circle" style="width:18px; height:18px; color:#EF4444;"></i>
+              <span style="font-size:.8rem; font-weight:600;">Non justifiée</span>
+            </div>
+            <div onclick="selectAbsType('true', this)" class="abs-type-card" data-type="true"
+              style="flex:1; display:flex; align-items:center; gap:8px; padding:10px 12px; border:1.5px solid #E2E8F0; border-radius:12px; cursor:pointer; transition:all .2s; background:#fff;">
+              <i data-lucide="check-circle-2" style="width:18px; height:18px; color:#10B981;"></i>
+              <span style="font-size:.8rem; font-weight:600;">Justifiée</span>
+            </div>
+            <div onclick="selectAbsType('retard', this)" class="abs-type-card" data-type="retard"
+              style="flex:1; display:flex; align-items:center; gap:8px; padding:10px 12px; border:1.5px solid #E2E8F0; border-radius:12px; cursor:pointer; transition:all .2s; background:#fff;">
+              <i data-lucide="clock" style="width:18px; height:18px; color:#F59E0B;"></i>
+              <span style="font-size:.8rem; font-weight:600;">Retard</span>
+            </div>
+          </div>
+          <input type="hidden" id="af-type-m" value="false">
+        </div>
+
+        <!-- Motif / Raison -->
+        <div style="margin-bottom:20px;">
+          <label
+            style="display:block; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;">
+            <i data-lucide="message-square" style="width:12px; height:12px; display:inline; margin-right:4px;"></i>
+            Motif / Raison
+          </label>
+          <textarea id="af-motif-m" rows="3"
+            placeholder="Précisez le motif (maladie, rendez-vous, retard exceptionnel...)"
+            style="width:100%; padding:12px; border:1.5px solid #E2E8F0; border-radius:12px; font-size:.8rem; font-family:inherit; resize:vertical; outline:none; transition:all .2s;"
+            onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
+        </div>
+
+        <!-- Message d'information -->
+        <div id="af-msg-m"
+          style="display:none; font-size:.73rem; padding:10px 14px; border-radius:10px; margin-bottom:16px;"></div>
+
+        <!-- Boutons d'action -->
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button onclick="saveAbsence()"
+            style="flex:1; background:linear-gradient(135deg,#4F46E5,#7C3AED); color:#fff; border:none; border-radius:12px; padding:12px; font-size:.85rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all .2s;"
+            onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(79,70,229,0.3)'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+            <i data-lucide="check-circle" style="width:16px; height:16px;"></i>
+            Enregistrer l'absence
+          </button>
+          <button onclick="closeModal('m-absence')"
+            style="padding:12px 20px; border:1.5px solid #E2E8F0; border-radius:12px; background:#F8FAFF; color:#64748B; font-size:.85rem; font-weight:700; cursor:pointer; transition:all .2s;"
+            onmouseover="this.style.background='#F1F5F9'" onmouseout="this.style.background='#F8FAFF'">
+            Annuler
+          </button>
+        </div>
+
+        <!-- Note de bas -->
+        <div
+          style="margin-top:16px; padding-top:12px; border-top:1px solid #F1F5F9; font-size:.62rem; color:#94A3B8; text-align:center;">
+          ℹ️ L'absence sera visible par l'élève et son parent
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== FONCTIONS POUR LES ABSENCES (MODAL BAS) ==========
+
+    async function saveAbsence() {
+      const matricule = document.getElementById('af-mat-m')?.value.trim();
+      const dateAbs = document.getElementById('af-date-m')?.value;
+      const type = document.getElementById('af-type-m')?.value;
+      const motif = document.getElementById('af-motif-m')?.value;
+
+      if (!matricule) {
+        alert('⚠️ Matricule requis');
+        return;
+      }
+      if (!dateAbs) {
+        alert('⚠️ Date requise');
+        return;
+      }
+
+      const payload = {
+        code_unique_eleve: matricule,
+        date_absence: dateAbs,
+        justifiee: type === 'true',
+        retard: type === 'retard',
+        raison_absence: motif || ''
+      };
+
+      try {
+        const token = localStorage.getItem('token') || '';
+        const response = await fetch('/api/surveillants/absences', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (data.success || data.id_absence) {
+          toast('✅ Absence enregistrée avec succès', 'ok');
+          closeModal('m-absence');
+          document.getElementById('af-mat-m').value = '';
+          document.getElementById('af-motif-m').value = '';
+          if (typeof loadAbsences === 'function') loadAbsences();
+        } else {
+          alert('❌ Erreur: ' + (data.message || 'Vérifier le matricule'));
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        toast('❌ Erreur réseau: ' + error.message, 'err');
+      }
+    }
+
+  </script>
 </body>
 
 </html>

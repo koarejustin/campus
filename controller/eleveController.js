@@ -187,8 +187,6 @@ exports.getMesAbsences = async (req, res) => {
 };
 
 // ========== ANNONCES OFFICIELLES ==========
-// eleveController.js - fonction getAnnonces à modifier
-
 exports.getAnnonces = async (req, res) => {
     try {
         let annonces = [];
@@ -200,7 +198,7 @@ exports.getAnnonces = async (req, res) => {
                 titre VARCHAR(255) NOT NULL, 
                 contenu TEXT, 
                 type VARCHAR(50) DEFAULT 'INFO', 
-                destinataires VARCHAR(50) DEFAULT 'tous',  -- 'tous', 'eleves', 'parents', 'profs'
+                destinataires VARCHAR(50) DEFAULT 'tous',
                 auteur_id UUID, 
                 auteur_role VARCHAR(50), 
                 created_at TIMESTAMP DEFAULT NOW()
@@ -208,7 +206,6 @@ exports.getAnnonces = async (req, res) => {
 
             await db.query(`ALTER TABLE vie_scolaire.annonces ADD COLUMN IF NOT EXISTS destinataires VARCHAR(50) DEFAULT 'tous'`).catch(() => { });
 
-            // FILTRE IMPORTANT : seulement les annonces pour 'tous' ou 'eleves'
             const r = await db.query(`
                 SELECT id::text AS id_annonce, titre, contenu,
                        COALESCE(type,'INFO') AS priorite, 
@@ -222,23 +219,14 @@ exports.getAnnonces = async (req, res) => {
                 FROM vie_scolaire.annonces
                 WHERE destinataires IN ('tous', 'eleves', 'all', 'eleve') OR destinataires IS NULL
                 ORDER BY created_at DESC
-                LIMIT 30  -- ← CHANGEMENT : LIMIT 30 au lieu de 20 pour éviter l'écrasement
+                LIMIT 30
             `);
             annonces = r.rows;
         } catch (e1) { console.warn('annonces:', e1.message); }
 
         // 2. Annonces de vie_scolaire.annonces_officielles (avec filtre)
         try {
-            // Vérifier si la table a une colonne destinataires
-            const colCheck = await db.query(`
-                SELECT column_name FROM information_schema.columns 
-                WHERE table_schema='vie_scolaire' AND table_name='annonces_officielles' AND column_name='destinataires'
-            `);
-
-            if (colCheck.rows.length === 0) {
-                // Ajouter la colonne si elle n'existe pas
-                await db.query(`ALTER TABLE vie_scolaire.annonces_officielles ADD COLUMN IF NOT EXISTS destinataires VARCHAR(50) DEFAULT 'tous'`);
-            }
+            await db.query(`ALTER TABLE vie_scolaire.annonces_officielles ADD COLUMN IF NOT EXISTS destinataires VARCHAR(50) DEFAULT 'tous'`).catch(() => { });
 
             const r2 = await db.query(`
                 SELECT id_annonce::text AS id_annonce, titre, 
@@ -259,38 +247,22 @@ exports.getAnnonces = async (req, res) => {
 
         // 3. Annonces de gestion.annonces_officielles (avec filtre)
         try {
-            const c2 = await db.query(`SELECT column_name FROM information_schema.columns 
-                WHERE table_schema='gestion' AND table_name='annonces_officielles'`);
-            const cols2 = c2.rows.map(r => r.column_name);
-
-            const idC = cols2.includes('id') ? 'id::text' : cols2.includes('id_annonce') ? 'id_annonce::text' : "'0'";
-            const conC = cols2.includes('contenu') ? 'contenu' : cols2.includes('corps_annonce') ? 'corps_annonce' : "''";
-            const datC = cols2.includes('date_publication') ? 'date_publication' : cols2.includes('created_at') ? 'created_at' : 'NOW()';
-            const typC = cols2.includes('type') ? "COALESCE(type,'Info')" : cols2.includes('priorite') ? "COALESCE(priorite,'Info')" : "'Info'";
-            const destC = cols2.includes('destinataires') ? 'destinataires' : "'tous'";
-
-            const r2 = await db.query(`
-                SELECT ${idC} AS id_annonce, titre, ${conC} AS contenu,
-                       ${typC} AS priorite, ${datC} AS date_publication,
-                       ${destC} as destinataires,
-                       CASE 
-                           WHEN ${typC} ILIKE 'urgent' THEN '🔴 URGENT'
-                           WHEN ${typC} ILIKE 'info'   THEN '🔵 INFO'
-                           ELSE '⚪ NORMAL' 
-                       END AS icone_priorite
+            const r3 = await db.query(`
+                SELECT id_annonce::text AS id_annonce, titre, contenu, type AS priorite, 
+                       date_publication, COALESCE(destinataires, 'tous') as destinataires,
+                       CASE WHEN type ILIKE 'urgent' THEN '🔴 URGENT' ELSE '🔵 INFO' END AS icone_priorite
                 FROM gestion.annonces_officielles
-                WHERE ${destC} IN ('tous', 'eleves', 'all', 'eleve')
-                ORDER BY ${datC} DESC
+                WHERE COALESCE(destinataires, 'tous') IN ('tous', 'eleves', 'all', 'eleve')
+                ORDER BY date_publication DESC
                 LIMIT 30
             `);
-            annonces = [...annonces, ...r2.rows];
-        } catch (e2) { console.warn('gestion.annonces_officielles:', e2.message); }
+            annonces = [...annonces, ...r3.rows];
+        } catch (e3) { console.warn('gestion.annonces_officielles:', e3.message); }
 
-        // Déduplication et tri par date (plus récent en premier)
+        // Déduplication
         const uniqueMap = new Map();
         for (const annonce of annonces) {
-            // Utiliser titre + contenu + date comme clé unique approximative
-            const key = `${annonce.titre}_${annonce.contenu?.substring(0, 100)}_${annonce.date_publication}`;
+            const key = `${annonce.titre}_${annonce.contenu?.substring(0, 100)}`;
             if (!uniqueMap.has(key)) {
                 uniqueMap.set(key, annonce);
             }
@@ -302,7 +274,7 @@ exports.getAnnonces = async (req, res) => {
         res.json({
             success: true,
             count: annoncesUniques.length,
-            annonces: annoncesUniques.slice(0, 30)  // ← 30 annonces maximum, pas d'écrasement
+            annonces: annoncesUniques.slice(0, 30)
         });
 
     } catch (error) {
@@ -539,6 +511,7 @@ exports.getForumClasse = async (req, res) => {
         }
         const r = await db.query(`
             SELECT id, texte, nom_auteur, id_auteur::text, initiales,
+                   reply_to,
                    to_char(created_at, 'HH24:MI') AS time,
                    to_char(created_at, 'DD/MM/YYYY') AS date
             FROM vie_scolaire.forum_classe
@@ -579,13 +552,15 @@ exports.postForumClasse = async (req, res) => {
         } catch (e) { }
 
         const initiales = (((u.prenom || '')[0] || '') + ((u.nom || '')[0] || '')).toUpperCase();
+        const { reply_to } = req.body;
+        // S'assurer que la colonne reply_to existe
+        await db.query(`ALTER TABLE vie_scolaire.forum_classe ADD COLUMN IF NOT EXISTS reply_to INT`).catch(() => {});
         const r = await db.query(
-            `INSERT INTO vie_scolaire.forum_classe (classe, id_auteur, nom_auteur, initiales, texte)
-             VALUES ($1,$2,$3,$4,$5) RETURNING id, to_char(created_at,'HH24:MI') AS time, to_char(created_at,'DD/MM/YYYY') AS date`,
-            [classe, eleveId, nom_auteur.trim(), initiales, texte]
+            `INSERT INTO vie_scolaire.forum_classe (classe, id_auteur, nom_auteur, initiales, texte, reply_to)
+             VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, to_char(created_at,'HH24:MI') AS time, to_char(created_at,'DD/MM/YYYY') AS date`,
+            [classe, eleveId, nom_auteur.trim(), initiales, texte, reply_to || null]
         );
 
-        // 🔔 NOTIFICATION : après avoir posté dans le forum de classe
         if (r && r.rows && r.rows[0]) {
             try {
                 const autresEleves = await db.query(`
@@ -682,7 +657,6 @@ exports.postGrandEleves = async (req, res) => {
             [eleveId, nom.trim(), initiales.toUpperCase(), texte, (tag || 'GENERAL').toUpperCase()]
         );
 
-        // 🔔 NOTIFICATION : après avoir posté dans Grand Élèves
         if (r && r.rows && r.rows[0]) {
             try {
                 const tousEleves = await db.query(`
@@ -753,17 +727,22 @@ exports.getInterClasses = async (req, res) => {
                     id SERIAL PRIMARY KEY,
                     classe_from VARCHAR(50), classe_to VARCHAR(50),
                     id_auteur UUID, nom_auteur VARCHAR(100),
-                    texte TEXT NOT NULL, created_at TIMESTAMP DEFAULT NOW()
+                    texte TEXT NOT NULL, 
+                    type_msg VARCHAR(20) DEFAULT 'text',
+                    created_at TIMESTAMP DEFAULT NOW()
                 )
             `);
         } catch (e) { }
 
         const r = await db.query(`
             SELECT id, texte, nom_auteur, id_auteur, classe_from, classe_to,
-                   to_char(created_at,'HH24:MI') AS time
+                   reply_to,
+                   to_char(created_at, 'HH24:MI') AS time,
+                   to_char(created_at, 'DD/MM/YYYY') AS date
             FROM vie_scolaire.inter_classes_msgs
-            WHERE (classe_from=$1 AND classe_to=$2) OR (classe_from=$2 AND classe_to=$1)
-            ORDER BY created_at ASC LIMIT 100
+            WHERE (classe_from = $1 AND classe_to = $2) OR (classe_from = $2 AND classe_to = $1)
+            ORDER BY created_at ASC
+            LIMIT 100
         `, [maClasse, classe_cible]);
 
         res.json({ success: true, messages: r.rows });
@@ -777,30 +756,51 @@ exports.postInterClasses = async (req, res) => {
     try {
         const eleveId = req.user?.id;
         const { texte, classe_cible } = req.body;
-        if (!eleveId || !texte) return res.status(400).json({ message: 'Texte requis' });
+
+        console.log('📨 postInterClasses reçu:', {
+            texte: texte?.substring(0, 30),
+            classe_cible,
+            eleveId
+        });
+
+        if (!eleveId || !texte) {
+            return res.status(400).json({ message: 'Texte requis' });
+        }
 
         const classeRes = await db.query(
             'SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user=$1', [eleveId]
         );
         const maClasse = classeRes.rows[0]?.classe_actuelle || '';
+
+        if (!maClasse) {
+            return res.status(400).json({ message: 'Classe non trouvée' });
+        }
+
         const userRes = await db.query(
             'SELECT nom, prenom FROM authentification.comptes WHERE id_user=$1', [eleveId]
         );
         const u = userRes.rows[0] || {};
         const nom = ((u.prenom || '') + ' ' + (u.nom || '')).trim();
 
-        await db.query(
-            `INSERT INTO vie_scolaire.inter_classes_msgs (classe_from, classe_to, id_auteur, nom_auteur, texte)
-             VALUES ($1,$2,$3,$4,$5)`,
-            [maClasse, classe_cible || '', eleveId, nom, texte]
+        const { reply_to } = req.body;
+        await db.query(`ALTER TABLE vie_scolaire.inter_classes_msgs ADD COLUMN IF NOT EXISTS reply_to INT`).catch(() => {});
+        const result = await db.query(
+            `INSERT INTO vie_scolaire.inter_classes_msgs 
+             (classe_from, classe_to, id_auteur, nom_auteur, texte, reply_to, created_at)
+             VALUES ($1, $2, $3, $4, $5, $6, NOW())
+             RETURNING id, created_at`,
+            [maClasse, classe_cible, eleveId, nom, texte, reply_to || null]
         );
 
-        // 🔔 NOTIFICATION : après avoir posté dans inter-classes
-        if (classe_cible) {
+        console.log(`💬 Message inter-classe enregistré: ${maClasse} → ${classe_cible}`);
+
+        if (classe_cible && result.rows[0]) {
             try {
                 const elevesCible = await db.query(`
-                    SELECT id_user FROM vie_scolaire.profils_eleves 
-                    WHERE classe_actuelle = $1
+                    SELECT c.id_user 
+                    FROM authentification.comptes c
+                    JOIN vie_scolaire.profils_eleves p ON c.id_user = p.id_user
+                    WHERE p.classe_actuelle = $1 AND c.est_actif = true
                 `, [classe_cible]);
 
                 if (elevesCible.rows.length > 0) {
@@ -816,45 +816,63 @@ exports.postInterClasses = async (req, res) => {
             } catch (e) { console.warn('Erreur notification inter-classe:', e.message); }
         }
 
-        res.json({ success: true });
+        res.json({ success: true, message: 'Message envoyé', id: result.rows[0]?.id });
     } catch (e) {
         console.error('postInterClasses:', e.message);
         res.status(500).json({ message: e.message });
     }
 };
 
-// ========== DEVOIRS / PROGRAMME ==========
+// ========== DEVOIRS ==========
 exports.getDevoirs = async (req, res) => {
     try {
         const eleveId = req.user?.id;
         if (!eleveId) return res.json({ devoirs: [] });
 
         const classeRes = await db.query(
-            'SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user=$1', [eleveId]
+            'SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user=$1',
+            [eleveId]
         );
         const classe = classeRes.rows[0]?.classe_actuelle || '';
 
-        try {
-            const r = await db.query(`
-                SELECT ct.titre_seance AS titre, ct.travail_faire AS description,
-                       ct.matiere, to_char(ct.date_seance, 'DD/MM/YYYY') AS date_devoir,
-                       c.nom AS prof_nom, c.prenom AS prof_prenom
-                FROM pedagogie.cahiers_texte ct
-                JOIN authentification.comptes c ON c.id_user = ct.id_prof
-                WHERE ct.classe = $1 AND ct.travail_faire IS NOT NULL AND ct.travail_faire != ''
-                ORDER BY ct.date_seance DESC LIMIT 20
-            `, [classe]);
+        // Récupérer les devoirs depuis la table pedagogie.devoirs
+        const r = await db.query(`
+            SELECT 
+                d.id_devoir,
+                d.titre,
+                d.description,
+                d.matiere,
+                d.date_limite,
+                d.date_creation,
+                c.nom AS prof_nom,
+                c.prenom AS prof_prenom
+            FROM pedagogie.devoirs d
+            JOIN authentification.comptes c ON c.id_user = d.id_prof
+            WHERE d.classe = $1 AND d.est_visible = true
+            ORDER BY d.date_limite ASC
+            LIMIT 30
+        `, [classe]);
 
-            return res.json({ success: true, devoirs: r.rows });
-        } catch (e2) {
-            return res.json({ success: true, devoirs: [] });
-        }
-    } catch (e) {
-        console.error('getDevoirs:', e.message);
+        res.json({
+            success: true,
+            devoirs: r.rows.map(d => ({
+                id: d.id_devoir,
+                titre: d.titre,
+                description: d.description,
+                matiere: d.matiere,
+                date_limite: d.date_limite,
+                date_creation: d.date_creation,
+                prof_nom: d.prof_nom,
+                prof_prenom: d.prof_prenom
+            }))
+        });
+    } catch (error) {
+        console.error('Erreur getDevoirs:', error.message);
         res.json({ success: true, devoirs: [] });
     }
 };
 
+// ========== PROFIL ÉLÈVE ==========
 exports.getMonProfil = async (req, res) => {
     try {
         const eleveId = req.user?.id;
@@ -945,7 +963,6 @@ exports.postMessageVocal = async (req, res) => {
                 [classe, userId]
             );
             if (autresEleves.rows.length) {
-                const notificationService = require('../services/notificationService');
                 await notificationService.sendNotification(
                     autresEleves.rows.map(e => e.id_user),
                     'FORUM_CLASSE',
@@ -973,7 +990,6 @@ exports.postMessageVocal = async (req, res) => {
                 [classe_cible]
             );
             if (elevesCible.rows.length) {
-                const notificationService = require('../services/notificationService');
                 await notificationService.sendNotification(
                     elevesCible.rows.map(e => e.id_user),
                     'INTER_CLASSE',
@@ -992,7 +1008,6 @@ exports.postMessageVocal = async (req, res) => {
 };
 
 // ========== APPELS VIDÉO ==========
-// Stockage temporaire des salles d'appel
 const sallesVideo = new Map();
 
 exports.creerSalleVideo = async (req, res) => {
@@ -1106,5 +1121,62 @@ exports.signalisationWebRTC = async (req, res) => {
     } catch (error) {
         console.error('Erreur signalisation:', error);
         res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
+// ========== COMPOSITIONS ET EXAMENS BLANCS ==========
+exports.getCompositions = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        if (!eleveId) return res.json({ compositions: [], examensBlancs: [] });
+
+        // Récupérer la classe de l'élève
+        const classeRes = await db.query(
+            'SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user = $1',
+            [eleveId]
+        );
+        const maClasse = classeRes.rows[0]?.classe_actuelle || '';
+
+        // Vérifier si l'élève est en classe d'examen
+        const estClasseExamen = ['3ème', '3e', 'Tle A', 'Tle D', 'Terminale A', 'Terminale D'].some(c => maClasse.includes(c));
+
+        // Récupérer toutes les compositions (tous les élèves voient)
+        const compositionsRes = await db.query(`
+            SELECT id_composition, titre, description, date_debut, date_fin,
+                   to_char(date_debut, 'DD/MM/YYYY') AS date_debut_fr,
+                   to_char(date_fin, 'DD/MM/YYYY') AS date_fin_fr
+            FROM pedagogie.compositions
+            WHERE type_composition = 'COMPOSITION' AND est_visible = true
+            ORDER BY date_debut ASC
+        `);
+
+        let examensBlancs = [];
+        if (estClasseExamen) {
+            // Récupérer les examens blancs concernant cette classe
+            const examensRes = await db.query(`
+                SELECT id_composition, titre, description, date_debut, date_fin,
+                       to_char(date_debut, 'DD/MM/YYYY') AS date_debut_fr,
+                       to_char(date_fin, 'DD/MM/YYYY') AS date_fin_fr,
+                       classes_concernees
+                FROM pedagogie.compositions
+                WHERE type_composition = 'EXAMEN_BLANC' AND est_visible = true
+                ORDER BY date_debut ASC
+            `);
+
+            // Filtrer les examens qui concernent la classe de l'élève
+            examensBlancs = examensRes.rows.filter(e => {
+                if (!e.classes_concernees) return false;
+                return e.classes_concernees.includes(maClasse);
+            });
+        }
+
+        res.json({
+            success: true,
+            compositions: compositionsRes.rows,
+            examensBlancs: examensBlancs
+        });
+    } catch (error) {
+        console.error('Erreur getCompositions:', error.message);
+        res.json({ success: true, compositions: [], examensBlancs: [] });
     }
 };

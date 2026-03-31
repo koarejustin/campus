@@ -26,34 +26,32 @@ exports.getStats = async (req, res) => {
         try {
             const r1 = await db.query('SELECT COUNT(*) FROM authentification.comptes');
             stats.users = r1.rows[0].count || 0;
-        } catch (e) {}
-
+        } catch (e) { }
+        // LIGNE 59 - CORRIGÉ (utiliser pedagogie.ressources_pedagogiques si elle existe)
         try {
-            const r2 = await db.query('SELECT COUNT(*) FROM authentification.cours');
+            const r2 = await db.query('SELECT COUNT(*) FROM pedagogie.ressources_pedagogiques');
             stats.courses = r2.rows[0].count || 0;
-        } catch (e) {}
-
+        } catch (e) { stats.courses = 0; }
         // Tentatives optionnelles pour d'autres compteurs
         try {
             const r3 = await db.query("SELECT COUNT(DISTINCT classe) FROM authentification.comptes");
             stats.classes = r3.rows[0].count || 0;
-        } catch (e) {}
+        } catch (e) { }
 
         try {
             const r4 = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='PROFESSEUR'");
             stats.professors = r4.rows[0].count || 0;
-        } catch (e) {}
+        } catch (e) { }
 
         try {
             const r5 = await db.query("SELECT COUNT(*) FROM gestion.absences");
             stats.absences = r5.rows[0].count || 0;
-        } catch (e) {}
-
+        } catch (e) { }
+        // LIGNE 74 - CORRIGÉ
         try {
-            const r6 = await db.query("SELECT COUNT(*) FROM communication.alertes WHERE lu = false");
+            const r6 = await db.query("SELECT COUNT(*) FROM gestion.notifications WHERE est_lu = false OR lue = false");
             stats.alerts = r6.rows[0].count || 0;
-        } catch (e) {}
-
+        } catch (e) { }
         // Moyennes par classe pour graphique performances
         try {
             const r7 = await db.query(`
@@ -66,13 +64,13 @@ exports.getStats = async (req, res) => {
             `);
             stats.moyennes_classes = {};
             r7.rows.forEach(r => { stats.moyennes_classes[r.classe] = parseFloat(r.moyenne); });
-        } catch(e) {}
+        } catch (e) { }
 
         // Nombre de surveillants
         try {
             const r8 = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='SURVEILLANT'");
             stats.surveillants = parseInt(r8.rows[0].count) || 0;
-        } catch(e) {}
+        } catch (e) { }
 
         // Moyenne générale tous élèves
         try {
@@ -80,7 +78,7 @@ exports.getStats = async (req, res) => {
                 SELECT ROUND(AVG(note)::numeric,2) AS moy FROM pedagogie.notes_evaluations WHERE trimestre=1
             `);
             stats.moyenne_generale = rm.rows[0]?.moy || null;
-        } catch(e) {}
+        } catch (e) { }
 
         // Taux présence (100 - taux absence)
         try {
@@ -90,7 +88,7 @@ exports.getStats = async (req, res) => {
             `);
             const taux_abs = parseFloat(rp.rows[0]?.taux_abs) || 0;
             stats.presence = Math.round(100 - taux_abs);
-        } catch(e) { stats.presence = 95; }
+        } catch (e) { stats.presence = 95; }
 
         res.json({ success: true, stats });
     } catch (err) {
@@ -124,25 +122,25 @@ exports.getProfesseurs = async (req, res) => {
         res.json({
             success: true,
             professeurs: r.rows.map(p => ({
-                id:        p.id_user,
-                id_user:   p.id_user,
-                code:      p.code_unique,
+                id: p.id_user,
+                id_user: p.id_user,
+                code: p.code_unique,
                 code_unique: p.code_unique,
-                nom:       p.nom,
-                prenom:    p.prenom,
-                email:     p.email,
+                nom: p.nom,
+                prenom: p.prenom,
+                email: p.email,
                 telephone: p.telephone,
                 specialite: p.specialite || '',
-                matiere:   p.specialite || '',
+                matiere: p.specialite || '',
                 biographie: p.biographie || '',
                 photo_url: p.photo_url || null,
                 nb_classes: parseInt(p.nb_classes) || 0,
                 nb_seances: parseInt(p.nb_seances) || 0,
-                statut:    'Permanent',
+                statut: 'Permanent',
                 est_actif: p.est_actif
             }))
         });
-    } catch(e) {
+    } catch (e) {
         console.error('getProfesseurs:', e.message);
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
@@ -167,28 +165,28 @@ exports.getCahiersTexte = async (req, res) => {
                 COUNT(ct2.id) OVER (PARTITION BY ct.id_prof) AS nb_seances
             FROM pedagogie.cahiers_texte ct
             JOIN authentification.comptes c ON c.id_user = ct.id_prof
-            JOIN pedagogie.cahiers_texte ct2 ON ct2.id_prof = ct.id_prof
+            LEFT JOIN pedagogie.cahiers_texte ct2 ON ct2.id_prof = ct.id_prof
             ORDER BY ct.id_prof, ct.classe, ct.matiere, ct.date_seance DESC
         `);
         res.json({
             success: true,
             cahiers: r.rows.map(row => ({
-                prof_id:     row.prof_id,
-                prof_nom:    row.prof_nom,
+                prof_id: row.prof_id,
+                prof_nom: row.prof_nom,
                 prof_prenom: row.prof_prenom,
-                matiere:     row.matiere,
-                classe:      row.classe,
-                titre:       row.titre,
-                contenu:     row.contenu || '',
+                matiere: row.matiere,
+                classe: row.classe,
+                titre: row.titre,
+                contenu: row.contenu || '',
                 date_seance: row.date_seance,
-                nb_seances:  parseInt(row.nb_seances) || 1
+                nb_seances: parseInt(row.nb_seances) || 1
             }))
         });
-    } catch(e) {
+    } catch (e) {
         console.error('getCahiersTexte:', e.message);
         res.json({ success: true, cahiers: [] }); // Ne pas bloquer si table vide
     }
-};;
+};
 
 // ═══════════════════════════════════════════
 // CAHIER D'UN PROF (séances)
@@ -196,7 +194,7 @@ exports.getCahiersTexte = async (req, res) => {
 exports.getCahierProf = async (req, res) => {
     try {
         const { prof_id } = req.params;
-        
+
         // Résoudre prof_id : peut être UUID ou code_unique
         let realProfId = prof_id;
         const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(prof_id);
@@ -226,22 +224,22 @@ exports.getCahierProf = async (req, res) => {
         res.json({
             success: true,
             seances: r.rows.map(s => ({
-                id:           s.id,
-                classe:       s.classe,
-                matiere:      s.matiere,
-                titre:        s.titre,
+                id: s.id,
+                classe: s.classe,
+                matiere: s.matiere,
+                titre: s.titre,
                 titre_seance: s.titre,
-                contenu:      s.contenu || '',
-                description:  s.contenu || '',
-                taf:          s.taf || '',
-                date_seance:  s.date_seance,
-                date:         s.date_seance,
-                date_iso:     s.date_iso,
-                heure_debut:  s.heure_debut || '',
-                heure_fin:    s.heure_fin || '',
+                contenu: s.contenu || '',
+                description: s.contenu || '',
+                taf: s.taf || '',
+                date_seance: s.date_seance,
+                date: s.date_seance,
+                date_iso: s.date_iso,
+                heure_debut: s.heure_debut || '',
+                heure_fin: s.heure_fin || '',
             }))
         });
-    } catch(e) {
+    } catch (e) {
         console.error('getCahierProf:', e.message);
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
@@ -295,7 +293,7 @@ exports.getEleveDetail = async (req, res) => {
             notes: notes.rows,
             absences: absences.rows
         });
-    } catch(e) {
+    } catch (e) {
         console.error('getEleveDetail:', e.message);
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
@@ -324,11 +322,11 @@ exports.getElevesDir = async (req, res) => {
             // Utiliser ILIKE pour être insensible aux variantes d'encodage
             params.push(classe);
             sql += ' AND (pe.classe_actuelle = $' + params.length +
-                   ' OR pe.classe_actuelle ILIKE $' + params.length + ')';
+                ' OR pe.classe_actuelle ILIKE $' + params.length + ')';
         }
         if (q) {
-            params.push('%'+q+'%', '%'+q+'%', '%'+q+'%');
-            sql += ' AND (c.nom ILIKE $'+(params.length-2)+' OR c.prenom ILIKE $'+(params.length-1)+' OR c.code_unique ILIKE $'+params.length+')';
+            params.push('%' + q + '%', '%' + q + '%', '%' + q + '%');
+            sql += ' AND (c.nom ILIKE $' + (params.length - 2) + ' OR c.prenom ILIKE $' + (params.length - 1) + ' OR c.code_unique ILIKE $' + params.length + ')';
         }
         sql += ' GROUP BY c.id_user, c.code_unique, c.nom, c.prenom, c.email, c.telephone, c.est_actif, pe.classe_actuelle';
         // Log pour debug
@@ -339,18 +337,18 @@ exports.getElevesDir = async (req, res) => {
         res.json({
             success: true,
             eleves: r.rows.map(e => ({
-                id_user:    e.id_user,
+                id_user: e.id_user,
                 code_unique: e.code_unique,
-                nom:        e.nom,
-                prenom:     e.prenom,
-                email:      e.email,
-                telephone:  e.telephone,
-                classe:     e.classe,
-                moyenne:    e.moyenne,
+                nom: e.nom,
+                prenom: e.prenom,
+                email: e.email,
+                telephone: e.telephone,
+                classe: e.classe,
+                moyenne: e.moyenne,
                 nb_absences: parseInt(e.nb_absences) || 0
             }))
         });
-    } catch(e) {
+    } catch (e) {
         console.error('getElevesDir:', e.message);
         res.status(500).json({ success: false, eleves: [] });
     }
@@ -379,7 +377,7 @@ exports.getBulletins = async (req, res) => {
             LIMIT 100
         `, [parseInt(trimestre)]);
         res.json({ success: true, bulletins: r.rows });
-    } catch(e) {
+    } catch (e) {
         res.json({ success: true, bulletins: [] });
     }
 };
@@ -398,7 +396,7 @@ exports.getAgenda = async (req, res) => {
             ORDER BY date_debut DESC LIMIT 50
         `);
         res.json({ success: true, evenements: r.rows });
-    } catch(e) {
+    } catch (e) {
         res.json({ success: true, evenements: [] });
     }
 };
@@ -413,18 +411,18 @@ exports.createAgenda = async (req, res) => {
             await db.query(
                 `INSERT INTO gestion.activites (titre, description, date_debut, date_fin, type_activite, planifiee_par)
                  VALUES ($1,$2,$3,$4,$5,$6)`,
-                [titre, description||'', date_debut, date_fin||date_debut, type_activite||'general', userId]
+                [titre, description || '', date_debut, date_fin || date_debut, type_activite || 'general', userId]
             );
-        } catch(e2) {
+        } catch (e2) {
             // Si la colonne planifiee_par n'existe pas
             await db.query(
                 `INSERT INTO gestion.activites (titre, description, date_debut, date_fin, type_activite)
                  VALUES ($1,$2,$3,$4,$5)`,
-                [titre, description||'', date_debut, date_fin||date_debut, type_activite||'general']
+                [titre, description || '', date_debut, date_fin || date_debut, type_activite || 'general']
             );
         }
         res.json({ success: true, message: 'Evenement ajoute' });
-    } catch(e) {
+    } catch (e) {
         console.error('createAgenda:', e.message);
         res.status(500).json({ message: 'Erreur: ' + e.message });
     }
@@ -442,7 +440,7 @@ exports.messageProf = async (req, res) => {
             'SELECT nom, prenom, code_unique FROM authentification.comptes WHERE id_user=$1', [userId]
         );
         const row = user.rows[0] || {};
-        const nom = (row.nom||'Direction') + ' ' + (row.prenom||'');
+        const nom = (row.nom || 'Direction') + ' ' + (row.prenom || '');
         const fromCode = row.code_unique || 'DIR';
 
         // Insérer en BD
@@ -454,7 +452,7 @@ exports.messageProf = async (req, res) => {
                 [fromCode, nom.trim(), message]
             );
             msgId = r.rows[0].id;
-        } catch(e2) { console.warn('insert messages_salle:', e2.message); }
+        } catch (e2) { console.warn('insert messages_salle:', e2.message); }
 
         // Émettre via Socket.IO pour que les profs voient en temps réel
         const io = req.app?.locals?.io;
@@ -472,7 +470,7 @@ exports.messageProf = async (req, res) => {
         }
 
         res.json({ success: true, message: 'Message envoyé dans la salle des profs' });
-    } catch(e) {
+    } catch (e) {
         console.error('messageProf:', e.message);
         res.status(500).json({ message: 'Erreur: ' + e.message });
     }
@@ -506,7 +504,7 @@ exports.createEleve = async (req, res) => {
             (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
             VALUES ($1,$2,$3,$4,$5,$6,'ELEVE',true)
             RETURNING id_user, code_unique
-        `, [code, nom.toUpperCase(), prenom, email||null, telephone||null, hash]);
+        `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
 
         const eleveId = r.rows[0].id_user;
 
@@ -522,7 +520,7 @@ exports.createEleve = async (req, res) => {
             code_unique: code,
             id_user: eleveId
         });
-    } catch(e) {
+    } catch (e) {
         console.error('createEleve:', e.message);
         res.status(500).json({ message: 'Erreur: ' + e.message });
     }
@@ -550,7 +548,7 @@ exports.createProfesseur = async (req, res) => {
             (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
             VALUES ($1,$2,$3,$4,$5,$6,'PROFESSEUR',true)
             RETURNING id_user, code_unique
-        `, [code, nom.toUpperCase(), prenom, email||null, telephone||null, hash]);
+        `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
 
         const profId = r.rows[0].id_user;
         await db.query(
@@ -560,13 +558,15 @@ exports.createProfesseur = async (req, res) => {
         );
 
         res.json({ success: true, message: 'Professeur cree', code_unique: code });
-    } catch(e) {
+    } catch (e) {
         console.error('createProfesseur:', e.message);
         res.status(500).json({ message: 'Erreur: ' + e.message });
     }
 };
 
-
+// ═══════════════════════════════════════════
+// COTISATIONS
+// ═══════════════════════════════════════════
 exports.getCotisations = async (req, res) => {
     try {
         try {
@@ -578,7 +578,7 @@ exports.getCotisations = async (req, res) => {
                 ORDER BY ca.date_paiement DESC LIMIT 500
             `);
             return res.json({ success: true, cotisations: r.rows });
-        } catch(e1) {
+        } catch (e1) {
             const r2 = await db.query(`
                 SELECT cp.*, co.code_unique, co.nom, co.prenom, pe.classe_actuelle AS classe
                 FROM gestion_ape.cotisations_parents cp
@@ -588,11 +588,14 @@ exports.getCotisations = async (req, res) => {
             `);
             return res.json({ success: true, cotisations: r2.rows });
         }
-    } catch(e) {
+    } catch (e) {
         res.json({ success: true, cotisations: [] });
     }
 };
 
+// ═══════════════════════════════════════════
+// PAIEMENT
+// ═══════════════════════════════════════════
 exports.savePaiement = async (req, res) => {
     try {
         const { famille, montant, date_paiement, eleve_code } = req.body;
@@ -609,9 +612,352 @@ exports.savePaiement = async (req, res) => {
                  ON CONFLICT (id_eleve) DO UPDATE SET montant=$3, date_paiement=$4, statut='payé'`,
                 [eleveId, famille, parseFloat(montant), date_paiement || new Date().toISOString().split('T')[0], req.user?.id]
             );
-        } catch(e2) { console.warn('savePaiement:', e2.message); }
+        } catch (e2) { console.warn('savePaiement:', e2.message); }
         res.json({ success: true, message: 'Paiement enregistré' });
-    } catch(e) {
+    } catch (e) {
         res.status(500).json({ message: 'Erreur: ' + e.message });
+    }
+};
+
+// ═══════════════════════════════════════════
+// COMPOSITIONS & EXAMENS BLANCS
+// ═══════════════════════════════════════════
+exports.getCompositions = async (req, res) => {
+    try {
+        const { type } = req.query;
+        let query = `
+            SELECT c.*, 
+                   to_char(c.date_debut, 'DD/MM/YYYY') AS date_debut_fr,
+                   to_char(c.date_fin, 'DD/MM/YYYY') AS date_fin_fr,
+                   u.nom AS auteur_nom, u.prenom AS auteur_prenom
+            FROM pedagogie.compositions c
+            LEFT JOIN authentification.comptes u ON u.id_user = c.publie_par
+            WHERE c.est_visible = true
+        `;
+        const params = [];
+
+        if (type) {
+            query += ` AND c.type_composition = $1`;
+            params.push(type);
+        }
+
+        query += ` ORDER BY c.date_debut DESC`;
+
+        const result = await db.query(query, params);
+        res.json({ success: true, compositions: result.rows });
+    } catch (err) {
+        console.error('getCompositions:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+exports.createComposition = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const { titre, description, type_composition, date_debut, date_fin, classes_concernees } = req.body;
+
+        if (!titre || !type_composition || !date_debut) {
+            return res.status(400).json({ message: 'Titre, type et date requis' });
+        }
+
+        if (type_composition === 'EXAMEN_BLANC' && (!classes_concernees || classes_concernees.length === 0)) {
+            return res.status(400).json({ message: 'Pour un examen blanc, précisez les classes concernées' });
+        }
+
+        const result = await db.query(`
+            INSERT INTO pedagogie.compositions
+                (titre, description, type_composition, date_debut, date_fin, classes_concernees, publie_par)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *
+        `, [titre, description || '', type_composition, date_debut, date_fin || null, classes_concernees || null, userId]);
+
+        // Notifier les élèves concernés
+        try {
+            const notificationService = require('../services/notificationService');
+
+            let elevesIds = [];
+            if (type_composition === 'COMPOSITION') {
+                const eleves = await db.query(`
+                    SELECT id_user FROM authentification.comptes WHERE role_actuel = 'ELEVE' AND est_actif = true
+                `);
+                elevesIds = eleves.rows.map(e => e.id_user);
+            } else if (type_composition === 'EXAMEN_BLANC' && classes_concernees) {
+                for (const classe of classes_concernees) {
+                    const eleves = await db.query(`
+                        SELECT c.id_user FROM authentification.comptes c
+                        JOIN vie_scolaire.profils_eleves pe ON c.id_user = pe.id_user
+                        WHERE c.role_actuel = 'ELEVE' AND pe.classe_actuelle = $1
+                    `, [classe]);
+                    elevesIds.push(...eleves.rows.map(e => e.id_user));
+                }
+            }
+
+            if (elevesIds.length > 0) {
+                const lien = type_composition === 'EXAMEN_BLANC' ? '/eleve.html?page=programme&tab=examens' : '/eleve.html?page=programme&tab=compos';
+                await notificationService.sendNotification(
+                    [...new Set(elevesIds)],
+                    type_composition === 'EXAMEN_BLANC' ? 'EXAMEN_BLANC' : 'COMPOSITION',
+                    `📅 ${titre}`,
+                    description || (type_composition === 'EXAMEN_BLANC' ? 'Examen blanc programmé' : 'Composition programmée'),
+                    lien
+                );
+            }
+        } catch (e) { console.warn('Erreur notification composition:', e.message); }
+
+        res.json({ success: true, message: 'Composition publiée', composition: result.rows[0] });
+    } catch (err) {
+        console.error('createComposition:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+exports.updateComposition = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { titre, description, date_debut, date_fin, est_visible } = req.body;
+
+        const result = await db.query(`
+            UPDATE pedagogie.compositions
+            SET titre = COALESCE($1, titre),
+                description = COALESCE($2, description),
+                date_debut = COALESCE($3, date_debut),
+                date_fin = COALESCE($4, date_fin),
+                est_visible = COALESCE($5, est_visible)
+            WHERE id_composition = $6
+            RETURNING *
+        `, [titre, description, date_debut, date_fin, est_visible, id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Composition non trouvée' });
+        }
+
+        res.json({ success: true, message: 'Composition mise à jour', composition: result.rows[0] });
+    } catch (err) {
+        console.error('updateComposition:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+exports.deleteComposition = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await db.query(
+            'DELETE FROM pedagogie.compositions WHERE id_composition = $1 RETURNING id_composition',
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: 'Composition non trouvée' });
+        }
+
+        res.json({ success: true, message: 'Composition supprimée' });
+    } catch (err) {
+        console.error('deleteComposition:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+// ============================================================
+// ÉLECTIONS SCOLAIRES
+// ============================================================
+exports.getElections = async (req, res) => {
+    try {
+        // Récupérer tous les élèves actifs
+        const elevesRes = await db.query(`
+            SELECT c.code_unique, c.nom, c.prenom,
+                   e.classe_actuelle
+            FROM authentification.comptes c
+            LEFT JOIN pedagogie.profils_eleves e ON e.id_user = c.id_user
+            WHERE c.role_actuel = 'ELEVE' AND c.est_actif = true
+            ORDER BY e.classe_actuelle, c.nom, c.prenom
+        `);
+
+        // Récupérer les postes attribués — essayer plusieurs noms de table
+        let electionsRows = [];
+        try {
+            const elRes = await db.query(`
+                SELECT el.code_unique_eleve AS code_unique, el.poste,
+                       c.nom, c.prenom,
+                       e.classe_actuelle AS classe
+                FROM gestion.elections el
+                JOIN authentification.comptes c ON c.code_unique = el.code_unique_eleve
+                LEFT JOIN pedagogie.profils_eleves e ON e.id_user = c.id_user
+                ORDER BY el.poste, c.nom
+            `);
+            electionsRows = elRes.rows;
+        } catch (e) {
+            // Table inexistante — retourner liste vide
+            electionsRows = [];
+        }
+
+        const postesLabels = {
+            PRESIDENT: 'Président(e) des Élèves',
+            VICE_PRESIDENT: 'Vice-Président(e)',
+            SECRETAIRE: 'Secrétaire Général(e)',
+            TRESORIER: 'Trésorier(e)',
+            CHEF_CLASSE: 'Chef de Classe',
+            CHEF_CLASSE_ADJ: 'Chef de Classe Adjoint(e)'
+        };
+
+        res.json({
+            success: true,
+            eleves: elevesRes.rows,
+            elections: electionsRows,
+            postes_labels: postesLabels
+        });
+    } catch (e) {
+        console.error('getElections:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+exports.setElection = async (req, res) => {
+    try {
+        const { eleve_code, poste } = req.body;
+        if (!eleve_code || !poste) {
+            return res.status(400).json({ success: false, message: 'Code élève et poste requis' });
+        }
+
+        // Créer la table si elle n'existe pas
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS gestion.elections (
+                id SERIAL PRIMARY KEY,
+                code_unique_eleve VARCHAR(50) NOT NULL,
+                poste VARCHAR(50) NOT NULL,
+                date_attribution TIMESTAMP DEFAULT NOW(),
+                UNIQUE(code_unique_eleve)
+            )
+        `);
+
+        // Vérifier que l'élève existe
+        const check = await db.query(
+            'SELECT code_unique FROM authentification.comptes WHERE code_unique = $1 AND est_actif = true',
+            [eleve_code]
+        );
+        if (!check.rows.length) {
+            return res.json({ success: false, message: 'Matricule introuvable' });
+        }
+
+        // Insérer ou mettre à jour
+        await db.query(`
+            INSERT INTO gestion.elections (code_unique_eleve, poste)
+            VALUES ($1, $2)
+            ON CONFLICT (code_unique_eleve) DO UPDATE SET poste = $2, date_attribution = NOW()
+        `, [eleve_code, poste]);
+
+        const postesLabels = {
+            PRESIDENT: 'Président(e) des Élèves',
+            VICE_PRESIDENT: 'Vice-Président(e)',
+            SECRETAIRE: 'Secrétaire Général(e)',
+            TRESORIER: 'Trésorier(e)',
+            CHEF_CLASSE: 'Chef de Classe',
+            CHEF_CLASSE_ADJ: 'Chef de Classe Adjoint(e)'
+        };
+
+        res.json({
+            success: true,
+            message: `${postesLabels[poste] || poste} attribué à ${eleve_code}`
+        });
+    } catch (e) {
+        console.error('setElection:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur: ' + e.message });
+    }
+};
+
+exports.removeElection = async (req, res) => {
+    try {
+        const { eleve_code } = req.body;
+        if (!eleve_code) {
+            return res.status(400).json({ success: false, message: 'Code élève requis' });
+        }
+
+        try {
+            await db.query(
+                'DELETE FROM gestion.elections WHERE code_unique_eleve = $1',
+                [eleve_code]
+            );
+        } catch (e) {
+            // Table inexistante, rien à supprimer
+        }
+
+        res.json({ success: true, message: 'Poste retiré' });
+    } catch (e) {
+        console.error('removeElection:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+exports.createComposition = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const { titre, description, type_composition, date_debut, date_fin, classes_concernees } = req.body;
+
+        if (!titre || !type_composition || !date_debut) {
+            return res.status(400).json({ message: 'Titre, type et date requis' });
+        }
+
+        const result = await db.query(`
+            INSERT INTO pedagogie.compositions
+                (titre, description, type_composition, date_debut, date_fin, classes_concernees, publie_par)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *
+        `, [titre, description || '', type_composition, date_debut, date_fin || null, classes_concernees || null, userId]);
+
+        // ========== NOTIFICATION EN TEMPS RÉEL ==========
+        try {
+            const notificationService = require('../services/notificationService');
+            const io = req.app?.locals?.io;
+
+            let elevesIds = [];
+
+            if (type_composition === 'COMPOSITION') {
+                const eleves = await db.query(`
+                    SELECT id_user FROM authentification.comptes 
+                    WHERE role_actuel = 'ELEVE' AND est_actif = true
+                `);
+                elevesIds = eleves.rows.map(e => e.id_user);
+            } else if (type_composition === 'EXAMEN_BLANC' && classes_concernees) {
+                for (const classe of classes_concernees) {
+                    const eleves = await db.query(`
+                        SELECT c.id_user FROM authentification.comptes c
+                        JOIN vie_scolaire.profils_eleves pe ON c.id_user = pe.id_user
+                        WHERE c.role_actuel = 'ELEVE' AND pe.classe_actuelle = $1
+                    `, [classe]);
+                    elevesIds.push(...eleves.rows.map(e => e.id_user));
+                }
+            }
+
+            // Envoyer les notifications en base de données
+            if (elevesIds.length > 0) {
+                const lien = type_composition === 'EXAMEN_BLANC'
+                    ? '/eleve.html?page=programme&tab=examens'
+                    : '/eleve.html?page=programme&tab=compos';
+
+                await notificationService.sendNotification(
+                    [...new Set(elevesIds)],
+                    type_composition === 'EXAMEN_BLANC' ? 'EXAMEN_BLANC' : 'COMPOSITION',
+                    `📅 ${titre}`,
+                    description || (type_composition === 'EXAMEN_BLANC' ? 'Examen blanc programmé' : 'Composition programmée'),
+                    lien
+                );
+
+                // Notifier en temps réel via Socket.IO
+                if (io) {
+                    io.emit('nouvelle-composition', {
+                        titre,
+                        type: type_composition,
+                        date: date_debut,
+                        message: description || 'Une nouvelle épreuve a été programmée'
+                    });
+                }
+            }
+
+            console.log(`🔔 Notification composition envoyée à ${elevesIds.length} élèves`);
+        } catch (e) {
+            console.warn('Erreur notification composition:', e.message);
+        }
+
+        res.json({ success: true, message: 'Composition publiée', composition: result.rows[0] });
+    } catch (err) {
+        console.error('createComposition:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };

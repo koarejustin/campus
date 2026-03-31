@@ -70,7 +70,7 @@ router.post('/grand-eleves/:postId/like', authMiddleware, eleveController.likeGr
 router.get('/inter-classes', authMiddleware, eleveController.getInterClasses);
 router.post('/inter-classes', authMiddleware, eleveController.postInterClasses);
 
-// Devoirs / Programme
+// Devoirs / Programme (une seule route)
 router.get('/devoirs', authMiddleware, eleveController.getDevoirs);
 
 // Profil élève
@@ -90,5 +90,8 @@ router.post('/video-call/join/:roomId', authMiddleware, eleveController.rejoindr
 router.delete('/video-call/leave/:roomId', authMiddleware, eleveController.quitterSalleVideo);
 router.get('/video-call/active', authMiddleware, eleveController.getSallesActives);
 router.post('/video-call/signal', authMiddleware, eleveController.signalisationWebRTC);
+
+// Compositions et examens blancs
+router.get('/compositions', authMiddleware, eleveController.getCompositions);
 
 module.exports = router;

@@ -308,7 +308,6 @@
       flex: 1;
       height: 100vh;
       overflow-y: auto;
-      overflow-x: hidden;
       background: var(--bg);
     }
 
@@ -1144,137 +1143,6 @@
     }
 
     @media (max-width:640px) {
-
-      /* ══ LAYOUT PRINCIPAL ══ */
-      .sidebar {
-        position: fixed !important;
-        transform: translateX(-220px) !important;
-        transition: transform .28s ease !important;
-        z-index: 999 !important;
-      }
-
-      .sidebar.open {
-        transform: translateX(0) !important;
-      }
-
-      main {
-        margin-left: 0 !important;
-        overflow-x: hidden !important;
-        width: 100vw !important;
-      }
-
-      #ham-btn {
-        display: flex !important;
-      }
-
-      /* ══ SECTIONS : overflow caché ══ */
-      .sec {
-        overflow-x: hidden !important;
-        padding: 0 !important;
-      }
-
-      /* ══ DASHBOARD ══ */
-      .kpi-row {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 8px !important;
-      }
-
-      .kpi {
-        padding: 12px 14px !important;
-      }
-
-      /* Dashboard grille "1fr 1fr" → colonne */
-      #s-dash>div>div[style*="grid-template-columns:1fr 1fr"],
-      #s-dash>div[style*="grid-template-columns:1fr 1fr"],
-      #s-dash [style*="grid-template-columns: 1fr 1fr"] {
-        grid-template-columns: 1fr !important;
-        display: block !important;
-      }
-
-      #dash-cls,
-      #s-dash .card {
-        margin-bottom: 10px !important;
-      }
-
-      /* ══ CAHIER DE TEXTE ══ */
-      #s-ct [style*="grid-template-columns:1fr 340px"],
-      #s-ct [style*="grid-template-columns: 1fr 340px"] {
-        display: flex !important;
-        flex-direction: column !important;
-      }
-
-      #s-ct [style*="grid-template-columns:1fr 1fr"],
-      #s-ct [style*="grid-template-columns: 1fr 1fr"] {
-        grid-template-columns: 1fr !important;
-      }
-
-      #s-ct .card {
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-
-      /* ══ RESSOURCES ══ */
-      .res-main-layout {
-        display: flex !important;
-        flex-direction: column !important;
-      }
-
-      #video-grid,
-      #s-res [style*="grid-template-columns:repeat(3"],
-      #s-res [style*="grid-template-columns: repeat(3"] {
-        grid-template-columns: 1fr !important;
-        display: grid !important;
-      }
-
-      .video-card {
-        width: 100% !important;
-        max-width: 100% !important;
-      }
-
-      #s-res .card {
-        width: 100% !important;
-        box-sizing: border-box !important;
-      }
-
-      /* ══ ORIENTATION ══ */
-      #s-orient [style*="grid-template-columns:1fr 340px"],
-      #s-orient [style*="grid-template-columns: 1fr 340px"] {
-        display: flex !important;
-        flex-direction: column !important;
-      }
-
-      #s-orient [style*="grid-template-columns:1fr 1fr"],
-      #s-orient [style*="grid-template-columns: 1fr 1fr"] {
-        grid-template-columns: 1fr !important;
-      }
-
-      #orient-list {
-        grid-template-columns: 1fr !important;
-      }
-
-      /* ══ NOTES ══ */
-      .notes-grid {
-        grid-template-columns: 1fr !important;
-      }
-
-      .eleve-list {
-        max-height: 200px !important;
-      }
-
-      #mats-grid {
-        grid-template-columns: 1fr !important;
-      }
-
-      /* ══ PROFIL ══ */
-      .profil-wrap {
-        grid-template-columns: 1fr !important;
-      }
-
-      .pf-row {
-        grid-template-columns: 1fr !important;
-      }
-
-      /* ══ SALLE DES PROFS ══ */
       #s-salle .salle-wrap {
         flex-direction: column !important;
         height: calc(100dvh - 95px) !important;
@@ -1322,68 +1190,6 @@
 
       #s-salle .msg-row {
         max-width: 84vw !important;
-      }
-
-      #s-salle .chat-zone {
-        flex: 1 !important;
-        min-height: 0 !important;
-      }
-
-      #s-salle .msgs-bg {
-        flex: 1 !important;
-        min-height: 0 !important;
-        overflow-y: auto !important;
-      }
-
-      #s-salle .chat-input-row {
-        flex-shrink: 0 !important;
-      }
-
-      /* ══ TOPBAR ══ */
-      .topbar {
-        padding: 0 12px !important;
-        flex-wrap: wrap !important;
-        gap: 6px !important;
-      }
-
-      .pg-top {
-        flex-direction: column !important;
-        gap: 4px !important;
-      }
-
-      /* ══ GÉNÉRAL ══ */
-      .card-hd {
-        flex-wrap: wrap !important;
-        gap: 6px !important;
-      }
-
-      .btn-p {
-        font-size: .72rem !important;
-        padding: 6px 10px !important;
-      }
-
-      .cls-tab {
-        font-size: .68rem !important;
-        padding: 4px 8px !important;
-      }
-
-      .cls-tabs {
-        flex-wrap: wrap !important;
-        gap: 4px !important;
-      }
-    }
-
-    @media (max-width:400px) {
-      .kpi-row {
-        grid-template-columns: 1fr !important;
-      }
-
-      .kpi {
-        padding: 10px 12px !important;
-      }
-
-      .bubble {
-        font-size: .76rem !important;
       }
     }
 
@@ -2999,78 +2805,77 @@
       display: none;
     }
 
-    /* ══ RESSOURCES RESPONSIVE ══ */
-    .res-main-layout {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 14px;
+    /* La cloche n'apparaît que sur le tableau de bord */
+    .topbar-right .notif-btn {
+      display: none !important;
     }
 
-    .video-grid-wrap {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 18px;
+    /* Afficher la cloche uniquement quand le tableau de bord est actif */
+    body:has(#s-dash.sec.on) .topbar-right .notif-btn {
+      display: flex !important;
     }
 
-    .video-card {
-      min-width: 0;
-      max-width: 100%;
+    /* Style pour le compteur de notifications */
+    .notif-btn {
+      position: relative;
+      width: 34px;
+      height: 34px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
     }
 
-    .video-thumb {
-      width: 100%;
-      aspect-ratio: 16/9;
+    .notif-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--muted);
+      fill: none;
+      stroke-width: 2;
     }
 
-    @media (max-width: 900px) {
-      .res-main-layout {
-        grid-template-columns: 1fr !important;
-      }
-
-      .video-grid-wrap {
-        grid-template-columns: repeat(2, 1fr) !important;
-      }
+    /* Le point rouge (optionnel) */
+    .notif-dot {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 6px;
+      height: 6px;
+      background: #E74C3C;
+      border-radius: 50%;
+      border: 2px solid var(--card);
+      display: none;
     }
 
-    @media (max-width: 640px) {
-      .res-main-layout {
-        grid-template-columns: 1fr !important;
-      }
-
-      .video-grid-wrap {
-        grid-template-columns: 1fr !important;
-      }
-
-      .video-card {
-        width: 100% !important;
-        max-width: 100% !important;
-      }
-
-      #s-res {
-        overflow-x: hidden !important;
-      }
+    /* Le compteur avec le nombre de notifications */
+    .notif-count {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      min-width: 18px;
+      height: 18px;
+      background: #EF4444;
+      color: #fff;
+      border-radius: 10px;
+      font-size: 0.6rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      font-family: 'DM Sans', sans-serif;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      z-index: 10;
     }
 
-
-    /* ══ DOCS LIST MOBILE ══ */
-    @media (max-width: 640px) {
-      #res-list>div {
-        flex-wrap: wrap !important;
-        gap: 6px !important;
-        padding: 10px 10px !important;
-      }
-
-      #res-list>div>div[style*="flex:1"] {
-        min-width: 0 !important;
-        width: calc(100% - 50px) !important;
-      }
-
-      #res-list>div>span,
-      #res-list>div>button {
-        font-size: .6rem !important;
-        padding: 3px 7px !important;
-      }
+    /* Cacher le badge des annonces quand il est à 0 */
+    #annonces-count-badge:empty,
+    #annonces-count-badge[style*="display:none"],
+    #annonces-count-badge[style*="display: none"] {
+      display: none !important;
     }
   </style>
   <script src="/socket.io/socket.io.js"></script>
@@ -3083,13 +2888,14 @@
     <div class="sb-head">
       <div class="sb-logo">
         <div class="sb-logo-icon">
-          <svg viewBox="0 0 24 24">
+          <img class="ecole-logo hidden" alt="logo" style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
+          <svg class="ecole-logo-fallback" viewBox="0 0 24 24">
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
           </svg>
         </div>
         <div>
-          <div class="sb-logo-txt">CAMPUS<span>FASO</span></div>
+          <div class="sb-logo-txt ecole-nom">CAMPUS<span>FASO</span></div>
           <div class="sb-role">Espace Professeur</div>
         </div>
       </div>
@@ -3125,7 +2931,7 @@
           <path d="M12 20h9" />
           <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
         </svg>Saisie des Notes
-
+        <span class="badge" id="nb-badge">!</span>
       </div>
       <div class="ni" id="ni-ct" onclick="go('ct',this)">
         <svg viewBox="0 0 24 24">
@@ -3139,6 +2945,28 @@
             d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
         </svg>Ressources & Cours
       </div>
+
+      <!-- ========== NOUVEAUX ONGLETS AJOUTÉS ICI ========== -->
+      <div class="ni" id="ni-devoirs" onclick="go('devoirs',this)">
+        <svg viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+        Mes Devoirs
+      </div>
+      <div class="ni" id="ni-annonces" onclick="go('annonces',this)">
+        <svg viewBox="0 0 24 24">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        Annonces reçues
+        <span class="badge" id="annonces-count" style="display:none;">0</span>
+      </div>
+      <!-- ========== FIN NOUVEAUX ONGLETS ========== -->
+
       <div class="ni-sep"></div>
       <div class="sb-grp">Vie Scolaire</div>
       <div class="ni" id="ni-orient" onclick="go('orient',this)">
@@ -3155,17 +2983,6 @@
           <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>Salle des Profs
       </div>
-      <div class="ni" id="ni-annonces" onclick="go('annonces',this)">
-        <svg viewBox="0 0 24 24">
-          <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
-          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
-          <line x1="6" y1="1" x2="6" y2="4" />
-          <line x1="10" y1="1" x2="10" y2="4" />
-          <line x1="14" y1="1" x2="14" y2="4" />
-        </svg>Annonces
-        <span id="badge-ann-prof"
-          style="display:none;background:#EF4444;color:#fff;font-size:.6rem;font-weight:800;padding:1px 6px;border-radius:10px;margin-left:auto;">!</span>
-      </div>
     </div>
     <div class="sb-foot">
       <div class="sys-pill"><span class="pulse"></span>En ligne</div>
@@ -3178,7 +2995,6 @@
       </button>
     </div>
   </aside>
-
   <!-- ══ MAIN ══ -->
   <main>
     <div class="topbar">
@@ -3192,17 +3008,34 @@
           <option value="2">Trimestre 2</option>
           <option value="3">Trimestre 3</option>
         </select>
-        <div class="notif-btn"><svg viewBox="0 0 24 24">
+        <div class="notif-btn" onclick="toggleNotifPanel()">
+          <svg viewBox="0 0 24 24">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
           </svg>
           <div class="notif-dot"></div>
+          <span id="notif-count" class="notif-count" style="display:none;">0</span>
         </div>
+      </div>
+    </div>
+    <!-- Panneau de notifications -->
+    <div id="notif-panel"
+      style="display:none; position:fixed; top:70px; right:20px; width:320px; max-width:90vw; background:#fff; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,.2); z-index:1000; border:1px solid var(--border); overflow:hidden;">
+      <div
+        style="padding:12px 16px; background:var(--accent); color:#fff; display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:800; font-size:.85rem;">🔔 Notifications</span>
+        <button onclick="markAllNotifRead()"
+          style="background:rgba(255,255,255,.2); border:none; border-radius:8px; padding:4px 10px; font-size:.65rem; font-weight:700; color:#fff; cursor:pointer;">Tout
+          marquer lu</button>
+      </div>
+      <div id="notif-list" style="max-height:400px; overflow-y:auto;"></div>
+      <div style="padding:10px; text-align:center; border-top:1px solid var(--border);">
+        <button onclick="toggleNotifPanel()"
+          style="background:none; border:none; font-size:.7rem; color:var(--muted); cursor:pointer;">Fermer</button>
       </div>
     </div>
 
     <div class="pad">
-
       <!-- ══ DASHBOARD ══ -->
       <div id="s-dash" class="sec on">
         <div class="kpi-row">
@@ -3465,7 +3298,7 @@
           </div>
         </div>
 
-        <div class="res-main-layout">
+        <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
           <!-- Liste ressources : docs + vidéos -->
           <div>
             <!-- Vidéos -->
@@ -3707,7 +3540,6 @@
           </div>
         </div>
       </div>
-
       <!-- ══ SALLE DES PROFS (WhatsApp) ══ -->
       <div id="s-salle" class="sec">
         <div class="salle-wrap">
@@ -3909,28 +3741,112 @@
           </div>
         </div>
       </div>
-
-    </div><!-- .pad -->
-    <!-- ══ ANNONCES PROFS ══ -->
-    <div id="s-annonces" class="sec" style="padding:0;">
-      <div style="max-width:700px;margin:0 auto;padding:16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <div>
-            <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:900;color:var(--ink);">📢 Annonces
-              Officielles</div>
-            <div style="font-size:.72rem;color:var(--muted);margin-top:2px;">Communiqués de la Direction · Visible
-              uniquement par les professeurs</div>
+      <!-- ══ DEVOIRS ══ -->
+      <div id="s-devoirs" class="sec">
+        <div style="display:grid; grid-template-columns:1fr 340px; gap:14px;">
+          <!-- Liste des devoirs -->
+          <div class="card">
+            <div class="card-hd">
+              <div>
+                <div class="card-hd-title">📝 Devoirs programmés</div>
+                <div class="card-hd-sub">Visible par les élèves de vos classes</div>
+              </div>
+              <button class="btn-p" onclick="openAddDevoir()">
+                <svg viewBox="0 0 24 24">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Nouveau devoir
+              </button>
+            </div>
+            <div id="devoirs-list" style="padding:12px;"></div>
           </div>
-          <button onclick="loadAnnoncesProf()"
-            style="background:var(--accent-light);color:var(--accent);border:none;border-radius:9px;padding:7px 14px;font-size:.72rem;font-weight:700;cursor:pointer;">🔄
-            Actualiser</button>
-        </div>
-        <div id="ann-prof-list" style="display:flex;flex-direction:column;gap:10px;">
-          <div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">⏳ Chargement...</div>
+
+          <!-- Formulaire ajout/modification -->
+          <div class="card" id="add-devoir-panel" style="display:none;">
+            <div class="card-hd">
+              <div class="card-hd-title" id="devoir-form-title">➕ Nouveau devoir</div>
+              <button class="btn-g" onclick="closeAddDevoir()">✕</button>
+            </div>
+            <div style="padding:12px; display:flex; flex-direction:column; gap:12px;">
+              <div>
+                <label>Classe *</label>
+                <select id="dev-cls" class="inp">
+                  <option value="">— Sélectionner —</option>
+                </select>
+              </div>
+              <div>
+                <label>Matière *</label>
+                <select id="dev-mat" class="inp"></select>
+              </div>
+              <div>
+                <label>Titre *</label>
+                <input id="dev-titre" type="text" placeholder="ex: Exercices sur les dérivées" class="inp">
+              </div>
+              <div>
+                <label>Description</label>
+                <textarea id="dev-desc" rows="2" placeholder="Détails du devoir..." class="inp"></textarea>
+              </div>
+              <div>
+                <label>Date limite *</label>
+                <input id="dev-date" type="date" class="inp">
+              </div>
+              <div id="dev-msg" style="display:none;"></div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-p" onclick="saveDevoir()" style="flex:1;">✅ Enregistrer</button>
+                <button class="btn-g" onclick="closeAddDevoir()">Annuler</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
+      <!-- ══ ANNONCES REÇUES ══ -->
+      <div id="s-annonces" class="sec">
+        <!-- Onglets : Annonces officielles | Messages privés direction -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <button id="tab-annonces" onclick="switchAnnonceTab('annonces')"
+            style="padding:9px 20px;border-radius:30px;font-size:.78rem;font-weight:800;border:none;cursor:pointer;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;font-family:inherit;">
+            📢 Annonces officielles
+          </button>
+          <button id="tab-sms" onclick="switchAnnonceTab('sms')"
+            style="padding:9px 20px;border-radius:30px;font-size:.78rem;font-weight:800;border:1.5px solid #E2E8F0;cursor:pointer;background:#fff;color:#64748B;font-family:inherit;">
+            ✉️ Messages de la direction <span id="sms-count-badge" style="display:none;background:#EF4444;color:#fff;border-radius:20px;padding:1px 6px;font-size:.65rem;margin-left:4px;">0</span>
+          </button>
+        </div>
+
+        <!-- Panneau annonces -->
+        <div id="pane-annonces">
+          <div class="card">
+            <div class="card-hd">
+              <div>
+                <div class="card-hd-title">📢 Annonces officielles</div>
+                <div class="card-hd-sub">Messages de la Direction et des Surveillants</div>
+              </div>
+              <span class="b b-blue" id="annonces-count-badge">0</span>
+            </div>
+            <div id="annonces-list" style="padding:12px;"></div>
+          </div>
+        </div>
+
+        <!-- Panneau messages privés direction -->
+        <div id="pane-sms" style="display:none;">
+          <div class="card">
+            <div class="card-hd">
+              <div>
+                <div class="card-hd-title">✉️ Messages privés — Direction</div>
+                <div class="card-hd-sub">Messages envoyés directement par la Direction à votre intention</div>
+              </div>
+              <button onclick="loadSmsDirection()" style="padding:6px 12px;border:1.5px solid #E2E8F0;border-radius:8px;background:#fff;cursor:pointer;font-size:.73rem;font-weight:700;font-family:inherit;">🔄 Actualiser</button>
+            </div>
+            <div id="sms-list" style="padding:12px;">
+              <div style="text-align:center;padding:30px;color:#94A3B8;font-size:.8rem;">⏳ Chargement…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- .pad -->
   </main>
   <div class="toast" id="toast"></div>
 
@@ -3948,6 +3864,23 @@
     const authH = () => ({ 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' });
     const $ = id => document.getElementById(id);
     const esc = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // ========== VARIABLES MANQUANTES SALLE DES PROFS ==========
+    const PROFS_LIST = [];
+    const BG_OPTIONS = [
+      { id: 'default', label: 'Défaut', css: 'background-color:#0B141A;background-image:url(\"data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23182229\' fill-opacity=\'0.6\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\");' },
+      { id: 'solid', label: 'Solide', css: 'background-color:#0B141A;' }
+    ];
+    let currentBgId = 'default';
+    let bgShown = false;
+    let attachShown = false;
+    let emojiShown = false;
+    let isRecording = false;
+    let recSecs = 0;
+    let audioChunks = [];
+    let mediaRecorder = null;
+    let recInterval = null;
+    let replyMsg = null;
+    let ctxMsgId = null;
 
     // Données du prof connecté (simulées + réelles si API répond)
     let PROF = {
@@ -4121,96 +4054,29 @@
 
 
     // ══════════════════════════════════════════
-    // ══ ANNONCES OFFICIELLES (direction → profs) ══
-    async function loadAnnoncesProf() {
-      const box = document.getElementById('ann-prof-list');
-      if (!box) return;
-      box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem;">⏳ Chargement...</div>';
+    // CONFIG ÉCOLE (NOM + LOGO)
+    // ══════════════════════════════════════════
+    async function chargerConfigEcole() {
       try {
-        // Annonces officielles globales (direction → tous)
-        let annonces = [];
-        try {
-          const r2 = await fetch(BASE_URL + '/api/surveillants/announcements',
-            { headers: { 'Authorization': 'Bearer ' + TOK } });
-          if (r2.ok) {
-            const d2 = await r2.json();
-            const raw2 = Array.isArray(d2) ? d2 : [];
-            // Filtrer : profs ou tous — destinataires en priorité sur type
-            const filtered2 = raw2.filter(a => {
-              const dest = (a.destinataires || a.type || 'tous').toLowerCase();
-              return ['tous', 'all', 'profs', 'professeurs'].includes(dest);
-            });
-            annonces = filtered2.map(a => ({
-              id: a.id,
-              titre: a.titre || 'Annonce',
-              contenu: a.contenu || a.corps_annonce || '',
-              auteur: ((a.prenom || '') + ' ' + (a.nom || 'Direction')).trim(),
-              ts: a.date_publication ? new Date(a.date_publication) : new Date(0),
-              date: a.date_publication
-                ? new Date(a.date_publication).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
-                + ' à ' + new Date(a.date_publication).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-                : ''
-            }));
+        const response = await fetch('/api/admin/config');
+        const data = await response.json();
+        if (data.success && data.config) {
+          document.querySelectorAll('.ecole-nom').forEach(el => el.textContent = data.config.nom_etablissement);
+          if (data.config.logo_url) {
+            document.querySelectorAll('.ecole-logo').forEach(el => { el.src = data.config.logo_url; el.classList.remove('hidden'); });
+            document.querySelectorAll('.ecole-logo-fallback').forEach(el => el.style.display = 'none');
           }
-        } catch (e2) { }
-
-        // Messages de la direction dans la salle (canal general) marqués isDirection
-        try {
-          const r3 = await fetch(BASE_URL + '/api/messages/general?limit=30',
-            { headers: { 'Authorization': 'Bearer ' + TOK } });
-          if (r3.ok) {
-            const d3 = await r3.json();
-            const dirMsgs = (d3.messages || [])
-              .filter(m => !PROF.code || m.from !== PROF.code) // pas les siens
-              .map(m => ({ titre: 'Message de la Direction', contenu: m.txt || '', auteur: m.nom || 'Direction', date: m.time || '' }));
-            annonces = [...annonces, ...dirMsgs];
-          }
-        } catch (e3) { }
-
-        // Trier du plus récent au plus ancien
-        annonces.sort((a, b) => (b.ts || 0) - (a.ts || 0));
-
-        if (!annonces.length) {
-          box.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">📭 Aucune annonce pour le moment</div>';
-          return;
         }
-
-        const escH = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        box.innerHTML = annonces.map(a => `
-          <div style="background:#fff;border:1.5px solid #E2E8F0;border-left:4px solid #4F46E5;border-radius:12px;padding:14px 16px;margin-bottom:0;">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-              <span style="font-size:.65rem;font-weight:800;background:#EEF2FF;color:#4F46E5;padding:2px 8px;border-radius:20px;">📢 Direction</span>
-              <span style="font-size:.65rem;color:#94A3B8;">${escH(a.date)}</span>
-            </div>
-            <div style="font-size:.88rem;color:#0F172A;font-weight:700;margin-bottom:4px;">${escH(a.titre)}</div>
-            <div style="font-size:.8rem;color:#374151;line-height:1.6;">${escH(a.contenu)}</div>
-            <div style="font-size:.7rem;color:#94A3B8;margin-top:6px;">— ${escH(a.auteur)}</div>
-          </div>`).join('');
-
-        const badge = document.getElementById('badge-ann-prof');
-        if (badge) badge.style.display = 'none';
-
-      } catch (e) {
-        box.innerHTML = '<div style="text-align:center;padding:20px;color:#EF4444;font-size:.78rem;">Impossible de charger</div>';
-        console.warn('loadAnnoncesProf:', e.message);
-      }
+      } catch (error) { console.error('Erreur chargement config:', error); }
     }
 
-    // Notification quand la direction envoie un message dans la salle
-    function listenAnnoncesSocket() {
-      if (!salleSocket) return;
-      salleSocket.on('annonce-direction', (msg) => {
-        const badge = document.getElementById('badge-ann-prof');
-        if (badge) { badge.style.display = 'inline'; }
-        toast('📢 Annonce Direction : ' + (msg.titre || 'Nouveau message'), 'info');
-      });
-    }
-
+    // ══════════════════════════════════════════
     // INIT
     // ══════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', () => {
       if (!TOK) { location.href = 'login.html'; return; }
       if ((SESS.role_actuel || '').toUpperCase() !== 'PROFESSEUR') { location.href = 'login.html'; return; }
+      chargerConfigEcole();
       initUI();
     });
 
@@ -4247,6 +4113,9 @@
       loadRes();
       loadOrient();
       initSalle();
+
+      // Démarrer le polling des notifications
+      startNotifPolling();
     }
 
     // ══════════════════════════════════════════
@@ -4259,8 +4128,9 @@
       ct: { title: 'Cahier de Texte', sub: 'Journal de séances · Visible par la Direction' },
       res: { title: 'Ressources & Cours', sub: 'Publications visibles par vos élèves uniquement' },
       orient: { title: 'Orientation Élèves', sub: 'Suivi personnalisé 3ème → Terminale' },
+      devoirs: { title: 'Mes Devoirs', sub: 'Programmer et gérer les devoirs pour vos classes' },  // ← AJOUT
       salle: { title: 'Salle des Profs', sub: '🔒 Espace privé · Invisible pour la Direction' },
-      annonces: { title: 'Annonces Officielles', sub: 'Communiqués de la Direction · Réservé aux professeurs' },
+      annonces: { title: 'Annonces reçues', sub: 'Messages officiels de la direction et des surveillants' },  // ← AJOUT
     };
     function go(page, el) {
       document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
@@ -4271,7 +4141,8 @@
       if (p) { $('pg-title').textContent = p.title; $('pg-sub').textContent = p.sub; }
       if (page === 'salle') setTimeout(scrollMsgs, 100);
       if (page === 'orient') loadOrient();
-      if (page === 'annonces') loadAnnoncesProf();
+      if (page === 'devoirs') loadDevoirs();  // ← AJOUT
+      if (page === 'annonces') { loadAnnonces(); setTimeout(()=>{ const r=fetch(`${API}/messages/general?limit=50`,{headers:{'Authorization':'Bearer '+TOK}}).then(r=>r.json()).then(d=>{const c=(d.messages||[]).filter(m=>m.isDirection||(m.from_code||'').startsWith('DIR'));const b=document.getElementById('sms-count-badge');if(b&&c.length){b.style.display='inline';b.textContent=c.length;}}).catch(()=>{}); }, 500); }
     }
 
     // ══════════════════════════════════════════
@@ -4296,6 +4167,16 @@
         (PROF.classes.length ? PROF.classes : examClasses)
           .filter(c => examClasses.includes(c))
           .forEach(c => { of.innerHTML += `<option value="${c}">${c}</option>`; });
+      }
+      // Remplir les selects des devoirs
+      const devCls = document.getElementById('dev-cls');
+      if (devCls && PROF.classes) {
+        devCls.innerHTML = '<option value="">— Sélectionner —</option>' +
+          PROF.classes.map(c => `<option value="${c}">${c}</option>`).join('');
+      }
+      const devMat = document.getElementById('dev-mat');
+      if (devMat && PROF.matieres) {
+        devMat.innerHTML = PROF.matieres.map(m => `<option value="${m}">${m}</option>`).join('');
       }
     }
 
@@ -4628,6 +4509,7 @@
       <div style="font-size:.74rem;font-weight:800;color:${e.moy !== null ? (parseFloat(e.moy) >= 10 ? 'var(--accent)' : 'var(--red)') : 'var(--muted)'};">${e.moy !== null ? e.moy : '—'}</div>
     </div>`).join('');
     }
+
     async function selEleveNote(idx) {
       selEleve = elevesData.find(e => e.idx === idx);
       if (!selEleve) return;
@@ -4645,30 +4527,30 @@
       const moyCol = selEleve.moy !== null ? (parseFloat(selEleve.moy) >= 10 ? 'var(--accent)' : 'var(--red)') : 'var(--muted)';
       $('note-panel').innerHTML = `
         <div style="padding:16px;">
-            <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:#F0F7F3;border-radius:10px;border:1.5px solid var(--accent3);margin-bottom:16px;">
-                <div class="eleve-av" style="background:${selEleve.col};width:38px;height:38px;border-radius:10px;">${selEleve.nom.charAt(0)}</div>
-                <div style="flex:1;">
-                    <div style="font-size:.88rem;font-weight:800;">${esc(selEleve.prenom)} ${esc(selEleve.nom)}</div>
-                    <div style="font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${selEleve.code} · ${selCls}</div>
-                </div>
-                <div style="text-align:right;">
-                    <div style="font-size:1.1rem;font-weight:900;color:${moyCol};">${moyAff}</div>
-                    <div style="font-size:.6rem;color:var(--muted);">Moy. T${tri}</div>
-                </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:#F0F7F3;border-radius:10px;border:1.5px solid var(--accent3);margin-bottom:16px;">
+            <div class="eleve-av" style="background:${selEleve.col};width:38px;height:38px;border-radius:10px;">${selEleve.nom.charAt(0)}</div>
+            <div style="flex:1;">
+              <div style="font-size:.88rem;font-weight:800;">${esc(selEleve.prenom)} ${esc(selEleve.nom)}</div>
+              <div style="font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">${selEleve.code} · ${selCls}</div>
             </div>
-            <div style="font-size:.78rem;font-weight:800;margin-bottom:10px;">
-                Saisie Notes · T${tri} · <span style="color:var(--muted);">${selCls}</span>
+            <div style="text-align:right;">
+              <div style="font-size:1.1rem;font-weight:900;color:${moyCol};">${moyAff}</div>
+              <div style="font-size:.6rem;color:var(--muted);">Moy. T${tri}</div>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;" id="mats-grid">
-                <div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--muted);font-size:.75rem;">⏳ Chargement des notes existantes…</div>
-            </div>
-            <div style="display:flex;gap:7px;margin-top:12px;">
-                <input type="text" id="note-com" placeholder="Appréciation (optionnel)" style="flex:1;padding:8px 11px;font-size:.78rem;border:1px solid var(--border);border-radius:8px;outline:none;">
-                <button class="btn-p" onclick="saveNotes()">
-                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Valider
-                </button>
-            </div>
-            <div id="note-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
+          </div>
+          <div style="font-size:.78rem;font-weight:800;margin-bottom:10px;">
+            Saisie Notes · T${tri} · <span style="color:var(--muted);">${selCls}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;" id="mats-grid">
+            <div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--muted);font-size:.75rem;">⏳ Chargement des notes existantes…</div>
+          </div>
+          <div style="display:flex;gap:7px;margin-top:12px;">
+            <input type="text" id="note-com" placeholder="Appréciation (optionnel)" style="flex:1;padding:8px 11px;font-size:.78rem;border:1px solid var(--border);border-radius:8px;outline:none;">
+            <button class="btn-p" onclick="saveNotes()">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Valider
+            </button>
+          </div>
+          <div id="note-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
         </div>`;
 
       // Charger les notes déjà saisies pour cet élève
@@ -4679,72 +4561,75 @@
           { headers: { 'Authorization': 'Bearer ' + TOK } }
         );
         const d = await r.json();
-        if (d.success && d.notes_par_matiere) {
-          // Récupérer les notes existantes
-          d.notes_par_matiere.forEach(n => {
-            const matId = mats.find(m => m.n === n.matiere)?.id;
-            if (matId) existingNotes[matId] = n.note_moyenne;
-          });
-        }
-      } catch (e) { console.warn(e); }
+        // Les notes individuelles par matière ne viennent pas encore de cette route
+        // On affiche juste les champs vides prêts à saisir
+      } catch (e) { }
 
       // Rendre la grille des matières
       const grid = document.getElementById('mats-grid');
       if (grid) {
         grid.innerHTML = mats.map((m, i) => `
-            <div style="background:#F5FBF7;border:1.5px solid var(--border);border-radius:10px;padding:11px;">
-                <div style="font-size:.74rem;font-weight:800;color:var(--ink);margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;">
-                    ${esc(m.n)}<span style="font-size:.62rem;background:var(--accent3);color:var(--accent);padding:2px 6px;border-radius:4px;font-weight:800;">×${m.c}</span>
-                </div>
-                <input class="nf-inp" id="ni-${i}" data-id-matiere="${m.id}" type="number"
-                    min="0" max="20" step="0.5" placeholder="— /20"
-                    oninput="updBar(${i},this.value)"
-                    onchange="validateNote(this)"
-                    value="${existingNotes[m.id] !== undefined ? existingNotes[m.id] : ''}">
-                <div style="height:4px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden;">
-                    <div id="nb-${i}" style="width:${existingNotes[m.id] ? (existingNotes[m.id] / 20 * 100) : 0}%;height:100%;background:var(--accent2);border-radius:2px;transition:width .4s;"></div>
-                </div>
-                <div id="na-${i}" style="font-size:.62rem;font-weight:700;text-align:center;margin-top:3px;color:var(--muted);">
-                    ${existingNotes[m.id] ? (existingNotes[m.id] >= 10 ? 'Acquis' : 'À revoir') : '—'}
-                </div>
-            </div>`).join('');
+          <div style="background:#F5FBF7;border:1.5px solid var(--border);border-radius:10px;padding:11px;">
+            <div style="font-size:.74rem;font-weight:800;color:var(--ink);margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;">
+              ${esc(m.n)}<span style="font-size:.62rem;background:var(--accent3);color:var(--accent);padding:2px 6px;border-radius:4px;font-weight:800;">×${m.c}</span>
+            </div>
+            <input class="nf-inp" id="ni-${i}" data-id-matiere="${m.id}" type="number"
+              min="0" max="20" step="0.5" placeholder="— /20"
+              oninput="updBar(${i},this.value)"
+              value="${existingNotes[m.id] !== undefined ? existingNotes[m.id] : ''}">
+            <div style="height:4px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden;">
+              <div id="nb-${i}" style="width:${existingNotes[m.id] ? (existingNotes[m.id] / 20 * 100) : 0}%;height:100%;background:var(--accent2);border-radius:2px;transition:width .4s;"></div>
+            </div>
+            <div id="na-${i}" style="font-size:.62rem;font-weight:700;text-align:center;margin-top:3px;color:var(--muted);">
+              ${existingNotes[m.id] ? (existingNotes[m.id] >= 10 ? 'Acquis' : 'À revoir') : '—'}
+            </div>
+          </div>`).join('');
         // Init des barres si valeurs existantes
         mats.forEach((m, i) => { if (existingNotes[m.id]) updBar(i, existingNotes[m.id]); });
       }
     }
 
     function updBar(i, val) {
-      const v = parseFloat(val) || 0;
-      const b = $('nb-' + i); if (b) { b.style.width = (v / 20 * 100) + '%'; b.style.background = v >= 10 ? 'var(--accent2)' : 'var(--red)'; }
-      const a = $('na-' + i); if (a) {
-        const lbl = v >= 16 ? 'Excellent' : v >= 14 ? 'Très Bien' : v >= 12 ? 'Bien' : v >= 10 ? 'Assez Bien' : v >= 8 ? 'Passable' : 'Insuffisant';
-        a.textContent = val ? lbl : '—'; a.style.color = v >= 10 ? 'var(--accent)' : v >= 8 ? 'var(--amber)' : 'var(--red)';
+      let v = parseFloat(val) || 0;
+
+      // 🔒 Bloquer à 20 maximum
+      if (v > 20) {
+        v = 20;
+        const inp = document.getElementById('ni-' + i);
+        if (inp) inp.value = 20;
+      }
+
+      // 🔒 Bloquer à 0 minimum
+      if (v < 0) {
+        v = 0;
+        const inp = document.getElementById('ni-' + i);
+        if (inp) inp.value = 0;
+      }
+
+      // Mettre à jour la barre de progression
+      const b = document.getElementById('nb-' + i);
+      if (b) {
+        b.style.width = (v / 20 * 100) + '%';
+        b.style.background = v >= 10 ? 'var(--accent2)' : 'var(--red)';
+      }
+
+      // Mettre à jour l'appréciation
+      const a = document.getElementById('na-' + i);
+      if (a) {
+        let lbl = '—';
+        if (val !== '') {
+          if (v >= 16) lbl = 'Excellent';
+          else if (v >= 14) lbl = 'Très Bien';
+          else if (v >= 12) lbl = 'Bien';
+          else if (v >= 10) lbl = 'Assez Bien';
+          else if (v >= 8) lbl = 'Passable';
+          else lbl = 'Insuffisant';
+        }
+        a.textContent = val !== '' ? lbl : '—';
+        a.style.color = v >= 10 ? 'var(--accent)' : (v >= 8 ? 'var(--amber)' : 'var(--red)');
       }
     }
 
-    // Validation de la note pour qu'elle soit entre 0 et 20
-    function validateNote(input) {
-      let val = parseFloat(input.value);
-      if (isNaN(val)) {
-        input.value = '';
-        return;
-      }
-      if (val > 20) {
-        input.value = 20;
-        toast('⚠️ La note ne peut pas dépasser 20/20', 'err');
-        // Mettre à jour la barre de progression
-        const i = input.id.split('-')[1];
-        if (i !== undefined) updBar(parseInt(i), 20);
-      } else if (val < 0) {
-        input.value = 0;
-        toast('⚠️ La note ne peut pas être négative', 'err');
-        const i = input.id.split('-')[1];
-        if (i !== undefined) updBar(parseInt(i), 0);
-      } else {
-        const i = input.id.split('-')[1];
-        if (i !== undefined) updBar(parseInt(i), val);
-      }
-    }
 
     async function saveNotes() {
       if (!selEleve) { toast('Sélectionnez un élève', 'err'); return; }
@@ -4997,11 +4882,11 @@
       const typeBg = { cours: '#E8F5EE', td: '#EFF6FF', exercice: '#FEF9C3', doc: '#F5F3FF', audio: '#FDF2F8', image: '#ECFDF5' };
       const typeTxt = { cours: 'var(--accent)', td: '#1D4ED8', exercice: '#854D0E', doc: '#5B21B6', audio: '#9D174D', image: '#059669' };
       $('res-list').innerHTML = docs.length ? docs.map(res => `
-    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #F5F9F6;transition:.15s;flex-wrap:wrap;" onmouseover="this.style.background='#FAFFFE'" onmouseout="this.style.background=''">
-      <div style="width:34px;height:34px;border-radius:10px;background:${res.col};display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">${typeIco[res.type] || '📄'}</div>
-      <div style="flex:1;min-width:120px;">
-        <div style="font-size:.79rem;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${esc(res.titre)}</div>
-        <div style="font-size:.63rem;color:var(--muted);margin-top:1px;">${esc(res.cls)} · ${res.taille} · ${res.date}</div>
+    <div style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-bottom:1px solid #F5F9F6;transition:.15s;" onmouseover="this.style.background='#FAFFFE'" onmouseout="this.style.background=''">
+      <div style="width:36px;height:36px;border-radius:10px;background:${res.col};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">${typeIco[res.type] || '📄'}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:.8rem;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(res.titre)}</div>
+        <div style="font-size:.65rem;color:var(--muted);margin-top:1px;">${esc(res.cls)} · ${esc(res.mat)} · ${res.taille} · ${res.date}</div>
       </div>
       <span style="padding:2px 8px;border-radius:4px;font-size:.6rem;font-weight:800;background:${typeBg[res.type] || '#F5F3FF'};color:${typeTxt[res.type] || '#5B21B6'};flex-shrink:0;">${typeLbl[res.type] || 'Doc'}</span>
       ${res.url
@@ -5294,7 +5179,6 @@
       $('online-cnt').textContent = '0 en ligne';
       initSocket();
       loadMessages('general');
-      setTimeout(listenAnnoncesSocket, 1500);
       loadProfs(); // ← charge les collègues depuis la BD
       // Fermer menus sur clic extérieur
       document.addEventListener('click', e => {
@@ -5799,10 +5683,608 @@
       document.body.appendChild(overlay);
       document.addEventListener('keydown', function h(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', h); } });
     }
+    // ========== GESTION DES DEVOIRS ==========
+    let devoirsData = [];
+
+    async function loadDevoirs() {
+      const container = document.getElementById('devoirs-list');
+      if (!container) return;
+
+      container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);"><div class="spin"></div> Chargement...</div>';
+
+      try {
+        const r = await fetch(`${API}/professeurs/devoirs`, {
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        const data = await r.json();
+
+        if (data.success && data.devoirs) {
+          devoirsData = data.devoirs;
+          renderDevoirs();
+        } else {
+          devoirsData = [];
+          renderDevoirs();
+        }
+      } catch (e) {
+        console.warn('loadDevoirs:', e.message);
+        devoirsData = [];
+        renderDevoirs();
+      }
+    }
+
+    function renderDevoirs() {
+      const container = document.getElementById('devoirs-list');
+      if (!container) return;
+
+      if (!devoirsData.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:.8rem;">📭 Aucun devoir programmé</div>';
+        return;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+
+      container.innerHTML = devoirsData.map(d => {
+        const isExpired = d.date_limite && d.date_limite < today;
+        const statusClass = isExpired ? 'b-red' : 'b-grn';
+        const statusText = isExpired ? '⚠️ Expiré' : '📅 En attente';
+
+        return `
+            <div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;background:#fff;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+                    <div style="flex:1;">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                            <span class="b ${statusClass}" style="font-size:.6rem;">${statusText}</span>
+                            <span class="b b-blue" style="font-size:.6rem;">📖 ${esc(d.matiere)}</span>
+                            <span class="b b-ind" style="font-size:.6rem;">🏫 ${esc(d.classe)}</span>
+                        </div>
+                        <div style="font-size:.88rem;font-weight:800;color:var(--ink);margin-bottom:4px;">${esc(d.titre)}</div>
+                        <div style="font-size:.72rem;color:var(--muted);margin-bottom:4px;">${esc(d.description || 'Aucune description')}</div>
+                        <div style="font-size:.68rem;color:${isExpired ? 'var(--red)' : 'var(--accent)'};margin-top:4px;">
+                            📅 À rendre le ${d.date_limite_fr || d.date_limite}
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:6px;flex-shrink:0;">
+                        <button class="btn-p" style="padding:5px 10px;font-size:.68rem;" onclick="editDevoir(${d.id_devoir})">✏️ Modifier</button>
+                        <button class="btn-g" style="padding:5px 10px;font-size:.68rem;background:#FEF2F2;color:var(--red);" onclick="deleteDevoir(${d.id_devoir})">🗑 Supprimer</button>
+                    </div>
+                </div>
+            </div>
+        `;
+      }).join('');
+    }
+
+    function openAddDevoir() {
+      const panel = document.getElementById('add-devoir-panel');
+      if (panel) {
+        panel.style.display = 'block';
+        document.getElementById('dev-titre').value = '';
+        document.getElementById('dev-desc').value = '';
+        document.getElementById('dev-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('dev-msg').style.display = 'none';
+        document.getElementById('dev-msg').innerHTML = '';
+        editingDevoirId = null;
+
+        // Remplir les selects avec les classes et matières du professeur
+        const clsSelect = document.getElementById('dev-cls');
+        const matSelect = document.getElementById('dev-mat');
+        if (clsSelect && PROF.classes) {
+          clsSelect.innerHTML = '<option value="">— Sélectionner —</option>' +
+            PROF.classes.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+        if (matSelect && PROF.matieres) {
+          matSelect.innerHTML = PROF.matieres.map(m => `<option value="${m}">${m}</option>`).join('');
+        }
+      }
+    }
+
+    function closeAddDevoir() {
+      const panel = document.getElementById('add-devoir-panel');
+      if (panel) panel.style.display = 'none';
+      editingDevoirId = null;
+    }
+
+    let editingDevoirId = null;
+
+    function editDevoir(id) {
+      const devoir = devoirsData.find(d => d.id_devoir === id);
+      if (!devoir) return;
+
+      editingDevoirId = id;
+      openAddDevoir();
+
+      document.getElementById('dev-cls').value = devoir.classe || '';
+      document.getElementById('dev-mat').value = devoir.matiere || '';
+      document.getElementById('dev-titre').value = devoir.titre || '';
+      document.getElementById('dev-desc').value = devoir.description || '';
+      document.getElementById('dev-date').value = devoir.date_limite || '';
+    }
+
+    async function saveDevoir() {
+      const cls = document.getElementById('dev-cls').value;
+      const mat = document.getElementById('dev-mat').value;
+      const titre = document.getElementById('dev-titre').value.trim();
+      const desc = document.getElementById('dev-desc').value.trim();
+      const date = document.getElementById('dev-date').value;
+      const msgEl = document.getElementById('dev-msg');
+
+      if (!cls) { showMsg(msgEl, '⚠️ Sélectionnez une classe', 'err'); return; }
+      if (!titre) { showMsg(msgEl, '⚠️ Titre du devoir requis', 'err'); return; }
+      if (!date) { showMsg(msgEl, '⚠️ Date limite requise', 'err'); return; }
+
+      showMsg(msgEl, '⏳ Enregistrement...', 'info');
+
+      const payload = {
+        classe: cls,
+        matiere: mat,
+        titre: titre,
+        description: desc,
+        date_limite: date
+      };
+
+      try {
+        let url = `${API}/professeurs/devoirs`;
+        let method = 'POST';
+
+        if (editingDevoirId) {
+          url = `${API}/professeurs/devoirs/${editingDevoirId}`;
+          method = 'PUT';
+        }
+
+        const r = await fetch(url, {
+          method: method,
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await r.json();
+
+        if (data.success) {
+          showMsg(msgEl, '✅ ' + (editingDevoirId ? 'Devoir modifié' : 'Devoir créé'), 'ok');
+          toast((editingDevoirId ? 'Devoir modifié' : 'Devoir créé') + ' ✓', 'ok');
+          closeAddDevoir();
+          editingDevoirId = null;
+          loadDevoirs();
+        } else {
+          showMsg(msgEl, '❌ ' + (data.message || 'Erreur'), 'err');
+        }
+      } catch (e) {
+        showMsg(msgEl, '❌ Erreur réseau: ' + e.message, 'err');
+      }
+    }
+
+    async function deleteDevoir(id) {
+      if (!confirm('Supprimer ce devoir définitivement ?')) return;
+
+      try {
+        const r = await fetch(`${API}/professeurs/devoirs/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        const data = await r.json();
+
+        if (data.success) {
+          toast('Devoir supprimé', 'ok');
+          loadDevoirs();
+        } else {
+          toast('Erreur lors de la suppression', 'err');
+        }
+      } catch (e) {
+        toast('Erreur réseau', 'err');
+      }
+    }
+    // ========== ANNONCES REÇUES ==========
+    let annoncesData = [];
+
+    // ── Onglets Annonces / Messages direction ──
+    function switchAnnonceTab(tab) {
+      const pAnn = document.getElementById('pane-annonces');
+      const pSms = document.getElementById('pane-sms');
+      const tAnn = document.getElementById('tab-annonces');
+      const tSms = document.getElementById('tab-sms');
+      if (tab === 'annonces') {
+        if (pAnn) pAnn.style.display = '';
+        if (pSms) pSms.style.display = 'none';
+        if (tAnn) { tAnn.style.background = 'linear-gradient(135deg,#4F46E5,#7C3AED)'; tAnn.style.color = '#fff'; tAnn.style.border = 'none'; }
+        if (tSms) { tSms.style.background = '#fff'; tSms.style.color = '#64748B'; tSms.style.border = '1.5px solid #E2E8F0'; }
+      } else {
+        if (pAnn) pAnn.style.display = 'none';
+        if (pSms) pSms.style.display = '';
+        if (tSms) { tSms.style.background = 'linear-gradient(135deg,#4F46E5,#7C3AED)'; tSms.style.color = '#fff'; tSms.style.border = 'none'; }
+        if (tAnn) { tAnn.style.background = '#fff'; tAnn.style.color = '#64748B'; tAnn.style.border = '1.5px solid #E2E8F0'; }
+        loadSmsDirection();
+      }
+    }
+
+    async function loadSmsDirection() {
+      const container = document.getElementById('sms-list');
+      if (!container) return;
+      container.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;"><div class="spin"></div> Chargement…</div>';
+      try {
+        // Charger les messages de la salle des profs (conv_id = 'general') filtrés direction
+        const response = await fetch(`${API}/messages/general?limit=50`, {
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        const data = await response.json();
+        const msgs = (data.messages || data.data || []).filter(m =>
+          m.isDirection || (m.from_code || '').startsWith('DIR') || (m.from_nom || '').toLowerCase().includes('direction')
+        );
+
+        const badge = document.getElementById('sms-count-badge');
+        if (badge) {
+          if (msgs.length > 0) { badge.style.display = 'inline'; badge.textContent = msgs.length; }
+          else badge.style.display = 'none';
+        }
+
+        if (!msgs.length) {
+          container.innerHTML = `<div style="text-align:center;padding:40px;color:#94A3B8;">
+            <div style="font-size:2rem;margin-bottom:8px;">✉️</div>
+            <div style="font-size:.83rem;font-weight:600;">Aucun message de la direction</div>
+            <div style="font-size:.73rem;margin-top:4px;">Les messages que la direction vous envoie apparaîtront ici</div>
+          </div>`;
+          return;
+        }
+
+        container.innerHTML = msgs.map(m => {
+          const time = m.date_envoi || m.time || m.created_at || '';
+          const dateStr = time ? new Date(time).toLocaleString('fr-FR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+          const initiales = (m.from_nom||'D').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+          return `<div style="display:flex;gap:12px;padding:14px;margin-bottom:10px;background:#F8FAFF;border-radius:12px;border-left:3px solid #4F46E5;">
+            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;flex-shrink:0;">${initiales}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <span style="font-size:.8rem;font-weight:800;color:#0F172A;">${esc(m.from_nom||'Direction')}</span>
+                <span style="font-size:.68rem;color:#94A3B8;">${dateStr}</span>
+              </div>
+              <div style="font-size:.8rem;color:#374151;line-height:1.5;">${esc(m.contenu||m.txt||m.message||'')}</div>
+              <div style="margin-top:4px;"><span style="font-size:.63rem;background:#EEF2FF;color:#4F46E5;padding:2px 7px;border-radius:20px;font-weight:700;">📌 Direction</span></div>
+            </div>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        console.warn('loadSmsDirection:', e.message);
+        // Fallback : charger depuis les annonces avec type = message
+        try {
+          const r2 = await fetch(`${API}/professeurs/annonces`, { headers: { 'Authorization': 'Bearer ' + TOK } });
+          const d2 = await r2.json();
+          const msgs2 = (d2.annonces || d2.data || []).filter(a =>
+            (a.type_annonce||a.type||'').toLowerCase() === 'message' ||
+            (a.destinataires||'').toLowerCase().includes('prof')
+          );
+          if (!msgs2.length) {
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:#94A3B8;font-size:.8rem;">✉️ Aucun message privé de la direction</div>';
+            return;
+          }
+          container.innerHTML = msgs2.map(m => `<div style="padding:12px 14px;background:#F8FAFF;border-radius:10px;border-left:3px solid #4F46E5;margin-bottom:8px;">
+            <div style="font-size:.75rem;font-weight:800;color:#4F46E5;margin-bottom:3px;">📌 Direction · ${m.date_publication ? new Date(m.date_publication).toLocaleDateString('fr-FR') : '—'}</div>
+            <div style="font-size:.8rem;color:#0F172A;font-weight:700;">${esc(m.titre||'Message')}</div>
+            <div style="font-size:.78rem;color:#475569;margin-top:4px;">${esc(m.contenu||m.corps_annonce||'')}</div>
+          </div>`).join('');
+        } catch {
+          container.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:.8rem;">⚠️ Impossible de charger les messages</div>';
+        }
+      }
+    }
+
+    async function loadAnnonces() {
+      const container = document.getElementById('annonces-list');
+      if (!container) return;
+
+      container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);"><div class="spin"></div> Chargement...</div>';
+
+      try {
+        // Essayer d'abord la route spécifique professeur, sinon la route générique
+        let response;
+        try {
+          response = await fetch(`${API}/professeurs/annonces`, {
+            headers: { 'Authorization': 'Bearer ' + TOK }
+          });
+        } catch (e) {
+          // Fallback vers la route publique
+          response = await fetch(`${API}/surveillants/announcements`);
+        }
+
+        const data = await response.json();
+
+        // Normaliser les données selon le format reçu
+        let annonces = [];
+        if (Array.isArray(data)) {
+          annonces = data;
+        } else if (data.annonces) {
+          annonces = data.annonces;
+        } else if (data.data) {
+          annonces = data.data;
+        }
+
+        annoncesData = annonces.map(a => ({
+          id: a.id || a.id_annonce,
+          titre: a.titre || 'Annonce',
+          contenu: a.contenu || a.corps_annonce || '',
+          priorite: (a.priorite || a.type || 'INFO').toUpperCase(),
+          date: a.date_publication || a.created_at,
+          destinataires: a.destinataires || 'tous'
+        }));
+
+        renderAnnonces();
+
+      } catch (e) {
+        console.warn('loadAnnonces:', e.message);
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">⚠️ Impossible de charger les annonces</div>';
+      }
+    }
+
+    function renderAnnonces() {
+      const container = document.getElementById('annonces-list');
+      const countSpan = document.getElementById('annonces-count');
+      const countBadge = document.getElementById('annonces-count-badge');
+
+      if (!container) return;
+
+      if (!annoncesData.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:.8rem;">📭 Aucune annonce reçue pour le moment</div>';
+        // Cacher les compteurs quand il n'y a pas d'annonces
+        if (countSpan) {
+          countSpan.textContent = '0';
+          countSpan.style.display = 'none';
+        }
+        if (countBadge) {
+          countBadge.style.display = 'none';
+        }
+        return;
+      }
+
+      // Afficher les compteurs quand il y a des annonces
+      if (countSpan) {
+        countSpan.textContent = annoncesData.length;
+        countSpan.style.display = 'inline-block';
+      }
+
+      if (countBadge) {
+        countBadge.textContent = annoncesData.length;
+        countBadge.style.display = 'inline-flex';
+      }
+
+      container.innerHTML = annoncesData.map(a => {
+        const isUrgent = a.priorite === 'URGENT' || a.priorite === 'URGENTE';
+        const bgColor = isUrgent ? '#FEF2F2' : '#FAFFFE';
+        const borderColor = isUrgent ? '#EF4444' : '#4F46E5';
+        const badgeClass = isUrgent ? 'b-red' : 'b-blue';
+        const badgeText = isUrgent ? '🔴 URGENT' : 'ℹ️ INFO';
+
+        // Formater la date
+        let dateFormatted = 'Date inconnue';
+        if (a.date) {
+          try {
+            const d = new Date(a.date);
+            if (!isNaN(d.getTime())) {
+              dateFormatted = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+            }
+          } catch (e) { }
+        }
+
+        return `
+            <div style="border:1px solid var(--border);border-left:4px solid ${borderColor};border-radius:12px;padding:14px 16px;margin-bottom:12px;background:${bgColor};transition:.15s;" onmouseenter="this.style.background='#F8F9FF'" onmouseleave="this.style.background='${bgColor}'">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <span class="b ${badgeClass}" style="font-size:.6rem;">${badgeText}</span>
+                        <span style="font-size:.78rem;font-weight:800;color:var(--ink);">${esc(a.titre)}</span>
+                    </div>
+                    <span style="font-size:.65rem;color:var(--muted);">📅 ${dateFormatted}</span>
+                </div>
+                <div style="font-size:.74rem;color:var(--muted);line-height:1.5;margin-top:4px;">${esc(a.contenu)}</div>
+                ${a.destinataires && a.destinataires !== 'tous' ? `<div style="margin-top:6px;font-size:.6rem;color:var(--accent2);">👥 Destinataires : ${esc(a.destinataires)}</div>` : ''}
+            </div>
+        `;
+      }).join('');
+    }
+    // ========== GESTION DES NOTIFICATIONS ==========
+    let notificationsData = [];
+    let notifInterval = null;
+
+    async function loadNotifications() {
+      console.log('🔔 Chargement des notifications...');
+      try {
+        const response = await fetch(`${API}/notifications`, {
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+        const data = await response.json();
+        console.log('📢 Réponse notifications:', data);
+
+        if (data.success) {
+          notificationsData = data.notifications || [];
+          console.log(`✅ ${notificationsData.length} notifications chargées`);
+          updateNotifBadge();
+          renderNotifList();
+        } else {
+          console.warn('Erreur API:', data);
+        }
+      } catch (e) {
+        console.error('❌ Erreur loadNotifications:', e.message);
+      }
+    }
+    function updateNotifBadge() {
+      const unreadCount = notificationsData.filter(n => !n.lu).length;
+      const dot = document.getElementById('notif-dot');
+      const countSpan = document.getElementById('notif-count');
+
+      if (countSpan) {
+        if (unreadCount > 0) {
+          // Afficher le compteur avec le nombre
+          countSpan.style.display = 'flex';
+          countSpan.textContent = unreadCount > 99 ? '99+' : unreadCount;
+          // Cacher le point rouge
+          if (dot) dot.style.display = 'none';
+        } else {
+          // Cacher le compteur
+          countSpan.style.display = 'none';
+          if (dot) dot.style.display = 'none';
+        }
+      }
+    }
+    function renderNotifList() {
+      const container = document.getElementById('notif-list');
+      if (!container) return;
+
+      if (!notificationsData.length) {
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.75rem;">Aucune notification</div>';
+        return;
+      }
+
+      const unreadFirst = [...notificationsData].sort((a, b) => (a.lu === b.lu) ? 0 : a.lu ? 1 : -1);
+
+      container.innerHTML = unreadFirst.slice(0, 20).map(n => {
+        const isUnread = !n.lu;
+        const bgColor = isUnread ? '#FEF9C3' : '#FAFAFA';
+        const borderColor = isUnread ? '#F59E0B' : '#E2E8F0';
+
+        let typeIcon = '📢';
+        if (n.type === 'NOTE') typeIcon = '📝';
+        else if (n.type === 'DEVOIR') typeIcon = '📚';
+        else if (n.type === 'CONVOCATION') typeIcon = '⚠️';
+        else if (n.type === 'ABSENCE') typeIcon = '📅';
+        else if (n.type === 'RESSOURCE') typeIcon = '📄';
+        else if (n.type === 'ORIENTATION') typeIcon = '🧭';
+        else if (n.type === 'ANNONCE') typeIcon = '📢';
+
+        let lien = n.lien || '#';
+        let dateFormatted = 'Récemment';
+        if (n.created_at) {
+          try {
+            const d = new Date(n.created_at);
+            if (!isNaN(d.getTime())) {
+              const now = new Date();
+              const diff = Math.floor((now - d) / 60000);
+              if (diff < 1) dateFormatted = 'à l\'instant';
+              else if (diff < 60) dateFormatted = `il y a ${diff} min`;
+              else if (diff < 1440) dateFormatted = `il y a ${Math.floor(diff / 60)}h`;
+              else dateFormatted = d.toLocaleDateString('fr-FR');
+            }
+          } catch (e) { }
+        }
+
+        // Déterminer la page de destination
+        let targetPage = 'annonces';
+        if (n.type === 'NOTE') targetPage = 'notes';
+        else if (n.type === 'DEVOIR') targetPage = 'devoirs';
+        else if (n.type === 'ANNONCE') targetPage = 'annonces';
+
+        return `
+            <div class="notif-item" onclick="handleNotifClick('${n.id}', '${targetPage}')" style="
+                padding:12px 16px;
+                border-bottom:1px solid ${borderColor};
+                background:${bgColor};
+                cursor:pointer;
+                transition:background .15s;
+                border-left:3px solid ${borderColor};
+            " onmouseenter="this.style.background='#F5F5F5'" onmouseleave="this.style.background='${bgColor}'">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.2rem;">${typeIcon}</span>
+                    <div style="flex:1;">
+                        <div style="font-size:.78rem; font-weight:800; color:var(--ink);">${esc(n.titre || 'Notification')}</div>
+                        <div style="font-size:.68rem; color:var(--muted); margin-top:2px;">${esc(n.message || '')}</div>
+                        <div style="font-size:.58rem; color:#94A3B8; margin-top:3px;">⏱️ ${dateFormatted}</div>
+                    </div>
+                    ${isUnread ? '<span style="width:8px; height:8px; background:#EF4444; border-radius:50%; flex-shrink:0;"></span>' : ''}
+                </div>
+            </div>
+        `;
+      }).join('');
+    }
+
+    function toggleNotifPanel() {
+      const panel = document.getElementById('notif-panel');
+      if (panel) {
+        if (panel.style.display === 'block') {
+          panel.style.display = 'none';
+        } else {
+          panel.style.display = 'block';
+          loadNotifications(); // Recharger au moment de l'ouverture
+        }
+      }
+    }
+
+    async function handleNotifClick(notifId, targetPage) {
+      console.log('🔔 Clic notification:', notifId, 'Page:', targetPage);
+
+      // Marquer comme lue
+      try {
+        await fetch(`${API}/notifications/${notifId}/read`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+
+        // Mettre à jour les données localement
+        const notif = notificationsData.find(n => n.id == notifId);
+        if (notif) notif.lu = true;
+
+        // Mettre à jour l'affichage
+        updateNotifBadge();
+        renderNotifList();
+
+      } catch (e) {
+        console.warn('Erreur marquage lu:', e);
+      }
+
+      // Fermer le panneau
+      const panel = document.getElementById('notif-panel');
+      if (panel) panel.style.display = 'none';
+
+      // Navigation vers la bonne page
+      if (targetPage === 'annonces') {
+        go('annonces', document.getElementById('ni-annonces'));
+      } else if (targetPage === 'devoirs') {
+        go('devoirs', document.getElementById('ni-devoirs'));
+      } else if (targetPage === 'notes') {
+        go('notes', document.getElementById('ni-notes'));
+      } else {
+        // Fallback vers l'URL si fournie
+        const lien = targetPage || '#';
+        if (lien !== '#') window.location.href = lien;
+      }
+    }
+    async function markAllNotifRead() {
+      try {
+        await fetch(`${API}/notifications/read-all`, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + TOK }
+        });
+
+        // Mettre à jour les données localement
+        notificationsData.forEach(n => n.lu = true);
+
+        // Mettre à jour l'affichage
+        updateNotifBadge();
+        renderNotifList();
+
+        toast('Toutes les notifications marquées comme lues', 'ok');
+
+        // Fermer le panneau automatiquement après 1.5 secondes
+        setTimeout(() => {
+          const panel = document.getElementById('notif-panel');
+          if (panel) panel.style.display = 'none';
+        }, 1500);
+
+      } catch (e) {
+        console.error('Erreur markAllNotifRead:', e);
+        toast('Erreur', 'err');
+      }
+    }
+    // Démarrer le polling des notifications
+    function startNotifPolling() {
+      if (notifInterval) clearInterval(notifInterval);
+      loadNotifications(); // Charger immédiatement
+      notifInterval = setInterval(loadNotifications, 30000); // Toutes les 30 secondes
+    }
+
+    // Arrêter le polling si nécessaire
+    function stopNotifPolling() {
+      if (notifInterval) {
+        clearInterval(notifInterval);
+        notifInterval = null;
+      }
+    }
 
   </script>
   <script src="responsive-init.js"></script>
-  <script src="/components/notifications.js"></script>
 </body>
 
 </html>

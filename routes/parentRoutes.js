@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const parentController = require('../controller/parentController');
+const surveillantController = require('../controller/surveillantController');
 
 // Routes parents
 router.get('/mes-enfants', authMiddleware, (req, res, next) => {
@@ -73,5 +74,17 @@ router.post('/orientation-avis', authMiddleware, (req, res, next) => {
     }
     parentController.addOrientationAvis(req, res, next);
 });
+
+// ========== ACCUSÉ DE RÉCEPTION CONVOCATION ==========
+// Vérifier que la fonction existe avant d'enregistrer la route
+if (typeof surveillantController.accuserReception === 'function') {
+    router.post('/convocations/:id/accuser', authMiddleware, surveillantController.accuserReception);
+} else {
+    console.warn('⚠️ Attention: surveillantController.accuserReception n\'est pas définie');
+    // Route temporaire pour éviter l'erreur
+    router.post('/convocations/:id/accuser', authMiddleware, (req, res) => {
+        res.status(501).json({ message: 'Fonction non encore implémentée' });
+    });
+}
 
 module.exports = router;
