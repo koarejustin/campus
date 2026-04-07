@@ -434,7 +434,7 @@ exports.createAgenda = async (req, res) => {
 exports.messageProf = async (req, res) => {
     try {
         const userId = req.user?.id;
-        const { message, destinataire } = req.body;
+        const { message, destinataire, prive } = req.body;
         if (!message) return res.status(400).json({ message: 'Message requis' });
         const user = await db.query(
             'SELECT nom, prenom, code_unique FROM authentification.comptes WHERE id_user=$1', [userId]
@@ -443,7 +443,51 @@ exports.messageProf = async (req, res) => {
         const nom = (row.nom || 'Direction') + ' ' + (row.prenom || '');
         const fromCode = row.code_unique || 'DIR';
 
-        // Insérer en BD
+        // ── MESSAGE PRIVÉ : insérer dans pedagogie.messages_prives ──
+        if (prive && destinataire) {
+            try {
+                // Résoudre le destinataire : peut être un id_user, un code_unique ou un nom
+                let destId = null;
+                // Essai par id direct (numérique)
+                if (/^\d+$/.test(String(destinataire))) {
+                    destId = parseInt(destinataire);
+                } else {
+                    // Sinon chercher par code_unique
+                    const destRes = await db.query(
+                        'SELECT id_user FROM authentification.comptes WHERE code_unique = $1 OR nom ILIKE $2 LIMIT 1',
+                        [destinataire, '%' + destinataire + '%']
+                    );
+                    if (destRes.rows.length) destId = destRes.rows[0].id_user;
+                }
+
+                if (!destId) {
+                    return res.status(404).json({ success: false, message: 'Professeur introuvable' });
+                }
+
+                await db.query(
+                    `INSERT INTO pedagogie.messages_prives (expediteur_id, destinataire_id, contenu, lu, created_at)
+                     VALUES ($1, $2, $3, false, NOW())`,
+                    [userId, destId, message]
+                );
+
+                // Notification Socket.IO si disponible
+                const io = req.app?.locals?.io;
+                if (io) {
+                    io.to('user-' + destId).emit('msg-prive', {
+                        expediteur_nom: nom.trim(),
+                        contenu: message,
+                        created_at: new Date()
+                    });
+                }
+
+                return res.json({ success: true, message: 'Message privé envoyé au professeur' });
+            } catch (e2) {
+                console.error('messageProf privé:', e2.message);
+                return res.status(500).json({ message: 'Erreur envoi message privé: ' + e2.message });
+            }
+        }
+
+        // ── MESSAGE GÉNÉRAL : insérer dans messages_salle ──
         let msgId = Date.now();
         try {
             const r = await db.query(
@@ -961,3 +1005,4 @@ exports.createComposition = async (req, res) => {
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
+

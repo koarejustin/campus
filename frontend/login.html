@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <script src="config.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connexion | Campus Numérique FASO</title>
+  <title>Connexion | Saint Joseph</title>
   <link rel="stylesheet" href="responsive.css">
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap"
@@ -396,13 +396,13 @@
   <div class="container">
 
     <div class="logo-wrap">
-      <div class="logo-icon">
+      <div id="logo-container" class="logo-icon">
         <svg viewBox="0 0 24 24">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         </svg>
       </div>
-      <div class="logo-title">CAMPUS<span>FASO</span></div>
-      <div class="logo-sub">Portail Numérique · Burkina Faso</div>
+      <div class="logo-title" id="logo-title">SAINT<span>JOSEPH</span></div>
+      <div class="logo-sub" id="logo-sub">Portail Numérique · Saint Joseph</div>
     </div>
 
     <div class="card">
@@ -539,6 +539,27 @@
       el.style.display = 'block';
     }
     function hideErr() { document.getElementById('error-box').style.display = 'none'; }
+
+    async function chargerConfigEcole() {
+      try {
+        const response = await fetch('/api/admin/config');
+        const data = await response.json();
+        if (data.success && data.config) {
+          const titleEl = document.getElementById('logo-title');
+          const subEl = document.getElementById('logo-sub');
+          const logoEl = document.getElementById('logo-container');
+          if (titleEl) titleEl.textContent = data.config.nom_etablissement || 'Saint Joseph';
+          if (subEl) subEl.textContent = `Portail Numérique · ${data.config.nom_etablissement || 'Saint Joseph'}`;
+          if (logoEl && data.config.logo_url) {
+            logoEl.innerHTML = `<img src="${data.config.logo_url}" alt="Logo" style="width:100%;height:100%;object-fit:contain;border-radius:0">`;
+          }
+        }
+      } catch (error) {
+        console.warn('Erreur chargement config école:', error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { chargerConfigEcole(); });
 
     async function handleLogin() {
       const username = document.getElementById('username').value.trim();

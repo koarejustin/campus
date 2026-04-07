@@ -150,6 +150,7 @@ const surveillantRoutes = require('./routes/surveillantRoutes');
 const eleveRoutes = require('./routes/eleveRoutes');
 const parentRoutes = require('./routes/parentRoutes');
 const professeurRoutes = require('./routes/professeurRoutes');
+const alumniRoutes = require('./routes/alumniRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -157,6 +158,7 @@ app.use('/api/surveillants', surveillantRoutes);
 app.use('/api/eleves', eleveRoutes);
 app.use('/api/parents', parentRoutes);
 app.use('/api/professeurs', professeurRoutes);
+app.use('/api/alumni', alumniRoutes);
 
 // ── Upload média salle des profs ──
 const multer = require('multer');

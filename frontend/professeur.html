@@ -2975,14 +2975,7 @@
           <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
         </svg>Orientation
       </div>
-      <div class="ni" id="ni-salle" onclick="go('salle',this)">
-        <svg viewBox="0 0 24 24">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>Salle des Profs
-      </div>
+
     </div>
     <div class="sb-foot">
       <div class="sys-pill"><span class="pulse"></span>En ligne</div>
@@ -3003,11 +2996,6 @@
         <div class="pg-sub" id="pg-sub">Vue d'ensemble de votre activité</div>
       </div>
       <div class="topbar-right">
-        <select class="tri-sel" id="tri-sel">
-          <option value="1">Trimestre 1</option>
-          <option value="2">Trimestre 2</option>
-          <option value="3">Trimestre 3</option>
-        </select>
         <div class="notif-btn" onclick="toggleNotifPanel()">
           <svg viewBox="0 0 24 24">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -3020,7 +3008,7 @@
     </div>
     <!-- Panneau de notifications -->
     <div id="notif-panel"
-      style="display:none; position:fixed; top:70px; right:20px; width:320px; max-width:90vw; background:#fff; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,.2); z-index:1000; border:1px solid var(--border); overflow:hidden;">
+      style="display:none; position:fixed; top:70px; right:20px; width:min(360px,90vw); max-height:80vh; background:#fff; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,.2); z-index:1000; border:1px solid var(--border); overflow:hidden;">
       <div
         style="padding:12px 16px; background:var(--accent); color:#fff; display:flex; justify-content:space-between; align-items:center;">
         <span style="font-weight:800; font-size:.85rem;">🔔 Notifications</span>
@@ -3194,6 +3182,13 @@
 
       <!-- ══ SAISIE NOTES ══ -->
       <div id="s-notes" class="sec">
+        <div style="margin-bottom:12px;">
+          <select class="tri-sel" id="tri-sel" style="width:100%;padding:8px 12px;font-size:.8rem;font-weight:700;border:1.5px solid var(--border);border-radius:9px;background:var(--card);color:var(--ink);cursor:pointer;outline:none;font-family:'DM Sans',sans-serif;">
+            <option value="1">Trimestre 1</option>
+            <option value="2">Trimestre 2</option>
+            <option value="3">Trimestre 3</option>
+          </select>
+        </div>
         <div
           style="padding:10px 14px;background:#FEF9C3;border:1px solid #FDE68A;border-radius:9px;font-size:.74rem;font-weight:700;color:#854D0E;margin-bottom:14px;display:flex;align-items:center;gap:7px;">
           <svg viewBox="0 0 24 24"
@@ -3276,12 +3271,14 @@
       <!-- ══ RESSOURCES ══ -->
       <div id="s-res" class="sec">
         <!-- Tabs type -->
-        <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-          <button class="cls-tab on" onclick="filtRes('',this)" id="rt-all">Toutes</button>
-          <button class="cls-tab" onclick="filtRes('cours',this)">📄 Cours</button>
-          <button class="cls-tab" onclick="filtRes('td',this)">📝 TD & Exercices</button>
-          <button class="cls-tab" onclick="filtRes('video',this)">🎥 Vidéos</button>
-          <button class="cls-tab" onclick="filtRes('doc',this)">📎 Documents</button>
+        <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;align-items:center;" id="s-res-bar">
+          <div id="s-res-tabs-mobile" style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="cls-tab on" onclick="filtRes('',this)" id="rt-all">Toutes</button>
+            <button class="cls-tab" onclick="filtRes('cours',this)">📄 Cours</button>
+            <button class="cls-tab" onclick="filtRes('td',this)">📝 TD & Exercices</button>
+            <button class="cls-tab" onclick="filtRes('video',this)">🎥 Vidéos</button>
+            <button class="cls-tab" onclick="filtRes('doc',this)">📎 Documents</button>
+          </div>
           <div style="margin-left:auto;display:flex;gap:7px;">
             <select id="res-filter-cls"
               style="padding:5px 9px;font-size:.72rem;border-radius:7px;border:1.5px solid var(--border);"
@@ -5730,20 +5727,18 @@
 
         return `
             <div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;background:#fff;">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
-                    <div style="flex:1;">
-                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-                            <span class="b ${statusClass}" style="font-size:.6rem;">${statusText}</span>
-                            <span class="b b-blue" style="font-size:.6rem;">📖 ${esc(d.matiere)}</span>
-                            <span class="b b-ind" style="font-size:.6rem;">🏫 ${esc(d.classe)}</span>
-                        </div>
-                        <div style="font-size:.88rem;font-weight:800;color:var(--ink);margin-bottom:4px;">${esc(d.titre)}</div>
-                        <div style="font-size:.72rem;color:var(--muted);margin-bottom:4px;">${esc(d.description || 'Aucune description')}</div>
-                        <div style="font-size:.68rem;color:${isExpired ? 'var(--red)' : 'var(--accent)'};margin-top:4px;">
-                            📅 À rendre le ${d.date_limite_fr || d.date_limite}
-                        </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                    <span class="b ${statusClass}" style="font-size:.6rem;">${statusText}</span>
+                    <span class="b b-blue" style="font-size:.6rem;">📖 ${esc(d.matiere)}</span>
+                    <span class="b b-ind" style="font-size:.6rem;">🏫 ${esc(d.classe)}</span>
+                </div>
+                <div style="font-size:.88rem;font-weight:800;color:var(--ink);margin-bottom:4px;">${esc(d.titre)}</div>
+                <div style="font-size:.72rem;color:var(--muted);margin-bottom:6px;">${esc(d.description || 'Aucune description')}</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                    <div style="font-size:.68rem;color:${isExpired ? 'var(--red)' : 'var(--accent)'};">
+                        📅 À rendre le ${d.date_limite_fr || d.date_limite}
                     </div>
-                    <div style="display:flex;gap:6px;flex-shrink:0;">
+                    <div style="display:flex;gap:6px;">
                         <button class="btn-p" style="padding:5px 10px;font-size:.68rem;" onclick="editDevoir(${d.id_devoir})">✏️ Modifier</button>
                         <button class="btn-g" style="padding:5px 10px;font-size:.68rem;background:#FEF2F2;color:var(--red);" onclick="deleteDevoir(${d.id_devoir})">🗑 Supprimer</button>
                     </div>
@@ -5900,14 +5895,12 @@
       if (!container) return;
       container.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;"><div class="spin"></div> Chargement…</div>';
       try {
-        // Charger les messages de la salle des profs (conv_id = 'general') filtrés direction
-        const response = await fetch(`${API}/messages/general?limit=50`, {
+        // Charger les vrais messages privés reçus par ce professeur depuis l'API dédiée
+        const response = await fetch(`${API}/professeurs/messages-prives`, {
           headers: { 'Authorization': 'Bearer ' + TOK }
         });
         const data = await response.json();
-        const msgs = (data.messages || data.data || []).filter(m =>
-          m.isDirection || (m.from_code || '').startsWith('DIR') || (m.from_nom || '').toLowerCase().includes('direction')
-        );
+        const msgs = data.messages || [];
 
         const badge = document.getElementById('sms-count-badge');
         if (badge) {
@@ -5918,50 +5911,41 @@
         if (!msgs.length) {
           container.innerHTML = `<div style="text-align:center;padding:40px;color:#94A3B8;">
             <div style="font-size:2rem;margin-bottom:8px;">✉️</div>
-            <div style="font-size:.83rem;font-weight:600;">Aucun message de la direction</div>
-            <div style="font-size:.73rem;margin-top:4px;">Les messages que la direction vous envoie apparaîtront ici</div>
+            <div style="font-size:.83rem;font-weight:600;">Aucun message privé reçu</div>
+            <div style="font-size:.73rem;margin-top:4px;">Les messages privés que la direction vous envoie apparaîtront ici</div>
           </div>`;
           return;
         }
 
         container.innerHTML = msgs.map(m => {
-          const time = m.date_envoi || m.time || m.created_at || '';
+          const time = m.created_at || m.date_envoi || '';
           const dateStr = time ? new Date(time).toLocaleString('fr-FR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-          const initiales = (m.from_nom||'D').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-          return `<div style="display:flex;gap:12px;padding:14px;margin-bottom:10px;background:#F8FAFF;border-radius:12px;border-left:3px solid #4F46E5;">
-            <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;flex-shrink:0;">${initiales}</div>
+          const nomExp = m.expediteur_prenom ? (m.expediteur_prenom + ' ' + m.expediteur_nom) : (m.expediteur_nom || 'Direction');
+          const initiales = nomExp.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase() || 'D';
+          const isDir = (m.expediteur_role || '').toUpperCase() === 'DIRECTION';
+          const borderColor = isDir ? '#4F46E5' : '#2D6A4F';
+          const bgGrad = isDir ? 'linear-gradient(135deg,#4F46E5,#7C3AED)' : 'linear-gradient(135deg,#2D6A4F,#52B788)';
+          const badge = isDir ? '📌 Direction' : '👤 ' + esc(m.expediteur_role || 'Inconnu');
+          const badgeColor = isDir ? '#4F46E5' : '#2D6A4F';
+          const badgeBg = isDir ? '#EEF2FF' : '#ECFDF5';
+          return `<div style="display:flex;gap:12px;padding:14px;margin-bottom:10px;background:#F8FAFF;border-radius:12px;border-left:3px solid ${borderColor};">
+            <div style="width:40px;height:40px;border-radius:50%;background:${bgGrad};display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;flex-shrink:0;">${initiales}</div>
             <div style="flex:1;min-width:0;">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <span style="font-size:.8rem;font-weight:800;color:#0F172A;">${esc(m.from_nom||'Direction')}</span>
+                <span style="font-size:.8rem;font-weight:800;color:#0F172A;">${esc(nomExp)}</span>
                 <span style="font-size:.68rem;color:#94A3B8;">${dateStr}</span>
               </div>
-              <div style="font-size:.8rem;color:#374151;line-height:1.5;">${esc(m.contenu||m.txt||m.message||'')}</div>
-              <div style="margin-top:4px;"><span style="font-size:.63rem;background:#EEF2FF;color:#4F46E5;padding:2px 7px;border-radius:20px;font-weight:700;">📌 Direction</span></div>
+              <div style="font-size:.8rem;color:#374151;line-height:1.5;">${esc(m.contenu || m.message || '')}</div>
+              <div style="margin-top:6px;">
+                <span style="font-size:.63rem;background:${badgeBg};color:${badgeColor};padding:2px 7px;border-radius:20px;font-weight:700;">${badge}</span>
+                ${!m.lu ? '<span style="font-size:.6rem;background:#FEF2F2;color:#DC2626;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:4px;">🔴 Non lu</span>' : ''}
+              </div>
             </div>
           </div>`;
         }).join('');
       } catch (e) {
         console.warn('loadSmsDirection:', e.message);
-        // Fallback : charger depuis les annonces avec type = message
-        try {
-          const r2 = await fetch(`${API}/professeurs/annonces`, { headers: { 'Authorization': 'Bearer ' + TOK } });
-          const d2 = await r2.json();
-          const msgs2 = (d2.annonces || d2.data || []).filter(a =>
-            (a.type_annonce||a.type||'').toLowerCase() === 'message' ||
-            (a.destinataires||'').toLowerCase().includes('prof')
-          );
-          if (!msgs2.length) {
-            container.innerHTML = '<div style="text-align:center;padding:40px;color:#94A3B8;font-size:.8rem;">✉️ Aucun message privé de la direction</div>';
-            return;
-          }
-          container.innerHTML = msgs2.map(m => `<div style="padding:12px 14px;background:#F8FAFF;border-radius:10px;border-left:3px solid #4F46E5;margin-bottom:8px;">
-            <div style="font-size:.75rem;font-weight:800;color:#4F46E5;margin-bottom:3px;">📌 Direction · ${m.date_publication ? new Date(m.date_publication).toLocaleDateString('fr-FR') : '—'}</div>
-            <div style="font-size:.8rem;color:#0F172A;font-weight:700;">${esc(m.titre||'Message')}</div>
-            <div style="font-size:.78rem;color:#475569;margin-top:4px;">${esc(m.contenu||m.corps_annonce||'')}</div>
-          </div>`).join('');
-        } catch {
-          container.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:.8rem;">⚠️ Impossible de charger les messages</div>';
-        }
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:.8rem;">⚠️ Impossible de charger les messages privés</div>';
       }
     }
 
@@ -6090,12 +6074,20 @@
         console.log('📢 Réponse notifications:', data);
 
         if (data.success) {
-          notificationsData = data.notifications || [];
+          notificationsData = Array.isArray(data.notifications) ? data.notifications.map(n => ({
+            ...n,
+            id: n.id || n.id_notification,
+            lu: n.lu || n.lue || n.est_lu || false,
+            message: n.message || n.contenu || ''
+          })) : [];
           console.log(`✅ ${notificationsData.length} notifications chargées`);
           updateNotifBadge();
           renderNotifList();
         } else {
           console.warn('Erreur API:', data);
+          notificationsData = [];
+          updateNotifBadge();
+          renderNotifList();
         }
       } catch (e) {
         console.error('❌ Erreur loadNotifications:', e.message);

@@ -206,11 +206,14 @@ exports.getConvocationsEnfant = async (req, res) => {
                 date_convocation,
                 motif,
                 date_creation,
+                UPPER(COALESCE(statut, 'ENVOYEE')) AS statut,
+                date_accuse,
+                accuse_par,
                 CASE 
                     WHEN date_convocation < NOW() THEN 'PASSEE'
                     WHEN date_convocation <= NOW() + INTERVAL '3 DAYS' THEN 'URGENTE'
                     ELSE 'PROCHAINE'
-                END as statut
+                END as periode
             FROM gestion.convocations
             WHERE id_eleve = $1
             ORDER BY date_convocation DESC
@@ -360,6 +363,8 @@ exports.getProfilParent = async (req, res) => {
         const parentId = req.user?.id;
         if (!parentId) return res.status(401).json({ message: 'Non authentifié' });
 
+        await db.query(`ALTER TABLE gestion_ape.profils_parents ADD COLUMN IF NOT EXISTS photo_url TEXT`);
+
         const base = await db.query(
             `SELECT id_user, code_unique, nom, prenom, email, telephone, est_actif
              FROM authentification.comptes WHERE id_user = $1`, [parentId]
@@ -405,31 +410,29 @@ exports.updateProfilParent = async (req, res) => {
         const parentId = req.user?.id;
         if (!parentId) return res.status(401).json({ message: 'Non authentifié' });
 
+        await db.query(`ALTER TABLE gestion_ape.profils_parents ADD COLUMN IF NOT EXISTS telephone VARCHAR(20)`);
+        await db.query(`ALTER TABLE gestion_ape.profils_parents ADD COLUMN IF NOT EXISTS adresse TEXT`);
+        await db.query(`ALTER TABLE gestion_ape.profils_parents ADD COLUMN IF NOT EXISTS biographie TEXT`);
+        await db.query(`ALTER TABLE gestion_ape.profils_parents ADD COLUMN IF NOT EXISTS bio TEXT`);
+        await db.query(`ALTER TABLE gestion_ape.profils_parents ADD COLUMN IF NOT EXISTS photo_url TEXT`);
+        await db.query(`ALTER TABLE gestion_ape.profils_parents ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ`);
+
         const { telephone, adresse, profession, biographie, bio, photo_url } = req.body;
         const bioFinal = biographie || bio || null;
 
-        const ex = await db.query(
-            `SELECT id_user FROM gestion_ape.profils_parents WHERE id_user = $1`, [parentId]
-        ).catch(() => ({ rows: [] }));
-
-        if (ex.rows && ex.rows.length > 0) {
-            await db.query(`
-                UPDATE gestion_ape.profils_parents SET
-                    profession = COALESCE($2, profession),
-                    adresse    = COALESCE($3, adresse),
-                    biographie = COALESCE($4, biographie),
-                    bio        = COALESCE($4, bio),
-                    photo_url  = COALESCE($5, photo_url),
-                    updated_at = NOW()
-                WHERE id_user = $1
-            `, [parentId, profession || null, adresse || null, bioFinal, photo_url || null]);
-        } else {
-            await db.query(`
-                INSERT INTO gestion_ape.profils_parents
-                    (id_user, profession, adresse, biographie, bio, photo_url, updated_at)
-                VALUES ($1, $2, $3, $4, $4, $5, NOW())
-            `, [parentId, profession || null, adresse || null, bioFinal, photo_url || null]);
-        }
+        await db.query(`
+            INSERT INTO gestion_ape.profils_parents
+                (id_user, profession, adresse, biographie, bio, telephone, photo_url, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+            ON CONFLICT (id_user) DO UPDATE SET
+                profession   = COALESCE(EXCLUDED.profession, gestion_ape.profils_parents.profession),
+                adresse      = COALESCE(EXCLUDED.adresse, gestion_ape.profils_parents.adresse),
+                biographie   = COALESCE(EXCLUDED.biographie, gestion_ape.profils_parents.biographie),
+                bio          = COALESCE(EXCLUDED.bio, gestion_ape.profils_parents.bio),
+                telephone    = COALESCE(EXCLUDED.telephone, gestion_ape.profils_parents.telephone),
+                photo_url    = COALESCE(EXCLUDED.photo_url, gestion_ape.profils_parents.photo_url),
+                updated_at   = NOW()
+        `, [parentId, profession || null, adresse || null, bioFinal, bioFinal, telephone || null, photo_url || null]);
 
         res.json({ success: true, message: 'Profil mis à jour' });
     } catch (error) {

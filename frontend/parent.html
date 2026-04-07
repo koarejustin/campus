@@ -490,63 +490,103 @@
     }
 
     /* MODALE NOTIFICATIONS */
-    .notif-modal {
+    .notif-panel {
       position: fixed;
       top: 70px;
       right: 20px;
-      width: 320px;
-      max-height: 400px;
+      width: min(360px, 90vw);
+      max-height: 80vh;
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14);
       z-index: 10000;
-      overflow-y: auto;
+      overflow: hidden;
       display: none;
       flex-direction: column;
       border: 1px solid #E2E8F0;
     }
 
-    .notif-modal.open {
+    .notif-panel.open {
       display: flex;
     }
 
     .notif-header {
-      padding: 12px 16px;
+      padding: 14px 16px;
       border-bottom: 1px solid #E2E8F0;
       font-weight: 800;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #F8FAFF;
+      background: #4F46E5;
+      color: #fff;
+    }
+
+    .notif-header button {
+      background: rgba(255,255,255,0.18);
+      border: none;
+      border-radius: 10px;
+      padding: 6px 11px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .notif-list {
+      max-height: calc(80vh - 110px);
+      overflow-y: auto;
+      background: #fff;
     }
 
     .notif-item {
-      padding: 12px 16px;
+      padding: 14px 16px;
       border-bottom: 1px solid #F1F5F9;
       cursor: pointer;
-      transition: background 0.1s;
-    }
-
-    .notif-item:hover {
-      background: #F8FAFF;
+      transition: background 0.15s ease;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      background: #fff;
     }
 
     .notif-item.unread {
+      background: #F8FAFF;
+    }
+
+    .notif-item:hover {
+      background: #F3F4FF;
+    }
+
+    .notif-item-icon {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 10px;
       background: #EEF2FF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
     }
 
     .notif-title {
       font-weight: 800;
-      font-size: 0.75rem;
-      color: #0F172A;
-      margin-bottom: 4px;
+      font-size: 0.82rem;
+      color: #111827;
+      margin-bottom: 6px;
     }
 
     .notif-desc {
-      font-size: 0.7rem;
+      font-size: 0.74rem;
       color: #475569;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+
+    .notif-time {
+      font-size: 0.65rem;
+      color: #94A3B8;
     }
 
     .notif-time {
@@ -682,10 +722,10 @@
         grid-template-columns: 1fr !important;
       }
 
-      .notif-modal {
-        width: calc(100% - 40px);
+      .notif-panel {
+        width: min(360px, calc(100% - 40px));
         right: 20px;
-        left: 20px;
+        left: auto;
         top: 60px;
       }
     }
@@ -1179,13 +1219,16 @@
     </div>
   </div>
 
-  <!-- MODALE NOTIFICATIONS (ajoutée dynamiquement) -->
-  <div id="notif-modal" class="notif-modal">
+  <!-- MODALE NOTIFICATIONS (style élève aligné) -->
+  <div id="notif-panel" class="notif-panel">
     <div class="notif-header">
       <span>🔔 Notifications</span>
-      <button id="close-notif-modal" style="background:none; border:none; cursor:pointer; font-size:1rem;">✕</button>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button id="mark-all-notif" type="button">Tout marquer lu</button>
+        <button id="close-notif-modal" style="background:none; border:none; cursor:pointer; font-size:1rem; color:#fff;">✕</button>
+      </div>
     </div>
-    <div id="notif-list"></div>
+    <div id="notif-list" class="notif-list"></div>
   </div>
 
   <script>
@@ -1212,6 +1255,10 @@
     const nCol = v => v >= 15 ? '#10B981' : v >= 12 ? '#4F46E5' : v >= 10 ? '#F59E0B' : '#EF4444';
     const men = m => m >= 16 ? 'Très Bien 🏆' : m >= 14 ? 'Bien 🌟' : m >= 12 ? 'Assez Bien 👍' : m >= 10 ? 'Passable ✓' : 'Insuffisant ⚠️';
     const icn = s => { const k = Object.keys(ICNS).find(k => String(s).toLowerCase().includes(k)); return k ? ICNS[k] : '📚'; };
+    const isAccuseReception = c => {
+      const status = String(c?.statut || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return status === 'ACCUSE_RECU' || String(c?.statut || '').toUpperCase() === 'ACCUSERECU' || c?.accuse_recu === true;
+    };
     const dlg = (t, m) => { document.getElementById('mod-t').textContent = t; document.getElementById('mod-m').textContent = m; document.getElementById('mod').classList.add('on'); };
     const api = (path, opts = {}) => fetch(API + path, { ...opts, headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json', ...(opts.headers || {}) } }).then(r => r.json());
 
@@ -1224,8 +1271,15 @@
         const res = await fetch(`${API}/notifications`, { headers: { 'Authorization': 'Bearer ' + TOK } });
         const data = await res.json();
         if (data.success) {
-          notifData = data.notifications || [];
-          notifUnreadCount = data.unreadCount || 0;
+          notifData = Array.isArray(data.notifications) ? data.notifications.map(n => ({
+            ...n,
+            id: n.id || n.id_notification,
+            lu: n.lu || n.lue || n.est_lu || false,
+            message: n.message || n.contenu || ''
+          })) : [];
+          notifUnreadCount = typeof data.unreadCount === 'number'
+            ? data.unreadCount
+            : notifData.filter(n => !n.lu).length;
           updateNotifBadge();
         } else {
           notifData = [];
@@ -1259,14 +1313,24 @@
         container.innerHTML = '<div style="padding:16px; text-align:center; color:#94A3B8;">Aucune notification</div>';
         return;
       }
-      container.innerHTML = notifData.map(n => `
-        <div class="notif-item ${!n.lu ? 'unread' : ''}" data-id="${n.id}" data-link="${n.lien || ''}" data-type="${n.type}">
-          <div class="notif-title">${esc(n.titre || 'Notification')}</div>
-          <div class="notif-desc">${esc(n.message || '')}</div>
-          <div class="notif-time">${ago(n.created_at)}</div>
-          ${!n.lu ? `<button class="mark-read-btn" data-id="${n.id}">Marquer comme lue</button>` : ''}
-        </div>
-      `).join('');
+      container.innerHTML = notifData.map(n => {
+        const icon = n.type === 'ABSENCE' ? '📅'
+          : n.type === 'CONVOCATION' ? '⚠️'
+          : n.type === 'ANNONCE' ? '📢'
+          : n.type === 'DEVOIR' ? '📝'
+          : n.type === 'ORIENTATION' ? '🎯'
+          : '🔔';
+        return `
+          <div class="notif-item ${!n.lu ? 'unread' : ''}" data-id="${n.id}" data-link="${n.lien || ''}" data-type="${n.type}">
+            <div class="notif-item-icon">${icon}</div>
+            <div style="flex:1; min-width:0;">
+              <div class="notif-title">${esc(n.titre || 'Notification')}</div>
+              <div class="notif-desc">${esc(n.message || n.contenu || '')}</div>
+              <div class="notif-time">${ago(n.created_at)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
       // Attacher les événements
       document.querySelectorAll('.notif-item').forEach(el => {
         el.addEventListener('click', async (e) => {
@@ -1277,8 +1341,9 @@
           if (el.classList.contains('unread')) {
             await markNotificationAsRead(id);
           }
-          // Fermer le modal
-          document.getElementById('notif-modal').classList.remove('open');
+          // Fermer le panneau
+          const panel = document.getElementById('notif-panel');
+          if (panel) panel.classList.remove('open');
           // Redirection si lien présent
           if (link) {
             const params = new URLSearchParams(link.split('?')[1]);
@@ -1337,22 +1402,29 @@
     // Initialisation des notifications
     function initNotifications() {
       const notifBtn = document.getElementById('notif-btn');
-      const modal = document.getElementById('notif-modal');
+      const panel = document.getElementById('notif-panel');
       const closeBtn = document.getElementById('close-notif-modal');
+      const markAllBtn = document.getElementById('mark-all-notif');
       if (notifBtn) {
         notifBtn.addEventListener('click', async (e) => {
           e.stopPropagation();
           await fetchNotifications();
           renderNotifications();
-          modal.classList.toggle('open');
+          panel?.classList.toggle('open');
         });
       }
       if (closeBtn) {
-        closeBtn.addEventListener('click', () => modal.classList.remove('open'));
+        closeBtn.addEventListener('click', () => panel?.classList.remove('open'));
+      }
+      if (markAllBtn) {
+        markAllBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await markAllNotificationsAsRead();
+        });
       }
       window.addEventListener('click', (e) => {
-        if (modal.classList.contains('open') && !modal.contains(e.target) && e.target !== notifBtn && !notifBtn?.contains(e.target)) {
-          modal.classList.remove('open');
+        if (panel?.classList.contains('open') && !panel.contains(e.target) && e.target !== notifBtn && !notifBtn?.contains(e.target)) {
+          panel.classList.remove('open');
         }
       });
       setInterval(() => {
@@ -1387,8 +1459,22 @@
 
     /* ═════════════ PROFIL ═════════════ */
     async function loadProfil() {
-      try { const d = await api('/parents/profil'); if (d.success) P = d.profil; else throw 0; }
-      catch { P = { prenom: sess.prenom || '', nom: sess.nom || '', code_unique: sess.code_unique || '---', prenom_full: sess.prenom || '', nom_full: sess.nom || '', profession: null, statut_ape: 'MEMBRE', telephone: null, adresse: null, photo_url: sess.photo_url || null, biographie: null }; }
+      try {
+        const d = await api('/parents/profil');
+        if (d.success) {
+          P = d.profil;
+          if (!P.photo_url && sess.photo_url) P.photo_url = sess.photo_url;
+        } else {
+          throw new Error('Profil non trouvé');
+        }
+      } catch (err) {
+        P = {
+          prenom: sess.prenom || '', nom: sess.nom || '', code_unique: sess.code_unique || '---',
+          prenom_full: sess.prenom || '', nom_full: sess.nom || '', profession: null,
+          statut_ape: 'MEMBRE', telephone: null, adresse: null,
+          photo_url: sess.photo_url || null, biographie: null
+        };
+      }
       renderProfil();
       loadEnfant();
     }
@@ -1618,7 +1704,26 @@
     function abDm() { document.getElementById('ab-inj').textContent = 0; document.getElementById('ab-jus').textContent = 0; document.getElementById('ab-tot').textContent = 0; document.getElementById('ab-list').innerHTML = '<div style="text-align:center;color:#CBD5E1;padding:22px;">✅ Aucune absence enregistrée</div>'; }
 
     async function loadCvCpt() {
-      try { const d = await api('/parents/convocations-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : '')); if (d.success) { const nb = (d.convocations || []).length; document.getElementById('st-cv').textContent = nb; if (nb > 0) { const b = document.getElementById('bconv'); b.textContent = nb; b.style.display = 'inline'; const c = d.convocations[0]; const al = document.getElementById('al-cv'); al.style.display = 'flex'; document.getElementById('al-cv-t').textContent = (c.motif || c.objet || 'Convocation') + ' — ' + formatDateConv(c.date_convocation); } } } catch { }
+      try {
+        const d = await api('/parents/convocations-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : ''));
+        const convocations = Array.isArray(d.convocations) ? d.convocations : [];
+        const nb = convocations.length;
+        document.getElementById('st-cv').textContent = nb;
+        const b = document.getElementById('bconv');
+        const al = document.getElementById('al-cv');
+        if (nb > 0) {
+          b.textContent = nb;
+          b.style.display = 'inline';
+          const c = convocations[0];
+          al.style.display = 'flex';
+          document.getElementById('al-cv-t').textContent = (c.motif || c.objet || 'Convocation') + ' — ' + formatDateConv(c.date_convocation);
+        } else {
+          b.style.display = 'none';
+          al.style.display = 'none';
+        }
+      } catch (e) {
+        console.error('loadCvCpt error:', e);
+      }
     }
 
     function formatDateConv(dateStr) {
@@ -1631,9 +1736,10 @@
     async function loadConv() {
       try {
         const d = await api('/parents/convocations-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : ''));
-        if (d.success && d.convocations?.length > 0) {
-          document.getElementById('cv-list').innerHTML = d.convocations.map(c => {
-            const estAccuse = c.statut === 'ACCUSE_RECU' || c.accuse_recu === true;
+        const convocations = Array.isArray(d.convocations) ? d.convocations : [];
+        if (d.success && convocations.length > 0) {
+          document.getElementById('cv-list').innerHTML = convocations.map(c => {
+            const estAccuse = isAccuseReception(c);
             return `
             <div style="background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F59E0B;border-radius:14px;padding:13px;margin-bottom:9px;">
               <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
@@ -1645,8 +1751,13 @@
               ${!estAccuse ? `<div style="margin-top:8px;"><button onclick="accuserReception('${c.id_convocation}')" class="btn-sm" style="background:#4F46E5; color:#fff; padding:5px 12px; border-radius:20px; font-size:.65rem;">📩 Accuser réception</button></div>` : '<div style="margin-top:8px;"><span class="badge-ok">✓ Accusé reçu</span></div>'}
             </div>`;
           }).join('');
-        } else cvDm();
-      } catch { cvDm(); }
+        } else {
+          cvDm();
+        }
+      } catch (e) {
+        console.error('loadConv error:', e);
+        cvDm();
+      }
     }
     function cvDm() { document.getElementById('cv-list').innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;">Aucune convocation</div>'; }
 
@@ -1659,13 +1770,14 @@
         const data = await response.json();
         if (data.success) {
           dlg('✅ Accusé reçu', 'Votre accusé de réception a bien été enregistré.');
-          loadConv(); // recharge la liste
+          await loadConv();
+          await loadCvCpt();
         } else {
           dlg('❌ Erreur', data.message || 'Impossible d\'accuser réception.');
         }
       } catch (e) {
-        console.error(e);
-        dlg('Erreur', 'Problème de connexion.');
+        console.error('accuserReception error:', e);
+        dlg('Erreur', 'Problème de connexion ou de serveur.');
       }
     }
 
@@ -1754,7 +1866,7 @@
       btn.disabled = false; btn.textContent = 'Enregistrer';
     }
 
-    function uploadPhoto(input) {
+    async function uploadPhoto(input) {
       const f = input.files[0]; if (!f) return;
       if (f.size > 2 * 1024 * 1024) { dlg('Photo trop lourde', 'Maximum 2 Mo.'); return; }
       const rd = new FileReader();
@@ -1767,10 +1879,19 @@
         document.getElementById('sb-av').innerHTML = `<img src="${url}" style="width:38px;height:38px;object-fit:cover;border-radius:11px;" alt="">`;
         document.getElementById('sb-av').style.background = 'transparent';
         P.photo_url = url;
+
         try {
-          await api('/parents/profil', { method: 'PUT', body: JSON.stringify({ photo_url: url }) });
-          const s = JSON.parse(localStorage.getItem('user_session') || '{}'); s.photo_url = url; localStorage.setItem('user_session', JSON.stringify(s));
-        } catch { }
+          const data = await api('/parents/profil', { method: 'PUT', body: JSON.stringify({ photo_url: url }) });
+          if (!data.success) {
+            throw new Error(data.message || 'Impossible de sauvegarder la photo.');
+          }
+          const s = JSON.parse(localStorage.getItem('user_session') || '{}');
+          s.photo_url = url;
+          localStorage.setItem('user_session', JSON.stringify(s));
+        } catch (err) {
+          console.error('uploadPhoto error:', err);
+          dlg('Erreur', 'Impossible de sauvegarder la photo. Veuillez réessayer.');
+        }
       };
       rd.readAsDataURL(f);
     }

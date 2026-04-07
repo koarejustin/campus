@@ -137,11 +137,11 @@
     <nav
         class="p-4 px-5 flex justify-between items-center bg-white/40 backdrop-blur-md sticky top-0 z-50 border-b border-white/20 gap-3 flex-wrap">
         <div class="flex items-center gap-2 cursor-pointer group" onclick="location.href='index.html'">
-            <div class="bg-indigo-600 p-1.5 rounded-lg shadow-md transition-transform group-hover:rotate-12">
+            <div id="logo-container" class="bg-indigo-600 p-1.5 rounded-lg shadow-md transition-transform group-hover:rotate-12">
                 <i data-lucide="layout-grid" class="text-white w-4 h-4"></i>
             </div>
-            <span class="text-xl font-black italic uppercase tracking-tighter">ÉCOLE<span
-                    class="text-indigo-600">NUM</span></span>
+            <span id="brand-name" class="text-xl font-black italic uppercase tracking-tighter">SAINT<span id="brand-highlight"
+                    class="text-indigo-600">JOSEPH</span></span>
         </div>
 
         <div class="flex gap-4">
@@ -252,6 +252,27 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+      async function chargerConfigEcole() {
+        try {
+          const response = await fetch('/api/admin/config');
+          const data = await response.json();
+          if (data.success && data.config) {
+            const brand = document.getElementById('brand-name');
+            const logoContainer = document.getElementById('logo-container');
+            if (brand) {
+              brand.textContent = data.config.nom_etablissement || 'Saint Joseph';
+            }
+            if (logoContainer && data.config.logo_url) {
+              logoContainer.innerHTML = `<img src="${data.config.logo_url}" alt="logo" class="w-4 h-4 object-contain">`;
+            }
+          }
+        } catch (error) {
+          console.warn('Erreur chargement config école:', error);
+        }
+      }
+      document.addEventListener('DOMContentLoaded', chargerConfigEcole);
+    </script>
     <script>lucide.createIcons();</script>
     <script src="responsive-init.js"></script>
 </body>

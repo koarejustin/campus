@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Alumni | Campus Numérique FASO</title>
+    <script src="config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="responsive.css">
+    <style>
+        :root {
+            --bg: #F0F2F8;
+            --sidebar: #0D1020;
+            --accent: #D97706;
+            --accent2: #F59E0B;
+            --ink: #0D1135;
+            --muted: #5B6494;
+            --card: #FFFFFF;
+            --border: #DDE0F0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Sidebar identique à celle des autres rôles, adaptée */
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background: var(--sidebar);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .sb-head {
+            padding: 16px 14px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, .05);
+            flex-shrink: 0;
+        }
+
+        .sb-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .sb-logo-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sb-logo-txt {
+            font-family: 'Syne', sans-serif;
+            font-size: .82rem;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .sb-logo-txt span {
+            color: var(--accent2);
+        }
+
+        .sb-role {
+            font-size: .48rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .22);
+        }
+
+        .sb-user {
+            background: rgba(255, 255, 255, .05);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-top: 8px;
+        }
+
+        .sb-user-name {
+            font-size: .76rem;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .sb-user-mat {
+            font-size: .58rem;
+            color: var(--accent2);
+            font-family: monospace;
+        }
+
+        .sb-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px 0;
+        }
+
+        .sb-grp {
+            padding: 9px 0 2px 14px;
+            font-size: .48rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .2);
+        }
+
+        .ni {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 11px;
+            margin: 1px 6px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: .74rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, .4);
+            transition: all .15s;
+        }
+
+        .ni:hover {
+            background: rgba(255, 255, 255, .06);
+            color: rgba(255, 255, 255, .75);
+        }
+
+        .ni.on {
+            background: rgba(217, 119, 6, .3);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .ni svg {
+            width: 13px;
+            height: 13px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .btn-out {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(192, 57, 43, .09);
+            border: 1px solid rgba(192, 57, 43, .14);
+            border-radius: 7px;
+            font-size: .78rem;
+            font-weight: 700;
+            color: #E57373;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+        }
+
+        .btn-out svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        main {
+            margin-left: 220px;
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            background: var(--bg);
+        }
+
+        .pg {
+            padding: 22px 28px;
+            display: none;
+        }
+
+        .pg.on {
+            display: block;
+        }
+
+        .pg-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .pg-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--ink);
+            letter-spacing: -.04em;
+        }
+
+        .pg-sub {
+            font-size: .76rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+        }
+
+        .btn-p {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: .76rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .inp {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid #E8EDFF;
+            border-radius: 8px;
+            font-family: inherit;
+            outline: none;
+            font-size: .76rem;
+        }
+
+        .inp:focus {
+            border-color: #4F46E5;
+        }
+
+        .btn-g {
+            padding: 8px 14px;
+            background: #F1F5F9;
+            color: #475569;
+            border: none;
+            border-radius: 8px;
+            font-size: .76rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .msg-bubble {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .msg-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .msg-txt {
+            background: #fff;
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: .78rem;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+        }
+
+        textarea,
+        input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform .3s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            main {
+                margin-left: 0;
+            }
+
+            .pg {
+                padding: 70px 14px;
+            }
+        }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sb-head">
+            <div class="sb-logo">
+                <div class="sb-logo-icon"><svg viewBox="0 0 24 24">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg></div>
+                <div class="sb-logo-txt">ALUMNI<span>FASO</span></div>
+            </div>
+            <div class="sb-user">
+                <div class="sb-user-name" id="sb-nom">Chargement...</div>
+                <div class="sb-user-mat" id="sb-mat">--</div>
+            </div>
+        </div>
+        <div class="sb-scroll">
+            <div class="sb-grp">Mon réseau</div>
+            <div class="ni on" onclick="go('accueil')"><svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                </svg>Accueil</div>
+            <div class="ni" onclick="go('mentorats')"><svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                </svg>Mentorats & Orientations</div>
+            <div class="ni" onclick="go('profil')"><svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                </svg>Mon profil</div>
+        </div>
+        <div class="sb-foot" style="padding: 10px 8px 12px;">
+            <button class="btn-out" onclick="logout()"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>Déconnexion</button>
+        </div>
+    </aside>
+    <main>
+        <!-- Accueil -->
+        <div id="pg-accueil" class="pg on">
+            <div class="pg-hd">
+                <div>
+                    <div class="pg-title">Bienvenue, <span id="accueil-prenom"></span> 👋</div>
+                    <div class="pg-sub">Réseau des anciens élèves</div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>📢 Derniers mentorats</h3>
+                    <div id="accueil-mentorats">Chargement...</div>
+                </div>
+            </div>
+        </div>
+        <!-- Mentorats -->
+        <div id="pg-mentorats" class="pg">
+            <div class="pg-hd">
+                <div>
+                    <div class="pg-title">🤝 Mentorats & Conseils</div>
+                    <div class="pg-sub">Partagez votre expérience</div>
+                </div><button class="btn-p" onclick="openMentoratModal()">➕ Publier un conseil</button>
+            </div>
+            <div id="mentorats-list" class="card"></div>
+            <div class="card" style="margin-top: 20px;"><input type="text" id="search-eleve"
+                    placeholder="Rechercher un élève (nom, prénom, matricule)">
+                <div id="orientation-eleves-list" style="margin-top: 10px;"></div>
+            </div>
+            <div id="orientation-avis" class="card" style="margin-top: 12px;"></div>
+        </div>
+        <!-- Profil -->
+        <div id="pg-profil" class="pg">
+            <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">👤 Mon profil</h2>
+            <div style="display:grid; grid-template-columns:250px 1fr; gap:16px; align-items:start;">
+                <div class="card" style="text-align:center;">
+                    <div style="position:relative; display:inline-block; margin-bottom:11px;">
+                        <div id="pr-av"
+                            style="width:86px; height:86px; border-radius:50%; margin:0 auto; overflow:hidden; background:#EEF2FF; border:3px solid #E0E7FF; display:flex; align-items:center; justify-content:center; font-size:1.9rem; font-weight:900; color:#4F46E5; cursor:pointer;"
+                            onclick="document.getElementById('fp2').click()"><span id="pr-av-t">?</span></div>
+                        <input type="file" id="fp2" accept="image/*" onchange="uploadPhoto(this)">
+                        <div onclick="document.getElementById('fp2').click()"
+                            style="position:absolute; bottom:-1px; right:-1px; background:#4F46E5; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border:2px solid #fff; cursor:pointer;">
+                            <i data-lucide="pencil" style="width:10px;height:10px;color:#fff;"></i></div>
+                    </div>
+                    <div id="pr-nc" style="font-size:.92rem; font-weight:900; color:#1E293B;"></div>
+                    <div id="pr-cc" style="font-size:.62rem; color:#94A3B8; font-weight:700; font-family:monospace;"></div>
+                    <div id="pr-ac" style="margin-top:6px;"></div>
+                    <div style="margin-top:10px; background:#EEF2FF; border-radius:11px; padding:9px;">
+                        <div style="font-size:.54rem; font-weight:800; color:#6366F1; text-transform:uppercase;">Domaine d'expertise</div>
+                        <div id="pr-ex" style="font-size:.78rem; font-weight:800; color:#1E293B;">—</div>
+                        <div id="pr-se" style="font-size:.62rem; color:#6366F1;">—</div>
+                    </div>
+                    <button class="btn-p" style="width:100%; margin-top:11px; justify-content:center;"
+                        onclick="document.getElementById('fp2').click()">📷 Changer la photo</button>
+                </div>
+                <div class="card">
+                    <div
+                        style="font-size:.74rem; font-weight:900; color:#1E293B; text-transform:uppercase; margin-bottom:14px;">
+                        Informations professionnelles</div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
+                        <div><label
+                                style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Prénom</label><input
+                                class="inp" id="pr-pn" disabled style="background:#F8FAFF; color:#64748B;"></div>
+                        <div><label
+                                style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Nom</label><input
+                                class="inp" id="pr-nn" disabled style="background:#F8FAFF; color:#64748B;"></div>
+                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Poste actuel
+                                ✎</label><input class="inp" id="pr-pa" placeholder="Ex: Développeur Full Stack…"></div>
+                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Entreprise
+                                ✎</label><input class="inp" id="pr-en" placeholder="Nom de l'entreprise"></div>
+                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Téléphone
+                                ✎</label><input class="inp" id="pr-tl" placeholder="+226 70 00 00 00"></div>
+                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Ville de résidence
+                                ✎</label><input class="inp" id="pr-vr" placeholder="Ouagadougou"></div>
+                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Domaine d'expertise
+                                ✎</label><input class="inp" id="pr-de" placeholder="Ex: Informatique, Marketing…"></div>
+                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Secteur d'activité
+                                ✎</label><input class="inp" id="pr-sa" placeholder="Ex: Tech, Finance…"></div>
+                        <div style="grid-column:1/-1;"><label
+                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">À propos
+                                ✎</label><textarea class="inp" id="pr-bi" rows="3" placeholder="Parlez de votre parcours professionnel, vos expériences…"></textarea></div>
+                        <div style="grid-column:1/-1;"><label
+                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">LinkedIn
+                                ✎</label><input class="inp" id="pr-li" placeholder="https://linkedin.com/in/votreprofil"></div>
+                        <div style="grid-column:1/-1;"><label
+                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Site web personnel
+                                ✎</label><input class="inp" id="pr-sw" placeholder="https://votresite.com"></div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:13px;">
+                        <button class="btn-p" id="btn-sv" onclick="saveProfil()"
+                            style="flex:1; justify-content:center;">Enregistrer</button>
+                        <span id="sv-ok" style="font-size:.7rem; font-weight:700; color:#10B981; display:none;">✅ Enregistré
+                            !</span>
+                    </div>
+                    <div
+                        style="margin-top:11px; padding:9px 13px; background:#FFF7ED; border-radius:11px; font-size:.62rem; color:#92400E;">
+                        ⚠️ Le prénom et le nom sont gérés par l'administration.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        const API = window.API_BASE || 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        let currentUser = JSON.parse(localStorage.getItem('user_session') || '{}');
+        if (!token || currentUser.role_actuel !== 'ALUMNI') window.location.href = 'login.html';
+        const authH = () => ({ 'Authorization': 'Bearer ' + token });
+        const esc = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const ini = (p = '', n = '') => ((p[0] || '') + (n[0] || '')).toUpperCase() || '?';
+        function go(page) { document.querySelectorAll('.pg').forEach(p => p.classList.remove('on')); document.getElementById('pg-' + page).classList.add('on'); document.querySelectorAll('.ni').forEach(n => n.classList.remove('on')); document.querySelector(`.ni[onclick="go('${page}')"]`).classList.add('on'); if (page === 'accueil') loadAccueil(); else if (page === 'mentorats') { loadMentorats(); loadOrientationEleves(); } else if (page === 'profil') loadProfil(); }
+        async function loadAccueil() { document.getElementById('accueil-prenom').textContent = currentUser.prenom || 'Ancien'; const m = await fetch(`${API}/alumni/mentorats`, { headers: authH() }).then(r => r.json()); document.getElementById('accueil-mentorats').innerHTML = (m.mentorats || []).slice(0, 3).map(c => `<div class="msg-bubble"><div class="msg-avatar">${c.prenom?.[0] || 'A'}</div><div><strong>${esc(c.prenom)} ${esc(c.nom)}</strong><div class="msg-txt">${esc(c.contenu_conseil).substring(0, 100)}...</div></div></div>`).join('') || 'Aucun'; }
+        async function loadMentorats() { const r = await fetch(`${API}/alumni/mentorats`, { headers: authH() }); const d = await r.json(); document.getElementById('mentorats-list').innerHTML = (d.mentorats || []).map(m => `<div class="msg-bubble"><div class="msg-avatar">${m.prenom?.[0] || 'A'}</div><div><strong>${esc(m.prenom)} ${esc(m.nom)}</strong><div class="msg-txt">${esc(m.contenu_conseil)}</div><small>${m.filiere_suggeree ? '🎯 ' + esc(m.filiere_suggeree) : ''}</small></div></div>`).join('') || '<div class="empty">Aucun mentorat pour le moment</div>'; }
+        async function loadOrientationEleves() { const r = await fetch(`${API}/eleves/liste?classe=`, { headers: authH() }); const d = await r.json(); document.getElementById('orientation-eleves-list').innerHTML = (d.eleves || []).map(e => `<div onclick="selectEleve('${e.code_unique}','${e.prenom} ${e.nom}')" style="padding:8px;border-bottom:1px solid var(--border);cursor:pointer">${esc(e.prenom)} ${esc(e.nom)} (${e.classe})</div>`).join('') || 'Aucun élève'; }
+        async function selectEleve(code, nom) { document.getElementById('orientation-avis').innerHTML = `<div class="card"><h4>${esc(nom)}</h4><textarea id="avis-commentaire" placeholder="Votre conseil d'orientation..."></textarea><select id="avis-serie"><option value="">Série recommandée</option><option>Terminale A</option><option>Terminale D</option><option>1ère A</option><option>1ère D</option></select><button class="btn-p" onclick="postAvisOrientation('${code}')">Publier mon avis</button><div id="avis-liste"></div></div>`; const av = await fetch(`${API}/alumni/orientation/${code}`, { headers: authH() }); const avd = await av.json(); document.getElementById('avis-liste').innerHTML = (avd.avis || []).map(a => `<div><strong>${esc(a.prenom)} ${esc(a.nom)}</strong><p>${esc(a.commentaire)}</p>${a.serie_recommandee ? `<span>🎯 ${a.serie_recommandee}</span>` : ''}</div>`).join(''); }
+        async function postAvisOrientation(eleveCode) { const commentaire = document.getElementById('avis-commentaire').value; const serie = document.getElementById('avis-serie').value; if (!commentaire) return; await fetch(`${API}/alumni/orientation/commentaire`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ eleveId: eleveCode, commentaire, serie_recommandee: serie }) }); alert('Avis publié'); selectEleve(eleveCode, ''); }
+        async function loadProfil() {
+            try {
+                const r = await fetch(`${API}/alumni/profil`, { headers: authH() });
+                const d = await r.json();
+                if (d.success) {
+                    const p = d.profil;
+                    document.getElementById('pr-pn').value = p.prenom || '';
+                    document.getElementById('pr-nn').value = p.nom || '';
+                    document.getElementById('pr-nc').textContent = `${p.prenom || ''} ${p.nom || ''}`;
+                    document.getElementById('pr-cc').textContent = p.code_unique || '';
+                    document.getElementById('pr-pa').value = p.poste_actuel || '';
+                    document.getElementById('pr-en').value = p.entreprise_actuelle || '';
+                    document.getElementById('pr-tl').value = p.telephone || '';
+                    document.getElementById('pr-vr').value = p.ville_residence || '';
+                    document.getElementById('pr-de').value = p.domaine_expertise || '';
+                    document.getElementById('pr-sa').value = p.secteur_activite || '';
+                    document.getElementById('pr-bi').value = p.biographie || '';
+                    document.getElementById('pr-li').value = p.linkedin_url || '';
+                    document.getElementById('pr-sw').value = p.site_web || '';
+                    document.getElementById('pr-ex').textContent = p.domaine_expertise || '—';
+                    document.getElementById('pr-se').textContent = p.secteur_activite || '—';
+
+                    // Photo de profil
+                    const av = document.getElementById('pr-av');
+                    const avt = document.getElementById('pr-av-t');
+                    if (p.photo_url) {
+                        av.style.backgroundImage = `url(${p.photo_url})`;
+                        av.style.backgroundSize = 'cover';
+                        av.style.backgroundPosition = 'center';
+                        avt.style.display = 'none';
+                    } else {
+                        av.style.backgroundImage = '';
+                        avt.textContent = ini(p.prenom, p.nom);
+                        avt.style.display = 'block';
+                    }
+                }
+            } catch (e) {
+                console.error('Erreur chargement profil:', e);
+            }
+        }
+
+        async function saveProfil() {
+            const btn = document.getElementById('btn-sv');
+            const ok = document.getElementById('sv-ok');
+            btn.disabled = true;
+            btn.textContent = 'Enregistrement...';
+
+            try {
+                const data = {
+                    poste_actuel: document.getElementById('pr-pa').value.trim(),
+                    entreprise_actuelle: document.getElementById('pr-en').value.trim(),
+                    telephone: document.getElementById('pr-tl').value.trim(),
+                    ville_residence: document.getElementById('pr-vr').value.trim(),
+                    domaine_expertise: document.getElementById('pr-de').value.trim(),
+                    secteur_activite: document.getElementById('pr-sa').value.trim(),
+                    biographie: document.getElementById('pr-bi').value.trim(),
+                    linkedin_url: document.getElementById('pr-li').value.trim(),
+                    site_web: document.getElementById('pr-sw').value.trim()
+                };
+
+                const r = await fetch(`${API}/alumni/profil`, {
+                    method: 'PUT',
+                    headers: { ...authH(), 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const d = await r.json();
+
+                if (d.success) {
+                    ok.style.display = 'inline';
+                    setTimeout(() => ok.style.display = 'none', 3000);
+                } else {
+                    alert('Erreur: ' + (d.message || 'Erreur inconnue'));
+                }
+            } catch (e) {
+                console.error('Erreur sauvegarde:', e);
+                alert('Erreur lors de la sauvegarde');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Enregistrer';
+            }
+        }
+
+        async function uploadPhoto(input) {
+            const f = input.files[0];
+            if (!f) return;
+            if (f.size > 2 * 1024 * 1024) {
+                alert('Photo trop lourde. Maximum 2 Mo.');
+                return;
+            }
+
+            const rd = new FileReader();
+            rd.onload = async e => {
+                const url = e.target.result;
+                const imgC = s => `<img src="${url}" style="width:${s};height:${s};object-fit:cover;border-radius:50%;" alt="">`;
+
+                // Mettre à jour l'affichage
+                document.getElementById('pr-av').style.backgroundImage = 'none';
+                document.getElementById('pr-av-t').innerHTML = imgC('86px');
+                document.getElementById('pr-av-t').style.display = 'block';
+
+                try {
+                    const r = await fetch(`${API}/alumni/profil`, {
+                        method: 'PUT',
+                        headers: { ...authH(), 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ photo_url: url })
+                    });
+                    const d = await r.json();
+
+                    if (d.success) {
+                        // Mettre à jour le localStorage
+                        const sess = JSON.parse(localStorage.getItem('user_session') || '{}');
+                        sess.photo_url = url;
+                        localStorage.setItem('user_session', JSON.stringify(sess));
+                    } else {
+                        alert('Erreur sauvegarde photo: ' + (d.message || 'Erreur inconnue'));
+                    }
+                } catch (e) {
+                    console.error('Erreur upload photo:', e);
+                    alert('Erreur lors de la sauvegarde de la photo');
+                }
+            };
+            rd.readAsDataURL(f);
+        }
+        function openMentoratModal() { const txt = prompt("Votre conseil / témoignage :"); if (txt) fetch(`${API}/alumni/mentorats`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ contenu: txt }) }).then(() => loadMentorats()); }
+        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+        document.getElementById('sb-nom').textContent = (currentUser.prenom || '') + ' ' + (currentUser.nom || '');
+        document.getElementById('sb-mat').textContent = currentUser.code_unique || '';
+        loadAccueil();
+        if (window.lucide) lucide.createIcons();
+    </script>
+    <script src="responsive-init.js"></script>
+</body>
+
+</html>

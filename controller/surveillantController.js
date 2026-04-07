@@ -282,7 +282,9 @@ exports.getConvocations = async (req, res) => {
                 comp.code_unique,
                 comp.nom,
                 comp.prenom,
-                p.classe_actuelle
+                p.classe_actuelle,
+                CASE WHEN UPPER(COALESCE(c.statut, 'ENVOYEE')) = 'ACCUSE_RECU' THEN true ELSE false END as statut_accuse_reception,
+                CASE WHEN UPPER(COALESCE(c.statut, 'ENVOYEE')) = 'ACCUSE_RECU' THEN '✅ Vu' ELSE '⏳ En attente' END as statut_accuse_label
             FROM gestion.convocations c
             JOIN authentification.comptes comp ON c.id_eleve = comp.id_user
             JOIN vie_scolaire.profils_eleves p ON comp.id_user = p.id_user
@@ -782,54 +784,7 @@ exports.getMessages = async (req, res) => {
         console.error('Erreur getMessages:', error);
         res.status(500).json({ message: 'Erreur' });
     }
-    // Ajouter cette fonction dans surveillantController.js
-    exports.accuserReception = async (req, res) => {
-        try {
-            const { id } = req.params;
-            const userId = req.user?.id;
-
-            // Vérifier que la convocation existe et appartient à l'élève du parent
-            const conv = await db.query(
-                `SELECT c.*, pe.id_user as eleve_id
-             FROM gestion.convocations c
-             JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_eleve
-             WHERE c.id_convocation = $1`,
-                [id]
-            );
-
-            if (!conv.rows.length) {
-                return res.status(404).json({ message: 'Convocation non trouvée' });
-            }
-
-            // Mettre à jour le statut
-            await db.query(
-                `UPDATE gestion.convocations 
-             SET statut = 'ACCUSE_RECU', 
-                 date_accuse = NOW(),
-                 accuse_par = $1
-             WHERE id_convocation = $2`,
-                [userId, id]
-            );
-
-            // Notifier la direction
-            try {
-                const notificationService = require('../services/notificationService');
-                await notificationService.sendNotification(
-                    ['DIRECTION'],
-                    'CONVOCATION',
-                    '📬 Accusé de réception',
-                    `Un parent a accusé réception de la convocation #${id}`,
-                    '/direction.html?page=conv'
-                );
-            } catch (e) { }
-
-            res.json({ success: true, message: 'Accusé de réception enregistré' });
-        } catch (error) {
-            console.error('Erreur accusé réception:', error);
-            res.status(500).json({ message: 'Erreur serveur' });
-        }
-    };
-};
+}
 // ========== ACCUSÉ DE RÉCEPTION CONVOCATION ==========
 exports.accuserReception = async (req, res) => {
     try {
@@ -870,17 +825,21 @@ exports.accuserReception = async (req, res) => {
         } catch (e) { /* colonnes déjà existantes */ }
 
         // Mettre à jour le statut
-        await db.query(`
+        const updateResult = await db.query(`
             UPDATE gestion.convocations 
             SET statut = 'ACCUSE_RECU', 
                 date_accuse = NOW(),
                 accuse_par = $1
             WHERE id_convocation = $2
+            RETURNING *
         `, [parentId, id]);
+
+        if (updateResult.rows.length === 0) {
+            return res.status(404).json({ message: 'Impossible de mettre à jour la convocation' });
+        }
 
         // Notifier la direction (optionnel)
         try {
-            // Récupérer les IDs des utilisateurs avec rôle DIRECTION ou SURVEILLANT
             const directionUsers = await db.query(`
                 SELECT id_user FROM authentification.comptes 
                 WHERE role_actuel IN ('DIRECTION', 'SURVEILLANT') AND est_actif = true
@@ -902,7 +861,8 @@ exports.accuserReception = async (req, res) => {
 
         res.json({
             success: true,
-            message: 'Accusé de réception enregistré avec succès'
+            message: 'Accusé de réception enregistré avec succès',
+            convocation: updateResult.rows[0]
         });
 
     } catch (error) {

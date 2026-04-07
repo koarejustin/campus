@@ -85,5 +85,4 @@ router.get('/config', async (req, res) => {
         res.status(500).json({ success: false });
     }
 });
-
 module.exports = router;

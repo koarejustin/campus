@@ -118,11 +118,14 @@ exports.getMesConvocations = async (req, res) => {
                 motif,
                 creee_par,
                 date_creation,
+                UPPER(COALESCE(statut, 'ENVOYEE')) AS statut,
+                date_accuse,
+                accuse_par,
                 CASE 
                     WHEN date_convocation < NOW() THEN 'PASSEE'
                     WHEN date_convocation <= NOW() + INTERVAL '3 DAYS' THEN 'URGENTE'
                     ELSE 'PROCHAINE'
-                END as statut
+                END as periode
             FROM gestion.convocations
             WHERE id_eleve = $1
             ORDER BY date_convocation DESC

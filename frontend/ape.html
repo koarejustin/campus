@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bureau APE | Campus Numérique FASO</title>
+    <script src="config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="responsive.css">
+    <style>
+        :root {
+            --bg: #F0F4FF;
+            --sidebar: #0D1F14;
+            --accent: #10B981;
+            --accent2: #34D399;
+            --ink: #0D1F14;
+            --muted: #6B8A72;
+            --card: #FFFFFF;
+            --border: #DCE8DF;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background: var(--sidebar);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .sb-head {
+            padding: 16px 14px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, .05);
+        }
+
+        .sb-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .sb-logo-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sb-logo-txt {
+            font-family: 'Syne', sans-serif;
+            font-size: .82rem;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        .sb-logo-txt span {
+            color: var(--accent2);
+        }
+
+        .sb-role {
+            font-size: .48rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .22);
+        }
+
+        .sb-user {
+            background: rgba(255, 255, 255, .05);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-top: 8px;
+        }
+
+        .sb-user-name {
+            font-size: .76rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .sb-user-mat {
+            font-size: .58rem;
+            color: var(--accent2);
+            font-family: monospace;
+        }
+
+        .sb-scroll {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .ni {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 11px;
+            margin: 1px 6px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: .74rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, .4);
+            transition: all .15s;
+        }
+
+        .ni:hover {
+            background: rgba(255, 255, 255, .06);
+            color: rgba(255, 255, 255, .75);
+        }
+
+        .ni.on {
+            background: rgba(16, 185, 129, .3);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .btn-out {
+            width: 100%;
+            padding: 8px 11px;
+            background: rgba(192, 57, 43, .09);
+            border: 1px solid rgba(192, 57, 43, .14);
+            border-radius: 7px;
+            font-size: .7rem;
+            font-weight: 700;
+            color: #E57373;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        main {
+            margin-left: 220px;
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            background: var(--bg);
+        }
+
+        .pg {
+            padding: 22px 28px;
+            display: none;
+        }
+
+        .pg.on {
+            display: block;
+        }
+
+        .pg-hd {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .pg-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--ink);
+        }
+
+        .pg-sub {
+            font-size: .76rem;
+            color: var(--muted);
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+        }
+
+        .btn-p {
+            padding: 8px 16px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: .76rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-g {
+            padding: 8px 14px;
+            background: #F1F5F9;
+            color: #475569;
+            border: none;
+            border-radius: 8px;
+            font-size: .76rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .kpi {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .kpi-val {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent);
+        }
+
+        .forum-msg {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .forum-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform .3s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            main {
+                margin-left: 0;
+            }
+
+            .pg {
+                padding: 70px 14px;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sb-head">
+            <div class="sb-logo">
+                <div class="sb-logo-icon"><svg viewBox="0 0 24 24">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg></div>
+                <div class="sb-logo-txt">Bureau<span>APE</span></div>
+            </div>
+            <div class="sb-user">
+                <div class="sb-user-name" id="sb-nom">Chargement...</div>
+                <div class="sb-user-mat" id="sb-mat">--</div>
+            </div>
+        </div>
+        <div class="sb-scroll">
+            <div class="ni on" onclick="go('accueil')"><svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                </svg>Tableau de bord</div>
+            <div class="ni" onclick="go('cotisations')"><svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="2" x2="12" y2="6" />
+                    <line x1="12" y1="18" x2="12" y2="22" />
+                </svg>Cotisations</div>
+            <div class="ni" onclick="go('forum')"><svg viewBox="0 0 24 24">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>Forum APE</div>
+            <div class="ni" onclick="go('projets')"><svg viewBox="0 0 24 24">
+                    <path
+                        d="M12 2v4M4.93 4.93l2.83 2.83M2 12h4M4.93 19.07l2.83-2.83M12 18v4M19.07 19.07l-2.83-2.83M18 12h4M19.07 4.93l-2.83 2.83" />
+                </svg>Projets</div>
+            <div class="ni" onclick="go('orientation')"><svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                </svg>Orientation</div>
+        </div>
+        <div class="sb-foot"><button class="btn-out" onclick="logout()"><svg viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>Déconnexion</button></div>
+    </aside>
+    <main>
+        <div id="pg-accueil" class="pg on">
+            <div class="pg-hd">
+                <div>
+                    <div class="pg-title">Bureau APE</div>
+                    <div class="pg-sub">Gestion et suivi de l'association</div>
+                </div>
+            </div>
+            <div class="kpi-grid" id="dashboard-stats"></div>
+            <div class="card">
+                <h3>📢 Derniers messages du forum</h3>
+                <div id="last-forum-posts"></div>
+            </div>
+        </div>
+        <div id="pg-cotisations" class="pg">
+            <div class="pg-hd">
+                <div>
+                    <div class="pg-title">💰 Cotisations APE</div>
+                    <div class="pg-sub">Suivi des paiements</div>
+                </div><button class="btn-p" onclick="openPaiementModal()">➕ Enregistrer un paiement</button>
+            </div>
+            <div id="cotisations-list" class="card"></div>
+        </div>
+        <div id="pg-forum" class="pg">
+            <div class="pg-hd">
+                <div>
+                    <div class="pg-title">💬 Forum APE</div>
+                    <div class="pg-sub">Discussions entre membres</div>
+                </div><button class="btn-p" onclick="openForumModal()">➕ Nouveau message</button>
+            </div>
+            <div id="forum-list" class="card"></div>
+        </div>
+        <div id="pg-projets" class="pg">
+            <div class="pg-hd">
+                <div>
+                    <div class="pg-title">📋 Projets en cours</div>
+                    <div class="pg-sub">Suivi des initiatives</div>
+                </div><button class="btn-p" onclick="openProjetModal()">➕ Nouveau projet</button>
+            </div>
+            <div id="projets-list" class="card"></div>
+        </div>
+        <div id="pg-orientation" class="pg">
+            <div class="pg-hd">
+                <div>
+                    <div class="pg-title">🧭 Orientation</div>
+                    <div class="pg-sub">Donnez votre avis sur l'orientation de votre enfant</div>
+                </div>
+            </div>
+            <div class="card"><input type="text" id="search-eleve" placeholder="Matricule de votre enfant"><button
+                    class="btn-p" onclick="loadOrientationEnfant()">Consulter</button>
+                <div id="orientation-avis"></div>
+            </div>
+        </div>
+    </main>
+    <script>
+        const API = window.API_BASE || 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        let currentUser = JSON.parse(localStorage.getItem('user_session') || '{}');
+        if (!token || currentUser.role_actuel !== 'PARENT') window.location.href = 'login.html';
+        const authH = () => ({ 'Authorization': 'Bearer ' + token });
+        const esc = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        function go(page) { document.querySelectorAll('.pg').forEach(p => p.classList.remove('on')); document.getElementById('pg-' + page).classList.add('on'); document.querySelectorAll('.ni').forEach(n => n.classList.remove('on')); document.querySelector(`.ni[onclick="go('${page}')"]`).classList.add('on'); if (page === 'accueil') loadDashboard(); else if (page === 'cotisations') loadCotisations(); else if (page === 'forum') loadForum(); else if (page === 'projets') loadProjets(); }
+        async function loadDashboard() { const r = await fetch(`${API}/ape/dashboard`, { headers: authH() }); const d = await r.json(); document.getElementById('dashboard-stats').innerHTML = `<div class="kpi"><div class="kpi-val">${d.stats?.total_cotisations?.toLocaleString() || 0} FCFA</div><div>Total cotisations</div></div><div class="kpi"><div class="kpi-val">${d.stats?.projets_actifs || 0}</div><div>Projets actifs</div></div><div class="kpi"><div class="kpi-val">${d.stats?.messages_forum || 0}</div><div>Messages forum</div></div>`; const f = await fetch(`${API}/ape/forum`, { headers: authH() }); const fd = await f.json(); document.getElementById('last-forum-posts').innerHTML = (fd.messages || []).slice(0, 3).map(m => `<div class="forum-msg"><div class="forum-avatar">${m.prenom?.[0] || 'P'}</div><div><strong>${esc(m.prenom)} ${esc(m.nom)}</strong><br>${esc(m.contenu)}</div></div>`).join('') || 'Aucun message'; }
+        async function loadCotisations() { const r = await fetch(`${API}/ape/cotisations`, { headers: authH() }); const d = await r.json(); document.getElementById('cotisations-list').innerHTML = `<table class="tbl" style="width:100%"><thead><tr><th>Élève</th><th>Montant</th><th>Date</th><th>Statut</th></tr></thead><tbody>${(d.cotisations || []).map(c => `<tr><td>${esc(c.prenom || '')} ${esc(c.nom || '')}</td><td>${c.montant} FCFA</td><td>${c.date_paiement?.split('T')[0] || '—'}</td><td>${c.statut || 'Payé'}</td></tr>`).join('')}</tbody></table>`; }
+        async function loadForum() { const r = await fetch(`${API}/ape/forum`, { headers: authH() }); const d = await r.json(); document.getElementById('forum-list').innerHTML = (d.messages || []).map(m => `<div class="forum-msg"><div class="forum-avatar">${m.prenom?.[0] || 'P'}</div><div><strong>${esc(m.prenom)} ${esc(m.nom)}</strong><div>${esc(m.contenu)}</div><small>${new Date(m.created_at).toLocaleString()}</small><button onclick="likeForum(${m.id_post})" style="background:none;border:none;color:var(--accent);cursor:pointer;">❤️ ${m.nb_likes || 0}</button></div></div>`).join('') || 'Aucun message'; }
+        async function likeForum(id) { await fetch(`${API}/ape/forum/${id}/like`, { method: 'POST', headers: authH() }); loadForum(); }
+        async function loadProjets() { const r = await fetch(`${API}/ape/projets`, { headers: authH() }); const d = await r.json(); document.getElementById('projets-list').innerHTML = (d.projets || []).map(p => `<div class="card"><h4>${esc(p.titre)}</h4><p>${esc(p.description || '')}</p><div>Budget: ${p.budget?.toLocaleString() || 0} FCFA</div><div>Dates: ${p.date_debut?.split('T')[0]} → ${p.date_fin?.split('T')[0] || 'en cours'}</div></div>`).join('') || 'Aucun projet'; }
+        function openPaiementModal() { const eleveCode = prompt("Matricule de l'élève"); const montant = prompt("Montant (FCFA)"); if (eleveCode && montant) fetch(`${API}/ape/paiement`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ id_eleve: eleveCode, montant: parseFloat(montant) }) }).then(() => loadCotisations()); }
+        function openForumModal() { const msg = prompt("Votre message :"); if (msg) fetch(`${API}/ape/forum`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ contenu: msg }) }).then(() => loadForum()); }
+        function openProjetModal() { const titre = prompt("Titre du projet"); const desc = prompt("Description"); if (titre) fetch(`${API}/ape/projets`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ titre, description: desc }) }).then(() => loadProjets()); }
+        async function loadOrientationEnfant() { const code = document.getElementById('search-eleve').value; if (!code) return; const r = await fetch(`${API}/ape/orientation-enfant?enfant_id=${code}`, { headers: authH() }); const d = await r.json(); document.getElementById('orientation-avis').innerHTML = (d.avis || []).map(a => `<div><strong>${esc(a.auteur_nom)} ${esc(a.auteur_prenom)}</strong><p>${esc(a.commentaire)}</p>${a.serie_recommandee ? `<span>🎯 ${a.serie_recommandee}</span>` : ''}</div>`).join('') || 'Aucun avis'; }
+        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+        document.getElementById('sb-nom').textContent = (currentUser.prenom || '') + ' ' + (currentUser.nom || '');
+        document.getElementById('sb-mat').textContent = currentUser.code_unique || '';
+        loadDashboard();
+        if (window.lucide) lucide.createIcons();
+    </script>
+    <script src="responsive-init.js"></script>
+</body>
+
+</html>

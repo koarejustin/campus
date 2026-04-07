@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cockpit | Campus Numérique FASO</title>
+  <title>Cockpit | Saint Joseph</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234F46E5'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='18' fill='white'>SJ</text></svg>">
   <script src="config.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -31,6 +32,27 @@
       min-height: 100vh;
       display: flex;
       overflow: hidden;
+    }
+
+    @media print {
+      body, html {
+        background: #fff !important;
+        color: #111 !important;
+      }
+      .sidebar, .topbar, .no-print, .filter-btn, .btn-g, .btn-p, .cs, .nav-bar, .badge, input, select, textarea, .toast, .modal {
+        display: none !important;
+      }
+      main {
+        margin-left: 0 !important;
+        overflow: visible !important;
+      }
+      .card {
+        box-shadow: none !important;
+        border: 1px solid #E5E7EB !important;
+      }
+      table {
+        page-break-inside: avoid !important;
+      }
     }
 
     /* ══ SIDEBAR ══ */
@@ -2168,7 +2190,7 @@
           <i class="ecole-logo-fallback" data-lucide="shield-check" style="width:17px;height:17px;color:#fff;"></i>
         </div>
         <div>
-          <div style="font-size:.9rem;font-weight:900;color:#fff;font-style:italic;letter-spacing:-.02em;" class="ecole-nom">CAMPUS<span style="color:#818CF8;">FASO</span></div>
+          <div style="font-size:.9rem;font-weight:900;color:#fff;font-style:italic;letter-spacing:-.02em;" class="ecole-nom">SAINT<span style="color:#818CF8;">JOSEPH</span></div>
           <div id="sb-role-lbl"
             style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.15em;font-weight:700;">
             Direction</div>
@@ -2200,9 +2222,6 @@
         <div class="ni" id="ni-conv" onclick="go('conv',this)">
           <i data-lucide="send" class="ni-icon"></i><span>Convocations</span>
         </div>
-        <div class="ni" id="ni-inc" onclick="go('inc',this)">
-          <i data-lucide="alert-triangle" class="ni-icon"></i><span>Incidents</span>
-        </div>
         <div class="ni" id="ni-edt" onclick="go('edt',this)">
           <i data-lucide="calendar-days" class="ni-icon"></i><span>Emploi du Temps</span>
         </div>
@@ -2221,14 +2240,6 @@
         <div class="ni ni-locked-vis" id="ni-sign" data-page="sign">
           <i data-lucide="file-check" class="ni-icon"></i><span>Signatures</span>
           <span class="dir-tag" id="dt-sign">DIR</span>
-        </div>
-        <div class="ni ni-locked-vis" id="ni-compta" data-page="compta">
-          <i data-lucide="landmark" class="ni-icon"></i><span>Comptabilité</span>
-          <span class="dir-tag" id="dt-compta">DIR</span>
-        </div>
-        <div class="ni ni-locked-vis" id="ni-agenda" data-page="agenda">
-          <i data-lucide="calendar" class="ni-icon"></i><span>Agenda</span>
-          <span class="dir-tag" id="dt-agenda">DIR</span>
         </div>
         <div class="ni ni-locked-vis" id="ni-compo" data-page="compo">
           <i data-lucide="pen-square" class="ni-icon"></i><span>Compositions</span>
@@ -2417,7 +2428,7 @@
             </div>
           </div>
         </div>
-        <div class="card" style="padding:18px;" id="agenda-mini">
+        <div class="card" style="padding:18px; display:none;" id="agenda-mini">
           <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;">
             <i data-lucide="calendar" style="width:14px;height:14px;color:#4F46E5;"></i>
             <span style="font-size:.88rem;font-weight:800;color:#0F172A;">Agenda — Cette semaine</span>
@@ -2511,11 +2522,14 @@
           </div>
         </div>
         <div style="display:flex; gap:12px;">
-          <button onclick="openAddAbsence()" class="btn-p" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);">
+          <button onclick="openAddAbsence()" class="btn-p no-print" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);">
             <i data-lucide="plus" style="width:14px;height:14px;"></i> Nouvelle absence
           </button>
-          <button onclick="exportAbsencesToExcel()" class="btn-g" style="background:#F1F5F9;">
+          <button onclick="exportAbsencesToExcel()" class="btn-g no-print" style="background:#F1F5F9;">
             <i data-lucide="download" style="width:14px;height:14px;"></i> Exporter
+          </button>
+          <button onclick="printAbsences()" class="btn-g no-print" style="background:#F1F5F9;">
+            <i data-lucide="printer" style="width:14px;height:14px;"></i> Imprimer
           </button>
         </div>
       </div>
@@ -2641,14 +2655,11 @@
                 <th
                   style="padding:14px 16px; text-align:left; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.08em;">
                   Motif</th>
-                <th
-                  style="padding:14px 16px; text-align:center; font-size:.7rem; font-weight:800; color:#475569; text-transform:uppercase; letter-spacing:.08em;">
-                  Actions</th>
               </tr>
             </thead>
             <tbody id="abs-table-body">
               <tr>
-                <td colspan="7" style="text-align:center; padding:60px 20px;">
+                <td colspan="6" style="text-align:center; padding:60px 20px;">
                   <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
                     <i data-lucide="loader-2"
                       style="width:32px; height:32px; color:#94A3B8; animation:spin 1s linear infinite;"></i>
@@ -2823,9 +2834,13 @@
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
               <input type="text" id="cv-srch" placeholder="Rechercher…"
+                class="no-print"
                 style="width:150px;padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.75rem;font-family:inherit;outline:none;"
                 oninput="renderConvList()" onfocus="this.style.borderColor='#4F46E5'"
                 onblur="this.style.borderColor='#E2E8F0'">
+              <button onclick="printConvocations()" class="btn-g no-print" style="background:#F1F5F9; padding:7px 10px; border-radius:8px; display:flex; align-items:center; gap:6px;">
+                <i data-lucide="printer" style="width:14px;height:14px;"></i> Imprimer
+              </button>
               <span class="b b-pur" id="cv-cnt">0</span>
             </div>
           </div>
@@ -2841,8 +2856,6 @@
               Date conv.</div>
             <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
               Statut</div>
-            <div style="font-size:.6rem;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.1em;">
-              Actions</div>
           </div>
 
           <div id="cv-list" style="max-height:390px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;">
@@ -3491,16 +3504,14 @@
             </div>
             <!-- Durée de la composition -->
             <div>
-              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Durée de la composition (minutes)</label>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Durée de l'épreuve (jours)</label>
               <select id="cp-duree"
                 style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;">
-                <option value="60">1h00</option>
-                <option value="90">1h30</option>
-                <option value="120" selected>2h00</option>
-                <option value="150">2h30</option>
-                <option value="180">3h00</option>
-                <option value="210">3h30</option>
-                <option value="240">4h00</option>
+                <option value="1">1 jour</option>
+                <option value="2">2 jours</option>
+                <option value="3">3 jours</option>
+                <option value="4">4 jours</option>
+                <option value="5">5 jours</option>
               </select>
             </div>
             <!-- Salle -->
@@ -4225,7 +4236,7 @@
     }
 
     function updateConvStats() {
-      const tot = convData.length, vu = convData.filter(c => c.statut_accusé_reception).length;
+      const tot = convData.length, vu = convData.filter(c => c.statut_accusé_reception || c.statut_accuse_reception).length;
       if ($('cv-stat-tot')) $('cv-stat-tot').textContent = tot;
       if ($('cv-stat-att')) $('cv-stat-att').textContent = tot - vu;
       if ($('cv-stat-vu')) $('cv-stat-vu').textContent = vu;
@@ -4242,15 +4253,8 @@
       }
 
       $('cv-list').innerHTML = r.map(c => {
-        const vu = c.statut_accusé_reception;
-        let actions = '';
-        if (ROLE === 'DIRECTION' || ROLE === 'SURVEILLANT') {
-          actions += `<button onclick="editConv(${c.id_convocation})" style="padding:4px 9px;background:#EFF6FF;color:#1D4ED8;border:1.5px solid #BFDBFE;border-radius:7px;font-size:.67rem;font-weight:800;cursor:pointer;font-family:inherit;" title="Modifier">✏️</button>`;
-        }
-        if (ROLE === 'DIRECTION') {
-          actions += ` <button onclick="suppConv(${c.id_convocation})" style="padding:4px 9px;background:#FEF2F2;color:#DC2626;border:1.5px solid #FECDD3;border-radius:7px;font-size:.67rem;font-weight:800;cursor:pointer;font-family:inherit;" title="Supprimer">🗑</button>`;
-        }
-        return `<div style="display:grid;grid-template-columns:100px 1fr 120px 90px auto;gap:8px;align-items:center;padding:9px 12px;border:1px solid #F1F5F9;border-radius:9px;background:#fff;transition:.15s;" onmouseover="this.style.background='#F8FAFF';this.style.borderColor='#DDD6FE'" onmouseout="this.style.background='#fff';this.style.borderColor='#F1F5F9'">
+        const vu = c.statut_accusé_reception || c.statut_accuse_reception;
+        return `<div style="display:grid;grid-template-columns:100px 1fr 120px 90px;gap:8px;align-items:center;padding:9px 12px;border:1px solid #F1F5F9;border-radius:9px;background:#fff;transition:.15s;" onmouseover="this.style.background='#F8FAFF';this.style.borderColor='#DDD6FE'" onmouseout="this.style.background='#fff';this.style.borderColor='#F1F5F9'">
       <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#7C3AED;font-weight:700;">${esc(c.code_unique || '—')}</div>
       <div>
         <div style="font-size:.8rem;font-weight:800;color:#0F172A;">${esc(c.nom_eleve || '—')}</div>
@@ -4261,7 +4265,6 @@
         <div style="font-size:.67rem;color:#94A3B8;">${c.heure_convocation || '09:00'}</div>
       </div>
       <div><span style="padding:3px 8px;border-radius:6px;font-size:.65rem;font-weight:800;${vu ? 'background:#DCFCE7;color:#166534;' : 'background:#FEF9C3;color:#854D0E;'}">${vu ? '✅ Vu' : '⏳ En attente'}</span></div>
-      <div style="display:flex;gap:4px;">${actions}</div>
     </div>`;
       }).join('');
     }
@@ -4377,6 +4380,18 @@
     // FLUX COMMUNICATION
     // ══════════════════════════════════════
     async function loadFlux() {
+      const fmtDate = s => {
+        if (!s) return '—';
+        let d = new Date(s);
+        if (isNaN(d) && typeof s === 'string') {
+          const match = s.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:[ T](\d{2}):(\d{2}))?/);
+          if (match) {
+            d = new Date(`${match[3]}-${match[2]}-${match[1]}T${match[4] || '00'}:${match[5] || '00'}`);
+          }
+        }
+        if (isNaN(d)) return s;
+        return d.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+      };
       try {
         const d = await api('/surveillants/announcements');
         const list = Array.isArray(d) ? d : (d.annonces || d.announcements || d.data || []);
@@ -4384,7 +4399,7 @@
       <div class="msg-item">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
           <span class="badge-dir">Direction</span>
-          <span style="font-size:.72rem;color:#94A3B8;">${esc(a.date_publication || a.created_at || '')}</span>
+          <span style="font-size:.72rem;color:#94A3B8;">${esc(fmtDate(a.date_publication || a.created_at || ''))}</span>
         </div>
         <div style="font-size:.85rem;font-weight:800;color:#0F172A;margin-bottom:3px;">${esc(a.titre || 'Annonce')}</div>
         <div style="font-size:.76rem;color:#475569;line-height:1.4;">${esc(a.contenu || '').substring(0, 180)}${(a.contenu || '').length > 180 ? '…' : ''}</div>
@@ -5319,8 +5334,8 @@
       const countBadge = $('compo-count');
       if (!tbody) return;
       let filtered = compoData;
-      if (compoFilter === 'composition') filtered = compoData.filter(c => c.type !== 'examen');
-      if (compoFilter === 'examen') filtered = compoData.filter(c => c.type === 'examen');
+      if (compoFilter === 'composition') filtered = compoData.filter(c => c.type_composition !== 'EXAMEN_BLANC');
+      if (compoFilter === 'examen') filtered = compoData.filter(c => c.type_composition === 'EXAMEN_BLANC');
       if (countBadge) countBadge.textContent = filtered.length;
       if (!filtered.length) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:50px;color:#94A3B8;">
@@ -5330,12 +5345,12 @@
         </td></tr>`;
         return;
       }
-      const typeColors = { composition: ['#4F46E5', '#EFF6FF'], examen_blanc: ['#F59E0B', '#FFFBEB'], examen: ['#EF4444', '#FEF2F2'] };
-      const typeLabels = { composition: '📋 Composition', examen_blanc: '📝 Examen Blanc', examen: '🎓 Examen officiel' };
+      const typeColors = { COMPOSITION: ['#4F46E5', '#EFF6FF'], EXAMEN_BLANC: ['#F59E0B', '#FFFBEB'] };
+      const typeLabels = { COMPOSITION: '📋 Composition', EXAMEN_BLANC: '🎓 Examen officiel' };
       tbody.innerHTML = filtered.map(c => {
-        const [tc, bg] = typeColors[c.type] || ['#64748B', '#F8FAFF'];
-        const label = typeLabels[c.type] || c.type;
-        const classes = Array.isArray(c.classes) ? c.classes.join(', ') : (c.classe || c.classes || '—');
+        const [tc, bg] = typeColors[c.type_composition] || ['#64748B', '#F8FAFF'];
+        const label = typeLabels[c.type_composition] || c.type_composition || '—';
+        const classes = Array.isArray(c.classes_concernees) ? c.classes_concernees.join(', ') : (c.classes_concernees || c.classe || '—');
         const dateStr = c.date_debut ? new Date(c.date_debut).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : (c.date || '—');
         return `<tr style="border-bottom:1px solid #F1F5F9;transition:background .15s;" onmouseover="this.style.background='#FAFBFF'" onmouseout="this.style.background=''">
           <td style="padding:13px 14px;font-weight:800;color:#0F172A;">${esc(c.titre || c.title || '—')}</td>
@@ -5379,7 +5394,7 @@
 
     function resetCompoForm() {
       ['cp-titre', 'cp-salle', 'cp-notes'].forEach(id => { const e = $(id); if (e) e.value = ''; });
-      const duree = $('cp-duree'); if (duree) duree.value = '120';
+      const duree = $('cp-duree'); if (duree) duree.value = '1';
       const type = $('cp-type'); if (type) type.value = 'composition';
       // Décocher toutes les classes
       document.querySelectorAll('.cp-cls-cb').forEach(cb => cb.checked = false);
@@ -5403,17 +5418,24 @@
       const date = $('cp-date')?.value;
       const heure = $('cp-heure')?.value || '08:00';
       const salle = $('cp-salle')?.value?.trim() || '';
-      const duree = parseInt($('cp-duree')?.value) || 120;
+      const duree = parseInt($('cp-duree')?.value) || 1;
       const notes = $('cp-notes')?.value?.trim() || '';
-      const classes = getSelectedClasses();
+      let classes = getSelectedClasses();
       const msgEl = $('cp-msg');
+      const typeCompo = type === 'composition' ? 'COMPOSITION' : 'EXAMEN_BLANC';
 
       if (!titre) { toast('⚠️ Titre requis', 'err'); return; }
       if (!date) { toast('⚠️ Date requise', 'err'); return; }
       if (!classes.length) { toast('⚠️ Sélectionnez au moins une classe', 'err'); return; }
-      if (type === 'examen' && !classes.every(c => ['3ème', 'Tle A', 'Tle D'].some(ec => c.startsWith(ec)))) {
-        if (!confirm('⚠️ Les examens officiels sont normalement réservés aux 3ème, Tle A et Tle D. Continuer ?')) return;
+      if (typeCompo === 'EXAMEN_BLANC') {
+        classes = classes.filter(c => EXAM_CLASSES.some(ec => c.startsWith(ec)));
+        if (!classes.length) { toast('⚠️ Les examens officiels sont réservés aux classes Terminales', 'err'); return; }
       }
+
+      const dateStart = new Date(date + 'T' + heure + ':00');
+      const dateFin = new Date(dateStart);
+      dateFin.setDate(dateFin.getDate() + Math.max(1, duree) - 1);
+      const dateFinStr = dateFin.toISOString().split('T')[0];
 
       if (msgEl) {
         msgEl.style.cssText = 'display:block;background:#EEF2FF;color:#4F46E5;padding:8px 12px;border-radius:7px;font-size:.73rem;border:1px solid #C7D2FE;';
@@ -5421,7 +5443,14 @@
       }
 
       const editId = $('cp-edit-id')?.value;
-      const payload = { titre, type, matiere: '', date_debut: date + 'T' + heure + ':00', salle, duree_minutes: duree, description: notes, classes };
+      const payload = {
+        titre,
+        type_composition: typeCompo,
+        description: notes,
+        date_debut: date + 'T' + heure + ':00',
+        date_fin: dateFinStr,
+        classes_concernees: classes
+      };
 
       try {
         const d = editId
@@ -5463,13 +5492,21 @@
       if (!c) return;
       $('compo-form-title').textContent = '✏️ Modifier l\'épreuve';
       $('cp-titre').value = c.titre || c.title || '';
-      $('cp-type').value = c.type || 'composition';
+      $('cp-type').value = c.type_composition === 'EXAMEN_BLANC' ? 'examen' : 'composition';
       const d = c.date_debut || c.date || '';
       if (d) { const parts = d.split('T'); $('cp-date').value = parts[0]; if (parts[1]) $('cp-heure').value = parts[1].slice(0, 5); }
       $('cp-salle').value = c.salle || '';
-      $('cp-duree').value = c.duree_minutes || 120;
+      let selectedDays = 1;
+      if (c.date_debut && c.date_fin) {
+        const start = new Date(c.date_debut);
+        const end = new Date(c.date_fin);
+        if (!isNaN(start) && !isNaN(end)) {
+          selectedDays = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
+        }
+      }
+      $('cp-duree').value = selectedDays;
       $('cp-notes').value = c.description || '';
-      const classes = Array.isArray(c.classes) ? c.classes : (c.classe ? [c.classe] : []);
+      const classes = Array.isArray(c.classes_concernees) ? c.classes_concernees : (Array.isArray(c.classes) ? c.classes : (c.classe ? [c.classe] : []));
       document.querySelectorAll('.cp-cls-cb').forEach(cb => {
         cb.checked = classes.some(cl => cb.value === cl || cl.startsWith(cb.value.split(' ')[0]));
       });
@@ -5891,7 +5928,7 @@
       if (pageData.length === 0) {
         tbody.innerHTML = `
       <tr>
-        <td colspan="7" style="text-align:center; padding:60px 20px;">
+        <td colspan="6" style="text-align:center; padding:60px 20px;">
           <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
             <i data-lucide="inbox" style="width:40px; height:40px; color:#CBD5E1;"></i>
             <span style="font-size:.85rem; color:#94A3B8;">Aucune absence trouvée</span>
@@ -5911,15 +5948,6 @@
         if (isNJ) badgeHtml = '<span class="badge-status badge-nj"><i data-lucide="x-circle" style="width:12px;height:12px;"></i> Non justifiée</span>';
         else if (isJ) badgeHtml = '<span class="badge-status badge-j"><i data-lucide="check-circle-2" style="width:12px;height:12px;"></i> Justifiée</span>';
         else if (isRet) badgeHtml = '<span class="badge-status badge-retard"><i data-lucide="clock" style="width:12px;height:12px;"></i> Retard</span>';
-
-        let actionsHtml = '';
-        if (!isJ) {
-          actionsHtml += `<button class="action-btn btn-justify" onclick="justifierAbsence('${a.id_absence}')">✓ Justifier</button>`;
-        }
-        if (ROLE === 'DIRECTION') {
-          actionsHtml += `<button class="action-btn btn-edit" onclick="editAbsence('${a.id_absence}')">✏️</button>`;
-          actionsHtml += `<button class="action-btn btn-delete" onclick="deleteAbsence('${a.id_absence}')">🗑</button>`;
-        }
 
         function formatDateAbs(dateStr) {
           if (!dateStr) return '—';
@@ -5945,9 +5973,6 @@
         <td style="padding:14px 16px;">${badgeHtml}</td>
         <td style="padding:14px 16px;">
           <span style="font-size:.72rem; color:#64748B;">${escapeHtmlAbs(a.raison_absence || '—')}</span>
-        </td>
-        <td style="padding:14px 16px;">
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">${actionsHtml || '<span style="font-size:.7rem; color:#94A3B8;">—</span>'}</div>
         </td>
       </tr>`;
       }).join('');
@@ -6068,6 +6093,14 @@
       a.click();
       URL.revokeObjectURL(url);
       toast('📥 Export CSV téléchargé', 'ok');
+    }
+
+    function printAbsences() {
+      window.print();
+    }
+
+    function printConvocations() {
+      window.print();
     }
 
     // ========== OUVERTURE MODAL ABSENCE ==========
