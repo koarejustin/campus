@@ -11,7 +11,7 @@ start "Serveur Node" cmd /k "cd /d "%~dp0" && node server.js"
 timeout /t 3 /nobreak >nul
 
 :: Lancer ngrok dans une nouvelle fenetre
-start "Tunnel ngrok" cmd /k "cd /d "%~dp0" && ngrok.exe http 5000"
+start "Tunnel ngrok" cmd /k "cd /d "%~dp0" && ngrok.exe http 3000"
 
 :: Attendre 4 secondes que ngrok demarre
 timeout /t 4 /nobreak >nul
