@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
+const { ensureRole } = require('../middleware/authMiddleware');
 const eleveController = require('../controller/eleveController');
+const professeurController = require('../controller/professeurController');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+
+const eleveAuth = [authMiddleware, ensureRole('ELEVE')];
 
 // ========== CONFIGURATION UPLOAD AUDIO ==========
 const audioDir = path.join(__dirname, '../public/uploads/audio');
@@ -31,67 +35,72 @@ const uploadAudio = multer({
 });
 
 // Bulletin et notes
-router.get('/bulletin', authMiddleware, eleveController.getBulletin);
+router.get('/bulletin', eleveAuth, eleveController.getBulletin);
 
 // Convocations (privées)
-router.get('/convocations', authMiddleware, eleveController.getMesConvocations);
+router.get('/convocations', eleveAuth, eleveController.getMesConvocations);
 
 // Absences
-router.get('/absences', authMiddleware, eleveController.getMesAbsences);
+router.get('/absences', eleveAuth, eleveController.getMesAbsences);
 
 // Annonces officielles
-router.get('/annonces', authMiddleware, eleveController.getAnnonces);
+router.get('/annonces', eleveAuth, eleveController.getAnnonces);
 
 // Activités et événements (Vie Scolaire)
-router.get('/activites', authMiddleware, eleveController.getActivites);
+router.get('/activites', eleveAuth, eleveController.getActivites);
 
 // Ressources pédagogiques
-router.get('/ressources', authMiddleware, eleveController.getRessources);
+router.get('/ressources', eleveAuth, eleveController.getRessources);
 
 // Horaire personnel
-router.get('/horaire', authMiddleware, eleveController.getHoraire);
+router.get('/horaire', eleveAuth, eleveController.getHoraire);
 
 // Statistiques académiques
-router.get('/statistiques', authMiddleware, eleveController.getStatistiques);
-
-// Orientation
-router.get('/orientation', authMiddleware, eleveController.getOrientation);
+router.get('/statistiques', eleveAuth, eleveController.getStatistiques);
 
 // Forum de classe
-router.get('/forum-classe', authMiddleware, eleveController.getForumClasse);
-router.post('/forum-classe', authMiddleware, eleveController.postForumClasse);
+router.get('/forum-classe', eleveAuth, eleveController.getForumClasse);
+router.post('/forum-classe', eleveAuth, eleveController.postForumClasse);
 
 // Grand Élèves
-router.get('/grand-eleves', authMiddleware, eleveController.getGrandEleves);
-router.post('/grand-eleves', authMiddleware, eleveController.postGrandEleves);
-router.post('/grand-eleves/:postId/like', authMiddleware, eleveController.likeGrandEleves);
+router.get('/grand-eleves', eleveAuth, eleveController.getGrandEleves);
+router.post('/grand-eleves', eleveAuth, eleveController.postGrandEleves);
+router.post('/grand-eleves/:postId/like', eleveAuth, eleveController.likeGrandEleves);
 
 // Inter-Classes
-router.get('/inter-classes', authMiddleware, eleveController.getInterClasses);
-router.post('/inter-classes', authMiddleware, eleveController.postInterClasses);
+router.get('/inter-classes', eleveAuth, eleveController.getInterClasses);
+router.get('/classes', eleveAuth, eleveController.getClassesList);
+router.post('/inter-classes', eleveAuth, eleveController.postInterClasses);
 
 // Devoirs / Programme (une seule route)
-router.get('/devoirs', authMiddleware, eleveController.getDevoirs);
+router.get('/devoirs', eleveAuth, eleveController.getDevoirs);
 
 // Profil élève
-router.get('/mon-profil', authMiddleware, eleveController.getMonProfil);
+router.get('/mon-profil', eleveAuth, eleveController.getMonProfil);
+
+// Professeurs accessibles par classe
+router.get('/professeurs', eleveAuth, eleveController.getProfesseurs);
+router.get('/professeur/:id', eleveAuth, professeurController.getProfilById);
 
 // ========== NOUVELLES ROUTES ==========
 
 // Suppression de message (forum classe ou inter-classes)
-router.delete('/forum-message/:type/:messageId', authMiddleware, eleveController.deleteForumMessage);
+router.delete('/forum-message/:type/:messageId', eleveAuth, eleveController.deleteForumMessage);
 
 // Message vocal
-router.post('/message-vocal', authMiddleware, uploadAudio.single('audio'), eleveController.postMessageVocal);
+router.post('/message-vocal', eleveAuth, uploadAudio.single('audio'), eleveController.postMessageVocal);
 
 // Appels vidéo
-router.post('/video-call/create', authMiddleware, eleveController.creerSalleVideo);
-router.post('/video-call/join/:roomId', authMiddleware, eleveController.rejoindreSalleVideo);
-router.delete('/video-call/leave/:roomId', authMiddleware, eleveController.quitterSalleVideo);
-router.get('/video-call/active', authMiddleware, eleveController.getSallesActives);
-router.post('/video-call/signal', authMiddleware, eleveController.signalisationWebRTC);
+router.post('/video-call/create', eleveAuth, eleveController.creerSalleVideo);
+router.post('/video-call/join/:roomId', eleveAuth, eleveController.rejoindreSalleVideo);
+router.delete('/video-call/leave/:roomId', eleveAuth, eleveController.quitterSalleVideo);
+router.get('/video-call/active', eleveAuth, eleveController.getSallesActives);
+router.post('/video-call/signal', eleveAuth, eleveController.signalisationWebRTC);
 
 // Compositions et examens blancs
-router.get('/compositions', authMiddleware, eleveController.getCompositions);
+router.get('/compositions', eleveAuth, eleveController.getCompositions);
+
+// ← AJOUTER CETTE LIGNE ICI
+router.get('/moyennes-avancees', eleveAuth, eleveController.getMoyennesAvancees);
 
 module.exports = router;

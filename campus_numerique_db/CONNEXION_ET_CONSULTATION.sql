@@ -138,6 +138,16 @@ WHERE role_actuel = 'ALUMNI'
 ORDER BY nom;
 
 
+
+-- Vérifier d'abord ce que c'est
+SELECT id_mentorat, id_alumni, contenu_conseil FROM gestion_ape.mentorats
+WHERE contenu_conseil LIKE '%investir du temps dans les projets%';
+
+-- Si c'est bien la ligne de test, la supprimer
+DELETE FROM gestion_ape.mentorats
+WHERE contenu_conseil LIKE '%investir du temps dans les projets%';
+
+
 -- ════════════════════════════════════════════════════════════════
 -- BLOC G — ACTIVATION DES COMPTES
 -- (copier le bloc correspondant au rôle voulu)
@@ -591,3 +601,19 @@ SELECT
 SELECT classe, COUNT(*)
 FROM vie_scolaire.forum_classe
 GROUP BY classe;
+
+
+
+-- 1. Toutes les ressources en base
+SELECT id_ressource, titre, type_document, classe_concernee, 
+       est_visible, id_prof, date_depot
+FROM pedagogie.ressources_pedagogiques
+ORDER BY date_depot DESC;
+
+-- 2. Toutes les notes en base
+SELECT n.id_evaluation, n.note, n.trimestre, n.type_evaluation,
+       m.nom_matiere, c.nom, c.prenom
+FROM pedagogie.notes_evaluations n
+JOIN authentification.comptes c ON c.id_user = n.id_eleve
+LEFT JOIN pedagogie.matieres m ON m.id_matiere = n.id_matiere
+ORDER BY n.date_evaluation DESC;

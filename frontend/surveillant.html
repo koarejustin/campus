@@ -79,11 +79,28 @@
     </div>
 
     <script>
-        // Vérifier session
+        // ✅ SÉCURITÉ : Vérification session + rôle depuis le token JWT
         const session = JSON.parse(localStorage.getItem('user_session') || 'null');
         if (!session || !session.token) {
             alert('Veuillez vous connecter.');
             window.location.href = 'login.html?role=SURVEILLANT&context=Surveillance';
+        } else {
+            try {
+                const payload = JSON.parse(atob(session.token.split('.')[1]));
+                if (payload.role !== 'SURVEILLANT') {
+                    localStorage.clear();
+                    alert('Accès refusé : cette page est réservée aux surveillants.');
+                    window.location.href = 'index.html';
+                }
+                const now = Math.floor(Date.now() / 1000);
+                if (payload.exp && payload.exp < now) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }
+            } catch(e) {
+                localStorage.clear();
+                window.location.href = 'login.html';
+            }
         }
 
         // Afficher infos

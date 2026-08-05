@@ -90,10 +90,14 @@ function handleUpload(uploadMiddleware) {
 
 // ── Profil ──
 router.get('/profil', authMiddleware, ctrl.getProfil);
+router.get('/profil/:id', authMiddleware, ctrl.getProfilById);
 router.put('/profil', authMiddleware, handleUpload(uploadPhoto.single('photo')), ctrl.updateProfil);
 
 // ── Élèves ──
 router.get('/eleves', authMiddleware, ctrl.getEleves);
+
+// ── Mes matières (vrais id_matiere, pour la saisie de notes) ──
+router.get('/mes-matieres', authMiddleware, ctrl.getMesMatieres);
 
 // ── Notes ──
 router.post('/notes', authMiddleware, ctrl.saveNotes);
@@ -103,10 +107,6 @@ router.get('/ressources', authMiddleware, ctrl.getRessources);
 router.post('/ressources', authMiddleware, handleUpload(uploadFichier.single('fichier')), ctrl.ajouterRessource);
 router.put('/ressources/:id/visibilite', authMiddleware, ctrl.toggleVisibilite);
 router.delete('/ressources/:id', authMiddleware, ctrl.supprimerRessource);
-
-// ── Orientation ──
-router.get('/orientation', authMiddleware, ctrl.getOrientation);
-router.post('/orientation', authMiddleware, ctrl.saveOrientation);
 
 // ── Cahier de texte ──
 router.post('/cahier-texte', authMiddleware, ctrl.saveCT);
@@ -123,26 +123,19 @@ router.get('/mes-classes', authMiddleware, async (req, res) => {
     try {
         const profId = req.user.id;
 
-        // Récupérer les classes du professeur depuis les cahiers de texte
-        const classesResult = await db.query(`
-            SELECT DISTINCT classe FROM pedagogie.cahiers_texte 
-            WHERE id_prof = $1
-        `, [profId]);
-
-        let classes = classesResult.rows.map(r => r.classe);
-
-        // Si pas de classes trouvées, utiliser les classes par défaut
-        if (classes.length === 0) {
-            classes = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
-        }
-
-        // Récupérer les matières du professeur depuis son profil
-        const matieresResult = await db.query(`
-            SELECT specialite FROM pedagogie.profils_profs 
+        // Récupérer les vraies classes et matières assignées au professeur
+        const profResult = await db.query(`
+            SELECT classes, matieres FROM pedagogie.profils_profs
             WHERE id_user = $1
         `, [profId]);
 
-        let matieres = matieresResult.rows.map(r => r.specialite).filter(m => m);
+        let classes = profResult.rows[0]?.classes || [];
+        let matieres = profResult.rows[0]?.matieres || [];
+
+        // Si vraiment aucune classe assignée en base, fallback générique (prof peut choisir)
+        if (classes.length === 0) {
+            classes = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
+        }
         if (matieres.length === 0) {
             matieres = ['Mathématiques', 'Français', 'Anglais'];
         }
@@ -214,6 +207,29 @@ router.get('/messages-prives', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error('Erreur getMessagesPrives:', error);
         res.json({ success: true, messages: [] });
+    }
+});
+
+router.patch('/messages-prives/:id/lu', authMiddleware, async (req, res) => {
+    try {
+        const profId = req.user.id;
+        const messageId = req.params.id;
+
+        const result = await db.query(`
+            UPDATE pedagogie.messages_prives
+            SET lu = true
+            WHERE id_message = $1 AND destinataire_id = $2
+            RETURNING *
+        `, [messageId, profId]);
+
+        if (!result.rows.length) {
+            return res.status(404).json({ success: false, message: 'Message introuvable ou accès refusé.' });
+        }
+
+        res.json({ success: true, message: 'Message marqué comme lu.', data: result.rows[0] });
+    } catch (error) {
+        console.error('Erreur markMessagePriveLu:', error);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 });
 

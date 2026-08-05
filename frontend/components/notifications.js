@@ -54,26 +54,35 @@
     'ANNONCE':       (lien) => lien || '/eleve.html?page=annonces',
     'CONVOCATION':   (lien) => lien || '/eleve.html?page=convocations',
     'ABSENCE':       (lien) => lien || '/eleve.html?page=absences',
-    'ORIENTATION':   (lien) => lien || '/eleve.html?page=orientation',
   };
 
   /* ── 3. Naviguer vers la page cible (fonctionne avec goPage si dispo) ── */
   function naviguerVers(lien, type) {
-    // Calculer l'URL cible
-    const resolver = NOTIF_REDIRECT[type];
-    const urlCible = resolver ? resolver(lien) : (lien || null);
+    const surPageEleve = window.location.pathname.includes('eleve.html');
+
+    // Le mapping NOTIF_REDIRECT (avec ses URLs de secours /eleve.html?...)
+    // ne doit s'appliquer que si on est réellement sur eleve.html.
+    // Ailleurs (parent, prof, direction), seul le vrai lien fourni par la
+    // notification est utilisable — sinon on ne fait que marquer comme lu.
+    let urlCible;
+    if (surPageEleve) {
+      const resolver = NOTIF_REDIRECT[type];
+      urlCible = resolver ? resolver(lien) : (lien || null);
+    } else {
+      urlCible = lien || null;
+    }
 
     if (!urlCible) return;
 
-    // Extraire page et tab depuis l'URL
     const url = new URL(urlCible, window.location.origin);
     const page = url.searchParams.get('page');
     const tab  = url.searchParams.get('tab');
+    const cheminCible = url.pathname.replace(/^\//, '');
+    const cheminActuel = window.location.pathname.replace(/^\//, '');
+    const memePage = cheminCible === cheminActuel || cheminCible === '';
 
-    // Si on est déjà sur eleve.html et que goPage existe
-    if (typeof window.goPage === 'function' && page) {
+    if (memePage && typeof window.goPage === 'function' && page) {
       window.goPage(page);
-      // Si un onglet est précisé, l'activer après un court délai
       if (tab) {
         setTimeout(() => {
           const tabEl = document.querySelector(`#pg-${page} .tab[onclick*="'${tab}'"]`);
@@ -82,10 +91,15 @@
           }
         }, 300);
       }
-    } else {
-      // Navigation classique
+    } else if (memePage && typeof window.go === 'function' && page) {
+      // Pages parent/prof qui utilisent go(id) au lieu de goPage(id)
+      window.go(page);
+    } else if (!memePage) {
+      // Lien légitime vers une autre page HTML → rechargement justifié
       window.location.href = urlCible;
     }
+    // Sinon (même page mais aucune fonction de nav trouvée) : ne rien faire
+    // de plus que le marquage comme lu déjà effectué par l'appelant.
   }
 
   /* ── 4. Formater la date de façon lisible ── */
@@ -113,7 +127,6 @@
       'ANNONCE':      '📢',
       'CONVOCATION':  '⚠️',
       'ABSENCE':      '📅',
-      'ORIENTATION':  '🎯',
     };
     return icons[type] || '🔔';
   }

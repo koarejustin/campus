@@ -71,16 +71,16 @@ CREATE INDEX IF NOT EXISTS idx_avis_orientation_date ON pedagogie.avis_orientati
 -- ────────────────────────────────────────────────────────────────
 -- ÉTAPE 4 : Insérer quelques mentorats de départ
 -- ────────────────────────────────────────────────────────────────
-INSERT INTO gestion_ape.mentorats (id_alumni, contenu_conseil, filiere_suggeree, date_publication)
-SELECT
-    c.id_user,
-    'En tant qu''ancien élève, je recommande vivement d''investir du temps dans les projets pratiques. C''est ce qui m''a le plus aidé dans ma carrière professionnelle. N''hésitez pas à demander de l''aide aux professeurs !',
-    'Informatique',
-    NOW() - INTERVAL '5 days'
-FROM authentification.comptes c
-WHERE c.role_actuel = 'ALUMNI'
-ORDER BY RANDOM()
-LIMIT 1;
+-- INSERT INTO gestion_ape.mentorats (id_alumni, contenu_conseil, filiere_suggeree, date_publication)
+-- SELECT
+--     c.id_user,
+--     'En tant qu''ancien élève, je recommande vivement d''investir du temps dans les projets pratiques. C''est ce qui m''a le plus aidé dans ma carrière professionnelle. N''hésitez pas à demander de l''aide aux professeurs !',
+--     'Informatique',
+--     NOW() - INTERVAL '5 days'
+-- FROM authentification.comptes c
+-- WHERE c.role_actuel = 'ALUMNI'
+-- ORDER BY RANDOM()
+-- LIMIT 1;
 
 -- Commentaire sur les tables
 COMMENT ON TABLE gestion_ape.profils_alumni IS 'Profils détaillés des anciens élèves avec informations professionnelles et personnelles';

@@ -57,7 +57,7 @@ router.get('/incidents', authMiddleware, surveillantController.getIncidents);
 
 // ============== ANNONCES ==============
 router.post('/announcements', authMiddleware, surveillantController.publishOfficialAnnouncement);
-router.get('/announcements', surveillantController.getAnnouncements);
+router.get('/announcements', authMiddleware, surveillantController.getAnnouncements);
 
 // ============== ACTIVITÉS - COMMENTÉ ==============
 // router.post('/activities', authMiddleware, surveillantController.createActivity);

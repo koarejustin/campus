@@ -46,6 +46,7 @@
             height: 100%;
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
             z-index: 1;
+            pointer-events: none;
         }
 
         /* Contenu au-dessus de l'image */
@@ -256,7 +257,7 @@
                 if (!espace) continue;
 
                 try {
-                    const response = await fetch(`/api/admin/espace-image/${espace}`);
+                    const response = await fetch(`/api/public/espace-image/${espace}`);
                     const data = await response.json();
 
                     if (data.success && data.image && data.image.url_image) {
@@ -340,7 +341,7 @@
         // ============================================================
         async function chargerConfigEcole() {
             try {
-                const response = await fetch('/api/admin/config');
+                const response = await fetch('/api/admin/config-public');
                 const data = await response.json();
                 if (data.success && data.config) {
                     const nomElem = document.getElementById('ecole-nom-index');

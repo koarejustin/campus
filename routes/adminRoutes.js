@@ -47,7 +47,8 @@ router.get('/elections', auth, ctrl.getElections);
 router.post('/elections', auth, ctrl.setElection);
 router.delete('/elections', auth, ctrl.removeElection);
 // Récupérer l'image d'un espace spécifique
-router.get('/espace-image/:espace', async (req, res) => {
+// ✅ SÉCURITÉ : auth ajouté
+router.get('/espace-image/:espace', auth, async (req, res) => {
     try {
         const { espace } = req.params;
         const result = await db.query(
@@ -71,8 +72,24 @@ router.get('/espace-image/:espace', async (req, res) => {
 });
 // ============================================================
 // ROUTE POUR RÉCUPÉRER LA CONFIGURATION (nom école, logo)
+// ✅ SÉCURITÉ : auth ajouté — données non exposées sans token
+// Exception : login.html et classes.html ont besoin de /config sans token
+// => On crée une route publique séparée /config-public pour ces pages
 // ============================================================
-router.get('/config', async (req, res) => {
+router.get('/config-public', async (req, res) => {
+    try {
+        const result = await db.query('SELECT nom_etablissement, logo_url FROM gestion.configuration LIMIT 1');
+        if (result.rows.length > 0) {
+            res.json({ success: true, config: result.rows[0] });
+        } else {
+            res.json({ success: true, config: { nom_etablissement: 'Saint Joseph' } });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false });
+    }
+});
+
+router.get('/config', auth, async (req, res) => {
     try {
         const result = await db.query('SELECT nom_etablissement, slogan, logo_url FROM gestion.configuration LIMIT 1');
         if (result.rows.length > 0) {

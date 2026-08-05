@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="mentorat.css">
     <style>
         :root {
             --bg: #F0F2F8;
@@ -35,7 +36,7 @@
             overflow: hidden;
         }
 
-        /* Sidebar identique à celle des autres rôles, adaptée */
+        /* ── SIDEBAR ─────────────────────────────────────────────────── */
         .sidebar {
             width: 220px;
             height: 100vh;
@@ -183,6 +184,7 @@
             height: 15px;
         }
 
+        /* ── MAIN ────────────────────────────────────────────────────── */
         main {
             margin-left: 220px;
             flex: 1;
@@ -202,342 +204,1451 @@
 
         .pg-hd {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: space-between;
             margin-bottom: 20px;
         }
 
         .pg-title {
-            font-family: 'Syne', sans-serif;
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             font-weight: 900;
             color: var(--ink);
-            letter-spacing: -.04em;
         }
 
         .pg-sub {
-            font-size: .76rem;
+            font-size: .75rem;
             color: var(--muted);
-            margin-top: 2px;
+            margin-top: 3px;
         }
 
+        /* ── CARDS ───────────────────────────────────────────────────── */
         .card {
             background: var(--card);
-            border: 1px solid var(--border);
             border-radius: 14px;
-            padding: 18px 20px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
         }
 
-        .btn-p {
-            padding: 8px 16px;
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: .76rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
+        /* ── FORMULAIRE ──────────────────────────────────────────────── */
         .inp {
             width: 100%;
             padding: 9px 12px;
-            border: 1.5px solid #E8EDFF;
+            border: 1.5px solid var(--border);
             border-radius: 8px;
             font-family: inherit;
+            font-size: .82rem;
+            color: var(--ink);
             outline: none;
-            font-size: .76rem;
+            transition: border-color .15s;
+            margin-top: 4px;
         }
 
         .inp:focus {
             border-color: #4F46E5;
         }
 
-        .btn-g {
+        /* ── BOUTONS ─────────────────────────────────────────────────── */
+        .btn-p {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             padding: 8px 14px;
-            background: #F1F5F9;
-            color: #475569;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+            color: #fff;
             border: none;
             border-radius: 8px;
-            font-size: .76rem;
+            font-family: inherit;
+            font-size: .78rem;
             font-weight: 700;
             cursor: pointer;
+            transition: opacity .15s;
         }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
+        .btn-p:hover {
+            opacity: .88;
         }
 
+        .btn-p:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        /* ── BULLES MENTORAT ─────────────────────────────────────────── */
         .msg-bubble {
             display: flex;
             gap: 10px;
-            margin-bottom: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #F8FAFF;
+            border: 1px solid var(--border);
+            margin-bottom: 10px;
         }
 
         .msg-avatar {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: var(--accent);
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            font-weight: 900;
+            font-size: .85rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 800;
-            color: #fff;
+            flex-shrink: 0;
         }
 
         .msg-txt {
-            background: #fff;
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: .78rem;
+            font-size: .8rem;
+            color: var(--muted);
+            margin-top: 3px;
+            line-height: 1.5;
+        }
+
+        /* ── SPINNER ─────────────────────────────────────────────────── */
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .empty {
             text-align: center;
-            padding: 40px;
+            padding: 30px;
             color: var(--muted);
+            font-size: .82rem;
         }
 
-        textarea,
-        input {
-            width: 100%;
-            padding: 9px 12px;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            font-family: inherit;
-            outline: none;
+        /* ── TOAST NOTIFICATION ──────────────────────────────────────── */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: .82rem;
+            font-weight: 700;
+            color: #fff;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all .25s;
+            pointer-events: none;
         }
 
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform .3s;
-            }
+        #toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-            .sidebar.open {
-                transform: translateX(0);
-            }
+        #toast.ok {
+            background: #10B981;
+        }
 
-            main {
-                margin-left: 0;
-            }
+        #toast.err {
+            background: #EF4444;
+        }
 
-            .pg {
-                padding: 70px 14px;
-            }
+        /* ── ACCUEIL STATS ───────────────────────────────────────────── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent);
+        }
+
+        .stat-lbl {
+            font-size: .7rem;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 4px;
         }
     </style>
-    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
+
+    <!-- ══════════════════════ SIDEBAR ══════════════════════ -->
     <aside class="sidebar">
         <div class="sb-head">
             <div class="sb-logo">
-                <div class="sb-logo-icon"><svg viewBox="0 0 24 24">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg></div>
-                <div class="sb-logo-txt">ALUMNI<span>FASO</span></div>
+                <div class="sb-logo-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                        <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="sb-logo-txt">ALUMNI<span>FASO</span></div>
+                    <div class="sb-role">Espace Anciens Élèves</div>
+                </div>
             </div>
             <div class="sb-user">
-                <div class="sb-user-name" id="sb-nom">Chargement...</div>
-                <div class="sb-user-mat" id="sb-mat">--</div>
+                <div class="sb-user-name" id="sb-nom">—</div>
+                <div class="sb-user-mat" id="sb-mat">—</div>
             </div>
         </div>
+
         <div class="sb-scroll">
-            <div class="sb-grp">Mon réseau</div>
-            <div class="ni on" onclick="go('accueil')"><svg viewBox="0 0 24 24">
-                    <rect x="3" y="3" width="7" height="7" />
-                    <rect x="14" y="3" width="7" height="7" />
-                    <rect x="3" y="14" width="7" height="7" />
-                    <rect x="14" y="14" width="7" height="7" />
-                </svg>Accueil</div>
-            <div class="ni" onclick="go('mentorats')"><svg viewBox="0 0 24 24">
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                </svg>Mentorats & Orientations</div>
-            <div class="ni" onclick="go('profil')"><svg viewBox="0 0 24 24">
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                </svg>Mon profil</div>
+            <div class="sb-grp">Navigation</div>
+            <div class="ni on" onclick="go('accueil')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                Accueil
+            </div>
+            <div class="ni" onclick="go('mentorats')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                Mentorats
+            </div>
+            <div class="ni" onclick="go('demandes')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                Demandes
+                <span id="demandes-badge" style="display:none;background:#EF4444;color:#fff;font-size:.6rem;font-weight:800;border-radius:10px;padding:1px 7px;margin-left:auto;">0</span>
+            </div>
+            <div class="ni" onclick="go('journal')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                </svg>
+                Journal de bord
+            </div>
+            <div class="ni" onclick="go('profil')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+                Mon profil
+            </div>
         </div>
-        <div class="sb-foot" style="padding: 10px 8px 12px;">
-            <button class="btn-out" onclick="logout()"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2">
+
+        <div style="padding: 10px 12px; flex-shrink: 0;">
+            <button class="btn-out" onclick="logout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                     <polyline points="16 17 21 12 16 7" />
                     <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>Déconnexion</button>
+                </svg>
+                Déconnexion
+            </button>
         </div>
     </aside>
+
+    <!-- ══════════════════════ MAIN ══════════════════════ -->
     <main>
-        <!-- Accueil -->
-        <div id="pg-accueil" class="pg on">
+
+        <!-- ── ACCUEIL ─────────────────────────────────── -->
+        <div id="pg-accueil" class="pg">
             <div class="pg-hd">
                 <div>
-                    <div class="pg-title">Bienvenue, <span id="accueil-prenom"></span> 👋</div>
-                    <div class="pg-sub">Réseau des anciens élèves</div>
+                    <div class="pg-title">👋 Bienvenue, <span id="accueil-prenom">—</span> !</div>
+                    <div class="pg-sub">Votre espace Alumni · Campus Numérique FASO</div>
                 </div>
             </div>
-            <div class="grid-2">
-                <div class="card">
-                    <h3>📢 Derniers mentorats</h3>
-                    <div id="accueil-mentorats">Chargement...</div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-mentorats">—</div>
+                    <div class="stat-lbl">Conseils publiés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-eleves">—</div>
+                    <div class="stat-lbl">Élèves mentorés</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-avis">—</div>
+                    <div class="stat-lbl">Avis d'orientation</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="font-size:.9rem; font-weight:800; color:var(--ink); margin-bottom:12px;">
+                    📚 Derniers conseils de mentorat
+                </div>
+                <div id="accueil-mentorats">
+                    <div class="empty">
+                        <div class="spinner"></div>Chargement…
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- Mentorats -->
+
+        <!-- ── MENTORATS ───────────────────────────────── -->
         <div id="pg-mentorats" class="pg">
             <div class="pg-hd">
                 <div>
-                    <div class="pg-title">🤝 Mentorats & Conseils</div>
-                    <div class="pg-sub">Partagez votre expérience</div>
-                </div><button class="btn-p" onclick="openMentoratModal()">➕ Publier un conseil</button>
+                    <div class="pg-title">🤝 Mentorats & Orientations</div>
+                    <div class="pg-sub">Partagez votre expérience et orientez les élèves</div>
+                </div>
             </div>
-            <div id="mentorats-list" class="card"></div>
-            <div class="card" style="margin-top: 20px;"><input type="text" id="search-eleve"
-                    placeholder="Rechercher un élève (nom, prénom, matricule)">
-                <div id="orientation-eleves-list" style="margin-top: 10px;"></div>
+
+            <!-- Mes conseils -->
+            <div class="card" style="margin-bottom:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <h3 style="font-size:1rem; font-weight:700; color:var(--ink); margin:0;">📚 Mes Conseils de Mentorat
+                    </h3>
+                    <button class="btn-p" onclick="openMentoratModal()">➕ Publier un conseil</button>
+                </div>
+                <div id="mentorats-list">
+                    <div class="empty">
+                        <div class="spinner"></div>Chargement…
+                    </div>
+                </div>
             </div>
-            <div id="orientation-avis" class="card" style="margin-top: 12px;"></div>
+
+            <!-- Modale publier conseil -->
+            <div id="modal-mentorat" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+                background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+                <div style="background:#fff; border-radius:16px; padding:28px; max-width:500px; width:90%;
+                    box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                    <div style="font-size:1.1rem; font-weight:700; color:var(--ink); margin-bottom:8px;">
+                        📚 Publier un conseil de mentorat
+                    </div>
+                    <div style="font-size:0.85rem; color:#7C3AED; margin-bottom:20px;">Partagez votre expérience avec
+                        les élèves</div>
+                    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:16px;">
+                        <div>
+                            <label
+                                style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Titre
+                                du conseil</label>
+                            <input type="text" id="conseil-titre" placeholder="Ex: L'importance de la persévérance…"
+                                class="inp">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Contenu
+                                du conseil</label>
+                            <textarea id="conseil-contenu" placeholder="Écrivez votre conseil ici…" class="inp"
+                                style="min-height:120px; resize:vertical;"></textarea>
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Filière
+                                recommandée (optionnel)</label>
+                            <select id="conseil-filiere" class="inp">
+                                <option value="">Aucune</option>
+                                <option value="Terminale D">Terminale D (Science)</option>
+                                <option value="Terminale C">Terminale C (Littéraire)</option>
+                                <option value="Terminale A">Terminale A (Littéraire)</option>
+                                <option value="BTS">BTS</option>
+                                <option value="Licence">Licence</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px; justify-content:flex-end;">
+                        <button onclick="fermerModal('modal-mentorat')"
+                            style="padding:10px 16px; background:#F0F4F8; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:var(--muted);">
+                            Annuler
+                        </button>
+                        <button onclick="submitConseil()" class="btn-p">Publier</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Élèves disponibles pour mentorat -->
+            <div class="card" style="margin-bottom:20px;">
+                <div style="margin-bottom:14px;">
+                    <h3 style="font-size:1rem; font-weight:700; color:var(--ink); margin:0 0 4px 0;">👥 Élèves
+                        disponibles pour mentorat</h3>
+                    <p style="font-size:0.75rem; color:var(--muted); margin:0;">Élèves de Terminale (Tle A / Tle D) — les autres classes s'entraident entre elles</p>
+                </div>
+                <input type="text" id="recherche-eleve-mentorat" placeholder="🔍 Rechercher un élève par nom…"
+                    oninput="rechercheElevesDisponibles(this.value)"
+                    style="width:100%; padding:9px 12px; border:1px solid var(--border); border-radius:8px;
+                    font-size:.82rem; margin-bottom:12px; box-sizing:border-box;">
+                <div id="eleves-disponibles">
+                    <div class="empty">
+                        <div class="spinner"></div>Chargement…
+                    </div>
+                </div>
+            </div>
+
+            <div id="modal-mentorat-eleve" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+                background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+                <div style="background:#fff; border-radius:16px; padding:28px; max-width:520px; width:90%;
+                    box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                    <div style="font-size:1.05rem; font-weight:800; color:var(--ink); margin-bottom:6px;">
+                        🤝 Démarrer un vrai accompagnement
+                    </div>
+                    <div style="font-size:0.82rem; color:var(--muted); margin-bottom:16px;">
+                        Rédigez un conseil concret et un objectif clair pour <strong id="mentorat-eleve-nom">cet élève</strong>.
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
+                        <div>
+                            <label style="font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; display:block; margin-bottom:6px;">Titre du conseil</label>
+                            <input type="text" id="mentorat-conseil-titre" class="inp" placeholder="Ex: Structurer ses révisions et gagner en confiance">
+                        </div>
+                        <div>
+                            <label style="font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; display:block; margin-bottom:6px;">Conseil concret</label>
+                            <textarea id="mentorat-conseil-contenu" class="inp" rows="4" placeholder="Expliquez ce que vous voulez lui transmettre : méthode, habitudes, orientation, motivation…"></textarea>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div>
+                                <label style="font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; display:block; margin-bottom:6px;">Domaine</label>
+                                <select id="mentorat-conseil-domaine" class="inp">
+                                    <option value="Orientation">🎯 Orientation</option>
+                                    <option value="Révisions">📚 Révisions</option>
+                                    <option value="Motivation">💪 Motivation</option>
+                                    <option value="Méthodologie">🧠 Méthodologie</option>
+                                    <option value="Carrière">🚀 Carrière</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; display:block; margin-bottom:6px;">Objectif</label>
+                                <input type="text" id="mentorat-conseil-objectif" class="inp" placeholder="Ex: 3 heures de révision par jour">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px; justify-content:flex-end;">
+                        <button onclick="fermerModal('modal-mentorat-eleve')"
+                            style="padding:10px 16px; background:#F0F4F8; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:var(--muted);">
+                            Annuler
+                        </button>
+                        <button onclick="finaliserMentoratAvecConseil()" class="btn-p">💬 Enregistrer le conseil</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-bottom:20px;">
+                <div style="margin-bottom:14px;">
+                    <h3 style="font-size:1rem; font-weight:700; color:var(--ink); margin:0 0 4px 0;">🎯 Orientations de
+                        Mes Élèves Mentorés</h3>
+                    <p style="font-size:0.75rem; color:var(--muted); margin:0;">Définissez une orientation (Littérature
+                        ou Science) pour chaque élève mentoré</p>
+                </div>
+                <div id="liste-eleves-orientations">
+                    <div class="empty">
+                        <div class="spinner"></div>Chargement…
+                    </div>
+                </div>
+            </div>
         </div>
-        <!-- Profil -->
+
+        <!-- Modale orientation (hors des pages .pg pour rester utilisable depuis n'importe quel onglet) -->
+        <div id="modal-orientation" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+            background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+            <div style="background:#fff; border-radius:16px; padding:28px; max-width:500px; width:90%;
+                box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                <div style="font-size:1.1rem; font-weight:700; color:var(--ink); margin-bottom:8px;">
+                    🎯 Orientation pour <span id="orientation-eleve-nom"></span>
+                </div>
+                <div style="font-size:0.85rem; color:#7C3AED; margin-bottom:20px;">Littérature ou Science ?</div>
+                <input type="hidden" id="orientation-relation-id">
+                <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:18px;">
+                    <label
+                        style="display:flex; align-items:center; gap:10px; padding:14px; border:1.5px solid var(--border); border-radius:10px; cursor:pointer;">
+                        <input type="radio" name="orientation" value="Littérature"
+                            style="width:18px; height:18px; cursor:pointer;">
+                        <div>
+                            <span style="font-size:0.9rem; font-weight:700; color:var(--ink); display:block;">📖
+                                Littérature</span>
+                            <span style="font-size:0.75rem; color:var(--muted); display:block;">Langues,
+                                Philosophie, Histoire, Littérature</span>
+                        </div>
+                    </label>
+                    <label
+                        style="display:flex; align-items:center; gap:10px; padding:14px; border:1.5px solid var(--border); border-radius:10px; cursor:pointer;">
+                        <input type="radio" name="orientation" value="Science"
+                            style="width:18px; height:18px; cursor:pointer;">
+                        <div>
+                            <span style="font-size:0.9rem; font-weight:700; color:var(--ink); display:block;">🔬
+                                Science</span>
+                            <span style="font-size:0.75rem; color:var(--muted); display:block;">Mathématiques,
+                                Physique, Chimie, SVT</span>
+                        </div>
+                    </label>
+                </div>
+                <div style="margin-bottom:18px;">
+                    <label
+                        style="display:block; font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">
+                        Justification (optionnelle)
+                    </label>
+                    <textarea id="orientation-justification"
+                        placeholder="Expliquez pourquoi vous recommandez cette orientation…"
+                        style="width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; font-size:0.8rem; resize:vertical; min-height:80px;"></textarea>
+                </div>
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button onclick="fermerModalOrientation()"
+                        style="padding:10px 16px; background:#F0F4F8; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:var(--muted);">
+                        Annuler
+                    </button>
+                    <button onclick="submitOrientation()"
+                        style="padding:10px 20px; background:linear-gradient(135deg,#4F46E5,#7C3AED); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                        Confirmer l'orientation
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── MODAL : CONFIRMATION (remplace les popups natifs du navigateur) ── -->
+        <div id="modal-confirm" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+            background:rgba(0,0,0,0.5); z-index:1100; align-items:center; justify-content:center;">
+            <div style="background:#fff; border-radius:16px; padding:26px; max-width:400px; width:90%;
+                box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                <div id="modal-confirm-texte" style="font-size:0.92rem; color:var(--ink); margin-bottom:20px; line-height:1.5;"></div>
+                <div style="display:flex; gap:10px;">
+                    <button onclick="document.getElementById('modal-confirm').style.display='none'"
+                        style="flex:1; padding:10px 16px; background:#F1F5F9; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:var(--muted);">
+                        Annuler
+                    </button>
+                    <button id="modal-confirm-btn"
+                        style="flex:1; padding:10px 16px; background:linear-gradient(135deg,#4F46E5,#7C3AED); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                        Confirmer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── DEMANDES DE MENTORAT ─────────────────────────── -->
+        <div id="pg-demandes" class="pg">
+            <div class="pg-hd">
+                <div class="pg-title">📬 Demandes de mentorat</div>
+                <div class="pg-sub">Élèves qui souhaitent être accompagnés par vous</div>
+            </div>
+            <div id="demandes-list" class="card">
+                <div class="empty"><div class="spinner"></div>Chargement…</div>
+            </div>
+        </div>
+
+        <!-- ── JOURNAL DE BORD ─────────────────────────── -->
+        <div id="pg-journal" class="pg">
+            <div class="pg-hd">
+                <div>
+                    <div class="pg-title">📖 Journal de Bord Partagé</div>
+                    <div class="pg-sub">Suivez vos élèves mentorés et construisez votre histoire ensemble</div>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 2fr; gap:20px;">
+                <div class="card" style="height:fit-content; position:sticky; top:80px;">
+                    <h3 style="margin-bottom:12px; font-weight:700;">🎓 Mes élèves mentorés</h3>
+                    <input type="text" id="recherche-eleve-journal" placeholder="🔍 Rechercher un élève par nom…"
+                        oninput="rechercheElevesMentorat(this.value)"
+                        style="width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:8px;
+                        font-size:.8rem; margin-bottom:12px; box-sizing:border-box;">
+                    <div id="eleves-mentorat-list">
+                        <div class="empty">
+                            <div class="spinner"></div>Chargement…
+                        </div>
+                    </div>
+                </div>
+                <div id="mentorat-detail-container">
+                    <div class="empty" style="padding:40px;">
+                        <div style="font-size:2rem; margin-bottom:12px;">📚</div>
+                        <p>Sélectionnez un élève pour voir son journal de bord et ses résultats scolaires</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modale entrée journal -->
+            <div id="modal-entree" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+                background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+                <div style="background:#fff; border-radius:16px; padding:28px; max-width:600px; width:90%;
+                    max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                    <div style="font-size:1.2rem; font-weight:700; color:var(--ink); margin-bottom:16px;">
+                        ✍️ Nouvelle entrée au journal
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:16px;">
+                        <input type="hidden" id="entree-relation-id">
+                        <input type="hidden" id="entree-id-edit">
+                        <div>
+                            <label
+                                style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Titre</label>
+                            <input type="text" id="entree-titre" placeholder="Titre de votre entrée…" class="inp">
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <div>
+                                <label
+                                    style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Type</label>
+                                <select id="entree-type" class="inp">
+                                    <option value="note">📝 Note</option>
+                                    <option value="objectif">🎯 Objectif</option>
+                                    <option value="reflexion">💭 Réflexion</option>
+                                    <option value="feedback">💬 Feedback</option>
+                                </select>
+                            </div>
+                            <div style="display:flex; align-items:flex-end;">
+                                <label
+                                    style="display:flex; align-items:center; gap:8px; font-size:0.8rem; font-weight:700; color:var(--muted); cursor:pointer;">
+                                    <input type="checkbox" id="entree-prive" style="width:16px; height:16px;">
+                                    Privée (alumni seulement)
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Contenu</label>
+                            <textarea id="entree-contenu" placeholder="Écrivez votre entrée…" class="inp"
+                                style="min-height:120px; resize:vertical;"></textarea>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:10px; justify-content:flex-end;">
+                        <button onclick="fermerModal('modal-entree')"
+                            style="padding:10px 16px; background:#F0F4F8; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:var(--muted);">
+                            Annuler
+                        </button>
+                        <button onclick="submitEntree()" class="btn-p">Publier</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── PROFIL ───────────────────────────────────── -->
         <div id="pg-profil" class="pg">
-            <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">👤 Mon profil</h2>
+            <div class="pg-hd">
+                <div>
+                    <div class="pg-title">👤 Mon Profil</div>
+                    <div class="pg-sub">Gérez vos informations professionnelles</div>
+                </div>
+            </div>
             <div style="display:grid; grid-template-columns:250px 1fr; gap:16px; align-items:start;">
+
+                <!-- Carte avatar -->
                 <div class="card" style="text-align:center;">
                     <div style="position:relative; display:inline-block; margin-bottom:11px;">
                         <div id="pr-av"
-                            style="width:86px; height:86px; border-radius:50%; margin:0 auto; overflow:hidden; background:#EEF2FF; border:3px solid #E0E7FF; display:flex; align-items:center; justify-content:center; font-size:1.9rem; font-weight:900; color:#4F46E5; cursor:pointer;"
-                            onclick="document.getElementById('fp2').click()"><span id="pr-av-t">?</span></div>
-                        <input type="file" id="fp2" accept="image/*" onchange="uploadPhoto(this)">
-                        <div onclick="document.getElementById('fp2').click()"
-                            style="position:absolute; bottom:-1px; right:-1px; background:#4F46E5; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border:2px solid #fff; cursor:pointer;">
-                            <i data-lucide="pencil" style="width:10px;height:10px;color:#fff;"></i></div>
+                            style="width:86px; height:86px; border-radius:50%; margin:0 auto; overflow:hidden;
+                                background:#EEF2FF; border:3px solid #E0E7FF; display:flex; align-items:center;
+                                justify-content:center; font-size:1.9rem; font-weight:900; color:#4F46E5; cursor:pointer;"
+                            onclick="document.getElementById('fp2').click()">
+                            <span id="pr-av-t">?</span>
+                        </div>
+                        <input type="file" id="fp2" accept="image/*" style="display:none;" onchange="uploadPhoto(this)">
+                        <div onclick="document.getElementById('fp2').click()" style="position:absolute; bottom:-1px; right:-1px; background:#4F46E5; border-radius:50%;
+                                width:22px; height:22px; display:flex; align-items:center; justify-content:center;
+                                border:2px solid #fff; cursor:pointer; font-size:10px; color:#fff;">✎</div>
                     </div>
                     <div id="pr-nc" style="font-size:.92rem; font-weight:900; color:#1E293B;"></div>
-                    <div id="pr-cc" style="font-size:.62rem; color:#94A3B8; font-weight:700; font-family:monospace;"></div>
+                    <div id="pr-cc" style="font-size:.62rem; color:#94A3B8; font-weight:700; font-family:monospace;">
+                    </div>
                     <div id="pr-ac" style="margin-top:6px;"></div>
                     <div style="margin-top:10px; background:#EEF2FF; border-radius:11px; padding:9px;">
-                        <div style="font-size:.54rem; font-weight:800; color:#6366F1; text-transform:uppercase;">Domaine d'expertise</div>
+                        <div style="font-size:.54rem; font-weight:800; color:#6366F1; text-transform:uppercase;">Domaine
+                            d'expertise</div>
                         <div id="pr-ex" style="font-size:.78rem; font-weight:800; color:#1E293B;">—</div>
                         <div id="pr-se" style="font-size:.62rem; color:#6366F1;">—</div>
                     </div>
                     <button class="btn-p" style="width:100%; margin-top:11px; justify-content:center;"
                         onclick="document.getElementById('fp2').click()">📷 Changer la photo</button>
                 </div>
+
+                <!-- Formulaire profil -->
                 <div class="card">
                     <div
                         style="font-size:.74rem; font-weight:900; color:#1E293B; text-transform:uppercase; margin-bottom:14px;">
-                        Informations professionnelles</div>
+                        Informations professionnelles
+                    </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
-                        <div><label
-                                style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Prénom</label><input
-                                class="inp" id="pr-pn" disabled style="background:#F8FAFF; color:#64748B;"></div>
-                        <div><label
-                                style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Nom</label><input
-                                class="inp" id="pr-nn" disabled style="background:#F8FAFF; color:#64748B;"></div>
-                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Poste actuel
-                                ✎</label><input class="inp" id="pr-pa" placeholder="Ex: Développeur Full Stack…"></div>
-                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Entreprise
-                                ✎</label><input class="inp" id="pr-en" placeholder="Nom de l'entreprise"></div>
-                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Téléphone
-                                ✎</label><input class="inp" id="pr-tl" placeholder="+226 70 00 00 00"></div>
-                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Ville de résidence
-                                ✎</label><input class="inp" id="pr-vr" placeholder="Ouagadougou"></div>
-                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Domaine d'expertise
-                                ✎</label><input class="inp" id="pr-de" placeholder="Ex: Informatique, Marketing…"></div>
-                        <div><label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Secteur d'activité
-                                ✎</label><input class="inp" id="pr-sa" placeholder="Ex: Tech, Finance…"></div>
-                        <div style="grid-column:1/-1;"><label
-                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">À propos
-                                ✎</label><textarea class="inp" id="pr-bi" rows="3" placeholder="Parlez de votre parcours professionnel, vos expériences…"></textarea></div>
-                        <div style="grid-column:1/-1;"><label
+                        <div>
+                            <label
+                                style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Prénom</label>
+                            <input class="inp" id="pr-pn" disabled style="background:#F8FAFF; color:#64748B;">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Nom</label>
+                            <input class="inp" id="pr-nn" disabled style="background:#F8FAFF; color:#64748B;">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Poste
+                                actuel ✎</label>
+                            <input class="inp" id="pr-pa" placeholder="Ex: Développeur Full Stack…">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Entreprise
+                                ✎</label>
+                            <input class="inp" id="pr-en" placeholder="Nom de l'entreprise">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Téléphone
+                                ✎</label>
+                            <input class="inp" id="pr-tl" placeholder="+226 70 00 00 00">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Ville
+                                de résidence ✎</label>
+                            <input class="inp" id="pr-vr" placeholder="Ouagadougou">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Domaine
+                                d'expertise ✎</label>
+                            <input class="inp" id="pr-de" placeholder="Ex: Informatique, Marketing…">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Secteur
+                                d'activité ✎</label>
+                            <input class="inp" id="pr-sa" placeholder="Ex: Tech, Finance…">
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <label style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">À
+                                propos ✎</label>
+                            <textarea class="inp" id="pr-bi" rows="3"
+                                placeholder="Parlez de votre parcours professionnel, vos expériences…"></textarea>
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <label
                                 style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">LinkedIn
-                                ✎</label><input class="inp" id="pr-li" placeholder="https://linkedin.com/in/votreprofil"></div>
-                        <div style="grid-column:1/-1;"><label
-                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Site web personnel
-                                ✎</label><input class="inp" id="pr-sw" placeholder="https://votresite.com"></div>
+                                ✎</label>
+                            <input class="inp" id="pr-li" placeholder="https://linkedin.com/in/votreprofil">
+                        </div>
+                        <div style="grid-column:1/-1;">
+                            <label
+                                style="font-size:.58rem; font-weight:800; color:#4F46E5; text-transform:uppercase;">Site
+                                web personnel ✎</label>
+                            <input class="inp" id="pr-sw" placeholder="https://votresite.com">
+                        </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px; margin-top:13px;">
                         <button class="btn-p" id="btn-sv" onclick="saveProfil()"
-                            style="flex:1; justify-content:center;">Enregistrer</button>
-                        <span id="sv-ok" style="font-size:.7rem; font-weight:700; color:#10B981; display:none;">✅ Enregistré
-                            !</span>
+                            style="flex:1; justify-content:center;">
+                            Enregistrer
+                        </button>
+                        <span id="sv-ok" style="font-size:.7rem; font-weight:700; color:#10B981; display:none;">✅
+                            Enregistré !</span>
                     </div>
                     <div
                         style="margin-top:11px; padding:9px 13px; background:#FFF7ED; border-radius:11px; font-size:.62rem; color:#92400E;">
-                        ⚠️ Le prénom et le nom sont gérés par l'administration.</div>
+                        ⚠️ Le prénom et le nom sont gérés par l'administration.
+                    </div>
                 </div>
             </div>
         </div>
+
     </main>
+
+    <!-- ── TOAST ────────────────────────────────────────── -->
+    <div id="toast"></div>
+
     <script>
+        /* ═══════════════════════════════════════════════════════════
+           SÉCURITÉ CÔTÉ CLIENT (première ligne de défense)
+           La vraie sécurité est dans le backend (alumniMiddleware.js)
+           ═══════════════════════════════════════════════════════════ */
+        (function () {
+            const token = localStorage.getItem('token');
+            const session = JSON.parse(localStorage.getItem('user_session') || '{}');
+
+            // Pas de token → login
+            if (!token) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            // Rôle différent de ALUMNI → rediriger vers la bonne page
+            if (session.role_actuel && session.role_actuel !== 'ALUMNI') {
+                // Rediriger vers l'espace correspondant au rôle
+                const redirects = {
+                    'ELEVE': 'eleve.html',
+                    'PROFESSEUR': 'professeur.html',
+                    'PARENT': 'parent.html',
+                    'SURVEILLANT': 'surveillant.html',
+                    'ADMIN': 'admin.html'
+                };
+                const dest = redirects[session.role_actuel] || 'login.html';
+                window.location.replace(dest);
+                return;
+            }
+
+            // Token présent mais rôle inconnu (ex: token forgé sans session correcte)
+            if (!session.role_actuel) {
+                localStorage.clear();
+                window.location.replace('login.html');
+                return;
+            }
+        })();
+
+        /* ═══════════════════════════════════════════════════════════
+           INITIALISATION
+           ═══════════════════════════════════════════════════════════ */
         const API = window.API_BASE || 'http://localhost:5000/api';
-        const token = localStorage.getItem('token');
-        let currentUser = JSON.parse(localStorage.getItem('user_session') || '{}');
-        if (!token || currentUser.role_actuel !== 'ALUMNI') window.location.href = 'login.html';
-        const authH = () => ({ 'Authorization': 'Bearer ' + token });
-        const esc = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const ini = (p = '', n = '') => ((p[0] || '') + (n[0] || '')).toUpperCase() || '?';
-        function go(page) { document.querySelectorAll('.pg').forEach(p => p.classList.remove('on')); document.getElementById('pg-' + page).classList.add('on'); document.querySelectorAll('.ni').forEach(n => n.classList.remove('on')); document.querySelector(`.ni[onclick="go('${page}')"]`).classList.add('on'); if (page === 'accueil') loadAccueil(); else if (page === 'mentorats') { loadMentorats(); loadOrientationEleves(); } else if (page === 'profil') loadProfil(); }
-        async function loadAccueil() { document.getElementById('accueil-prenom').textContent = currentUser.prenom || 'Ancien'; const m = await fetch(`${API}/alumni/mentorats`, { headers: authH() }).then(r => r.json()); document.getElementById('accueil-mentorats').innerHTML = (m.mentorats || []).slice(0, 3).map(c => `<div class="msg-bubble"><div class="msg-avatar">${c.prenom?.[0] || 'A'}</div><div><strong>${esc(c.prenom)} ${esc(c.nom)}</strong><div class="msg-txt">${esc(c.contenu_conseil).substring(0, 100)}...</div></div></div>`).join('') || 'Aucun'; }
-        async function loadMentorats() { const r = await fetch(`${API}/alumni/mentorats`, { headers: authH() }); const d = await r.json(); document.getElementById('mentorats-list').innerHTML = (d.mentorats || []).map(m => `<div class="msg-bubble"><div class="msg-avatar">${m.prenom?.[0] || 'A'}</div><div><strong>${esc(m.prenom)} ${esc(m.nom)}</strong><div class="msg-txt">${esc(m.contenu_conseil)}</div><small>${m.filiere_suggeree ? '🎯 ' + esc(m.filiere_suggeree) : ''}</small></div></div>`).join('') || '<div class="empty">Aucun mentorat pour le moment</div>'; }
-        async function loadOrientationEleves() { const r = await fetch(`${API}/eleves/liste?classe=`, { headers: authH() }); const d = await r.json(); document.getElementById('orientation-eleves-list').innerHTML = (d.eleves || []).map(e => `<div onclick="selectEleve('${e.code_unique}','${e.prenom} ${e.nom}')" style="padding:8px;border-bottom:1px solid var(--border);cursor:pointer">${esc(e.prenom)} ${esc(e.nom)} (${e.classe})</div>`).join('') || 'Aucun élève'; }
-        async function selectEleve(code, nom) { document.getElementById('orientation-avis').innerHTML = `<div class="card"><h4>${esc(nom)}</h4><textarea id="avis-commentaire" placeholder="Votre conseil d'orientation..."></textarea><select id="avis-serie"><option value="">Série recommandée</option><option>Terminale A</option><option>Terminale D</option><option>1ère A</option><option>1ère D</option></select><button class="btn-p" onclick="postAvisOrientation('${code}')">Publier mon avis</button><div id="avis-liste"></div></div>`; const av = await fetch(`${API}/alumni/orientation/${code}`, { headers: authH() }); const avd = await av.json(); document.getElementById('avis-liste').innerHTML = (avd.avis || []).map(a => `<div><strong>${esc(a.prenom)} ${esc(a.nom)}</strong><p>${esc(a.commentaire)}</p>${a.serie_recommandee ? `<span>🎯 ${a.serie_recommandee}</span>` : ''}</div>`).join(''); }
-        async function postAvisOrientation(eleveCode) { const commentaire = document.getElementById('avis-commentaire').value; const serie = document.getElementById('avis-serie').value; if (!commentaire) return; await fetch(`${API}/alumni/orientation/commentaire`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ eleveId: eleveCode, commentaire, serie_recommandee: serie }) }); alert('Avis publié'); selectEleve(eleveCode, ''); }
+        const currentUser = JSON.parse(localStorage.getItem('user_session') || '{}');
+        let currentMentoratEleveName = '';
+        // En-têtes d'authentification
+        const authH = () => ({
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            'Content-Type': 'application/json'
+        });
+
+        // Échappement HTML (protection XSS) + apostrophes (sécurité des onclick="...('...')")
+        const esc = s => (s || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        // Initiales
+        const ini = (p = '', n = '') =>
+            ((p[0] || '') + (n[0] || '')).toUpperCase() || '?';
+
+        /* ─── Toast ─────────────────────────────────────────────── */
+        function toast(msg, type = 'ok') {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.className = 'show ' + type;
+            clearTimeout(el._t);
+            el._t = setTimeout(() => el.className = '', 3000);
+        }
+
+        /* ─── Navigation ────────────────────────────────────────── */
+        function go(page) {
+            document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+            document.getElementById('pg-' + page)?.classList.add('on');
+            document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+            const activeNi = document.querySelector(`.ni[onclick="go('${page}')"]`);
+            if (activeNi) activeNi.classList.add('on');
+
+            if (page === 'accueil') loadAccueil();
+            else if (page === 'mentorats') { loadMentorats(); loadElevesDisponibles(); loadListeElevesOrientations(); }
+            else if (page === 'demandes') loadDemandes();
+            else if (page === 'journal') loadElevesMentorat();
+            else if (page === 'profil') loadProfil();
+        }
+
+        /* ─── Déconnexion ───────────────────────────────────────── */
+        function logout() {
+            localStorage.clear();
+            window.location.replace('login.html');
+        }
+
+        /* ─── Confirmation propre (remplace window.confirm) ───────── */
+        function confirmerAction(texte, onConfirm) {
+            document.getElementById('modal-confirm-texte').textContent = texte;
+            const modal = document.getElementById('modal-confirm');
+            const btn = document.getElementById('modal-confirm-btn');
+            modal.style.display = 'flex';
+            btn.onclick = () => { modal.style.display = 'none'; onConfirm(); };
+        }
+
+        /* ─── Modales ───────────────────────────────────────────── */
+        function fermerModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function fermerModalOrientation() {
+            fermerModal('modal-orientation');
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           ACCUEIL
+           ═══════════════════════════════════════════════════════════ */
+        async function loadAccueil() {
+            document.getElementById('accueil-prenom').textContent =
+                currentUser.prenom || 'Ancien Élève';
+
+            fetch(`${API}/mentorat/demandes`, { headers: authH() })
+                .then(r => r.json())
+                .then(d => majBadgeDemandes((d.demandes || []).length))
+                .catch(() => {});
+
+            try {
+                const [mentorats, dashboard] = await Promise.all([
+                    fetch(`${API}/alumni/mentorats`, { headers: authH() }).then(r => r.json()),
+                    fetch(`${API}/mentorat/dashboard`, { headers: authH() }).then(r => r.json()).catch(() => ({}))
+                ]);
+
+                // Stats
+                const nbMentorats = (mentorats.mentorats || []).length;
+                const nbEleves = dashboard.dashboard?.nb_eleves_mentores ?? dashboard.nb_eleves_mentores ?? '—';
+                const nbJournal = dashboard.dashboard?.dernieres_entrees?.length ?? dashboard.dernieres_entrees?.length ?? 0;
+                document.getElementById('stat-mentorats').textContent = nbMentorats;
+                document.getElementById('stat-eleves').textContent = nbEleves;
+                document.getElementById('stat-avis').textContent = nbJournal || '—';
+
+                // Derniers conseils
+                const list = (mentorats.mentorats || []).slice(0, 3);
+                document.getElementById('accueil-mentorats').innerHTML = list.length
+                    ? list.map(c => `
+                        <div class="msg-bubble">
+                            <div class="msg-avatar">${esc(c.prenom?.[0] || 'A')}</div>
+                            <div>
+                                <strong>${esc(c.prenom)} ${esc(c.nom)}</strong>
+                                <div class="msg-txt">${esc(c.contenu_conseil).substring(0, 120)}…</div>
+                            </div>
+                        </div>`).join('')
+                    : '<div class="empty">Aucun conseil publié pour le moment</div>';
+
+            } catch (e) {
+                console.error('loadAccueil:', e);
+                document.getElementById('accueil-mentorats').innerHTML =
+                    '<div class="empty">Erreur de chargement</div>';
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           MENTORATS
+           ═══════════════════════════════════════════════════════════ */
+        async function loadMentorats() {
+            document.getElementById('mentorats-list').innerHTML =
+                '<div class="empty"><div class="spinner"></div>Chargement…</div>';
+            try {
+                const r = await fetch(`${API}/alumni/mentorats`, { headers: authH() });
+                const d = await r.json();
+                document.getElementById('mentorats-list').innerHTML =
+                    (d.mentorats || []).length
+                        ? (d.mentorats).map(m => `
+                            <div class="msg-bubble">
+                                <div class="msg-avatar">${esc(m.prenom?.[0] || 'A')}</div>
+                                <div style="flex:1;">
+                                    <strong>${esc(m.prenom)} ${esc(m.nom)}</strong>
+                                    ${m.titre ? `<div style="font-weight:600; color:var(--accent); margin:4px 0;">${esc(m.titre)}</div>` : ''}
+                                    <div class="msg-txt">${esc(m.contenu_conseil)}</div>
+                                    ${m.filiere_suggeree
+                                ? `<small style="color:var(--accent); font-weight:700;">🎯 ${esc(m.filiere_suggeree)}</small>`
+                                : ''}
+                                </div>
+                            </div>`).join('')
+                        : '<div class="empty">Aucun mentorat pour le moment</div>';
+            } catch (e) {
+                document.getElementById('mentorats-list').innerHTML =
+                    '<div class="empty">Erreur de chargement</div>';
+            }
+        }
+
+        function openMentoratModal() {
+            document.getElementById('conseil-titre').value = '';
+            document.getElementById('conseil-contenu').value = '';
+            document.getElementById('conseil-filiere').value = '';
+            document.getElementById('modal-mentorat').style.display = 'flex';
+        }
+
+        function submitConseil() {
+            const titre = document.getElementById('conseil-titre').value.trim();
+            const contenu = document.getElementById('conseil-contenu').value.trim();
+            const filiere = document.getElementById('conseil-filiere').value;
+
+            if (!titre || !contenu) {
+                toast('⚠️ Le titre et le contenu sont requis', 'err');
+                return;
+            }
+
+            fetch(`${API}/alumni/mentorats`, {
+                method: 'POST',
+                headers: authH(),
+                body: JSON.stringify({
+                    titre: titre,
+                    contenu: contenu,
+                    filiere_suggeree: filiere || null
+                })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        toast('✅ Conseil publié avec succès !', 'ok');
+                        fermerModal('modal-mentorat');
+                        loadMentorats();
+                    } else {
+                        toast('❌ Erreur : ' + (d.message || 'Erreur inconnue'), 'err');
+                    }
+                })
+                .catch(() => toast('❌ Erreur réseau', 'err'));
+        }
+
+        /* ─── Élèves disponibles pour mentorat ──────────────── */
+        let _rechercheEleveTimeout = null;
+        function rechercheElevesDisponibles(valeur) {
+            clearTimeout(_rechercheEleveTimeout);
+            _rechercheEleveTimeout = setTimeout(() => loadElevesDisponibles(valeur.trim()), 350);
+        }
+
+        async function loadElevesDisponibles(recherche) {
+            document.getElementById('eleves-disponibles').innerHTML =
+                '<div class="empty"><div class="spinner"></div>Chargement…</div>';
+            try {
+                const url = recherche
+                    ? `${API}/alumni/orientation/eleves?q=${encodeURIComponent(recherche)}`
+                    : `${API}/alumni/orientation/eleves`;
+                const r = await fetch(url, { headers: authH() });
+                const d = await r.json();
+                const eleves = d.eleves || [];
+
+                document.getElementById('eleves-disponibles').innerHTML =
+                    eleves.length
+                        ? eleves.map(e => `
+                            <div style="display:flex; align-items:center; justify-content:space-between;
+                                padding:10px 12px; border-radius:10px; background:#F8FAFF;
+                                border:1px solid var(--border); margin-bottom:8px;">
+                                <div>
+                                    <strong>${esc(e.prenom)} ${esc(e.nom)}</strong>
+                                    <div style="font-size:.72rem; color:var(--muted);">
+                                        ${esc(e.classe_actuelle || '')} · ${esc(e.code_unique)}
+                                    </div>
+                                </div>
+                                <button class="btn-p" onclick="ouvrirModalMentoratEleve('${e.id_user}', '${esc(e.prenom)} ${esc(e.nom)}')">
+                                    🤝 Mentorer
+                                </button>
+                            </div>`).join('')
+                        : '<div class="empty">Aucun élève disponible pour le moment</div>';
+            } catch (e) {
+                document.getElementById('eleves-disponibles').innerHTML =
+                    '<div class="empty">Erreur de chargement</div>';
+            }
+        }
+
+        let _pendingMentoratEleveId = null;
+        let _pendingMentoratEleveNom = null;
+
+        function ouvrirModalMentoratEleve(idEleve, nom) {
+            _pendingMentoratEleveId = idEleve;
+            _pendingMentoratEleveNom = nom || 'cet élève';
+            document.getElementById('mentorat-eleve-nom').textContent = nom || 'cet élève';
+            document.getElementById('mentorat-conseil-titre').value = '';
+            document.getElementById('mentorat-conseil-contenu').value = '';
+            document.getElementById('mentorat-conseil-domaine').value = 'Orientation';
+            document.getElementById('mentorat-conseil-objectif').value = '';
+            document.getElementById('modal-mentorat-eleve').style.display = 'flex';
+        }
+
+        async function finaliserMentoratAvecConseil() {
+            if (!_pendingMentoratEleveId) {
+                toast('⚠️ Sélectionnez d’abord un élève', 'err');
+                return;
+            }
+
+            const titre = document.getElementById('mentorat-conseil-titre').value.trim();
+            const contenu = document.getElementById('mentorat-conseil-contenu').value.trim();
+            const domaine = document.getElementById('mentorat-conseil-domaine').value;
+            const objectif = document.getElementById('mentorat-conseil-objectif').value.trim();
+
+            if (!titre || !contenu) {
+                toast('⚠️ Rédigez un titre et un conseil concret', 'err');
+                return;
+            }
+
+            const btn = document.querySelector('#modal-mentorat-eleve .btn-p');
+            btn.disabled = true;
+            btn.textContent = '⏳ Enregistrement…';
+
+            try {
+                const r = await fetch(`${API}/mentorat/relation/create`, {
+                    method: 'POST',
+                    headers: authH(),
+                    body: JSON.stringify({
+                        id_eleve: _pendingMentoratEleveId,
+                        description: objectif || `Accompagnement de ${_pendingMentoratEleveNom}`
+                    })
+                });
+                const d = await r.json();
+                if (!d.success) throw new Error(d.message || 'Erreur création relation');
+
+                const relationId = d.relation?.id_relation;
+                const entryTitle = titre.length > 70 ? `${titre.slice(0, 67)}...` : titre;
+                const entryBody = `${contenu}\n\n🎯 Objectif : ${objectif || 'Suivre la progression'}\n\n🧭 Domaine : ${domaine}`;
+
+                if (relationId) {
+                    try {
+                        await MentoratAPI.addEntree(relationId, entryTitle, entryBody, 'feedback', false);
+                    } catch (e) {
+                        console.warn('Ajout entrée conseil échoué:', e);
+                    }
+                }
+
+                toast('✅ Mentorat démarré et conseil enregistré dans le journal partagé.', 'ok');
+                fermerModal('modal-mentorat-eleve');
+                loadElevesDisponibles();
+                loadListeElevesOrientations();
+            } catch (e) {
+                toast('❌ ' + (e.message || 'Erreur réseau'), 'err');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '💬 Enregistrer le conseil';
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           DEMANDES DE MENTORAT (élèves en attente de réponse)
+           ═══════════════════════════════════════════════════════════ */
+        async function loadDemandes() {
+            const box = document.getElementById('demandes-list');
+            box.innerHTML = '<div class="empty"><div class="spinner"></div>Chargement…</div>';
+            try {
+                const r = await fetch(`${API}/mentorat/demandes`, { headers: authH() });
+                const d = await r.json();
+                const demandes = d.demandes || [];
+
+                if (!demandes.length) {
+                    box.innerHTML = '<div class="empty">Aucune demande en attente pour le moment</div>';
+                    majBadgeDemandes(0);
+                    return;
+                }
+
+                majBadgeDemandes(demandes.length);
+                box.innerHTML = demandes.map(dm => `
+                    <div style="padding:14px; border-radius:10px; background:#F8FAFF;
+                        border:1px solid var(--border); margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+                            <div>
+                                <strong style="font-size:.88rem;">${esc(dm.prenom)} ${esc(dm.nom)}</strong>
+                                <div style="font-size:.7rem; color:var(--muted); margin-top:2px;">
+                                    ${esc(dm.classe_actuelle || '')} · ${esc(dm.code_unique || '')}
+                                    · ${new Date(dm.date_creation).toLocaleDateString('fr-FR')}
+                                </div>
+                                ${(dm.domaines_assistance && dm.domaines_assistance.length) ? `
+                                    <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;">
+                                        ${dm.domaines_assistance.map(t => `<span style="background:#EEF2FF;color:#4F46E5;padding:2px 8px;border-radius:6px;font-size:.65rem;font-weight:700;">${esc(t)}</span>`).join('')}
+                                    </div>` : ''}
+                                ${dm.message ? `<div style="font-size:.78rem;color:#334155;margin-top:8px;background:#fff;padding:8px 10px;border-radius:8px;">${esc(dm.message)}</div>` : ''}
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-top:12px;">
+                            <button class="btn-p" style="flex:1;" onclick="repondreADemande(${dm.id_demande}, true)">✅ Accepter</button>
+                            <button style="flex:1;padding:8px 14px;background:#F1F5F9;border:none;border-radius:8px;font-weight:700;cursor:pointer;color:var(--muted);"
+                                onclick="repondreADemande(${dm.id_demande}, false)">✖️ Refuser</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                box.innerHTML = '<div class="empty">Erreur de chargement des demandes</div>';
+            }
+        }
+
+        function majBadgeDemandes(count) {
+            const badge = document.getElementById('demandes-badge');
+            if (!badge) return;
+            if (count > 0) { badge.textContent = count; badge.style.display = 'inline-block'; }
+            else { badge.style.display = 'none'; }
+        }
+
+        async function repondreADemande(idDemande, accepter) {
+            if (accepter) {
+                confirmerAction('Accepter cette demande et devenir le mentor de cet élève ?', async () => {
+                    await _repondreADemandeConfirme(idDemande, true);
+                });
+            } else {
+                await _repondreADemandeConfirme(idDemande, false);
+            }
+        }
+
+        async function _repondreADemandeConfirme(idDemande, accepter) {
+            try {
+                const r = await fetch(`${API}/mentorat/demandes/${idDemande}/repondre`, {
+                    method: 'PUT',
+                    headers: authH(),
+                    body: JSON.stringify({ accepter })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    toast(accepter ? '✅ Demande acceptée !' : 'Demande refusée', 'ok');
+                    loadDemandes();
+                } else {
+                    toast('❌ ' + (d.message || 'Erreur'), 'err');
+                }
+            } catch (e) {
+                toast('❌ Erreur réseau', 'err');
+            }
+        }
+
+        async function loadListeElevesOrientations() {
+            document.getElementById('liste-eleves-orientations').innerHTML =
+                '<div class="empty"><div class="spinner"></div>Chargement…</div>';
+            try {
+                const r = await fetch(`${API}/mentorat/eleves`, { headers: authH() });
+                const d = await r.json();
+                const eleves = d.eleves || [];
+
+                document.getElementById('liste-eleves-orientations').innerHTML =
+                    eleves.length
+                        ? eleves.map(e => `
+                            <div style="display:flex; align-items:center; justify-content:space-between;
+                                padding:10px 12px; border-radius:10px; background:#F8FAFF;
+                                border:1px solid var(--border); margin-bottom:8px;">
+                                <div>
+                                    <strong>${esc(e.prenom)} ${esc(e.nom)}</strong>
+                                    <div style="font-size:.72rem; color:var(--muted);">
+                                        ${esc(e.classe_actuelle || '')}
+                                        ${e.orientation
+                                ? ` · <span style="color:#7C3AED; font-weight:700;">${esc(e.orientation)}</span>`
+                                : ' · <span style="color:#F59E0B;">Non définie</span>'}
+                                    </div>
+                                </div>
+                                <button class="btn-p" onclick="ouvrirModalOrientation(${e.id_relation},'${esc(e.prenom)} ${esc(e.nom)}')">
+                                    🎯 Orienter
+                                </button>
+                            </div>`).join('')
+                        : '<div class="empty">Aucun élève mentoré pour le moment</div>';
+            } catch (e) {
+                document.getElementById('liste-eleves-orientations').innerHTML =
+                    '<div class="empty">Erreur de chargement</div>';
+            }
+        }
+
+        function ouvrirModalOrientation(idRelation, nom) {
+            document.getElementById('orientation-eleve-nom').textContent = nom;
+            document.getElementById('orientation-relation-id').value = idRelation;
+            document.querySelectorAll('input[name="orientation"]').forEach(r => r.checked = false);
+            document.getElementById('orientation-justification').value = '';
+            const m = document.getElementById('modal-orientation');
+            m.style.display = 'flex';
+        }
+
+        async function submitOrientation() {
+            const idRelation = document.getElementById('orientation-relation-id').value;
+            const orientation = document.querySelector('input[name="orientation"]:checked')?.value;
+            const justification = document.getElementById('orientation-justification').value.trim();
+
+            if (!orientation) {
+                toast('⚠️ Veuillez choisir une orientation', 'err');
+                return;
+            }
+
+            try {
+                const r = await fetch(`${API}/mentorat/orientation/set`, {
+                    method: 'POST',
+                    headers: authH(),
+                    body: JSON.stringify({ id_relation: idRelation, orientation, justification })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    toast('✅ Orientation enregistrée !', 'ok');
+                    fermerModalOrientation();
+                    loadListeElevesOrientations();
+                } else {
+                    toast('❌ ' + (d.message || 'Erreur'), 'err');
+                }
+            } catch (e) {
+                toast('❌ Erreur réseau', 'err');
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           JOURNAL DE BORD
+           ═══════════════════════════════════════════════════════════ */
+        let _tousLesElevesMentores = [];
+
+        async function loadElevesMentorat() {
+            document.getElementById('eleves-mentorat-list').innerHTML =
+                '<div class="empty"><div class="spinner"></div>Chargement…</div>';
+            try {
+                const r = await fetch(`${API}/mentorat/eleves`, { headers: authH() });
+                const d = await r.json();
+                _tousLesElevesMentores = d.eleves || [];
+                rendreElevesMentores(_tousLesElevesMentores);
+            } catch (e) {
+                document.getElementById('eleves-mentorat-list').innerHTML =
+                    '<div class="empty">Erreur de chargement</div>';
+            }
+        }
+
+        let _rechercheMentoratTimeout = null;
+        function rechercheElevesMentorat(valeur) {
+            clearTimeout(_rechercheMentoratTimeout);
+            _rechercheMentoratTimeout = setTimeout(() => {
+                const v = valeur.trim().toLowerCase();
+                const filtres = !v ? _tousLesElevesMentores : _tousLesElevesMentores.filter(e =>
+                    `${e.prenom} ${e.nom}`.toLowerCase().includes(v)
+                );
+                rendreElevesMentores(filtres);
+            }, 250);
+        }
+
+        function rendreElevesMentores(eleves) {
+            const statutLabel = { actif: '🟢 Actif', suspendu: '🟠 Suspendu', 'terminé': '⚪ Terminé' };
+            document.getElementById('eleves-mentorat-list').innerHTML =
+                eleves.length
+                    ? eleves.map(e => {
+                        const moy = e.moyenne_generale ? parseFloat(e.moyenne_generale).toFixed(2) : null;
+                        const domaines = e.domaines_assistance || [];
+                        return `
+                        <div onclick="chargerDetailMentorat(${e.id_relation},'${esc(e.prenom)} ${esc(e.nom)}')"
+                            style="padding:12px; border-radius:10px; cursor:pointer; margin-bottom:8px;
+                            background:#F8F6FF; border:1px solid var(--border); transition:background .15s;"
+                            onmouseover="this.style.background='#F0EBFF'"
+                            onmouseout="this.style.background='#F8F6FF'">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                <div style="font-weight:700; font-size:.85rem;">${esc(e.prenom)} ${esc(e.nom)}</div>
+                                <span style="background:#F97316; color:#fff; font-size:.65rem; font-weight:700;
+                                    padding:2px 9px; border-radius:20px; white-space:nowrap;">${esc(e.classe_actuelle || '')}</span>
+                            </div>
+                            <div style="font-size:.68rem; color:var(--muted); margin:4px 0;">
+                                Inscrit le ${e.date_debut ? new Date(e.date_debut).toLocaleDateString('fr-FR') : '—'}
+                                · ${statutLabel[e.statut] || e.statut || ''}
+                            </div>
+                            ${domaines.length ? `
+                                <div style="display:flex; flex-wrap:wrap; gap:4px; margin:6px 0;">
+                                    ${domaines.map(dm => `<span style="background:#EEF2FF; color:#4F46E5; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:6px;">${esc(dm)}</span>`).join('')}
+                                </div>` : ''}
+                            ${moy ? `<div style="background:#FFF7ED; color:#EA580C; font-weight:700; font-size:.78rem; padding:6px 10px; border-radius:8px; margin:6px 0;">Moyenne: ${moy}/20</div>` : ''}
+                            <div style="font-size:.68rem; color:var(--muted); margin-top:6px;">
+                                📝 ${e.nb_entrees_journal || 0} entrées · 🎯 ${e.nb_objectifs || 0} objectifs
+                            </div>
+                        </div>`;
+                    }).join('')
+                    : '<div class="empty">Aucun élève trouvé</div>';
+        }
+
+        async function chargerDetailMentorat(idRelation, nom) {
+            currentMentoratEleveName = nom || currentMentoratEleveName;
+            const container = document.getElementById('mentorat-detail-container');
+            container.innerHTML = '<div class="empty"><div class="spinner"></div>Chargement…</div>';
+
+            try {
+                const [journal, resultats] = await Promise.all([
+                    fetch(`${API}/mentorat/journal/${idRelation}`, { headers: authH() }).then(r => r.json()),
+                    fetch(`${API}/mentorat/resultats-eleve/${idRelation}`, { headers: authH() })
+                        .then(r => r.json()).catch(() => ({ resultats: [] }))
+                ]);
+
+                const entrees = journal.entrees || [];
+
+                container.innerHTML = `
+                    <div class="card" style="margin-bottom:16px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                            <h3 style="font-weight:700; color:var(--ink);">📖 Journal de ${esc(currentMentoratEleveName)}</h3>
+                            <button class="btn-p" onclick="ouvrirModalEntree(${idRelation})">✍️ Nouvelle entrée</button>
+                        </div>
+                        <div id="journal-entrees">
+                            ${entrees.length
+                        ? entrees.map(e => `
+                                    <div style="padding:12px; border-radius:10px; background:#F8FAFF;
+                                        border:1px solid var(--border); margin-bottom:10px;">
+                                        <div style="display:flex; justify-content:space-between;">
+                                            <strong style="font-size:.85rem;">${esc(e.titre || 'Sans titre')}</strong>
+                                            <small style="color:var(--muted); font-size:.68rem;">
+                                                ${new Date(e.date_creation || e.created_at).toLocaleDateString('fr-FR')}
+                                            </small>
+                                        </div>
+                                        <div style="font-size:.78rem; color:var(--muted); margin-top:6px;">
+                                            ${esc(e.contenu)}
+                                        </div>
+                                        ${(e.is_prive || e.est_prive) ? `
+                                            <div style="margin-top:10px; font-size:.75rem; color:#B91C1C; font-weight:700;">🔒 Privée</div>
+                                        ` : ''}
+                                    </div>`).join('')
+                        : '<div class="empty">Aucune entrée dans le journal</div>'
+            }
+                        </div >
+                    </div > `;
+            } catch (e) {
+                container.innerHTML = '<div class="empty">Erreur de chargement du journal</div>';
+            }
+        }
+
+        function ouvrirModalEntree(idRelation) {
+            document.getElementById('entree-relation-id').value = idRelation;
+            document.getElementById('entree-id-edit').value = '';
+            document.getElementById('entree-titre').value = '';
+            document.getElementById('entree-contenu').value = '';
+            document.getElementById('entree-type').value = 'note';
+            document.getElementById('entree-prive').checked = false;
+            document.getElementById('modal-entree').style.display = 'flex';
+        }
+
+        async function submitEntree() {
+            const idRelation = document.getElementById('entree-relation-id').value;
+            const titre = document.getElementById('entree-titre').value.trim();
+            const contenu = document.getElementById('entree-contenu').value.trim();
+            const type = document.getElementById('entree-type').value;
+            const prive = document.getElementById('entree-prive').checked;
+
+            if (!contenu) { toast('⚠️ Le contenu est requis', 'err'); return; }
+
+            try {
+                const r = await fetch(`${API}/mentorat/journal/entree`, {
+                    method: 'POST',
+                    headers: authH(),
+                    body: JSON.stringify({ id_relation: idRelation, titre, contenu, type_entree: type, is_prive: prive })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    toast('✅ Entrée publiée !', 'ok');
+                    fermerModal('modal-entree');
+                    chargerDetailMentorat(idRelation, currentMentoratEleveName);
+                } else {
+                    toast('❌ ' + (d.message || 'Erreur'), 'err');
+                }
+            } catch (e) {
+                toast('❌ Erreur réseau', 'err');
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           PROFIL
+           ═══════════════════════════════════════════════════════════ */
         async function loadProfil() {
             try {
                 const r = await fetch(`${API}/alumni/profil`, { headers: authH() });
                 const d = await r.json();
-                if (d.success) {
-                    const p = d.profil;
-                    document.getElementById('pr-pn').value = p.prenom || '';
-                    document.getElementById('pr-nn').value = p.nom || '';
-                    document.getElementById('pr-nc').textContent = `${p.prenom || ''} ${p.nom || ''}`;
-                    document.getElementById('pr-cc').textContent = p.code_unique || '';
-                    document.getElementById('pr-pa').value = p.poste_actuel || '';
-                    document.getElementById('pr-en').value = p.entreprise_actuelle || '';
-                    document.getElementById('pr-tl').value = p.telephone || '';
-                    document.getElementById('pr-vr').value = p.ville_residence || '';
-                    document.getElementById('pr-de').value = p.domaine_expertise || '';
-                    document.getElementById('pr-sa').value = p.secteur_activite || '';
-                    document.getElementById('pr-bi').value = p.biographie || '';
-                    document.getElementById('pr-li').value = p.linkedin_url || '';
-                    document.getElementById('pr-sw').value = p.site_web || '';
-                    document.getElementById('pr-ex').textContent = p.domaine_expertise || '—';
-                    document.getElementById('pr-se').textContent = p.secteur_activite || '—';
+                if (!d.success) return;
+                const p = d.profil;
 
-                    // Photo de profil
-                    const av = document.getElementById('pr-av');
-                    const avt = document.getElementById('pr-av-t');
-                    if (p.photo_url) {
-                        av.style.backgroundImage = `url(${p.photo_url})`;
-                        av.style.backgroundSize = 'cover';
-                        av.style.backgroundPosition = 'center';
-                        avt.style.display = 'none';
-                    } else {
-                        av.style.backgroundImage = '';
-                        avt.textContent = ini(p.prenom, p.nom);
-                        avt.style.display = 'block';
-                    }
+                document.getElementById('pr-pn').value = p.prenom || '';
+                document.getElementById('pr-nn').value = p.nom || '';
+                document.getElementById('pr-nc').textContent = `${ p.prenom || '' } ${ p.nom || '' } `.trim();
+                document.getElementById('pr-cc').textContent = p.code_unique || '';
+                document.getElementById('pr-pa').value = p.poste_actuel || '';
+                document.getElementById('pr-en').value = p.entreprise_actuelle || '';
+                document.getElementById('pr-tl').value = p.telephone || '';
+                document.getElementById('pr-vr').value = p.ville_residence || '';
+                document.getElementById('pr-de').value = p.domaine_expertise || '';
+                document.getElementById('pr-sa').value = p.secteur_activite || '';
+                document.getElementById('pr-bi').value = p.biographie || '';
+                document.getElementById('pr-li').value = p.linkedin_url || '';
+                document.getElementById('pr-sw').value = p.site_web || '';
+                document.getElementById('pr-ex').textContent = p.domaine_expertise || '—';
+                document.getElementById('pr-se').textContent = p.secteur_activite || '—';
+
+                // Avatar
+                const av = document.getElementById('pr-av');
+                const avt = document.getElementById('pr-av-t');
+                if (p.photo_url) {
+                    av.style.backgroundImage = `url(${ p.photo_url })`;
+                    av.style.backgroundSize = 'cover';
+                    av.style.backgroundPosition = 'center';
+                    avt.style.display = 'none';
+                } else {
+                    av.style.backgroundImage = '';
+                    avt.textContent = ini(p.prenom, p.nom);
+                    avt.style.display = 'block';
                 }
             } catch (e) {
                 console.error('Erreur chargement profil:', e);
+                toast('❌ Erreur chargement du profil', 'err');
             }
         }
 
         async function saveProfil() {
             const btn = document.getElementById('btn-sv');
-            const ok = document.getElementById('sv-ok');
             btn.disabled = true;
-            btn.textContent = 'Enregistrement...';
+            btn.textContent = 'Enregistrement…';
 
             try {
                 const data = {
@@ -554,20 +1665,21 @@
 
                 const r = await fetch(`${API}/alumni/profil`, {
                     method: 'PUT',
-                    headers: { ...authH(), 'Content-Type': 'application/json' },
+                    headers: authH(),
                     body: JSON.stringify(data)
                 });
                 const d = await r.json();
 
                 if (d.success) {
-                    ok.style.display = 'inline';
-                    setTimeout(() => ok.style.display = 'none', 3000);
+                    toast('✅ Profil enregistré !', 'ok');
+                    // Mettre à jour les infos affichées
+                    document.getElementById('pr-ex').textContent = data.domaine_expertise || '—';
+                    document.getElementById('pr-se').textContent = data.secteur_activite || '—';
                 } else {
-                    alert('Erreur: ' + (d.message || 'Erreur inconnue'));
+                    toast('❌ Erreur : ' + (d.message || 'Erreur inconnue'), 'err');
                 }
             } catch (e) {
-                console.error('Erreur sauvegarde:', e);
-                alert('Erreur lors de la sauvegarde');
+                toast('❌ Erreur réseau', 'err');
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Enregistrer';
@@ -578,51 +1690,61 @@
             const f = input.files[0];
             if (!f) return;
             if (f.size > 2 * 1024 * 1024) {
-                alert('Photo trop lourde. Maximum 2 Mo.');
+                toast('⚠️ Photo trop lourde (max 2 Mo)', 'err');
                 return;
             }
 
             const rd = new FileReader();
             rd.onload = async e => {
                 const url = e.target.result;
-                const imgC = s => `<img src="${url}" style="width:${s};height:${s};object-fit:cover;border-radius:50%;" alt="">`;
-
-                // Mettre à jour l'affichage
-                document.getElementById('pr-av').style.backgroundImage = 'none';
-                document.getElementById('pr-av-t').innerHTML = imgC('86px');
-                document.getElementById('pr-av-t').style.display = 'block';
+                // Aperçu immédiat
+                const av = document.getElementById('pr-av');
+                const avt = document.getElementById('pr-av-t');
+                av.style.backgroundImage = `url(${ url })`;
+                av.style.backgroundSize = 'cover';
+                av.style.backgroundPosition = 'center';
+                avt.style.display = 'none';
 
                 try {
                     const r = await fetch(`${API}/alumni/profil`, {
                         method: 'PUT',
-                        headers: { ...authH(), 'Content-Type': 'application/json' },
+                        headers: authH(),
                         body: JSON.stringify({ photo_url: url })
                     });
                     const d = await r.json();
-
                     if (d.success) {
-                        // Mettre à jour le localStorage
+                        toast('✅ Photo mise à jour !', 'ok');
+                        // Synchroniser la session locale
                         const sess = JSON.parse(localStorage.getItem('user_session') || '{}');
                         sess.photo_url = url;
                         localStorage.setItem('user_session', JSON.stringify(sess));
                     } else {
-                        alert('Erreur sauvegarde photo: ' + (d.message || 'Erreur inconnue'));
+                        toast('❌ Erreur sauvegarde photo', 'err');
                     }
-                } catch (e) {
-                    console.error('Erreur upload photo:', e);
-                    alert('Erreur lors de la sauvegarde de la photo');
+                } catch (err) {
+                    toast('❌ Erreur réseau', 'err');
                 }
             };
             rd.readAsDataURL(f);
         }
-        function openMentoratModal() { const txt = prompt("Votre conseil / témoignage :"); if (txt) fetch(`${API}/alumni/mentorats`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ contenu: txt }) }).then(() => loadMentorats()); }
-        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
-        document.getElementById('sb-nom').textContent = (currentUser.prenom || '') + ' ' + (currentUser.nom || '');
-        document.getElementById('sb-mat').textContent = currentUser.code_unique || '';
-        loadAccueil();
+
+        /* ═══════════════════════════════════════════════════════════
+           DÉMARRAGE
+           ═══════════════════════════════════════════════════════════ */
+        document.getElementById('sb-nom').textContent =
+            ((currentUser.prenom || '') + ' ' + (currentUser.nom || '')).trim() || '—';
+        document.getElementById('sb-mat').textContent = currentUser.code_unique || '—';
+
+        // Charger la page d'accueil
+        go('accueil');
+
+        // Icônes Lucide si disponibles
         if (window.lucide) lucide.createIcons();
     </script>
+
+    <script src="mentorat.js"></script>
     <script src="responsive-init.js"></script>
+
 </body>
 
 </html>

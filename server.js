@@ -106,6 +106,19 @@ try {
             });
         });
 
+        // Permettre aux clients (élèves) de rejoindre une room par classe
+        socket.on('join_classe', (data) => {
+            try {
+                const classe = (data && data.classe) ? String(data.classe) : null;
+                if (classe) {
+                    const room = `classe_${classe.replace(/\s+/g, '_')}`;
+                    socket.join(room);
+                    socket.emit('joined_classe', { room });
+                    console.log(`✅ Socket a rejoint la room ${room}`);
+                }
+            } catch (e) { console.warn('join_classe failed:', e.message); }
+        });
+
         // Écoute l'événement pour envoyer les messages des parents aux élèves
         socket.on('sendParentMessage', (data) => {
             const conv_id = data.conv_id || 'general';
@@ -151,6 +164,7 @@ const eleveRoutes = require('./routes/eleveRoutes');
 const parentRoutes = require('./routes/parentRoutes');
 const professeurRoutes = require('./routes/professeurRoutes');
 const alumniRoutes = require('./routes/alumniRoutes');
+const mentoratRoutes = require('./routes/mentoratRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -159,6 +173,7 @@ app.use('/api/eleves', eleveRoutes);
 app.use('/api/parents', parentRoutes);
 app.use('/api/professeurs', professeurRoutes);
 app.use('/api/alumni', alumniRoutes);
+app.use('/api/mentorat', mentoratRoutes);
 
 // ── Upload média salle des profs ──
 const multer = require('multer');
@@ -301,10 +316,35 @@ app.use('/api/notifications', notificationRoutes);
 module.exports.getIO = getIO;
 module.exports.setIO = setIO;
 
+
+
+// Route publique pour les images des espaces (pas besoin de token)
+app.get('/api/public/espace-image/:espace', async (req, res) => {
+    try {
+        const { espace } = req.params;
+        const result = await db.query(
+            `SELECT url_image, type_image, titre 
+             FROM gestion.images_espaces 
+             WHERE espace = $1 AND est_active = true 
+             ORDER BY ordre ASC 
+             LIMIT 1`,
+            [espace]
+        );
+        if (result.rows.length > 0) {
+            res.json({ success: true, image: result.rows[0] });
+        } else {
+            res.json({ success: true, image: null });
+        }
+    } catch (error) {
+        console.error('Erreur récupération image espace:', error);
+        res.status(500).json({ success: false });
+    }
+});
+
 // ═══════════════════════════════════════════
 // DÉMARRAGE
 // ═══════════════════════════════════════════
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`🚀 Serveur + WebSocket lancé sur le port ${PORT}`);
     db.query('SELECT 1').then(() => console.log('✅ Connecté à PostgreSQL')).catch(e => console.error('❌ BD:', e.message));

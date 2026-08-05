@@ -470,8 +470,6 @@
       'CN-': { role: 'ELEVE', label: 'Espace Élève', page: 'eleve.html' },
       'PROF-': { role: 'PROFESSEUR', label: 'Espace Professeur', page: 'professeur.html' },
       'PAR-': { role: 'PARENT', label: 'Espace Parent', page: 'parent.html' },
-      'DIR-': { role: 'DIRECTION', label: 'Espace Direction', page: 'direction.html' },
-      'SURV-': { role: 'SURVEILLANT', label: 'Espace Surveillant', page: 'direction.html' },
       'ALUMNI-': { role: 'ALUMNI', label: 'Espace Alumni', page: 'alumni.html' },
     };
 
@@ -542,7 +540,8 @@
 
     async function chargerConfigEcole() {
       try {
-        const response = await fetch('/api/admin/config');
+        // ✅ SÉCURITÉ : utilise la route publique (sans token requis)
+        const response = await fetch('/api/admin/config-public');
         const data = await response.json();
         if (data.success && data.config) {
           const titleEl = document.getElementById('logo-title');
@@ -576,8 +575,10 @@
         // On envoie le rôle seulement si détecté (optionnel, le backend le retrouve tout seul)
         const roleToSend = detectedInfo?.role || urlRole;
         if (roleToSend) body.role = roleToSend;
+        const contexte = new URLSearchParams(window.location.search).get('context');
+        if (contexte) body.context = contexte;
 
-        const resp = await fetch((window.API_BASE || (window.API_BASE||'http://localhost:5000/api')) + '/auth/login', {
+        const resp = await fetch((window.API_BASE || (window.API_BASE || 'http://localhost:5000/api')) + '/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body)
@@ -604,6 +605,26 @@
         // ══ CAS 3 : Succès ══
         const user = data.user || {};
         const roleActuel = user.role_actuel;
+
+        // ══ SÉCURITÉ : Vérification classe pour les élèves ══
+        // Un élève ne peut accéder qu'à SA propre classe
+        if (roleActuel === 'ELEVE') {
+          const classeCliquee = localStorage.getItem('classe_cliquee') || '';
+          const classeReelle = (user.classe_actuelle || user.classe || '').trim();
+          if (classeCliquee && classeReelle) {
+            // Normalisation pour comparaison (ex: "6ème" == "6ème")
+            const normalize = s => s.trim().toLowerCase()
+              .replace(/è/g, 'e').replace(/é/g, 'e').replace(/ê/g, 'e')
+              .replace(/\s+/g, '').replace(/eme$/, 'e').replace(/ème$/, 'e');
+            if (normalize(classeCliquee) !== normalize(classeReelle)) {
+              setBtn('error');
+              showErr(`Accès refusé. Votre classe est ${classeReelle}, pas ${classeCliquee}. Retournez sélectionner votre vraie classe.`);
+              localStorage.removeItem('classe_cliquee');
+              return;
+            }
+          }
+          localStorage.removeItem('classe_cliquee');
+        }
 
         // Stocker tout ce dont les pages ont besoin
         localStorage.setItem('token', data.token || '');

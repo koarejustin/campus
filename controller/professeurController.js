@@ -3,14 +3,34 @@ const path = require('path');
 const fs = require('fs');
 
 // ═══════════════════════════════════════════
+// Normalisation des noms de matières (accents, casse, espaces)
+// Utilisée pour faire correspondre profils_profs.matieres (texte libre)
+// avec les vrais id_matiere de pedagogie.matieres
+// ═══════════════════════════════════════════
+function _normMat(s) {
+    return String(s || '').toLowerCase()
+        .replace(/[éèê]/g, 'e').replace(/[àâ]/g, 'a').replace(/[îï]/g, 'i')
+        .replace(/[ôö]/g, 'o').replace(/[ùûü]/g, 'u').replace(/[ç]/g, 'c')
+        .replace(/\s*\/\s*/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// ═══════════════════════════════════════════
 // PROFIL PROFESSEUR
 // ═══════════════════════════════════════════
 exports.getProfil = async (req, res) => {
     try {
         const profId = req.user?.id;
+
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS matieres TEXT[]`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS annees_exp SMALLINT DEFAULT 0`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS photo_url TEXT`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS classes TEXT[]`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS diplome VARCHAR(150)`);
+
         const r = await db.query(`
             SELECT c.nom, c.prenom, c.email, c.telephone, c.code_unique,
-                   p.specialite, p.biographie, p.date_arrivee, p.photo_url
+                   p.specialite, p.biographie, p.date_arrivee, p.photo_url,
+                   p.matieres, p.annees_exp, p.classes, p.diplome
             FROM authentification.comptes c
             LEFT JOIN pedagogie.profils_profs p ON p.id_user = c.id_user
             WHERE c.id_user = $1
@@ -18,6 +38,9 @@ exports.getProfil = async (req, res) => {
         if (!r.rows.length) return res.status(404).json({ message: 'Profil introuvable' });
 
         let profil = r.rows[0];
+        profil.matieres = profil.matieres || [];
+        profil.classes = profil.classes || [];
+        profil.diplome = profil.diplome || null;
 
         // Si photo_url n'est pas dans la requête, essayer de la récupérer séparément
         if (!profil.photo_url) {
@@ -31,6 +54,17 @@ exports.getProfil = async (req, res) => {
             } catch (e) { }
         }
 
+        // Biographie automatique si aucune n'a été renseignée (basée sur les vraies données)
+        if (!profil.biographie || !String(profil.biographie).trim()) {
+            const matieresTxt = (profil.matieres && profil.matieres.length)
+                ? profil.matieres.join(' et ')
+                : 'plusieurs matières';
+            const expTxt = profil.annees_exp
+                ? `${profil.annees_exp} an${profil.annees_exp > 1 ? 's' : ''} d'expérience`
+                : 'une solide expérience pédagogique';
+            profil.biographie = `Professeur de ${matieresTxt} · ${expTxt}.`;
+        }
+
         res.json({ success: true, profil });
     } catch (e) {
         console.error('Erreur getProfil:', e);
@@ -41,11 +75,40 @@ exports.getProfil = async (req, res) => {
 exports.updateProfil = async (req, res) => {
     try {
         const profId = req.user?.id;
-        const { telephone, specialite, biographie } = req.body;
+        const {
+            nom, prenom, email,
+            telephone, specialite, biographie,
+            annees_exp, matieres, classes, diplome
+        } = req.body;
 
-        // Mise à jour du téléphone si fourni
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS matieres TEXT[]`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS annees_exp SMALLINT DEFAULT 0`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS photo_url TEXT`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS classes TEXT[]`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS diplome VARCHAR(150)`);
+
+        if (nom) {
+            await db.query(
+                `UPDATE authentification.comptes SET nom=$1 WHERE id_user=$2`,
+                [String(nom).trim(), profId]
+            );
+        }
+        if (prenom) {
+            await db.query(
+                `UPDATE authentification.comptes SET prenom=$1 WHERE id_user=$2`,
+                [String(prenom).trim(), profId]
+            );
+        }
+        if (email) {
+            await db.query(
+                `UPDATE authentification.comptes SET email=$1 WHERE id_user=$2`,
+                [String(email).trim(), profId]
+            );
+        }
+
+        let telClean = null;
         if (telephone) {
-            const telClean = String(telephone).replace(/\s/g, '').replace(/[^0-9+]/g, '');
+            telClean = String(telephone).replace(/\s/g, '').replace(/[^0-9+]/g, '');
             if (telClean.length >= 8) {
                 try {
                     await db.query(
@@ -55,50 +118,68 @@ exports.updateProfil = async (req, res) => {
                 } catch (eTel) {
                     console.warn('Téléphone rejeté:', eTel.message);
                 }
+            } else {
+                telClean = null;
             }
         }
 
-        // Vérifier si le profil professeur existe
-        const existing = await db.query(
-            `SELECT id_prof FROM pedagogie.profils_profs WHERE id_user=$1`, [profId]
-        );
-
-        if (existing.rows.length > 0) {
-            await db.query(
-                `UPDATE pedagogie.profils_profs 
-                 SET specialite=$1, biographie=$2 
-                 WHERE id_user=$3`,
-                [specialite || '', biographie || '', profId]
-            );
-        } else {
-            await db.query(
-                `INSERT INTO pedagogie.profils_profs (id_user, specialite, biographie)
-                 VALUES ($1, $2, $3)`,
-                [profId, specialite || '', biographie || '']
-            );
+        let matieresArray = [];
+        if (matieres) {
+            if (typeof matieres === 'string') {
+                try {
+                    matieresArray = JSON.parse(matieres);
+                } catch (e) {
+                    matieresArray = matieres.split(',').map(m => m.trim()).filter(Boolean);
+                }
+            } else if (Array.isArray(matieres)) {
+                matieresArray = matieres;
+            }
+            matieresArray = matieresArray.filter(v => v && typeof v === 'string');
         }
 
-        // ========== CORRECTION PHOTO DE PROFIL ==========
+        let classesArray = [];
+        if (classes) {
+            if (typeof classes === 'string') {
+                try {
+                    classesArray = JSON.parse(classes);
+                } catch (e) {
+                    classesArray = classes.split(',').map(c => c.trim()).filter(Boolean);
+                }
+            } else if (Array.isArray(classes)) {
+                classesArray = classes;
+            }
+            classesArray = classesArray.filter(v => v && typeof v === 'string');
+        }
+
+        const validYears = parseInt(annees_exp, 10);
+        const anneesExpValue = Number.isInteger(validYears) && validYears >= 0 ? validYears : null;
+
+        await db.query(
+            `INSERT INTO pedagogie.profils_profs (id_user, specialite, biographie, telephone, matieres, classes, diplome, annees_exp)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             ON CONFLICT (id_user) DO UPDATE SET
+                specialite = EXCLUDED.specialite,
+                biographie = EXCLUDED.biographie,
+                telephone = COALESCE(EXCLUDED.telephone, pedagogie.profils_profs.telephone),
+                matieres = COALESCE(EXCLUDED.matieres, pedagogie.profils_profs.matieres),
+                classes = COALESCE(EXCLUDED.classes, pedagogie.profils_profs.classes),
+                diplome = COALESCE(EXCLUDED.diplome, pedagogie.profils_profs.diplome),
+                annees_exp = COALESCE(EXCLUDED.annees_exp, pedagogie.profils_profs.annees_exp)`,
+            [profId, specialite || '', biographie || '', telClean, matieresArray.length ? matieresArray : null, classesArray.length ? classesArray : null, diplome || null, anneesExpValue]
+        );
+
         let photo_url = null;
         if (req.file) {
-            // Construire l'URL complète
             const baseUrl = `${req.protocol}://${req.get('host')}`;
             photo_url = `/uploads/${req.file.filename}`;
-
             try {
-                // S'assurer que la colonne photo_url existe
-                await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS photo_url TEXT`);
-
-                // Mettre à jour la photo
                 const updatePhoto = await db.query(
                     `UPDATE pedagogie.profils_profs SET photo_url=$1 WHERE id_user=$2 RETURNING photo_url`,
                     [photo_url, profId]
                 );
-
                 if (updatePhoto.rows.length === 0) {
-                    // Si la ligne n'existe pas, l'insérer
                     await db.query(
-                        `INSERT INTO pedagogie.profils_profs (id_user, photo_url) VALUES ($1, $2) 
+                        `INSERT INTO pedagogie.profils_profs (id_user, photo_url) VALUES ($1, $2)
                          ON CONFLICT (id_user) DO UPDATE SET photo_url=$2`,
                         [profId, photo_url]
                     );
@@ -110,10 +191,9 @@ exports.updateProfil = async (req, res) => {
             }
         }
 
-        // Récupérer le profil mis à jour pour le retour
         const updatedProfil = await db.query(`
             SELECT c.nom, c.prenom, c.email, c.telephone, c.code_unique,
-                   p.specialite, p.biographie, p.photo_url
+                   p.specialite, p.biographie, p.photo_url, p.matieres, p.classes, p.diplome, p.annees_exp
             FROM authentification.comptes c
             LEFT JOIN pedagogie.profils_profs p ON p.id_user = c.id_user
             WHERE c.id_user = $1
@@ -122,12 +202,72 @@ exports.updateProfil = async (req, res) => {
         res.json({
             success: true,
             message: 'Profil mis à jour',
-            profil: updatedProfil.rows[0] || { telephone, specialite, biographie, photo_url },
-            photo_url: photo_url
+            profil: updatedProfil.rows[0] || { nom, prenom, email, telephone: telClean, specialite, biographie, photo_url, matieres: matieresArray, classes: classesArray, diplome: diplome || null, annees_exp: anneesExpValue },
+            photo_url
         });
     } catch (e) {
         console.error('Erreur updateProfil:', e);
         res.status(500).json({ message: 'Erreur serveur: ' + e.message });
+    }
+};
+
+exports.getProfilById = async (req, res) => {
+    try {
+        const profId = req.params.id;
+        const requester = req.user;
+
+        if (!profId) {
+            return res.status(400).json({ message: 'Identifiant du professeur requis' });
+        }
+
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS matieres TEXT[]`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS annees_exp SMALLINT DEFAULT 0`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS photo_url TEXT`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS classes TEXT[]`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS diplome VARCHAR(150)`);
+
+        const r = await db.query(`
+            SELECT c.nom, c.prenom, c.email, c.telephone, c.code_unique,
+                   p.specialite, p.biographie, p.date_arrivee, p.photo_url,
+                   p.matieres, p.annees_exp, p.classes, p.diplome
+            FROM authentification.comptes c
+            LEFT JOIN pedagogie.profils_profs p ON p.id_user = c.id_user
+            WHERE c.id_user = $1
+              AND c.role_actuel = 'PROFESSEUR'
+              AND c.est_actif = true
+        `, [profId]);
+
+        if (!r.rows.length) return res.status(404).json({ message: 'Profil introuvable' });
+
+        const profil = r.rows[0];
+        profil.matieres = profil.matieres || [];
+        profil.classes = profil.classes || [];
+
+        const isSelf = requester.id === profId;
+        const isAdmin = ['DIRECTION', 'SURVEILLANT'].includes(requester.role);
+
+        if (!isSelf && !isAdmin) {
+            if (requester.role === 'ELEVE') {
+                const student = await db.query(
+                    `SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user = $1`,
+                    [requester.id]
+                );
+                if (!student.rows.length) {
+                    return res.status(403).json({ message: 'Accès refusé' });
+                }
+                const studentClasse = student.rows[0].classe_actuelle;
+                if (!profil.classes.some(c => String(c).trim().toLowerCase() === String(studentClasse).trim().toLowerCase())) {
+                    return res.status(403).json({ message: 'Accès refusé' });
+                }
+            } else {
+                return res.status(403).json({ message: 'Accès refusé' });
+            }
+        }
+
+        res.json({ success: true, profil });
+    } catch (e) {
+        console.error('Erreur getProfilById:', e);
+        res.status(500).json({ message: 'Erreur serveur' });
     }
 };
 
@@ -160,6 +300,74 @@ exports.getEleves = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════
+// MES MATIÈRES — vraies matières du prof avec leur vrai id_matiere
+// + vrai coefficient officiel pour la classe demandée (moyennesEngine)
+// (remplace le faux id + coefficient deviné côté frontend)
+// ═══════════════════════════════════════════
+exports.getMesMatieres = async (req, res) => {
+    try {
+        const profId = req.user?.id;
+        const classeQuery = req.query.classe || null;
+
+        const profRes = await db.query(
+            `SELECT matieres FROM pedagogie.profils_profs WHERE id_user = $1`,
+            [profId]
+        );
+        const mesMatieresNoms = profRes.rows[0]?.matieres || [];
+
+        const toutesMatieres = await db.query(
+            `SELECT id_matiere, nom_matiere, coefficient FROM pedagogie.matieres ORDER BY id_matiere`
+        );
+
+        // Programme officiel de la classe demandée (coefficients réels Burkina Faso)
+        let programme = null;
+        let engineNorm = null;
+        if (classeQuery) {
+            try {
+                const engine = require('../services/moyennesEngine');
+                programme = engine.getProgramme(classeQuery);
+                engineNorm = engine.normaliserNomMatiereAvecAlias;
+            } catch (e) {
+                console.warn('moyennesEngine indisponible pour getMesMatieres:', e.message);
+            }
+        }
+
+        const resultat = [];
+        for (const nomProf of mesMatieresNoms) {
+            const match = toutesMatieres.rows.find(
+                m => _normMat(m.nom_matiere) === _normMat(nomProf)
+            );
+            if (!match) {
+                console.warn(`⚠️ Matière "${nomProf}" (profil prof ${profId}) introuvable dans pedagogie.matieres`);
+                continue;
+            }
+
+            // Chercher le vrai coefficient de cette matière pour CETTE classe
+            // (via le même système d'alias que moyennesEngine, pas une simple comparaison de texte)
+            let coefficient = match.coefficient; // repli : coefficient générique
+            let horsProgramme = true;
+            if (programme && engineNorm) {
+                const cible = engineNorm(nomProf);
+                const entree = programme.find(p => engineNorm(p.nom) === cible);
+                if (entree) { coefficient = entree.coef; horsProgramme = false; }
+            }
+
+            resultat.push({
+                id_matiere: match.id_matiere,
+                nom_matiere: match.nom_matiere,
+                coefficient,
+                hors_programme: horsProgramme
+            });
+        }
+
+        res.json({ success: true, matieres: resultat });
+    } catch (e) {
+        console.error('Erreur getMesMatieres:', e);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+// ═══════════════════════════════════════════
 // NOTES
 // ═══════════════════════════════════════════
 exports.saveNotes = async (req, res) => {
@@ -168,9 +376,31 @@ exports.saveNotes = async (req, res) => {
         const { notes, trimestre = 1, annee_scolaire = '2025-2026' } = req.body;
         if (!notes || !Array.isArray(notes)) return res.status(400).json({ message: 'Notes requises' });
 
+        // 🔒 Sécurité : construire l'ensemble des id_matiere réellement enseignés par ce prof
+        const profRes = await db.query(
+            `SELECT matieres FROM pedagogie.profils_profs WHERE id_user = $1`,
+            [profId]
+        );
+        const mesMatieresNoms = profRes.rows[0]?.matieres || [];
+        const toutesMatieres = await db.query(`SELECT id_matiere, nom_matiere FROM pedagogie.matieres`);
+        const idsAutorises = new Set(
+            toutesMatieres.rows
+                .filter(m => mesMatieresNoms.some(nm => _normMat(nm) === _normMat(m.nom_matiere)))
+                .map(m => m.id_matiere)
+        );
+
         let saved = 0;
+        let refusees = 0;
         for (const n of notes) {
             if (!n.id_eleve || !n.id_matiere || n.note === undefined) continue;
+
+            // 🔒 Refuser toute note sur une matière que ce prof n'enseigne pas
+            if (!idsAutorises.has(parseInt(n.id_matiere))) {
+                console.warn(`⚠️ Note refusée : prof ${profId} n'enseigne pas la matière id=${n.id_matiere}`);
+                refusees++;
+                continue;
+            }
+
             const note = parseFloat(n.note);
             if (isNaN(note) || note < 0 || note > 20) continue;
 
@@ -180,27 +410,30 @@ exports.saveNotes = async (req, res) => {
             );
             const matiereNom = matiereResult.rows[0]?.nom_matiere || 'matière';
 
+            const typeEval = (n.type_evaluation || 'DEVOIR').toUpperCase();
             const existing = await db.query(
                 `SELECT id_evaluation FROM pedagogie.notes_evaluations
                  WHERE id_eleve = $1 AND id_matiere = $2 AND id_professeur = $3
-                 AND trimestre = $4 AND annee_scolaire = $5`,
-                [n.id_eleve, n.id_matiere, profId, trimestre, annee_scolaire]
+                 AND trimestre = $4 AND annee_scolaire = $5 AND type_evaluation = $6`,
+                [n.id_eleve, n.id_matiere, profId, trimestre, annee_scolaire, typeEval]
             );
 
             if (existing.rows.length > 0) {
+                const typeEvalU = (n.type_evaluation || 'DEVOIR').toUpperCase();
                 await db.query(
                     `UPDATE pedagogie.notes_evaluations
-                     SET note = $1, date_evaluation = NOW()
-                     WHERE id_evaluation = $2`,
-                    [note, existing.rows[0].id_evaluation]
+                     SET note = $1, type_evaluation = $2, date_evaluation = NOW()
+                     WHERE id_evaluation = $3`,
+                    [note, typeEvalU, existing.rows[0].id_evaluation]
                 );
                 console.log(`✅ Note mise à jour pour élève ${n.id_eleve} - ${matiereNom}: ${note}/20`);
             } else {
+                const typeEvalI = (n.type_evaluation || 'DEVOIR').toUpperCase();
                 await db.query(
                     `INSERT INTO pedagogie.notes_evaluations
-                     (id_eleve, id_matiere, id_professeur, note, trimestre, annee_scolaire, date_evaluation)
-                     VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-                    [n.id_eleve, n.id_matiere, profId, note, trimestre, annee_scolaire]
+                     (id_eleve, id_matiere, id_professeur, note, trimestre, annee_scolaire, type_evaluation, date_evaluation)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
+                    [n.id_eleve, n.id_matiere, profId, note, trimestre, annee_scolaire, typeEvalI]
                 );
                 console.log(`✅ Nouvelle note insérée pour élève ${n.id_eleve} - ${matiereNom}: ${note}/20`);
             }
@@ -232,7 +465,10 @@ exports.saveNotes = async (req, res) => {
                 }
             } catch (e) { console.warn('Erreur notification note:', e.message); }
         }
-        res.json({ success: true, message: `${saved} note(s) enregistrée(s)` });
+        res.json({
+            success: true,
+            message: `${saved} note(s) enregistrée(s)` + (refusees ? ` — ${refusees} refusée(s) (matière non autorisée)` : '')
+        });
     } catch (e) {
         console.error('Erreur saveNotes:', e);
         res.status(500).json({ message: 'Erreur serveur' });
@@ -420,9 +656,15 @@ exports.getOrientation = async (req, res) => {
             LEFT JOIN pedagogie.notes_evaluations n ON n.id_eleve = c.id_user
             WHERE c.est_actif = true
         `;
+        const EXAM_CLASSES = ['3ème', 'Tle A', 'Tle D'];
         const params = [];
-        if (classe) { q += ` AND pe.classe_actuelle=$1`; params.push(classe); }
-        else { q += ` AND pe.classe_actuelle IN ('3ème','2nde A','2nde C','1ère A','1ère D','Tle A','Tle D')`; }
+        if (classe && EXAM_CLASSES.includes(classe)) {
+            q += ` AND pe.classe_actuelle=$1`;
+            params.push(classe);
+        } else {
+            // Par défaut (ou si une classe hors-examen est demandée) : uniquement les classes d'examen
+            q += ` AND pe.classe_actuelle IN ('3ème','Tle A','Tle D')`;
+        }
         q += ' GROUP BY c.id_user,c.nom,c.prenom,c.code_unique,pe.classe_actuelle ORDER BY c.nom LIMIT 50';
         const r = await db.query(q, params);
         res.json({ success: true, eleves: r.rows });
@@ -679,6 +921,18 @@ exports.deleteDevoir = async (req, res) => {
         const profId = req.user?.id;
         const { id } = req.params;
 
+        // Récupérer la classe du devoir avant suppression (pour notifier les élèves)
+        const before = await db.query(
+            'SELECT classe FROM pedagogie.devoirs WHERE id_devoir = $1 AND id_prof = $2',
+            [id, profId]
+        );
+
+        if (before.rows.length === 0) {
+            return res.status(404).json({ success: false, message: 'Devoir non trouvé ou non autorisé' });
+        }
+
+        const classe = before.rows[0].classe || null;
+
         const result = await db.query(
             'DELETE FROM pedagogie.devoirs WHERE id_devoir = $1 AND id_prof = $2 RETURNING id_devoir',
             [id, profId]
@@ -687,6 +941,16 @@ exports.deleteDevoir = async (req, res) => {
         if (result.rows.length === 0) {
             return res.status(404).json({ success: false, message: 'Devoir non trouvé ou non autorisé' });
         }
+
+        // Émettre via Socket.IO pour que les élèves de la classe soient notifiés
+        try {
+            const { getIO } = require('../server');
+            const io = getIO ? getIO() : null;
+            if (io && classe) {
+                const room = `classe_${String(classe).replace(/\s+/g, '_')}`;
+                io.to(room).emit('devoir-changed', { action: 'deleted', id: id, classe });
+            }
+        } catch (e) { /* Socket.IO optionnel */ }
 
         res.json({ success: true, message: 'Devoir supprimé' });
     } catch (error) {

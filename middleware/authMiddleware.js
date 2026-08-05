@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = (req, res, next) => {
+function authMiddleware(req, res, next) {
     const token = req.header('Authorization');
 
     if (!token) {
@@ -15,4 +15,19 @@ module.exports = (req, res, next) => {
     } catch (err) {
         res.status(401).json({ message: "Token non valide." });
     }
-};
+}
+
+function ensureRole(role) {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({ message: "Accès refusé. Aucun utilisateur connecté." });
+        }
+        if (req.user.role !== role) {
+            return res.status(403).json({ message: `Accès refusé. Ce point de terminaison est réservé aux ${role}.` });
+        }
+        next();
+    };
+}
+
+module.exports = authMiddleware;
+module.exports.ensureRole = ensureRole;

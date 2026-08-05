@@ -393,6 +393,24 @@
         const token = localStorage.getItem('token');
         let currentUser = JSON.parse(localStorage.getItem('user_session') || '{}');
         if (!token || currentUser.role_actuel !== 'PARENT') window.location.href = 'login.html';
+        // ============================================================
+        // ✅ SÉCURITÉ : Vérification membre bureau APE
+        // ============================================================
+        (async function verifierMembreAPE() {
+            try {
+                const response = await fetch(`${API}/ape/verifier-membre`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await response.json();
+                if (!data.estMembre) {
+                    alert('Accès refusé. Seuls les membres du bureau APE peuvent accéder à cet espace.');
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Erreur vérification APE:', error);
+                window.location.href = 'login.html';
+            }
+        })();
         const authH = () => ({ 'Authorization': 'Bearer ' + token });
         const esc = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         function go(page) { document.querySelectorAll('.pg').forEach(p => p.classList.remove('on')); document.getElementById('pg-' + page).classList.add('on'); document.querySelectorAll('.ni').forEach(n => n.classList.remove('on')); document.querySelector(`.ni[onclick="go('${page}')"]`).classList.add('on'); if (page === 'accueil') loadDashboard(); else if (page === 'cotisations') loadCotisations(); else if (page === 'forum') loadForum(); else if (page === 'projets') loadProjets(); }

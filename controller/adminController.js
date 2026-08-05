@@ -4,6 +4,8 @@ const db = require('../config/db');
 exports.getStats = async (req, res) => {
     // Contrôle simple de rôle (attendre que le token fournisse 'role')
     const role = req.user && req.user.role ? req.user.role : null;
+    console.log('getStats - req.user:', req.user);
+    console.log('getStats - role:', role);
     if (!role) return res.status(403).json({ message: 'Rôle non défini.' });
 
     // Autoriser les directions et surveillants et tout rôle admin-like
@@ -745,6 +747,17 @@ exports.createComposition = async (req, res) => {
                     description || (type_composition === 'EXAMEN_BLANC' ? 'Examen blanc programmé' : 'Composition programmée'),
                     lien
                 );
+                // Notification temps réel via Socket.IO
+                const io = req.app?.locals?.io;
+                if (io) {
+                    io.emit('nouvelle-composition', {
+                        titre,
+                        type: type_composition,
+                        date: date_debut,
+                        message: description || 'Une nouvelle épreuve a été programmée'
+                    });
+                }
+                console.log(`🔔 Notification composition envoyée à ${elevesIds.length} élèves`);
             }
         } catch (e) { console.warn('Erreur notification composition:', e.message); }
 
@@ -810,7 +823,7 @@ exports.getElections = async (req, res) => {
             SELECT c.code_unique, c.nom, c.prenom,
                    e.classe_actuelle
             FROM authentification.comptes c
-            LEFT JOIN pedagogie.profils_eleves e ON e.id_user = c.id_user
+            LEFT JOIN vie_scolaire.profils_eleves e ON e.id_user = c.id_user
             WHERE c.role_actuel = 'ELEVE' AND c.est_actif = true
             ORDER BY e.classe_actuelle, c.nom, c.prenom
         `);
@@ -824,7 +837,7 @@ exports.getElections = async (req, res) => {
                        e.classe_actuelle AS classe
                 FROM gestion.elections el
                 JOIN authentification.comptes c ON c.code_unique = el.code_unique_eleve
-                LEFT JOIN pedagogie.profils_eleves e ON e.id_user = c.id_user
+                LEFT JOIN vie_scolaire.profils_eleves e ON e.id_user = c.id_user
                 ORDER BY el.poste, c.nom
             `);
             electionsRows = elRes.rows;
@@ -926,82 +939,6 @@ exports.removeElection = async (req, res) => {
         res.json({ success: true, message: 'Poste retiré' });
     } catch (e) {
         console.error('removeElection:', e.message);
-        res.status(500).json({ success: false, message: 'Erreur serveur' });
-    }
-};
-exports.createComposition = async (req, res) => {
-    try {
-        const userId = req.user?.id;
-        const { titre, description, type_composition, date_debut, date_fin, classes_concernees } = req.body;
-
-        if (!titre || !type_composition || !date_debut) {
-            return res.status(400).json({ message: 'Titre, type et date requis' });
-        }
-
-        const result = await db.query(`
-            INSERT INTO pedagogie.compositions
-                (titre, description, type_composition, date_debut, date_fin, classes_concernees, publie_par)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-            RETURNING *
-        `, [titre, description || '', type_composition, date_debut, date_fin || null, classes_concernees || null, userId]);
-
-        // ========== NOTIFICATION EN TEMPS RÉEL ==========
-        try {
-            const notificationService = require('../services/notificationService');
-            const io = req.app?.locals?.io;
-
-            let elevesIds = [];
-
-            if (type_composition === 'COMPOSITION') {
-                const eleves = await db.query(`
-                    SELECT id_user FROM authentification.comptes 
-                    WHERE role_actuel = 'ELEVE' AND est_actif = true
-                `);
-                elevesIds = eleves.rows.map(e => e.id_user);
-            } else if (type_composition === 'EXAMEN_BLANC' && classes_concernees) {
-                for (const classe of classes_concernees) {
-                    const eleves = await db.query(`
-                        SELECT c.id_user FROM authentification.comptes c
-                        JOIN vie_scolaire.profils_eleves pe ON c.id_user = pe.id_user
-                        WHERE c.role_actuel = 'ELEVE' AND pe.classe_actuelle = $1
-                    `, [classe]);
-                    elevesIds.push(...eleves.rows.map(e => e.id_user));
-                }
-            }
-
-            // Envoyer les notifications en base de données
-            if (elevesIds.length > 0) {
-                const lien = type_composition === 'EXAMEN_BLANC'
-                    ? '/eleve.html?page=programme&tab=examens'
-                    : '/eleve.html?page=programme&tab=compos';
-
-                await notificationService.sendNotification(
-                    [...new Set(elevesIds)],
-                    type_composition === 'EXAMEN_BLANC' ? 'EXAMEN_BLANC' : 'COMPOSITION',
-                    `📅 ${titre}`,
-                    description || (type_composition === 'EXAMEN_BLANC' ? 'Examen blanc programmé' : 'Composition programmée'),
-                    lien
-                );
-
-                // Notifier en temps réel via Socket.IO
-                if (io) {
-                    io.emit('nouvelle-composition', {
-                        titre,
-                        type: type_composition,
-                        date: date_debut,
-                        message: description || 'Une nouvelle épreuve a été programmée'
-                    });
-                }
-            }
-
-            console.log(`🔔 Notification composition envoyée à ${elevesIds.length} élèves`);
-        } catch (e) {
-            console.warn('Erreur notification composition:', e.message);
-        }
-
-        res.json({ success: true, message: 'Composition publiée', composition: result.rows[0] });
-    } catch (err) {
-        console.error('createComposition:', err.message);
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };

@@ -202,14 +202,23 @@ exports.updateProfilAlumni = async (req, res) => {
 // ========== MENTORATS ==========
 exports.getMentorats = async (req, res) => {
     try {
-        const result = await db.query(`
+        const mesConseilsSeulement = req.query.mine === 'true';
+        let query = `
             SELECT m.*, c.prenom, c.nom, c.code_unique,
-                   pa.photo_url, pa.profession, pa.domaine_expertise
+                   pa.photo_url, pa.profession, pa.domaine_expertise,
+                   COALESCE(pa.disponible_mentorat, TRUE) AS disponible_mentorat
             FROM gestion_ape.mentorats m
             JOIN authentification.comptes c ON m.id_alumni = c.id_user
             LEFT JOIN gestion_ape.profils_alumni pa ON pa.id_user = c.id_user
-            ORDER BY m.date_publication DESC
-        `);
+        `;
+        const params = [];
+        if (mesConseilsSeulement) {
+            query += ` WHERE m.id_alumni = $1`;
+            params.push(req.user?.id);
+        }
+        query += ` ORDER BY m.date_publication DESC`;
+
+        const result = await db.query(query, params);
 
         res.json({
             success: true,
@@ -230,13 +239,13 @@ exports.createMentorat = async (req, res) => {
         const alumniId = req.user?.id;
         if (!alumniId) return res.status(401).json({ message: 'Non authentifié' });
 
-        const { contenu, filiere_suggeree } = req.body;
+        const { titre, contenu, filiere_suggeree } = req.body;
         if (!contenu) return res.status(400).json({ message: 'Contenu requis' });
 
         await db.query(`
-            INSERT INTO gestion_ape.mentorats (id_alumni, contenu_conseil, filiere_suggeree, date_publication)
-            VALUES ($1, $2, $3, NOW())
-        `, [alumniId, contenu, filiere_suggeree || null]);
+            INSERT INTO gestion_ape.mentorats (id_alumni, titre, contenu_conseil, filiere_suggeree, date_publication)
+            VALUES ($1, $2, $3, $4, NOW())
+        `, [alumniId, titre || null, contenu, filiere_suggeree || null]);
 
         res.json({ success: true, message: 'Mentorat publié' });
     } catch (error) {
@@ -249,6 +258,7 @@ exports.createMentorat = async (req, res) => {
 exports.getOrientationEleves = async (req, res) => {
     try {
         const classe = req.query.classe || '';
+        const recherche = req.query.q || '';
         let query = `
             SELECT c.id_user, c.prenom, c.nom, c.code_unique,
                    pe.classe_actuelle as classe
@@ -259,8 +269,17 @@ exports.getOrientationEleves = async (req, res) => {
         const params = [];
 
         if (classe) {
-            query += ' AND pe.classe_actuelle = $1';
             params.push(classe);
+            query += ` AND pe.classe_actuelle = $${params.length}`;
+        } else {
+            // Par défaut : le mentorat par les alumni ne concerne que les Terminales
+            // (dernière classe — les autres niveaux peuvent s'entraider entre eux)
+            query += ` AND pe.classe_actuelle IN ('Tle A', 'Tle D')`;
+        }
+
+        if (recherche) {
+            params.push(`%${recherche}%`);
+            query += ` AND (c.nom ILIKE $${params.length} OR c.prenom ILIKE $${params.length})`;
         }
 
         query += ' ORDER BY c.nom, c.prenom';
@@ -302,37 +321,102 @@ exports.createAvisOrientation = async (req, res) => {
         const alumniId = req.user?.id;
         if (!alumniId) return res.status(401).json({ message: 'Non authentifié' });
 
-        const { eleveId, commentaire, serie_recommandee } = req.body;
-        if (!eleveId || !commentaire) {
-            return res.status(400).json({ message: 'Données manquantes' });
+        const { eleveId, classe, commentaire, serie_recommandee } = req.body;
+        if (!commentaire || (!eleveId && !classe)) {
+            return res.status(400).json({ message: 'Données manquantes (commentaire + élève ou classe requis)' });
         }
 
-        // Vérifier si un avis existe déjà
-        const existing = await db.query(
-            `SELECT id FROM pedagogie.avis_orientation WHERE id_alumni = $1 AND id_eleve = $2`,
-            [alumniId, eleveId]
-        );
-
-        if (existing.rows.length > 0) {
-            // Mettre à jour
-            await db.query(`
-                UPDATE pedagogie.avis_orientation
-                SET commentaire = $3, serie_recommandee = $4, updated_at = NOW()
-                WHERE id_alumni = $1 AND id_eleve = $2
-            `, [alumniId, eleveId, commentaire, serie_recommandee || null]);
+        // Déterminer la liste des élèves cibles
+        let cibles = [];
+        if (eleveId) {
+            cibles = [eleveId];
         } else {
-            // Insérer
-            await db.query(`
-                INSERT INTO pedagogie.avis_orientation
-                    (id_prof, id_eleve, id_alumni, commentaire, serie_recommandee, updated_at)
-                VALUES ($1, $2, $3, $4, $5, NOW())
-            `, [alumniId, eleveId, alumniId, commentaire, serie_recommandee || null]);
+            const r = await db.query(`
+                SELECT c.id_user FROM authentification.comptes c
+                JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
+                WHERE c.role_actuel = 'ELEVE' AND c.est_actif = true AND pe.classe_actuelle = $1
+            `, [classe]);
+            cibles = r.rows.map(row => row.id_user);
         }
 
-        res.json({ success: true, message: 'Avis d\'orientation publié' });
+        if (!cibles.length) {
+            return res.status(404).json({ message: 'Aucun élève trouvé pour cette classe' });
+        }
+
+        for (const idEleve of cibles) {
+            const existing = await db.query(
+                `SELECT id FROM pedagogie.avis_orientation WHERE id_alumni = $1 AND id_eleve = $2`,
+                [alumniId, idEleve]
+            );
+            if (existing.rows.length > 0) {
+                await db.query(`
+                    UPDATE pedagogie.avis_orientation
+                    SET commentaire = $3, serie_recommandee = $4, updated_at = NOW()
+                    WHERE id_alumni = $1 AND id_eleve = $2
+                `, [alumniId, idEleve, commentaire, serie_recommandee || null]);
+            } else {
+                await db.query(`
+                    INSERT INTO pedagogie.avis_orientation
+                        (id_prof, id_eleve, id_alumni, commentaire, serie_recommandee, updated_at)
+                    VALUES ($1, $2, $3, $4, $5, NOW())
+                `, [alumniId, idEleve, alumniId, commentaire, serie_recommandee || null]);
+            }
+        }
+
+        res.json({
+            success: true,
+            message: eleveId
+                ? 'Avis d\'orientation publié'
+                : `Avis publié pour ${cibles.length} élève(s) de la classe ${classe}`
+        });
     } catch (error) {
         console.error('createAvisOrientation:', error);
         res.status(500).json({ message: 'Erreur création avis' });
+    }
+};
+
+// ========== PROFIL PUBLIC D'UN MENTOR (vu par un élève) ==========
+exports.getProfilAlumniById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const base = await db.query(
+            `SELECT id_user, code_unique, nom, prenom FROM authentification.comptes
+             WHERE id_user = $1 AND role_actuel = 'ALUMNI' AND est_actif = true`, [id]
+        );
+        if (!base.rows.length) return res.status(404).json({ message: 'Mentor introuvable' });
+        const c = base.rows[0];
+
+        const extra = await db.query(
+            `SELECT photo_url, biographie, bio, domaine_expertise, secteur_activite,
+                    entreprise_actuelle, poste_actuel, universite, annee_graduation,
+                    competences, disponible_mentorat
+             FROM gestion_ape.profils_alumni WHERE id_user = $1`, [id]
+        );
+        const p = extra.rows[0] || {};
+
+        res.json({
+            success: true,
+            profil: {
+                id: c.id_user,
+                nom: c.nom,
+                prenom: c.prenom,
+                nom_complet: `${c.prenom} ${c.nom}`,
+                code_unique: c.code_unique,
+                photo_url: p.photo_url || null,
+                biographie: p.biographie || p.bio || null,
+                domaine_expertise: p.domaine_expertise || null,
+                secteur_activite: p.secteur_activite || null,
+                entreprise_actuelle: p.entreprise_actuelle || null,
+                poste_actuel: p.poste_actuel || null,
+                universite: p.universite || null,
+                annee_graduation: p.annee_graduation || null,
+                competences: p.competences || [],
+                disponible_mentorat: p.disponible_mentorat !== false
+            }
+        });
+    } catch (error) {
+        console.error('getProfilAlumniById:', error);
+        res.status(500).json({ message: 'Erreur récupération profil mentor' });
     }
 };
 

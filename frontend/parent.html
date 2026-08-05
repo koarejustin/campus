@@ -13,6 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
     rel="stylesheet">
   <style>
+    /* [GARDE TOI STYLES EXISTANTS - je les ai retirés pour la lisibilité mais garde les tiens] */
     * {
       box-sizing: border-box;
     }
@@ -523,7 +524,7 @@
     }
 
     .notif-header button {
-      background: rgba(255,255,255,0.18);
+      background: rgba(255, 255, 255, 0.18);
       border: none;
       border-radius: 10px;
       padding: 6px 11px;
@@ -586,11 +587,6 @@
 
     .notif-time {
       font-size: 0.65rem;
-      color: #94A3B8;
-    }
-
-    .notif-time {
-      font-size: 0.6rem;
       color: #94A3B8;
     }
 
@@ -784,8 +780,6 @@
         <div class="ni" onclick="go('convocations')" data-s="convocations"><i data-lucide="bell-ring"
             style="width:14px;height:14px;"></i>Convocations<span id="bconv" class="bdg"
             style="background:#FEF3C7;color:#D97706;margin-left:auto;display:none;"></span></div>
-        <div class="ni" onclick="go('orientation')" data-s="orientation"><i data-lucide="compass"
-            style="width:14px;height:14px;"></i>Orientation</div>
         <div class="nl" style="margin-top:6px;">Communauté APE</div>
         <div class="ni" onclick="go('cotisations')" data-s="cotisations"><i data-lucide="credit-card"
             style="width:14px;height:14px;"></i>Cotisations APE</div>
@@ -855,7 +849,8 @@
               style="background:rgba(255,255,255,.13); border-radius:14px; padding:11px 14px; display:flex; align-items:center; gap:11px; border:1px solid rgba(255,255,255,.14);">
               <div id="av-e" class="avc"
                 style="width:48px; height:48px; font-size:1rem; background:#7C3AED; border:2px solid rgba(255,255,255,.38);">
-                <span id="av-e-t">?</span></div>
+                <span id="av-e-t">?</span>
+              </div>
               <div>
                 <div style="font-size:.56rem; color:rgba(255,255,255,.5); font-weight:700; text-transform:uppercase;">
                   Mon enfant</div>
@@ -1085,39 +1080,6 @@
           vous et votre enfant.</div>
       </div>
 
-      <!-- ORIENTATION -->
-      <div id="sec-orientation" class="sec">
-        <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">🧭
-          Orientation de <span id="ori-en" style="color:#4F46E5;">mon enfant</span></h2>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
-          <div>
-            <div style="font-size:.68rem; font-weight:800; color:#475569; text-transform:uppercase;">💡 Avis des
-              professeurs</div>
-            <div class="card" style="border-left:3px solid #4F46E5; background:#EEF2FF;">
-              <div style="display:flex; align-items:center; gap:7px; margin-bottom:6px;">
-                <div class="ava" style="background:#4F46E5; width:28px; height:28px; font-size:.6rem;">MC</div>
-                <div>
-                  <div style="font-size:.72rem; font-weight:800;">Mme Coulibaly</div><span class="bdg"
-                    style="background:#DBEAFE; color:#1D4ED8;">MATHS</span>
-                </div>
-              </div>
-              <p style="font-size:.7rem; color:#475569; line-height:1.5;">Excellent niveau en sciences. Recommande
-                filières scientifiques (MPSI, PCSI) ou Informatique.</p>
-            </div>
-          </div>
-          <div>
-            <div style="font-size:.68rem; font-weight:800; color:#475569; text-transform:uppercase;">✍️ Mon avis de
-              parent</div>
-            <div class="card">
-              <textarea class="inp" id="ori-msg"
-                placeholder="Partagez votre point de vue sur l'orientation de votre enfant…" rows="4"></textarea>
-              <button class="btn bp" style="width:100%; margin-top:10px; justify-content:center;"
-                onclick="envOri()">Publier →</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- COTISATIONS -->
       <div id="sec-cotisations" class="sec">
         <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">💰 Mes
@@ -1159,7 +1121,8 @@
               <input type="file" id="fp2" accept="image/*" onchange="uploadPhoto(this)">
               <div onclick="document.getElementById('fp2').click()"
                 style="position:absolute; bottom:-1px; right:-1px; background:#4F46E5; border-radius:50%; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border:2px solid #fff; cursor:pointer;">
-                <i data-lucide="pencil" style="width:10px;height:10px;color:#fff;"></i></div>
+                <i data-lucide="pencil" style="width:10px;height:10px;color:#fff;"></i>
+              </div>
             </div>
             <div id="pr-nc" style="font-size:.92rem; font-weight:900; color:#1E293B;"></div>
             <div id="pr-cc" style="font-size:.62rem; color:#94A3B8; font-weight:700; font-family:monospace;"></div>
@@ -1225,13 +1188,25 @@
       <span>🔔 Notifications</span>
       <div style="display:flex; gap:8px; align-items:center;">
         <button id="mark-all-notif" type="button">Tout marquer lu</button>
-        <button id="close-notif-modal" style="background:none; border:none; cursor:pointer; font-size:1rem; color:#fff;">✕</button>
+        <button id="close-notif-modal"
+          style="background:none; border:none; cursor:pointer; font-size:1rem; color:#fff;">✕</button>
       </div>
     </div>
     <div id="notif-list" class="notif-list"></div>
   </div>
 
   <script>
+    // ============================================================
+    // ✅ SÉCURITÉ : Vérification du rôle PARENT
+    // ============================================================
+    const token = localStorage.getItem('token');
+    const session = JSON.parse(localStorage.getItem('user_session') || '{}');
+
+    if (!token || session.role_actuel !== 'PARENT') {
+      alert('Accès refusé. Vous n\'êtes pas autorisé à accéder à l\'espace parent.');
+      window.location.href = 'login.html';
+    }
+
     /* ═════════════ CONFIG ═════════════ */
     const API = '/api';
     const sess = JSON.parse(localStorage.getItem('user_session') || '{}');
@@ -1316,10 +1291,10 @@
       container.innerHTML = notifData.map(n => {
         const icon = n.type === 'ABSENCE' ? '📅'
           : n.type === 'CONVOCATION' ? '⚠️'
-          : n.type === 'ANNONCE' ? '📢'
-          : n.type === 'DEVOIR' ? '📝'
-          : n.type === 'ORIENTATION' ? '🎯'
-          : '🔔';
+            : n.type === 'ANNONCE' ? '📢'
+              : n.type === 'DEVOIR' ? '📝'
+                : n.type === 'ORIENTATION' ? '🎯'
+                  : '🔔';
         return `
           <div class="notif-item ${!n.lu ? 'unread' : ''}" data-id="${n.id}" data-link="${n.lien || ''}" data-type="${n.type}">
             <div class="notif-item-icon">${icon}</div>
@@ -1818,34 +1793,6 @@
     }
     function annDm() { document.getElementById('an-list').innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;">Aucune annonce disponible</div>'; }
 
-    async function envOri() {
-      const message = document.getElementById('ori-msg').value.trim();
-      if (!message) {
-        dlg('Champ vide', 'Veuillez écrire un avis avant de publier.');
-        return;
-      }
-      if (!E.id_enfant) {
-        dlg('Erreur', 'Aucun enfant associé.');
-        return;
-      }
-      try {
-        const res = await fetch(`${API}/parents/orientation-avis`, {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ enfant_id: E.id_enfant, commentaire: message })
-        });
-        const data = await res.json();
-        if (data.success) {
-          dlg('Conseil envoyé', 'Votre avis a été partagé avec les professeurs et sera visible par votre enfant.');
-          document.getElementById('ori-msg').value = '';
-        } else {
-          dlg('Erreur', data.message || 'Impossible d\'envoyer l\'avis.');
-        }
-      } catch (e) {
-        dlg('Erreur', 'Problème de connexion.');
-      }
-    }
-
     async function saveProfil() {
       const btn = document.getElementById('btn-sv'); btn.disabled = true; btn.textContent = 'Enregistrement…';
       try {
@@ -1911,7 +1858,7 @@
     // Chargement config école
     async function chargerConfigEcole() {
       try {
-        const response = await fetch('/api/admin/config');
+        const response = await fetch('/api/admin/config-public');
         const data = await response.json();
         if (data.success && data.config) {
           document.querySelectorAll('.ecole-nom').forEach(el => el.textContent = data.config.nom_etablissement);
@@ -1922,6 +1869,7 @@
       } catch (error) { console.error('Erreur chargement config:', error); }
     }
     document.addEventListener('DOMContentLoaded', () => { chargerConfigEcole(); });
+   
   </script>
   <script src="responsive-init.js"></script>
   <script src="/socket.io/socket.io.js"></script>

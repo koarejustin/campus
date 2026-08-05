@@ -61,20 +61,6 @@ router.put('/profil', authMiddleware, (req, res, next) => {
     parentController.updateProfilParent(req, res, next);
 });
 
-router.get('/orientation-enfant', authMiddleware, (req, res, next) => {
-    if (typeof parentController.getOrientationEnfant !== 'function') {
-        return res.status(500).json({ error: 'getOrientationEnfant is not a function' });
-    }
-    parentController.getOrientationEnfant(req, res, next);
-});
-
-router.post('/orientation-avis', authMiddleware, (req, res, next) => {
-    if (typeof parentController.addOrientationAvis !== 'function') {
-        return res.status(500).json({ error: 'addOrientationAvis is not a function' });
-    }
-    parentController.addOrientationAvis(req, res, next);
-});
-
 // ========== ACCUSÉ DE RÉCEPTION CONVOCATION ==========
 // Vérifier que la fonction existe avant d'enregistrer la route
 if (typeof surveillantController.accuserReception === 'function') {

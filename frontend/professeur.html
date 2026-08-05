@@ -2879,6 +2879,7 @@
     }
   </style>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="config.js"></script>
 </head>
 
 <body>
@@ -2888,7 +2889,8 @@
     <div class="sb-head">
       <div class="sb-logo">
         <div class="sb-logo-icon">
-          <img class="ecole-logo hidden" alt="logo" style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
+          <img class="ecole-logo hidden" alt="logo"
+            style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
           <svg class="ecole-logo-fallback" viewBox="0 0 24 24">
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
@@ -2931,7 +2933,6 @@
           <path d="M12 20h9" />
           <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
         </svg>Saisie des Notes
-        <span class="badge" id="nb-badge">!</span>
       </div>
       <div class="ni" id="ni-ct" onclick="go('ct',this)">
         <svg viewBox="0 0 24 24">
@@ -2969,12 +2970,6 @@
 
       <div class="ni-sep"></div>
       <div class="sb-grp">Vie Scolaire</div>
-      <div class="ni" id="ni-orient" onclick="go('orient',this)">
-        <svg viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" />
-          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-        </svg>Orientation
-      </div>
 
     </div>
     <div class="sb-foot">
@@ -3183,7 +3178,8 @@
       <!-- ══ SAISIE NOTES ══ -->
       <div id="s-notes" class="sec">
         <div style="margin-bottom:12px;">
-          <select class="tri-sel" id="tri-sel" style="width:100%;padding:8px 12px;font-size:.8rem;font-weight:700;border:1.5px solid var(--border);border-radius:9px;background:var(--card);color:var(--ink);cursor:pointer;outline:none;font-family:'DM Sans',sans-serif;">
+          <select class="tri-sel" id="tri-sel" onchange="loadEleves()"
+            style="width:100%;padding:8px 12px;font-size:.8rem;font-weight:700;border:1.5px solid var(--border);border-radius:9px;background:var(--card);color:var(--ink);cursor:pointer;outline:none;font-family:'DM Sans',sans-serif;">
             <option value="1">Trimestre 1</option>
             <option value="2">Trimestre 2</option>
             <option value="3">Trimestre 3</option>
@@ -3487,56 +3483,6 @@
       </div>
 
       <!-- ══ ORIENTATION ══ -->
-      <div id="s-orient" class="sec">
-        <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
-          <div class="card">
-            <div class="card-hd">
-              <div>
-                <div class="card-hd-title">Suivi Orientation · 3ème → Terminale</div>
-                <div class="card-hd-sub">Points forts/faibles · Conseil de série</div>
-              </div>
-              <select id="orient-filter" style="padding:5px 9px;font-size:.72rem;border-radius:7px;"
-                onchange="renderOrient()">
-                <option value="">Mes classes</option>
-              </select>
-            </div>
-            <div style="padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="orient-list"></div>
-          </div>
-          <div class="card" style="padding:18px;">
-            <div style="font-size:.86rem;font-weight:800;color:var(--ink);margin-bottom:12px;">🧭 Avis d'orientation
-            </div>
-            <div style="display:flex;flex-direction:column;gap:9px;">
-              <div><label>Élève (matricule)</label><input type="text" id="or-el" placeholder="CN-2026-XXXX"></div>
-              <div><label>Points forts</label><textarea id="or-force" rows="2"
-                  placeholder="Logique, rigueur, créativité…"></textarea></div>
-              <div><label>Points à améliorer</label><textarea id="or-faib" rows="2"
-                  placeholder="Expression écrite, concentration…"></textarea></div>
-              <div><label>Série recommandée</label>
-                <select id="or-serie">
-                  <option value="">— Sélectionner —</option>
-                  <option>Terminale A</option>
-                  <option>Terminale D</option>
-                  <option>1ère A</option>
-                  <option>1ère D</option>
-                  <option>2nde (redoublement)</option>
-                  <option>Orientation CFA</option>
-                </select>
-              </div>
-              <div><label>Commentaire général</label><textarea id="or-comment" rows="3"
-                  placeholder="Avis visible par l'élève, son parent et les alumni…"></textarea></div>
-            </div>
-            <button class="btn-p" style="width:100%;justify-content:center;margin-top:12px;"
-              onclick="saveOrientation()">
-              <svg viewBox="0 0 24 24">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>Publier l'avis
-            </button>
-            <div id="or-msg"
-              style="display:none;margin-top:9px;font-size:.72rem;padding:8px 11px;border-radius:7px;font-weight:600;">
-            </div>
-          </div>
-        </div>
-      </div>
       <!-- ══ SALLE DES PROFS (WhatsApp) ══ -->
       <div id="s-salle" class="sec">
         <div class="salle-wrap">
@@ -3808,7 +3754,8 @@
           </button>
           <button id="tab-sms" onclick="switchAnnonceTab('sms')"
             style="padding:9px 20px;border-radius:30px;font-size:.78rem;font-weight:800;border:1.5px solid #E2E8F0;cursor:pointer;background:#fff;color:#64748B;font-family:inherit;">
-            ✉️ Messages de la direction <span id="sms-count-badge" style="display:none;background:#EF4444;color:#fff;border-radius:20px;padding:1px 6px;font-size:.65rem;margin-left:4px;">0</span>
+            ✉️ Messages de la direction <span id="sms-count-badge"
+              style="display:none;background:#EF4444;color:#fff;border-radius:20px;padding:1px 6px;font-size:.65rem;margin-left:4px;">0</span>
           </button>
         </div>
 
@@ -3834,7 +3781,9 @@
                 <div class="card-hd-title">✉️ Messages privés — Direction</div>
                 <div class="card-hd-sub">Messages envoyés directement par la Direction à votre intention</div>
               </div>
-              <button onclick="loadSmsDirection()" style="padding:6px 12px;border:1.5px solid #E2E8F0;border-radius:8px;background:#fff;cursor:pointer;font-size:.73rem;font-weight:700;font-family:inherit;">🔄 Actualiser</button>
+              <button onclick="loadSmsDirection()"
+                style="padding:6px 12px;border:1.5px solid #E2E8F0;border-radius:8px;background:#fff;cursor:pointer;font-size:.73rem;font-weight:700;font-family:inherit;">🔄
+                Actualiser</button>
             </div>
             <div id="sms-list" style="padding:12px;">
               <div style="text-align:center;padding:30px;color:#94A3B8;font-size:.8rem;">⏳ Chargement…</div>
@@ -3861,6 +3810,7 @@
     const authH = () => ({ 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' });
     const $ = id => document.getElementById(id);
     const esc = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const MY_USER_ID = SESS.id_user || SESS.id || null;
     // ========== VARIABLES MANQUANTES SALLE DES PROFS ==========
     const PROFS_LIST = [];
     const BG_OPTIONS = [
@@ -3878,6 +3828,16 @@
     let recInterval = null;
     let replyMsg = null;
     let ctxMsgId = null;
+    // ============================================================
+    // ✅ SÉCURITÉ : Vérification du rôle PROFESSEUR
+    // ============================================================
+    const token = TOK;
+    const session = SESS;
+
+    if (!token || session.role_actuel !== 'PROFESSEUR') {
+      alert('Accès refusé. Espace réservé aux professeurs.');
+      window.location.href = 'login.html';
+    }
 
     // Données du prof connecté (simulées + réelles si API répond)
     let PROF = {
@@ -3905,8 +3865,10 @@
         if (data.profil) {
           const p = data.profil;
           if (p.telephone) PROF.tel = p.telephone;
-          if (p.specialite) PROF.diplome = p.specialite;
+          if (p.diplome) PROF.diplome = p.diplome;
           if (p.biographie) PROF.bio = p.biographie;
+          if (typeof p.annees_exp !== 'undefined' && p.annees_exp !== null) PROF.exp = p.annees_exp;
+          if (p.matieres && Array.isArray(p.matieres)) PROF.matieres = p.matieres;
           if (p.photo_url) {
             PROF.photo = BASE_URL + p.photo_url;
             const av = $('prof-avatar-display');
@@ -3944,11 +3906,12 @@
       }
     }
     let selEleve = null;
-    let elevesData = [], ctData = [], resData = [], orientData = [];
+    let elevesData = [], ctData = [], resData = [];
     let currentConv = 'general';
     let conversations = {};
     let profsOnline = [];
     let salleSocket = null;
+    let smsMessagesData = [];
     PROF._photoFile = null;
 
     // ══ SOCKET.IO ══
@@ -4055,7 +4018,7 @@
     // ══════════════════════════════════════════
     async function chargerConfigEcole() {
       try {
-        const response = await fetch('/api/admin/config');
+        const response = await fetch('/api/admin/config-public');
         const data = await response.json();
         if (data.success && data.config) {
           document.querySelectorAll('.ecole-nom').forEach(el => el.textContent = data.config.nom_etablissement);
@@ -4110,6 +4073,8 @@
       loadRes();
       loadOrient();
       initSalle();
+      const triSelect = $('tri-sel');
+      if (triSelect) triSelect.addEventListener('change', loadEleves);
 
       // Démarrer le polling des notifications
       startNotifPolling();
@@ -4124,7 +4089,6 @@
       notes: { title: 'Saisie des Notes', sub: 'Seulement vos classes · Seulement vos matières' },
       ct: { title: 'Cahier de Texte', sub: 'Journal de séances · Visible par la Direction' },
       res: { title: 'Ressources & Cours', sub: 'Publications visibles par vos élèves uniquement' },
-      orient: { title: 'Orientation Élèves', sub: 'Suivi personnalisé 3ème → Terminale' },
       devoirs: { title: 'Mes Devoirs', sub: 'Programmer et gérer les devoirs pour vos classes' },  // ← AJOUT
       salle: { title: 'Salle des Profs', sub: '🔒 Espace privé · Invisible pour la Direction' },
       annonces: { title: 'Annonces reçues', sub: 'Messages officiels de la direction et des surveillants' },  // ← AJOUT
@@ -4137,9 +4101,8 @@
       const p = PAGES[page];
       if (p) { $('pg-title').textContent = p.title; $('pg-sub').textContent = p.sub; }
       if (page === 'salle') setTimeout(scrollMsgs, 100);
-      if (page === 'orient') loadOrient();
       if (page === 'devoirs') loadDevoirs();  // ← AJOUT
-      if (page === 'annonces') { loadAnnonces(); setTimeout(()=>{ const r=fetch(`${API}/messages/general?limit=50`,{headers:{'Authorization':'Bearer '+TOK}}).then(r=>r.json()).then(d=>{const c=(d.messages||[]).filter(m=>m.isDirection||(m.from_code||'').startsWith('DIR'));const b=document.getElementById('sms-count-badge');if(b&&c.length){b.style.display='inline';b.textContent=c.length;}}).catch(()=>{}); }, 500); }
+      if (page === 'annonces') { loadAnnonces(); refreshSmsBadgeCount(); }
     }
 
     // ══════════════════════════════════════════
@@ -4156,15 +4119,6 @@
           const o = document.createElement('option'); o.value = c; o.textContent = c; el.appendChild(o);
         });
       });
-      // Orientation : uniquement classes d'examen
-      const of = $('orient-filter');
-      if (of) {
-        of.innerHTML = '<option value="">Mes classes</option>';
-        const examClasses = ['3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
-        (PROF.classes.length ? PROF.classes : examClasses)
-          .filter(c => examClasses.includes(c))
-          .forEach(c => { of.innerHTML += `<option value="${c}">${c}</option>`; });
-      }
       // Remplir les selects des devoirs
       const devCls = document.getElementById('dev-cls');
       if (devCls && PROF.classes) {
@@ -4338,6 +4292,16 @@
           if (p.telephone) { PROF.tel = p.telephone; $('pf-tel').value = p.telephone; }
           if (p.specialite) { PROF.diplome = p.specialite; $('pf-diplome').value = p.specialite; }
           if (p.biographie) { PROF.bio = p.biographie; $('pf-bio').value = p.biographie; }
+          if (typeof p.annees_exp !== 'undefined' && p.annees_exp !== null) {
+            PROF.exp = p.annees_exp;
+            $('pf-exp').value = p.annees_exp;
+            $('stat-exp').textContent = p.annees_exp;
+          }
+          if (p.matieres && Array.isArray(p.matieres)) {
+            PROF.matieres = p.matieres;
+            renderChips();
+            renderMatBadges();
+          }
           // ── Photo persistante ──
           if (p.photo_url) {
             PROF.photo = BASE_URL + p.photo_url;
@@ -4400,10 +4364,20 @@
       showMsg(msgEl, '⏳ Enregistrement...', 'info');
       try {
         const fd = new FormData();
+        const nom = ($('pf-nom')?.value || '').trim();
+        const prenom = ($('pf-prenom')?.value || '').trim();
+        const email = ($('pf-email')?.value || '').trim();
         const telRaw = ($('pf-tel')?.value || '').trim();
+        const expRaw = ($('pf-exp')?.value || '').trim();
+
+        fd.append('nom', nom);
+        fd.append('prenom', prenom);
+        fd.append('email', email);
         fd.append('telephone', telRaw.replace(/\s+/g, '').replace(/[^0-9+]/g, ''));
         fd.append('specialite', $('pf-diplome')?.value.trim() || '');
         fd.append('biographie', $('pf-bio')?.value.trim() || '');
+        fd.append('annees_exp', expRaw || '');
+        fd.append('matieres', JSON.stringify(PROF.matieres || []));
         if (PROF._photoFile) fd.append('photo', PROF._photoFile);
 
         const r = await fetch(API + '/professeurs/profil', {
@@ -4413,19 +4387,39 @@
         });
         const data = await r.json();
         if (data.success) {
+          PROF.nom = nom || PROF.nom;
+          PROF.prenom = prenom || PROF.prenom;
+          PROF.email = email || PROF.email;
+          PROF.tel = telRaw.replace(/\s+/g, '').replace(/[^0-9+]/g, '') || PROF.tel;
+          PROF.diplome = $('pf-diplome')?.value.trim() || PROF.diplome;
+          PROF.bio = $('pf-bio')?.value.trim() || PROF.bio;
+          PROF.exp = Number.isInteger(parseInt(expRaw, 10)) ? parseInt(expRaw, 10) : PROF.exp;
+          try {
+            PROF.matieres = Array.isArray(data.profil?.matieres) ? data.profil.matieres : JSON.parse(data.profil?.matieres || '[]');
+          } catch (e) {
+            PROF.matieres = PROF.matieres || [];
+          }
+
           if (data.profil?.photo_url) {
             const fullPhotoUrl = BASE_URL + data.profil.photo_url;
             PROF.photo = fullPhotoUrl;
-            // Mettre à jour l'avatar affiché
             const av = $('prof-avatar-display');
             if (av) av.innerHTML = `<img src="${fullPhotoUrl}?v=${Date.now()}" alt="photo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
-            // Mettre à jour la sidebar aussi
             updateSbAvatar(fullPhotoUrl);
-            // Persister dans localStorage pour prochain rechargement
-            const sessObj = JSON.parse(localStorage.getItem('user_session') || '{}');
-            sessObj.photo_url = data.profil.photo_url;
-            localStorage.setItem('user_session', JSON.stringify(sessObj));
           }
+
+          const sessObj = JSON.parse(localStorage.getItem('user_session') || '{}');
+          if (nom) sessObj.nom = nom;
+          if (prenom) sessObj.prenom = prenom;
+          if (email) sessObj.email = email;
+          if (PROF.tel) sessObj.telephone = PROF.tel;
+          if (data.profil?.photo_url) sessObj.photo_url = data.profil.photo_url;
+          localStorage.setItem('user_session', JSON.stringify(sessObj));
+
+          renderChips();
+          updateAvatar();
+          loadProfil();
+
           PROF._photoFile = null;
           showMsg(msgEl, '✅ Profil enregistré avec succès', 'ok');
           toast('Profil mis à jour ✓', 'ok');
@@ -4512,12 +4506,23 @@
       if (!selEleve) return;
       renderEleves();
       const tri = $('tri-sel')?.value || '1';
-      // S'assurer qu'on a au moins une matière
-      const matsSource = PROF.matieres.length ? PROF.matieres : ['Matière'];
-      const mats = matsSource.map((m, i) => ({
-        n: m, id: i + 1,
-        c: m.includes('Math') || m.includes('Phys') ? 4 : m.includes('Franc') || m.includes('Phil') ? 3 : 2
-      }));
+
+      // Charger les vraies matières + vrais id_matiere + vrai coefficient officiel pour CETTE classe
+      let mats = [];
+      try {
+        const rMat = await fetch(
+          `${API}/professeurs/mes-matieres?classe=${encodeURIComponent(selCls)}`,
+          { headers: { 'Authorization': 'Bearer ' + TOK } }
+        );
+        const dMat = await rMat.json();
+        if (dMat.success && dMat.matieres && dMat.matieres.length) {
+          mats = dMat.matieres.map(m => ({ n: m.nom_matiere, id: m.id_matiere, c: m.coefficient }));
+        }
+      } catch (e) { console.warn('mes-matieres:', e.message); }
+      if (!mats.length) {
+        // Repli minimal si l'API est injoignable (ne devrait normalement jamais arriver)
+        mats = (PROF.matieres.length ? PROF.matieres : ['Matière']).map((m, i) => ({ n: m, id: i + 1, c: 1 }));
+      }
 
       // Afficher le panel immédiatement
       const moyAff = selEleve.moy !== null ? selEleve.moy + '/20' : '—';
@@ -4570,6 +4575,11 @@
             <div style="font-size:.74rem;font-weight:800;color:var(--ink);margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;">
               ${esc(m.n)}<span style="font-size:.62rem;background:var(--accent3);color:var(--accent);padding:2px 6px;border-radius:4px;font-weight:800;">×${m.c}</span>
             </div>
+            <select id="nt-${i}" style="width:100%;margin-bottom:6px;padding:6px 8px;font-size:.7rem;border:1px solid var(--border);border-radius:7px;outline:none;background:#fff;font-weight:700;color:var(--ink);">
+              <option value="DEVOIR1">Devoir 1</option>
+              <option value="DEVOIR2">Devoir 2</option>
+              <option value="COMPOSITION">Composition</option>
+            </select>
             <input class="nf-inp" id="ni-${i}" data-id-matiere="${m.id}" type="number"
               min="0" max="20" step="0.5" placeholder="— /20"
               oninput="updBar(${i},this.value)"
@@ -4642,8 +4652,10 @@
         const val = parseFloat(inp.value);
         const idMat = parseInt(inp.dataset.idMatiere) || (i + 1);
         const matName = PROF.matieres[i] || ('Matière ' + (i + 1));
+        const typeSel = document.getElementById('nt-' + i);
+        const typeEvaluation = typeSel ? typeSel.value : 'DEVOIR1';
         if (!isNaN(val) && val >= 0 && val <= 20) {
-          notes.push({ id_eleve: selEleve.id, id_matiere: idMat, mat: matName, note: val });
+          notes.push({ id_eleve: selEleve.id, id_matiere: idMat, mat: matName, note: val, type_evaluation: typeEvaluation });
         }
         i++;
       }
@@ -5082,92 +5094,6 @@
     // ══════════════════════════════════════════
     // ORIENTATION — fonctions manquantes
     // ══════════════════════════════════════════
-    async function loadOrient() {
-      try {
-        const cls = $('orient-filter')?.value || '';
-        const url = cls ? `${API}/professeurs/orientation?classe=${encodeURIComponent(cls)}` : `${API}/professeurs/orientation`;
-        const r = await fetch(url, { headers: { 'Authorization': 'Bearer ' + TOK } });
-        const data = await r.json();
-        if (data.success) {
-          orientData = data.eleves || [];
-        } else {
-          orientData = [];
-        }
-      } catch (e) {
-        orientData = [];
-      }
-      renderOrient();
-    }
-
-    function renderOrient() {
-      const list = $('orient-list');
-      if (!list) return;
-      if (!orientData.length) {
-        list.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">
-          <div style="font-size:2rem;margin-bottom:8px;">🧭</div>
-          Aucun élève trouvé pour cette classe.<br>
-          <span style="font-size:.7rem;">Les élèves de vos classes d'examen apparaîtront ici.</span>
-        </div>`;
-        return;
-      }
-      list.innerHTML = orientData.map(e => {
-        const moy = parseFloat(e.moyenne) || 0;
-        const col = moy >= 14 ? 'var(--accent)' : moy >= 10 ? 'var(--amber)' : 'var(--red)';
-        const conseil = moy >= 14 ? 'Terminale D recommandée' : moy >= 10 ? 'Peut progresser' : 'Soutien nécessaire';
-        return `<div style="border:1px solid var(--border);border-radius:10px;padding:11px;background:#FAFFFE;cursor:pointer;"
-          onclick="selOrientEleve('${esc(e.code_unique)}','${esc(e.prenom)} ${esc(e.nom)}')">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <div style="width:30px;height:30px;border-radius:8px;background:${col};display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;">${e.nom?.charAt(0) || '?'}</div>
-            <div>
-              <div style="font-size:.76rem;font-weight:800;color:var(--ink);">${esc(e.prenom)} ${esc(e.nom)}</div>
-              <div style="font-size:.62rem;color:var(--muted);">${esc(e.classe || '')} · ${esc(e.code_unique)}</div>
-            </div>
-            <div style="margin-left:auto;font-size:.9rem;font-weight:900;color:${col};">${moy ? moy.toFixed(1) : '—'}</div>
-          </div>
-          <div style="font-size:.62rem;background:${moy >= 14 ? '#E8F5EE' : moy >= 10 ? '#FEF9C3' : '#FEF2F2'};color:${col};padding:3px 7px;border-radius:5px;font-weight:700;">${conseil}</div>
-        </div>`;
-      }).join('');
-    }
-
-    function selOrientEleve(code, nom) {
-      const el = $('or-el');
-      if (el) { el.value = code; el.focus(); }
-      toast('Élève sélectionné : ' + nom, 'info');
-    }
-
-    async function saveOrientation() {
-      const eleveCode = $('or-el')?.value.trim();
-      const force = $('or-force')?.value.trim();
-      const faib = $('or-faib')?.value.trim();
-      const serie = $('or-serie')?.value;
-      const comment = $('or-comment')?.value.trim();
-      const msgEl = $('or-msg');
-
-      if (!eleveCode) { showMsg(msgEl, '⚠️ Saisissez le matricule de l\'élève', 'err'); return; }
-      if (!comment && !serie) { showMsg(msgEl, '⚠️ Ajoutez au moins un commentaire ou une série', 'err'); return; }
-
-      showMsg(msgEl, '⏳ Publication...', 'info');
-      try {
-        const r = await fetch(`${API}/professeurs/orientation`, {
-          method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id_eleve_code: eleveCode, points_forts: force, points_faibles: faib, serie_recommandee: serie, commentaire: comment })
-        });
-        const data = await r.json();
-        if (data.success) {
-          showMsg(msgEl, '✅ Avis publié avec succès', 'ok');
-          toast('Avis d\'orientation publié ✓', 'ok');
-          // Réinitialiser le formulaire
-          ['or-el', 'or-force', 'or-faib', 'or-comment'].forEach(id => { const el = $(id); if (el) el.value = ''; });
-          if ($('or-serie')) $('or-serie').value = '';
-        } else {
-          showMsg(msgEl, '❌ ' + (data.message || 'Erreur'), 'err');
-        }
-      } catch (e) {
-        showMsg(msgEl, '❌ Erreur réseau', 'err');
-      }
-    }
-
     function initSalle() {
       PROFS_LIST.forEach(p => { if (!conversations[p.id]) conversations[p.id] = []; });
       buildBgGrid();
@@ -5739,13 +5665,20 @@
                         📅 À rendre le ${d.date_limite_fr || d.date_limite}
                     </div>
                     <div style="display:flex;gap:6px;">
-                        <button class="btn-p" style="padding:5px 10px;font-size:.68rem;" onclick="editDevoir(${d.id_devoir})">✏️ Modifier</button>
-                        <button class="btn-g" style="padding:5px 10px;font-size:.68rem;background:#FEF2F2;color:var(--red);" onclick="deleteDevoir(${d.id_devoir})">🗑 Supprimer</button>
+                        <button class="btn-p devoir-edit" data-id="${d.id_devoir}" style="padding:5px 10px;font-size:.68rem;">✏️ Modifier</button>
+                        <button class="btn-g devoir-delete" data-id="${d.id_devoir}" style="padding:5px 10px;font-size:.68rem;background:#FEF2F2;color:var(--red);">🗑 Supprimer</button>
                     </div>
                 </div>
             </div>
         `;
       }).join('');
+
+      container.querySelectorAll('.devoir-edit').forEach(btn => {
+        btn.addEventListener('click', () => editDevoir(btn.dataset.id));
+      });
+      container.querySelectorAll('.devoir-delete').forEach(btn => {
+        btn.addEventListener('click', () => deleteDevoir(btn.dataset.id));
+      });
     }
 
     function openAddDevoir() {
@@ -5881,6 +5814,7 @@
         if (pSms) pSms.style.display = 'none';
         if (tAnn) { tAnn.style.background = 'linear-gradient(135deg,#4F46E5,#7C3AED)'; tAnn.style.color = '#fff'; tAnn.style.border = 'none'; }
         if (tSms) { tSms.style.background = '#fff'; tSms.style.color = '#64748B'; tSms.style.border = '1.5px solid #E2E8F0'; }
+        loadAnnonces();
       } else {
         if (pAnn) pAnn.style.display = 'none';
         if (pSms) pSms.style.display = '';
@@ -5895,57 +5829,108 @@
       if (!container) return;
       container.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;"><div class="spin"></div> Chargement…</div>';
       try {
-        // Charger les vrais messages privés reçus par ce professeur depuis l'API dédiée
         const response = await fetch(`${API}/professeurs/messages-prives`, {
-          headers: { 'Authorization': 'Bearer ' + TOK }
+          headers: authH()
         });
         const data = await response.json();
-        const msgs = data.messages || [];
-
-        const badge = document.getElementById('sms-count-badge');
-        if (badge) {
-          if (msgs.length > 0) { badge.style.display = 'inline'; badge.textContent = msgs.length; }
-          else badge.style.display = 'none';
-        }
-
-        if (!msgs.length) {
-          container.innerHTML = `<div style="text-align:center;padding:40px;color:#94A3B8;">
-            <div style="font-size:2rem;margin-bottom:8px;">✉️</div>
-            <div style="font-size:.83rem;font-weight:600;">Aucun message privé reçu</div>
-            <div style="font-size:.73rem;margin-top:4px;">Les messages privés que la direction vous envoie apparaîtront ici</div>
-          </div>`;
-          return;
-        }
-
-        container.innerHTML = msgs.map(m => {
-          const time = m.created_at || m.date_envoi || '';
-          const dateStr = time ? new Date(time).toLocaleString('fr-FR', {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-          const nomExp = m.expediteur_prenom ? (m.expediteur_prenom + ' ' + m.expediteur_nom) : (m.expediteur_nom || 'Direction');
-          const initiales = nomExp.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase() || 'D';
-          const isDir = (m.expediteur_role || '').toUpperCase() === 'DIRECTION';
-          const borderColor = isDir ? '#4F46E5' : '#2D6A4F';
-          const bgGrad = isDir ? 'linear-gradient(135deg,#4F46E5,#7C3AED)' : 'linear-gradient(135deg,#2D6A4F,#52B788)';
-          const badge = isDir ? '📌 Direction' : '👤 ' + esc(m.expediteur_role || 'Inconnu');
-          const badgeColor = isDir ? '#4F46E5' : '#2D6A4F';
-          const badgeBg = isDir ? '#EEF2FF' : '#ECFDF5';
-          return `<div style="display:flex;gap:12px;padding:14px;margin-bottom:10px;background:#F8FAFF;border-radius:12px;border-left:3px solid ${borderColor};">
-            <div style="width:40px;height:40px;border-radius:50%;background:${bgGrad};display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;flex-shrink:0;">${initiales}</div>
-            <div style="flex:1;min-width:0;">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <span style="font-size:.8rem;font-weight:800;color:#0F172A;">${esc(nomExp)}</span>
-                <span style="font-size:.68rem;color:#94A3B8;">${dateStr}</span>
-              </div>
-              <div style="font-size:.8rem;color:#374151;line-height:1.5;">${esc(m.contenu || m.message || '')}</div>
-              <div style="margin-top:6px;">
-                <span style="font-size:.63rem;background:${badgeBg};color:${badgeColor};padding:2px 7px;border-radius:20px;font-weight:700;">${badge}</span>
-                ${!m.lu ? '<span style="font-size:.6rem;background:#FEF2F2;color:#DC2626;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:4px;">🔴 Non lu</span>' : ''}
-              </div>
-            </div>
-          </div>`;
-        }).join('');
+        const msgs = Array.isArray(data.messages) ? data.messages : [];
+        smsMessagesData = msgs;
+        renderSmsDirection();
       } catch (e) {
         console.warn('loadSmsDirection:', e.message);
         container.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:.8rem;">⚠️ Impossible de charger les messages privés</div>';
+      }
+    }
+
+    function renderSmsDirection() {
+      const container = document.getElementById('sms-list');
+      if (!container) return;
+      if (!smsMessagesData.length) {
+        updateSmsBadgeCount();
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:#94A3B8;">
+          <div style="font-size:2rem;margin-bottom:8px;">✉️</div>
+          <div style="font-size:.83rem;font-weight:600;">Aucun message privé reçu</div>
+          <div style="font-size:.73rem;margin-top:4px;">Les messages privés que la direction vous envoie apparaîtront ici</div>
+        </div>`;
+        return;
+      }
+
+      const profId = MY_USER_ID;
+      updateSmsBadgeCount();
+      container.innerHTML = smsMessagesData.map(m => {
+        const msgId = m.id_message || m.id || '';
+        const time = m.created_at || m.date_envoi || '';
+        const dateStr = time ? new Date(time).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+        const nomExp = m.expediteur_prenom ? (m.expediteur_prenom + ' ' + m.expediteur_nom) : (m.expediteur_nom || 'Direction');
+        const initiales = nomExp.split(' ').map(w => w[0] || '').join('').slice(0, 2).toUpperCase() || 'D';
+        const isDir = (m.expediteur_role || '').toUpperCase() === 'DIRECTION';
+        const borderColor = isDir ? '#4F46E5' : '#2D6A4F';
+        const bgGrad = isDir ? 'linear-gradient(135deg,#4F46E5,#7C3AED)' : 'linear-gradient(135deg,#2D6A4F,#52B788)';
+        const badge = isDir ? '📌 Direction' : '👤 ' + esc(m.expediteur_role || 'Inconnu');
+        const badgeColor = isDir ? '#4F46E5' : '#2D6A4F';
+        const badgeBg = isDir ? '#EEF2FF' : '#ECFDF5';
+        const unread = !m.lu && m.destinataire_id === profId;
+        return `<div onclick="markSmsRead('${msgId}')" style="display:flex;gap:12px;padding:14px;margin-bottom:10px;background:#F8FAFF;border-radius:12px;border-left:3px solid ${borderColor};cursor:pointer;" title="Cliquer pour marquer comme lu">
+          <div style="width:40px;height:40px;border-radius:50%;background:${bgGrad};display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;flex-shrink:0;">${initiales}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <span style="font-size:.8rem;font-weight:800;color:#0F172A;">${esc(nomExp)}</span>
+              <span style="font-size:.68rem;color:#94A3B8;">${dateStr}</span>
+            </div>
+            <div style="font-size:.8rem;color:#374151;line-height:1.5;">${esc(m.contenu || m.message || '')}</div>
+            <div style="margin-top:6px;">
+              <span style="font-size:.63rem;background:${badgeBg};color:${badgeColor};padding:2px 7px;border-radius:20px;font-weight:700;">${badge}</span>
+              ${unread ? '<span style="font-size:.6rem;background:#FEF2F2;color:#DC2626;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:4px;">🔴 Non lu</span>' : ''}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function updateSmsBadgeCount() {
+      const badge = document.getElementById('sms-count-badge');
+      if (!badge) return;
+      const profId = MY_USER_ID;
+      const unreadCount = smsMessagesData.filter(m => !m.lu && m.destinataire_id === profId).length;
+      if (unreadCount > 0) {
+        badge.style.display = 'inline';
+        badge.textContent = unreadCount;
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    async function refreshSmsBadgeCount() {
+      try {
+        const response = await fetch(`${API}/professeurs/messages-prives`, {
+          headers: authH()
+        });
+        const data = await response.json();
+        const msgs = Array.isArray(data.messages) ? data.messages : [];
+        smsMessagesData = msgs;
+        updateSmsBadgeCount();
+      } catch (e) {
+        console.warn('refreshSmsBadgeCount:', e.message);
+      }
+    }
+
+    async function markSmsRead(msgId) {
+      if (!msgId) return;
+      const msg = smsMessagesData.find(m => String(m.id_message || m.id || '') === String(msgId));
+      if (!msg || msg.lu || msg.destinataire_id !== MY_USER_ID) return;
+      try {
+        const response = await fetch(`${API}/professeurs/messages-prives/${encodeURIComponent(msgId)}/lu`, {
+          method: 'PATCH',
+          headers: authH()
+        });
+        const data = await response.json();
+        if (data.success) {
+          msg.lu = true;
+          renderSmsDirection();
+          toast('Message marqué comme lu', 'ok');
+        }
+      } catch (e) {
+        console.warn('markSmsRead:', e.message);
       }
     }
 
@@ -5998,28 +5983,16 @@
 
     function renderAnnonces() {
       const container = document.getElementById('annonces-list');
-      const countSpan = document.getElementById('annonces-count');
       const countBadge = document.getElementById('annonces-count-badge');
 
       if (!container) return;
 
       if (!annoncesData.length) {
         container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:.8rem;">📭 Aucune annonce reçue pour le moment</div>';
-        // Cacher les compteurs quand il n'y a pas d'annonces
-        if (countSpan) {
-          countSpan.textContent = '0';
-          countSpan.style.display = 'none';
-        }
         if (countBadge) {
           countBadge.style.display = 'none';
         }
         return;
-      }
-
-      // Afficher les compteurs quand il y a des annonces
-      if (countSpan) {
-        countSpan.textContent = annoncesData.length;
-        countSpan.style.display = 'inline-block';
       }
 
       if (countBadge) {
@@ -6274,6 +6247,8 @@
         notifInterval = null;
       }
     }
+
+
 
   </script>
   <script src="responsive-init.js"></script>

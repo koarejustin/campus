@@ -2,9 +2,13 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const normalizeClasse = (s) => String(s || '').trim().toLowerCase()
+    .replace(/è/g, 'e').replace(/é/g, 'e').replace(/ê/g, 'e').replace(/û/g, 'u')
+    .replace(/\s+/g, '').replace(/eme$/g, 'e').replace(/ème$/g, 'e');
+
 // --- LOGIN & ACTIVATION ---
 exports.login = async (req, res) => {
-    const { code_unique, mot_de_passe, role } = req.body;
+    const { code_unique, mot_de_passe, role, context } = req.body;
     try {
         const query = `
             SELECT c.*, p.classe_actuelle, pa.poste_occupe
@@ -25,10 +29,26 @@ exports.login = async (req, res) => {
             const hashedPassword = await bcrypt.hash(mot_de_passe, 10);
             await db.query('UPDATE authentification.comptes SET mot_de_passe = $1 WHERE id_user = $2', [hashedPassword, user.id_user]);
 
+            // Générer le Token après activation
+            const token = jwt.sign(
+                { id: user.id_user, role: user.role_actuel, classe: user.classe_actuelle },
+                process.env.JWT_SECRET || 'ma_cle_secrete',
+                { expiresIn: '24h' }
+            );
+
             return res.status(200).json({
                 success: true,
                 activated: true,
-                message: "Compte activé ! Reconnectez-vous avec ce mot de passe."
+                token,
+                user: {
+                    nom: user.nom,
+                    prenom: user.prenom,
+                    code_unique: user.code_unique,
+                    role_actuel: user.role_actuel,
+                    classe_actuelle: user.classe_actuelle || (user.role_actuel === 'DIRECTION' ? 'DIRECTION' : 'N/A'),
+                    poste_occupe: user.poste_occupe || null
+                },
+                message: "Compte activé ! Vous êtes maintenant connecté."
             });
         }
 
@@ -39,6 +59,12 @@ exports.login = async (req, res) => {
 
         if (role && user.role_actuel !== role) {
             return res.status(403).json({ success: false, message: `Rôle non autorisé. Vous êtes ${user.role_actuel}, accès ${role} demandé.` });
+        }
+
+        if (role === 'ELEVE' && context && user.classe_actuelle) {
+            if (normalizeClasse(context) !== normalizeClasse(user.classe_actuelle)) {
+                return res.status(403).json({ success: false, message: `Classe incorrecte pour ce matricule. Votre classe est ${user.classe_actuelle}.` });
+            }
         }
 
         // Comparaison Bcrypt

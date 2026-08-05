@@ -255,7 +255,7 @@
     <script>
       async function chargerConfigEcole() {
         try {
-          const response = await fetch('/api/admin/config');
+          const response = await fetch('/api/admin/config-public');
           const data = await response.json();
           if (data.success && data.config) {
             const brand = document.getElementById('brand-name');

@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const engine = require('../services/moyennesEngine');
 const notificationService = require('../services/notificationService');
 
 /**
@@ -53,15 +54,13 @@ exports.getBulletin = async (req, res) => {
                 p.*, 
                 c.nom, 
                 c.prenom,
-                c.code_unique,
-                (SELECT AVG(note) FROM pedagogie.notes_evaluations 
-                 WHERE id_eleve=$1 AND trimestre=$2) as moyenne_generale
+                c.code_unique
             FROM vie_scolaire.profils_eleves p
             JOIN authentification.comptes c ON p.id_user = c.id_user
             WHERE p.id_user = $1
         `;
 
-        const result = await db.query(query, [eleveId, trimestre]);
+        const result = await db.query(query, [eleveId]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ message: 'Profil élève non trouvé' });
@@ -75,15 +74,28 @@ exports.getBulletin = async (req, res) => {
                 AVG(n.note) as note_moyenne,
                 COUNT(n.id_evaluation) as nb_evaluations,
                 MAX(n.note) as meilleure_note,
-                MIN(n.note) as plus_basse_note
+                MIN(n.note) as plus_basse_note,
+                COALESCE(m.coefficient, 1) as coefficient
             FROM pedagogie.notes_evaluations n
             LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
             WHERE n.id_eleve = $1 AND n.trimestre = $2
-            GROUP BY m.nom_matiere
+            GROUP BY m.nom_matiere, m.coefficient
             ORDER BY note_moyenne DESC
         `;
 
         const notesResult = await db.query(notesQuery, [eleveId, trimestre]);
+
+        const weightedQuery = `
+            SELECT
+                CASE WHEN SUM(COALESCE(m.coefficient, 1)) = 0 THEN 0
+                     ELSE ROUND(SUM(n.note * COALESCE(m.coefficient, 1)) / SUM(COALESCE(m.coefficient, 1))::numeric, 2)
+                END AS moyenne_generale
+            FROM pedagogie.notes_evaluations n
+            LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
+            WHERE n.id_eleve = $1 AND n.trimestre = $2
+        `;
+        const weightedResult = await db.query(weightedQuery, [eleveId, trimestre]);
+        const moyenne_generale = parseFloat(weightedResult.rows[0]?.moyenne_generale) || 0;
 
         res.json({
             success: true,
@@ -91,7 +103,7 @@ exports.getBulletin = async (req, res) => {
                 nom_complet: `${eleve.prenom} ${eleve.nom}`,
                 code_unique: eleve.code_unique,
                 classe: eleve.classe_actuelle,
-                moyenne_generale: Math.round(eleve.moyenne_generale * 100) / 100
+                moyenne_generale: moyenne_generale
             },
             notes_par_matiere: notesResult.rows || [],
             trimestre: trimestre
@@ -99,6 +111,55 @@ exports.getBulletin = async (req, res) => {
 
     } catch (error) {
         console.error('Erreur récupération bulletin:', error);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
+exports.getProfesseurs = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        if (!eleveId) return res.status(401).json({ message: 'Non authentifié' });
+
+        const classeResult = await db.query(
+            `SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user = $1`,
+            [eleveId]
+        );
+        if (!classeResult.rows.length) {
+            return res.status(404).json({ message: 'Classe de l’élève introuvable' });
+        }
+        const classe = classeResult.rows[0].classe_actuelle;
+
+        const profs = await db.query(
+            `SELECT c.id_user, c.code_unique, c.nom, c.prenom,
+                    COALESCE(p.specialite, '') AS specialite,
+                    COALESCE(p.photo_url, '') AS photo_url,
+                    COALESCE(p.classes, ARRAY[]::text[]) AS classes,
+                    COALESCE(p.diplome, '') AS diplome
+             FROM authentification.comptes c
+             JOIN pedagogie.profils_profs p ON p.id_user = c.id_user
+             WHERE c.role_actuel = 'PROFESSEUR'
+               AND c.est_actif = true
+               AND $1 = ANY(p.classes)
+             ORDER BY c.nom, c.prenom`,
+            [classe]
+        );
+
+        res.json({
+            success: true,
+            classe: classe,
+            professeurs: profs.rows.map(row => ({
+                id_user: row.id_user,
+                code_unique: row.code_unique,
+                nom: row.nom,
+                prenom: row.prenom,
+                specialite: row.specialite,
+                photo_url: row.photo_url,
+                classes: row.classes,
+                diplome: row.diplome
+            }))
+        });
+    } catch (error) {
+        console.error('Erreur récupération professeurs:', error);
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };
@@ -329,21 +390,27 @@ exports.getRessources = async (req, res) => {
         );
         const classe = classeRes.rows[0]?.classe_actuelle || '';
 
+        // Requête basée sur la vraie structure BD : id_prof, classe_concernee, type_document, date_depot
         const r = await db.query(`
             SELECT
-                rp.id_ressource    AS id,
+                rp.id_ressource     AS id,
                 rp.titre,
-                rp.type_document   AS type,
-                rp.url_fichier     AS url,
-                rp.classe_concernee,
-                rp.date_depot      AS date_ajout,
-                c.nom              AS prof_nom,
-                c.prenom           AS prof_prenom,
-                pp.specialite      AS matiere
+                rp.type_document    AS type,
+                rp.url_fichier      AS url,
+                rp.classe_concernee AS classe,
+                rp.date_depot       AS date_ajout,
+                rp.description,
+                c.nom               AS prof_nom,
+                c.prenom            AS prof_prenom
             FROM pedagogie.ressources_pedagogiques rp
             JOIN pedagogie.profils_profs pp ON pp.id_prof = rp.id_prof
             JOIN authentification.comptes c ON c.id_user = pp.id_user
-            WHERE (rp.classe_concernee = $1 OR rp.classe_concernee = 'TOUTES')
+            WHERE rp.est_visible = true
+              AND (
+                rp.classe_concernee = $1
+                OR rp.classe_concernee = 'TOUTES'
+                OR rp.classe_concernee IS NULL
+              )
             ORDER BY rp.date_depot DESC
             LIMIT 50
         `, [classe]);
@@ -352,24 +419,26 @@ exports.getRessources = async (req, res) => {
             success: true,
             count: r.rows.length,
             ressources: r.rows.map(row => ({
-                id: row.id,
-                titre: row.titre,
-                type: (row.type || 'cours').toLowerCase(),
-                url: row.url || '',
-                classe: row.classe_concernee,
-                date_ajout: row.date_ajout,
-                prof_nom: row.prof_nom,
-                prof_prenom: row.prof_prenom,
-                matiere: row.matiere || '',
+                id:          row.id,
+                titre:       row.titre,
+                type:        (row.type || 'video').toLowerCase(),
+                url:         row.url || '',
+                classe:      row.classe,
+                date_ajout:  row.date_ajout,
+                description: row.description || '',
+                prof_nom:    row.prof_nom || '',
+                prof_prenom: row.prof_prenom || '',
+                matiere:     '',
             }))
         });
+
     } catch (error) {
         console.error('getRessources eleve:', error.message);
-        res.status(500).json({ success: false, message: error.message, ressources: [] });
+        res.status(500).json({ success: false, message: 'Erreur serveur', error: error.message });
     }
 };
 
-// ========== HORAIRE DE L'ÉLÈVE ==========
+
 exports.getHoraire = async (req, res) => {
     try {
         const eleveId = req.user?.id;
@@ -469,23 +538,80 @@ exports.getStatistiques = async (req, res) => {
 exports.getOrientation = async (req, res) => {
     try {
         const eleveId = req.user?.id;
-        if (!eleveId) return res.status(401).json({ success: false, avis: [] });
-        await db.query(`CREATE TABLE IF NOT EXISTS pedagogie.avis_orientation (id SERIAL PRIMARY KEY, id_prof UUID NOT NULL, id_eleve UUID NOT NULL, points_forts TEXT, points_faibles TEXT, serie_recommandee VARCHAR(50), commentaire TEXT, updated_at TIMESTAMP DEFAULT NOW(), UNIQUE(id_prof, id_eleve))`).catch(() => { });
-        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`).catch(() => { });
-        const r = await db.query(`
+        if (!eleveId) return res.status(401).json({ success: false, profAvis: [], parentAvis: [], alumniAvis: [], mentorOrientations: [] });
+
+        await db.query(`CREATE TABLE IF NOT EXISTS pedagogie.avis_orientation (
+            id SERIAL PRIMARY KEY,
+            id_prof UUID NOT NULL,
+            id_eleve UUID NOT NULL,
+            id_alumni UUID,
+            points_forts TEXT,
+            points_faibles TEXT,
+            serie_recommandee VARCHAR(100),
+            commentaire TEXT,
+            source VARCHAR(20) DEFAULT 'PROF',
+            updated_at TIMESTAMP DEFAULT NOW(),
+            UNIQUE(id_prof, id_eleve)
+        )`).catch(() => { });
+        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS id_alumni UUID`).catch(() => { });
+        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'PROF'`).catch(() => { });
+
+        const profResult = await db.query(`
             SELECT ao.id, ao.points_forts, ao.points_faibles,
                    ao.serie_recommandee, ao.commentaire,
                    COALESCE(ao.updated_at, NOW()) AS updated_at,
-                   c.nom AS prof_nom, c.prenom AS prof_prenom
+                   c.nom AS auteur_nom, c.prenom AS auteur_prenom,
+                   COALESCE(ao.source,'PROF') AS source
             FROM pedagogie.avis_orientation ao
             JOIN authentification.comptes c ON c.id_user = ao.id_prof
-            WHERE ao.id_eleve = $1
+            WHERE ao.id_eleve = $1 AND COALESCE(ao.source,'PROF') = 'PROF'
             ORDER BY COALESCE(ao.updated_at, NOW()) DESC
         `, [eleveId]);
-        res.json({ success: true, avis: r.rows });
+
+        const parentResult = await db.query(`
+            SELECT ao.id, ao.points_forts, ao.points_faibles,
+                   ao.serie_recommandee, ao.commentaire,
+                   COALESCE(ao.updated_at, NOW()) AS updated_at,
+                   c.nom AS auteur_nom, c.prenom AS auteur_prenom,
+                   COALESCE(ao.source,'PARENT') AS source
+            FROM pedagogie.avis_orientation ao
+            JOIN authentification.comptes c ON c.id_user = ao.id_prof
+            WHERE ao.id_eleve = $1 AND COALESCE(ao.source,'PARENT') = 'PARENT'
+            ORDER BY COALESCE(ao.updated_at, NOW()) DESC
+        `, [eleveId]);
+
+        const alumniResult = await db.query(`
+            SELECT ao.id, ao.points_forts, ao.points_faibles,
+                   ao.serie_recommandee, ao.commentaire,
+                   COALESCE(ao.updated_at, NOW()) AS updated_at,
+                   c.nom AS auteur_nom, c.prenom AS auteur_prenom,
+                   COALESCE(ao.source,'ALUMNI') AS source
+            FROM pedagogie.avis_orientation ao
+            JOIN authentification.comptes c ON c.id_user = COALESCE(ao.id_alumni, ao.id_prof)
+            WHERE ao.id_eleve = $1 AND (ao.id_alumni IS NOT NULL OR COALESCE(ao.source,'ALUMNI') = 'ALUMNI')
+            ORDER BY COALESCE(ao.updated_at, NOW()) DESC
+        `, [eleveId]);
+
+        const mentorResult = await db.query(`
+            SELECT rm.id_relation, rm.orientation_suggeree, rm.justification_orientation,
+                   COALESCE(rm.date_orientation_suggeree, NOW()) AS updated_at,
+                   c.nom AS mentor_nom, c.prenom AS mentor_prenom
+            FROM gestion_ape.relations_mentorat rm
+            JOIN authentification.comptes c ON c.id_user = rm.id_alumni
+            WHERE rm.id_eleve = $1 AND rm.statut = 'actif' AND rm.orientation_suggeree IS NOT NULL
+            ORDER BY rm.date_orientation_suggeree DESC
+        `, [eleveId]);
+
+        res.json({
+            success: true,
+            profAvis: profResult.rows,
+            parentAvis: parentResult.rows,
+            alumniAvis: alumniResult.rows,
+            mentorOrientations: mentorResult.rows
+        });
     } catch (e) {
         console.error('getOrientation:', e.message);
-        res.json({ success: true, avis: [] });
+        res.json({ success: true, profAvis: [], parentAvis: [], alumniAvis: [], mentorOrientations: [] });
     }
 };
 
@@ -557,7 +683,7 @@ exports.postForumClasse = async (req, res) => {
         const initiales = (((u.prenom || '')[0] || '') + ((u.nom || '')[0] || '')).toUpperCase();
         const { reply_to } = req.body;
         // S'assurer que la colonne reply_to existe
-        await db.query(`ALTER TABLE vie_scolaire.forum_classe ADD COLUMN IF NOT EXISTS reply_to INT`).catch(() => {});
+        await db.query(`ALTER TABLE vie_scolaire.forum_classe ADD COLUMN IF NOT EXISTS reply_to INT`).catch(() => { });
         const r = await db.query(
             `INSERT INTO vie_scolaire.forum_classe (classe, id_auteur, nom_auteur, initiales, texte, reply_to)
              VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, to_char(created_at,'HH24:MI') AS time, to_char(created_at,'DD/MM/YYYY') AS date`,
@@ -647,10 +773,27 @@ exports.postGrandEleves = async (req, res) => {
         const { texte, tag } = req.body;
         if (!eleveId || !texte) return res.status(400).json({ message: 'Texte requis' });
 
-        const userRes = await db.query(
-            'SELECT nom, prenom FROM authentification.comptes WHERE id_user=$1', [eleveId]
+        // 🔒 Seuls les élèves élus (bureau, chef, DG…) peuvent publier
+        const userInfo = await db.query(
+            'SELECT code_unique, nom, prenom FROM authentification.comptes WHERE id_user=$1', [eleveId]
         );
-        const u = userRes.rows[0] || {};
+        const u = userInfo.rows[0] || {};
+
+        let posteRes = { rows: [] };
+        try {
+            posteRes = await db.query(
+                'SELECT poste FROM gestion.elections WHERE code_unique_eleve = $1',
+                [u.code_unique]
+            );
+        } catch (e) { /* table pas encore créée = personne n'a de poste */ }
+
+        if (!posteRes.rows.length) {
+            return res.status(403).json({
+                success: false,
+                message: 'Seuls les élèves élus (bureau, chef de classe, DG…) peuvent publier dans Grand Élèves.'
+            });
+        }
+
         const nom = (u.prenom || '') + ' ' + (u.nom || '');
         const initiales = ((u.prenom || '')[0] || '') + ((u.nom || '')[0] || '');
 
@@ -724,6 +867,9 @@ exports.getInterClasses = async (req, res) => {
         );
         const maClasse = classeRes.rows[0]?.classe_actuelle || '';
 
+        // Permettre la lecture des échanges entre la classe de l'élève et une classe cible
+        // Si `classe_cible` est omise, retourner les messages impliquant `maClasse`.
+
         try {
             await db.query(`
                 CREATE TABLE IF NOT EXISTS vie_scolaire.inter_classes_msgs (
@@ -737,16 +883,30 @@ exports.getInterClasses = async (req, res) => {
             `);
         } catch (e) { }
 
-        const r = await db.query(`
-            SELECT id, texte, nom_auteur, id_auteur, classe_from, classe_to,
-                   reply_to,
-                   to_char(created_at, 'HH24:MI') AS time,
-                   to_char(created_at, 'DD/MM/YYYY') AS date
-            FROM vie_scolaire.inter_classes_msgs
-            WHERE (classe_from = $1 AND classe_to = $2) OR (classe_from = $2 AND classe_to = $1)
-            ORDER BY created_at ASC
-            LIMIT 100
-        `, [maClasse, classe_cible]);
+        let r;
+        if (!classe_cible) {
+            r = await db.query(`
+                SELECT id, texte, nom_auteur, id_auteur, classe_from, classe_to,
+                       reply_to,
+                       to_char(created_at, 'HH24:MI') AS time,
+                       to_char(created_at, 'DD/MM/YYYY') AS date
+                FROM vie_scolaire.inter_classes_msgs
+                WHERE classe_from = $1 OR classe_to = $1
+                ORDER BY created_at ASC
+                LIMIT 200
+            `, [maClasse]);
+        } else {
+            r = await db.query(`
+                SELECT id, texte, nom_auteur, id_auteur, classe_from, classe_to,
+                       reply_to,
+                       to_char(created_at, 'HH24:MI') AS time,
+                       to_char(created_at, 'DD/MM/YYYY') AS date
+                FROM vie_scolaire.inter_classes_msgs
+                WHERE (classe_from = $1 AND classe_to = $2) OR (classe_from = $2 AND classe_to = $1)
+                ORDER BY created_at ASC
+                LIMIT 200
+            `, [maClasse, classe_cible]);
+        }
 
         res.json({ success: true, messages: r.rows });
     } catch (e) {
@@ -779,6 +939,16 @@ exports.postInterClasses = async (req, res) => {
             return res.status(400).json({ message: 'Classe non trouvée' });
         }
 
+        // Autoriser l'envoi vers une classe cible (interclasse)
+        // Par défaut, si aucune classe_cible fournie, on considère que le message est pour sa propre classe
+        const classeDestination = (classe_cible && String(classe_cible).trim()) || maClasse;
+
+        // Vérifier que la classe destination existe dans les profils
+        const classeCheck = await db.query('SELECT 1 FROM vie_scolaire.profils_eleves WHERE classe_actuelle = $1 LIMIT 1', [classeDestination]);
+        if (classeCheck.rows.length === 0) {
+            return res.status(400).json({ success: false, message: 'Classe cible introuvable' });
+        }
+
         const userRes = await db.query(
             'SELECT nom, prenom FROM authentification.comptes WHERE id_user=$1', [eleveId]
         );
@@ -786,35 +956,35 @@ exports.postInterClasses = async (req, res) => {
         const nom = ((u.prenom || '') + ' ' + (u.nom || '')).trim();
 
         const { reply_to } = req.body;
-        await db.query(`ALTER TABLE vie_scolaire.inter_classes_msgs ADD COLUMN IF NOT EXISTS reply_to INT`).catch(() => {});
+        await db.query(`ALTER TABLE vie_scolaire.inter_classes_msgs ADD COLUMN IF NOT EXISTS reply_to INT`).catch(() => { });
         const result = await db.query(
             `INSERT INTO vie_scolaire.inter_classes_msgs 
              (classe_from, classe_to, id_auteur, nom_auteur, texte, reply_to, created_at)
              VALUES ($1, $2, $3, $4, $5, $6, NOW())
              RETURNING id, created_at`,
-            [maClasse, classe_cible, eleveId, nom, texte, reply_to || null]
+            [maClasse, classeDestination, eleveId, nom, texte, reply_to || null]
         );
 
-        console.log(`💬 Message inter-classe enregistré: ${maClasse} → ${classe_cible}`);
+        console.log(`💬 Message inter-classe enregistré: ${maClasse} → ${classeDestination}`);
 
-        if (classe_cible && result.rows[0]) {
+        if (classeDestination && result.rows[0]) {
             try {
                 const elevesCible = await db.query(`
                     SELECT c.id_user 
                     FROM authentification.comptes c
                     JOIN vie_scolaire.profils_eleves p ON c.id_user = p.id_user
                     WHERE p.classe_actuelle = $1 AND c.est_actif = true
-                `, [classe_cible]);
+                `, [classeDestination]);
 
                 if (elevesCible.rows.length > 0) {
                     await notificationService.sendNotification(
                         elevesCible.rows.map(e => e.id_user),
                         'INTER_CLASSE',
                         '💬 Nouveau message inter-classes',
-                        `${nom} (${maClasse}) a posté un message pour ${classe_cible}`,
+                        `${nom} (${maClasse}) a posté un message pour ${classeDestination}`,
                         '/eleve.html?page=inter-classes'
                     );
-                    console.log(`🔔 Notification inter-classe envoyée à ${elevesCible.rows.length} élèves de ${classe_cible}`);
+                    console.log(`🔔 Notification inter-classe envoyée à ${elevesCible.rows.length} élèves de ${classeDestination}`);
                 }
             } catch (e) { console.warn('Erreur notification inter-classe:', e.message); }
         }
@@ -823,6 +993,23 @@ exports.postInterClasses = async (req, res) => {
     } catch (e) {
         console.error('postInterClasses:', e.message);
         res.status(500).json({ message: e.message });
+    }
+};
+
+// Retourne la liste des classes existantes (pour le composant inter-classes)
+exports.getClassesList = async (req, res) => {
+    try {
+        const r = await db.query(`
+            SELECT DISTINCT trim(classe_actuelle) AS classe
+            FROM vie_scolaire.profils_eleves
+            WHERE classe_actuelle IS NOT NULL AND trim(classe_actuelle) <> ''
+            ORDER BY classe
+        `);
+        const classes = r.rows.map(x => x.classe).filter(Boolean);
+        res.json({ success: true, classes });
+    } catch (e) {
+        console.error('getClassesList:', e.message);
+        res.status(500).json({ success: false, classes: [] });
     }
 };
 
@@ -884,7 +1071,15 @@ exports.getMonProfil = async (req, res) => {
         const r = await db.query(`SELECT p.classe_actuelle, p.role_special, c.nom, c.prenom, c.code_unique FROM vie_scolaire.profils_eleves p JOIN authentification.comptes c ON c.id_user = p.id_user WHERE p.id_user = $1`, [eleveId]);
         if (!r.rows.length) return res.status(404).json({ success: false });
         const row = r.rows[0];
-        res.json({ success: true, profil: { nom: row.nom, prenom: row.prenom, code_unique: row.code_unique, classe: row.classe_actuelle, role_special: row.role_special || null } });
+
+        // Poste électif (bureau, chef, DG…) — détermine l'accès à Grand Élèves
+        let poste_elu = null;
+        try {
+            const pr = await db.query('SELECT poste FROM gestion.elections WHERE code_unique_eleve = $1', [row.code_unique]);
+            if (pr.rows.length) poste_elu = pr.rows[0].poste;
+        } catch (e) { /* table pas encore créée */ }
+
+        res.json({ success: true, profil: { nom: row.nom, prenom: row.prenom, code_unique: row.code_unique, classe: row.classe_actuelle, role_special: row.role_special || null, poste_elu } });
     } catch (e) { res.status(500).json({ success: false }); }
 };
 
@@ -1181,5 +1376,162 @@ exports.getCompositions = async (req, res) => {
     } catch (error) {
         console.error('Erreur getCompositions:', error.message);
         res.json({ success: true, compositions: [], examensBlancs: [] });
+    }
+};
+/**
+ * ================================================================
+ * CONTROLLER : getMoyennesAvancees — VERSION CORRIGÉE
+ * Basé sur la vraie structure de la base :
+ *   - pedagogie.notes_evaluations (id_eleve = id_user direct, libelle_matiere)
+ *   - pedagogie.matieres (id_matiere UUID, libelle_matiere, coefficient)
+ * À ajouter à la fin de eleveController.js
+ * Route : GET /api/eleves/moyennes-avancees?trimestre=1
+ * ================================================================
+ */
+
+// Au tout début de eleveController.js, ajouter :
+// const engine = require('./moyennesEngine'); // ajuste le chemin selon ton arbo
+
+exports.getMoyennesAvancees = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        if (!eleveId) return res.status(401).json({ success: false, message: 'Non authentifié' });
+
+
+
+        // 1. Récupérer la classe de l'élève
+        const classeRes = await db.query(
+            `SELECT pe.classe_actuelle, c.nom, c.prenom, c.code_unique
+       FROM vie_scolaire.profils_eleves pe
+       JOIN authentification.comptes c ON c.id_user = pe.id_user
+       WHERE pe.id_user = $1`, [eleveId]
+        );
+        if (!classeRes.rows.length)
+            return res.status(404).json({ success: false, message: 'Profil introuvable' });
+
+        const { classe_actuelle, nom, prenom, code_unique } = classeRes.rows[0];
+
+        // 2. Migration auto — ajouter type_evaluation si absent (sans CHECK pour éviter erreur)
+        await db.query("ALTER TABLE pedagogie.notes_evaluations ADD COLUMN IF NOT EXISTS type_evaluation VARCHAR(20) DEFAULT 'DEVOIR'").catch(() => {});
+
+        // 3. Récupérer toutes les notes (tous trimestres)
+        //    ATTENTION : libelle_matiere dans pedagogie.matieres (pas nom_matiere)
+        const notesRes = await db.query(`
+      SELECT
+        n.note,
+        n.trimestre,
+        COALESCE(n.type_evaluation, 'DEVOIR')        AS type_evaluation,
+        n.date_evaluation::text AS date_evaluation,
+        COALESCE(m.nom_matiere, 'Matière inconnue') AS nom_matiere,
+        COALESCE(m.coefficient, 1)                   AS coefficient
+      FROM pedagogie.notes_evaluations n
+      LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
+      WHERE n.id_eleve = $1
+      ORDER BY n.trimestre, n.date_evaluation
+    `, [eleveId]);
+
+        const toutesNotes = notesRes.rows;
+
+        // 4. Filtrer par trimestre si demandé
+        const trimestreDemande = req.query.trimestre ? parseInt(req.query.trimestre) : null;
+        const notesFiltrees = trimestreDemande
+            ? toutesNotes.filter(n => parseInt(n.trimestre) === trimestreDemande)
+            : toutesNotes;
+
+        // 5. Grouper par matière
+        const parMatiere = {};
+        for (const n of notesFiltrees) {
+            if (!parMatiere[n.nom_matiere]) parMatiere[n.nom_matiere] = [];
+            parMatiere[n.nom_matiere].push(n);
+        }
+        const notesParMatiere = Object.entries(parMatiere)
+            .map(([nom_matiere, notes]) => ({ nom_matiere, notes }));
+
+        // 5b. Préparer le détail devoirs/compos par matière
+        // Indexé par nom normalisé AVEC ALIAS (moyennesEngine) pour matcher BD ↔ programme
+        // (ex: "SVT" en base doit matcher "Sciences de la Vie et de la Terre" du programme)
+        const _norm = engine.normaliserNomMatiereAvecAlias;
+
+        const detailNotesParMatiere = {};
+        for (const [nom, notes] of Object.entries(parMatiere)) {
+            const detail = {
+                devoirs: notes
+                    .filter(n => !n.type_evaluation || n.type_evaluation === 'DEVOIR' || n.type_evaluation === 'DEVOIR1' || n.type_evaluation === 'DEVOIR2' || n.type_evaluation === 'RATTRAPAGE')
+                    .map(n => parseFloat(n.note)),
+                compos: notes
+                    .filter(n => n.type_evaluation === 'COMPO' || n.type_evaluation === 'COMPOSITION' || n.type_evaluation === 'EXAMEN')
+                    .map(n => parseFloat(n.note)),
+            };
+            detailNotesParMatiere[nom] = detail;           // ex: "SVT"
+            detailNotesParMatiere[_norm(nom)] = detail;    // ex: "sciences de la vie et de la terre"
+        }
+
+        // 6. Calcul principal via le moteur BF
+        const resultat = engine.calculerMoyenneGenerale(classe_actuelle, notesParMatiere);
+        // Enrichir chaque matière — cherche par nom exact puis normalisé
+        resultat.detail_matieres = resultat.detail_matieres.map(m => ({
+            ...m,
+            notes_detail: detailNotesParMatiere[m.nom]
+                       || detailNotesParMatiere[_norm(m.nom)]
+                       || null,
+        }));
+
+        // 7. Évolution trimestrielle
+        const evolution = engine.calculerEvolution(toutesNotes, classe_actuelle);
+
+        // 8. Analyse prédictive
+        const mg = resultat.moyenne_generale;
+        const coefsTotaux = resultat.total_coefs;
+        const predictif = {
+            pour_avoir_10: engine.noteMinimalePourCible(mg, coefsTotaux, 2, 10),
+            pour_avoir_12: engine.noteMinimalePourCible(mg, coefsTotaux, 2, 12),
+            pour_avoir_14: engine.noteMinimalePourCible(mg, coefsTotaux, 2, 14),
+            pour_maintenir: mg ? engine.noteMinimalePourCible(mg, coefsTotaux, 2, mg) : null,
+        };
+
+        // 9. Alertes baisses de régime
+        const alertes = engine.detecterBaisses(evolution);
+
+        // 10. Courbe chronologique (note par note)
+        const courbeChronologique = notesFiltrees.map((n, i) => ({
+            index: i + 1,
+            note: parseFloat(n.note),
+            matiere: n.nom_matiere,
+            type: n.type_evaluation,
+            trimestre: n.trimestre,
+            date: n.date_evaluation,
+        }));
+
+        // 11. Stats rapides
+        const matieresSorted = resultat.detail_matieres
+            .filter(m => m.moyenne !== null)
+            .sort((a, b) => b.moyenne - a.moyenne);
+
+        res.json({
+            success: true,
+            eleve: { nom: `${prenom} ${nom}`, code_unique, classe: classe_actuelle },
+            trimestre: trimestreDemande || 'tous',
+            moyenne_generale: resultat.moyenne_generale,
+            mention: resultat.mention,
+            admis: resultat.admis,
+            detail_matieres: resultat.detail_matieres,
+            programme_officiel: engine.getProgramme(classe_actuelle),
+            evolution_trimestrielle: evolution,
+            courbe_chronologique: courbeChronologique,
+            predictif,
+            alertes_baisses: alertes,
+            stats: {
+                nb_notes_total: toutesNotes.length,
+                nb_notes_trimestre: notesFiltrees.length,
+                meilleure_matiere: matieresSorted[0] || null,
+                matiere_en_difficulte: resultat.detail_matieres
+                    .filter(m => m.moyenne !== null && m.moyenne < 10)
+                    .sort((a, b) => a.moyenne - b.moyenne)[0] || null,
+            }
+        });
+
+    } catch (error) {
+        console.error('getMoyennesAvancees:', error.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur', error: error.message });
     }
 };

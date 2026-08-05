@@ -1,0 +1,72 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                         3 ÉTAPES POUR DÉMARRER                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+ÉTAPE 1️⃣  - OUVREZ 2 TERMINAUX POWERSHELL
+═════════════════════════════════════════════════════════════════════════════════
+
+Appuyez sur Win+X → Windows Terminal (PowerShell)
+Ouvrez un 2ème terminal : Ctrl+Shift+T
+
+
+ÉTAPE 2️⃣  - TERMINAL 1 : Lancez l'API Python
+═════════════════════════════════════════════════════════════════════════════════
+
+Dans TERMINAL 1, tapez :
+
+  .\.venv\Scripts\python.exe services/api_moyennes.py
+
+Vous devriez voir :
+
+  INFO:     Uvicorn running on http://0.0.0.0:8001
+  INFO:     Application startup complete
+
+
+ÉTAPE 3️⃣  - TERMINAL 2 : Lancez le Backend Node.js
+═════════════════════════════════════════════════════════════════════════════════
+
+Dans TERMINAL 2, tapez :
+
+  npm start
+
+Vous devriez voir :
+
+  ✅ Socket.io initialisé
+  🚀 Serveur + WebSocket lancé sur le port 3000
+  ✅ Connecté à PostgreSQL
+
+
+ÉTAPE 4️⃣  - Ouvrez votre navigateur
+═════════════════════════════════════════════════════════════════════════════════
+
+Allez à : http://localhost:3000
+
+Vous verrez la page d'accueil de Campus Numérique
+
+
+ÉTAPE 5️⃣  - Connectez-vous et testez
+═════════════════════════════════════════════════════════════════════════════════
+
+1. Connectez-vous avec vos identifiants élève
+2. Allez au tableau de bord
+3. Cliquez sur "Moyennes et Prédictions"
+
+Vous verrez :
+  ✅ Votre moyenne générale (format X.XX/20)
+  ✅ Un graphique interactif
+  ✅ Un tableau avec les matières
+  ✅ Vos prédictions
+  ✅ Vos alertes si baisse
+
+
+═════════════════════════════════════════════════════════════════════════════════
+
+Si vous préférez une seule commande :
+
+  Cliquez sur : demarrer.bat  (dans l'Explorateur Windows)
+
+Les 2 services se lanceront automatiquement et une fenêtre s'ouvrira.
+
+═════════════════════════════════════════════════════════════════════════════════
+

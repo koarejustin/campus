@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cockpit | Saint Joseph</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234F46E5'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='18' fill='white'>SJ</text></svg>">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%234F46E5'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='18' fill='white'>SJ</text></svg>">
   <script src="config.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -35,21 +36,40 @@
     }
 
     @media print {
-      body, html {
+
+      body,
+      html {
         background: #fff !important;
         color: #111 !important;
       }
-      .sidebar, .topbar, .no-print, .filter-btn, .btn-g, .btn-p, .cs, .nav-bar, .badge, input, select, textarea, .toast, .modal {
+
+      .sidebar,
+      .topbar,
+      .no-print,
+      .filter-btn,
+      .btn-g,
+      .btn-p,
+      .cs,
+      .nav-bar,
+      .badge,
+      input,
+      select,
+      textarea,
+      .toast,
+      .modal {
         display: none !important;
       }
+
       main {
         margin-left: 0 !important;
         overflow: visible !important;
       }
+
       .card {
         box-shadow: none !important;
         border: 1px solid #E5E7EB !important;
       }
+
       table {
         page-break-inside: avoid !important;
       }
@@ -1158,7 +1178,6 @@
     }
   </style>
   <style>
-
     /* ══ CLASSES CHECKBOXES COMPOSITION ══ */
     .cls-chk-lbl {
       display: flex;
@@ -1175,9 +1194,26 @@
       background: #fff;
       user-select: none;
     }
-    .cls-chk-lbl:hover { border-color: #A5B4FC; background: #EEF2FF; }
-    .cls-chk-lbl input[type=checkbox] { width: 14px; height: 14px; accent-color: #4F46E5; cursor: pointer; flex-shrink: 0; }
-    .cls-chk-lbl:has(input:checked) { border-color: #4F46E5; background: #EEF2FF; color: #3730A3; font-weight: 700; }
+
+    .cls-chk-lbl:hover {
+      border-color: #A5B4FC;
+      background: #EEF2FF;
+    }
+
+    .cls-chk-lbl input[type=checkbox] {
+      width: 14px;
+      height: 14px;
+      accent-color: #4F46E5;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .cls-chk-lbl:has(input:checked) {
+      border-color: #4F46E5;
+      background: #EEF2FF;
+      color: #3730A3;
+      font-weight: 700;
+    }
 
     /* ══ RESPONSIVE DIRECTION — corrections mobile ══════════════ */
 
@@ -2062,7 +2098,7 @@
         gap: 12px !important;
       }
 
-      #conv-grid > .card {
+      #conv-grid>.card {
         width: 100% !important;
         min-width: 0 !important;
         box-sizing: border-box !important;
@@ -2114,7 +2150,7 @@
         gap: 12px !important;
       }
 
-      #inc-grid > .card {
+      #inc-grid>.card {
         width: 100% !important;
         min-width: 0 !important;
         box-sizing: border-box !important;
@@ -2128,7 +2164,7 @@
         gap: 10px !important;
       }
 
-      .abs-form > div {
+      .abs-form>div {
         width: 100% !important;
       }
 
@@ -2146,7 +2182,7 @@
       }
 
       /* Items dans inc-list → full width et jolis */
-      #inc-list > div {
+      #inc-list>div {
         width: 100% !important;
         box-sizing: border-box !important;
         word-break: break-word !important;
@@ -2160,6 +2196,7 @@
 
     /* ── Très petit mobile (< 400px) ── */
     @media (max-width: 400px) {
+
       #s-abs>div[style*="grid-template-columns:repeat(4,1fr)"],
       #s-abs>div[style*="grid-template-columns: repeat(4, 1fr)"] {
         grid-template-columns: 1fr 1fr !important;
@@ -2180,17 +2217,96 @@
 
 <body>
 
+  <!-- ═══ LOGIN OVERLAY ═══ -->
+  <div id="login-overlay"
+    style="display:none;position:fixed;inset:0;background:#0A0C1A;z-index:9999;flex-direction:column;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;">
+    <div style="width:100%;max-width:440px;padding:0 20px;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div
+          style="width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,#6366F1,#8B5CF6);display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;">
+          <svg viewBox="0 0 24 24"
+            style="width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+        <div style="font-size:1.9rem;font-weight:900;color:#fff;letter-spacing:-.03em;">SAINT<span
+            style="color:#818CF8;">JOSEPH</span></div>
+        <div
+          style="font-size:.63rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-top:7px;">
+          Connexion Direction</div>
+      </div>
+      <div
+        style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:32px 32px 28px;backdrop-filter:blur(20px);">
+        <div
+          style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#6366F1,#8B5CF6);border-radius:24px 24px 0 0;">
+        </div>
+        <label
+          style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.32);margin-bottom:8px;display:block;">Matricule</label>
+        <div style="position:relative;margin-bottom:18px;">
+          <input type="text" id="login-username"
+            style="width:100%;padding:14px 14px 14px 42px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;font-size:.88rem;font-weight:600;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"
+            placeholder="DIR-2026-XXX ou SURV-2026-XXX">
+          <svg
+            style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:rgba(255,255,255,.2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+        </div>
+        <label
+          style="font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.15em;color:rgba(255,255,255,.32);margin-bottom:8px;display:block;">Mot
+          de Passe</label>
+        <div style="position:relative;margin-bottom:18px;">
+          <input type="password" id="login-password"
+            style="width:100%;padding:14px 42px 14px 14px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.08);border-radius:14px;font-size:.88rem;font-weight:600;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"
+            placeholder="••••••••">
+          <button onclick="togglePwDir()"
+            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:6px;color:rgba(255,255,255,.22);">
+            <svg id="ico-show-dir" viewBox="0 0 24 24"
+              style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <svg id="ico-hide-dir" viewBox="0 0 24 24"
+              style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:none;">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+              <line x1="1" y1="1" x2="23" y2="23" />
+            </svg>
+          </button>
+        </div>
+        <button id="btn-login-dir" onclick="handleLoginDir()"
+          style="width:100%;padding:15px;background:linear-gradient(135deg,#6366F1,#7C3AED);border:none;border-radius:14px;font-size:.9rem;font-weight:800;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+          <svg viewBox="0 0 24 24"
+            style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <polyline points="10 17 15 12 10 7" />
+            <line x1="15" y1="12" x2="3" y2="12" />
+          </svg>
+          Se connecter
+        </button>
+        <div id="login-error"
+          style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:10px 14px;font-size:.76rem;font-weight:700;color:#FCA5A5;margin-top:14px;text-align:center;">
+        </div>
+      </div>
+      <button onclick="window.location.href='index.html'"
+        style="text-align:center;margin-top:22px;font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.2em;color:rgba(255,255,255,.2);cursor:pointer;background:none;border:none;font-family:'Plus Jakarta Sans',sans-serif;width:100%;">←
+        Retour au portail</button>
+    </div>
+  </div>
+
   <!-- ═══ SIDEBAR ═══ -->
   <aside class="sidebar">
     <!-- Logo -->
     <div class="logo-wrap">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
         <div class="logo-icon" id="logo-icon-wrap">
-          <img class="ecole-logo hidden" alt="logo" style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
+          <img class="ecole-logo hidden" alt="logo"
+            style="width:100%;height:100%;object-fit:contain;border-radius:6px;">
           <i class="ecole-logo-fallback" data-lucide="shield-check" style="width:17px;height:17px;color:#fff;"></i>
         </div>
         <div>
-          <div style="font-size:.9rem;font-weight:900;color:#fff;font-style:italic;letter-spacing:-.02em;" class="ecole-nom">SAINT<span style="color:#818CF8;">JOSEPH</span></div>
+          <div style="font-size:.9rem;font-weight:900;color:#fff;font-style:italic;letter-spacing:-.02em;"
+            class="ecole-nom">SAINT<span style="color:#818CF8;">JOSEPH</span></div>
           <div id="sb-role-lbl"
             style="font-size:.55rem;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.15em;font-weight:700;">
             Direction</div>
@@ -2522,7 +2638,8 @@
           </div>
         </div>
         <div style="display:flex; gap:12px;">
-          <button onclick="openAddAbsence()" class="btn-p no-print" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);">
+          <button onclick="openAddAbsence()" class="btn-p no-print"
+            style="background:linear-gradient(135deg,#4F46E5,#7C3AED);">
             <i data-lucide="plus" style="width:14px;height:14px;"></i> Nouvelle absence
           </button>
           <button onclick="exportAbsencesToExcel()" class="btn-g no-print" style="background:#F1F5F9;">
@@ -2833,12 +2950,12 @@
               </div>
             </div>
             <div style="display:flex;gap:8px;align-items:center;">
-              <input type="text" id="cv-srch" placeholder="Rechercher…"
-                class="no-print"
+              <input type="text" id="cv-srch" placeholder="Rechercher…" class="no-print"
                 style="width:150px;padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.75rem;font-family:inherit;outline:none;"
                 oninput="renderConvList()" onfocus="this.style.borderColor='#4F46E5'"
                 onblur="this.style.borderColor='#E2E8F0'">
-              <button onclick="printConvocations()" class="btn-g no-print" style="background:#F1F5F9; padding:7px 10px; border-radius:8px; display:flex; align-items:center; gap:6px;">
+              <button onclick="printConvocations()" class="btn-g no-print"
+                style="background:#F1F5F9; padding:7px 10px; border-radius:8px; display:flex; align-items:center; gap:6px;">
                 <i data-lucide="printer" style="width:14px;height:14px;"></i> Imprimer
               </button>
               <span class="b b-pur" id="cv-cnt">0</span>
@@ -3149,7 +3266,8 @@
             </div>
             <!-- TAB: Messages privés -->
             <div id="tab-msgs" style="padding:16px;display:none;">
-              <div style="background:#EEF2FF;border:1px solid #C7D2FE;border-radius:12px;padding:16px;text-align:center;">
+              <div
+                style="background:#EEF2FF;border:1px solid #C7D2FE;border-radius:12px;padding:16px;text-align:center;">
                 <div style="font-size:1.8rem;margin-bottom:8px;">💬</div>
                 <div style="font-size:.82rem;font-weight:800;color:#3730A3;margin-bottom:6px;">Messages Privés</div>
                 <div style="font-size:.73rem;color:#4F46E5;line-height:1.6;">
@@ -3451,17 +3569,20 @@
 
         <!-- Formulaire ajout -->
         <div class="card" style="padding:18px;" id="compo-form-card">
-          <div style="font-size:.88rem;font-weight:800;color:#0F172A;margin-bottom:14px;" id="compo-form-title">➕ Nouvelle épreuve</div>
+          <div style="font-size:.88rem;font-weight:800;color:#0F172A;margin-bottom:14px;" id="compo-form-title">➕
+            Nouvelle épreuve</div>
           <div style="display:flex;flex-direction:column;gap:9px;">
             <!-- Titre -->
             <div>
-              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Titre *</label>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Titre
+                *</label>
               <input id="cp-titre" type="text" placeholder="Ex: Composition T1 — Trimestre 1"
                 style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;box-sizing:border-box;">
             </div>
             <!-- Type -->
             <div>
-              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Type *</label>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Type
+                *</label>
               <select id="cp-type" onchange="onCompoTypeChange()"
                 style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;">
                 <option value="composition">📋 Composition</option>
@@ -3471,40 +3592,58 @@
             </div>
             <!-- Classes — checkboxes -->
             <div id="cp-classes-wrap">
-              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:6px;">Classe(s) concernée(s) *</label>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:6px;">Classe(s)
+                concernée(s) *</label>
               <div id="cp-classes-checks" style="display:grid;grid-template-columns:1fr 1fr;gap:5px;">
-                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="6ème"><span>6ème</span></label>
-                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="5ème"><span>5ème</span></label>
-                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="4ème"><span>4ème</span></label>
-                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="3ème"><span>3ème ⭐ BEPC</span></label>
-                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="2nde A"><span>2nde A</span></label>
-                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="2nde C"><span>2nde C</span></label>
-                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="1ère A"><span>1ère A</span></label>
-                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="1ère D"><span>1ère D</span></label>
-                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="Tle A"><span>Tle A ⭐ BAC</span></label>
-                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="Tle D"><span>Tle D ⭐ BAC</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb"
+                    value="6ème"><span>6ème</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb"
+                    value="5ème"><span>5ème</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb"
+                    value="4ème"><span>4ème</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="3ème"><span>3ème ⭐
+                    BEPC</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="2nde A"><span>2nde
+                    A</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="2nde C"><span>2nde
+                    C</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="1ère A"><span>1ère
+                    A</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="1ère D"><span>1ère
+                    D</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="Tle A"><span>Tle A ⭐
+                    BAC</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="Tle D"><span>Tle D ⭐
+                    BAC</span></label>
               </div>
               <div style="display:flex;gap:6px;margin-top:5px;">
-                <button type="button" onclick="selectAllClasses(true)" style="flex:1;padding:4px 8px;border:1px solid #E2E8F0;border-radius:6px;background:#F8FAFF;font-size:.65rem;font-weight:700;cursor:pointer;font-family:inherit;color:#4F46E5;">✓ Toutes</button>
-                <button type="button" onclick="selectAllClasses(false)" style="flex:1;padding:4px 8px;border:1px solid #E2E8F0;border-radius:6px;background:#F8FAFF;font-size:.65rem;font-weight:700;cursor:pointer;font-family:inherit;color:#94A3B8;">✕ Aucune</button>
+                <button type="button" onclick="selectAllClasses(true)"
+                  style="flex:1;padding:4px 8px;border:1px solid #E2E8F0;border-radius:6px;background:#F8FAFF;font-size:.65rem;font-weight:700;cursor:pointer;font-family:inherit;color:#4F46E5;">✓
+                  Toutes</button>
+                <button type="button" onclick="selectAllClasses(false)"
+                  style="flex:1;padding:4px 8px;border:1px solid #E2E8F0;border-radius:6px;background:#F8FAFF;font-size:.65rem;font-weight:700;cursor:pointer;font-family:inherit;color:#94A3B8;">✕
+                  Aucune</button>
               </div>
             </div>
             <!-- Date + Heure -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
               <div>
-                <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Date *</label>
+                <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Date
+                  *</label>
                 <input id="cp-date" type="date"
                   style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;">
               </div>
               <div>
-                <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Heure</label>
+                <label
+                  style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Heure</label>
                 <input id="cp-heure" type="time" value="08:00"
                   style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;">
               </div>
             </div>
             <!-- Durée de la composition -->
             <div>
-              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Durée de l'épreuve (jours)</label>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Durée de
+                l'épreuve (jours)</label>
               <select id="cp-duree"
                 style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;">
                 <option value="1">1 jour</option>
@@ -3516,13 +3655,16 @@
             </div>
             <!-- Salle -->
             <div>
-              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Salle / Lieu</label>
+              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Salle /
+                Lieu</label>
               <input id="cp-salle" type="text" placeholder="Ex: Salle A, Grand Hall…"
                 style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.8rem;font-family:inherit;box-sizing:border-box;">
             </div>
             <!-- Notes/Instructions -->
             <div>
-              <label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Instructions (optionnel)</label>
+              <label
+                style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Instructions
+                (optionnel)</label>
               <textarea id="cp-notes" rows="2" placeholder="Matériel autorisé, consignes…"
                 style="width:100%;padding:9px 11px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.78rem;font-family:inherit;resize:vertical;box-sizing:border-box;"></textarea>
             </div>
@@ -3629,7 +3771,7 @@
     // ══════════════════════════════════════
     async function chargerConfigEcole() {
       try {
-        const response = await fetch('/api/admin/config');
+        const response = await fetch('/api/admin/config-public');
         const data = await response.json();
         if (data.success && data.config) {
           document.querySelectorAll('.ecole-nom').forEach(el => el.textContent = data.config.nom_etablissement);
@@ -3645,9 +3787,17 @@
     // INIT
     // ══════════════════════════════════════
     document.addEventListener('DOMContentLoaded', async () => {
-      if (!TOK) { location.href = 'login.html'; return; }
+      console.log('ROLE détecté:', ROLE);
+      console.log('SESS:', SESS);
+      if (!TOK) {
+        document.getElementById('login-overlay').style.display = 'flex';
+        return;
+      }
       ROLE = (SESS.role_actuel || '').toUpperCase();
-      if (ROLE !== 'DIRECTION' && ROLE !== 'SURVEILLANT') { location.href = 'login.html'; return; }
+      if (ROLE !== 'DIRECTION' && ROLE !== 'SURVEILLANT') {
+        document.getElementById('login-overlay').style.display = 'flex';
+        return;
+      }
 
       chargerConfigEcole();
       applyRole();
@@ -3686,25 +3836,21 @@
       if (ROLE === 'SURVEILLANT') {
         $('right-panel-dir').style.display = 'none';
         $('right-panel-surv').style.display = 'block';
-        ['ni-flux', 'ni-corps', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections'].forEach(id => {
-          const el = $(id);
-          if (el) {
-            el.classList.remove('ni-locked-vis');
-            el.onclick = () => accessDenied(el.querySelector('span').textContent);
-          }
-        });
       } else {
-        // DIRECTION : activer tous les menus DIR
-        ['ni-flux', 'ni-corps', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections'].forEach(id => {
-          const el = $(id); const page = el?.dataset.page;
-          if (el && page) {
-            el.classList.remove('ni-locked-vis');
-            el.onclick = () => go(page, el);
-          }
-        });
-        // Supprimer les badges DIR
-        ['dt-flux', 'dt-corps', 'dt-sign', 'dt-compta', 'dt-agenda', 'dt-compo', 'dt-elections'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
+        $('right-panel-dir').style.display = 'block';
+        $('right-panel-surv').style.display = 'none';
       }
+      
+      // Les deux rôles (DIRECTION et SURVEILLANT) ont accès aux mêmes menus
+      ['ni-flux', 'ni-corps', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections'].forEach(id => {
+        const el = $(id); const page = el?.dataset.page;
+        if (el && page) {
+          el.classList.remove('ni-locked-vis');
+          el.onclick = () => go(page, el);
+        }
+      });
+      // Supprimer les badges DIR
+      ['dt-flux', 'dt-corps', 'dt-sign', 'dt-compta', 'dt-agenda', 'dt-compo', 'dt-elections'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
     }
 
     function accessDenied(titre) {
@@ -3730,7 +3876,6 @@
       elections: { sec: 's-elections', title: 'Élections Scolaires', sub: 'Chef de Classe & Bureau des Élèves — Nomination officielle' },
     };
     function go(page, navEl) {
-      if (ROLE === 'SURVEILLANT' && ['flux', 'corps', 'sign', 'compta', 'agenda', 'compo', 'elections'].includes(page)) { toast('🔒 Accès réservé Direction', 'err'); return; }
       const cfg = PAGES[page]; if (!cfg) return;
       document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
       document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
@@ -3755,7 +3900,9 @@
     // ══════════════════════════════════════
     async function loadStats() {
       try {
+        console.log('Chargement des stats...');
         const d = await api('/admin/stats');
+        console.log('Réponse stats:', d);
         if (d.stats) {
           const s = d.stats;
           if ($('kpi-el')) $('kpi-el').textContent = s.users || 500;
@@ -5548,6 +5695,115 @@
         const ov = $('ov'); if (ov) ov.classList.remove('open');
       }
     }
+
+    // ══ LOGIN FUNCTIONS ══
+    function togglePwDir() {
+      const pw = document.getElementById('login-password');
+      const s = document.getElementById('ico-show-dir');
+      const h = document.getElementById('ico-hide-dir');
+      if (pw.type === 'password') { pw.type = 'text'; s.style.display = 'none'; h.style.display = ''; }
+      else { pw.type = 'password'; s.style.display = ''; h.style.display = 'none'; }
+    }
+
+    async function handleLoginDir() {
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errorEl = document.getElementById('login-error');
+      const btn = document.getElementById('btn-login-dir');
+      errorEl.style.display = 'none';
+
+      if (!username) { errorEl.textContent = 'Entrez votre matricule.'; errorEl.style.display = 'block'; return; }
+      if (!password) { errorEl.textContent = 'Entrez votre mot de passe.'; errorEl.style.display = 'block'; return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<div style="width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;"></div>Vérification...';
+
+      try {
+        let roleToSend = null;
+        if (username.startsWith('DIR-')) roleToSend = 'DIRECTION';
+        else if (username.startsWith('SURV-')) roleToSend = 'SURVEILLANT';
+
+        const body = { code_unique: username, mot_de_passe: password };
+        if (roleToSend) body.role = roleToSend;
+
+        const resp = await fetch((window.API_BASE || 'http://localhost:5000/api') + '/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+          const data = await resp.json();
+
+          if(data.activated) {
+            if (data.token) {
+          // Compte activé et token fourni, procéder à la connexion
+          const user = data.user || {};
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('currentUser', JSON.stringify({
+            ...user,
+            classe: user.classe_actuelle || user.classe || '',
+            matricule: user.code_unique || username,
+          }));
+          localStorage.setItem('user_session', JSON.stringify({
+            ...user,
+            token: data.token,
+            classe: user.classe_actuelle || user.classe || '',
+          }));
+          document.getElementById('login-overlay').style.display = 'none';
+          location.reload();
+          return;
+        } else {
+          errorEl.textContent = 'Compte activé ! Reconnectez-vous.';
+          errorEl.style.display = 'block';
+          document.getElementById('login-password').value = '';
+          btn.disabled = false;
+          btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Se connecter';
+          return;
+        }
+      }
+
+        if (!resp.ok || !data.success) {
+        errorEl.textContent = data.message || 'Identifiants invalides.';
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Se connecter';
+        return;
+      }
+
+      const user = data.user || {};
+      const roleActuel = user.role_actuel;
+
+      if (roleActuel !== 'DIRECTION' && roleActuel !== 'SURVEILLANT') {
+        errorEl.textContent = 'Accès refusé. Espace réservé à la Direction et aux Surveillants.';
+        errorEl.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Se connecter';
+        return;
+      }
+
+      localStorage.setItem('token', data.token || '');
+      localStorage.setItem('currentUser', JSON.stringify({
+        ...user,
+        classe: user.classe_actuelle || user.classe || '',
+        matricule: user.code_unique || username,
+      }));
+      localStorage.setItem('user_session', JSON.stringify({
+        ...user,
+        token: data.token,
+        classe: user.classe_actuelle || user.classe || '',
+      }));
+
+      document.getElementById('login-overlay').style.display = 'none';
+      location.reload(); // Reload to initialize the dashboard
+
+    } catch (err) {
+      errorEl.textContent = 'Erreur de connexion au serveur.';
+      errorEl.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Se connecter';
+    }
+    }
+
     function logout() { localStorage.removeItem('user_session'); location.href = 'login.html'; }
 
     setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 200);
@@ -5598,7 +5854,7 @@
         el.style.fontWeight = '800';
       }
     }
-   
+
 
     function nextPage() {
       const filtered = getFilteredAbsences();
@@ -6462,6 +6718,7 @@
         toast('❌ Erreur réseau: ' + error.message, 'err');
       }
     }
+
 
   </script>
 </body>
