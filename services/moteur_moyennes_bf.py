@@ -162,10 +162,10 @@ class MoteurMoyennesBF:
         devoirs = [n for n, t in notes_brutes if t == 'DEVOIR']
 
         if compositions and devoirs:
-            # Formule pondérée : 80% composition + 20% devoirs
+            # Formule pondérée officielle BF : 60% composition + 40% devoirs
             moy_comp = statistics.mean(compositions)
             moy_dev = statistics.mean(devoirs)
-            return round((moy_comp * 0.8) + (moy_dev * 0.2), 2)
+            return round((moy_comp * 0.6) + (moy_dev * 0.4), 2)
         elif compositions:
             return round(statistics.mean(compositions), 2)
         else:

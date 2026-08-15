@@ -471,6 +471,8 @@
       'PROF-': { role: 'PROFESSEUR', label: 'Espace Professeur', page: 'professeur.html' },
       'PAR-': { role: 'PARENT', label: 'Espace Parent', page: 'parent.html' },
       'ALUMNI-': { role: 'ALUMNI', label: 'Espace Alumni', page: 'alumni.html' },
+      'SURV-': { role: 'SURVEILLANT', label: 'Espace Surveillant', page: 'surveillant.html' },
+      'DIR-': { role: 'DIRECTION', label: 'Espace Direction', page: 'direction.html' },
     };
 
     // Rôle également passable via URL (ancien système)
@@ -573,7 +575,10 @@
       try {
         const body = { code_unique: username, mot_de_passe: password };
         // On envoie le rôle seulement si détecté (optionnel, le backend le retrouve tout seul)
-        const roleToSend = detectedInfo?.role || urlRole;
+        // ✅ "APE" n'est pas un vrai rôle de compte (un membre du bureau APE est
+        // un PARENT) — ne jamais l'envoyer tel quel au backend, il ne
+        // correspondra jamais à aucun compte.
+        const roleToSend = detectedInfo?.role || (urlRole === 'APE' ? null : urlRole);
         if (roleToSend) body.role = roleToSend;
         const contexte = new URLSearchParams(window.location.search).get('context');
         if (contexte) body.context = contexte;
@@ -642,10 +647,16 @@
 
         // Trouver la page cible
         // Priorité : rôle backend > rôle détecté par préfixe > rôle URL
-        const targetPage = pageForRole(roleActuel)
-          || detectedInfo?.page
-          || (urlRole ? pageForRole(urlRole) : null)
-          || 'index.html';
+        // ✅ Cas particulier APE : il n'existe pas de compte "APE" séparé —
+        // un membre du bureau APE est simplement un PARENT. Si l'entrée
+        // vient du bouton "Bureau APE" (urlRole=APE), on l'envoie vers
+        // ape.html plutôt que parent.html, même si le compte réel est PARENT.
+        const targetPage = (urlRole === 'APE' && roleActuel === 'PARENT')
+          ? 'ape.html'
+          : pageForRole(roleActuel)
+            || detectedInfo?.page
+            || (urlRole ? pageForRole(urlRole) : null)
+            || 'index.html';
 
         setBtn('success');
 

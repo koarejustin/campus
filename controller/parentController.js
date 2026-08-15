@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const engine = require('../services/moyennesEngine');
 
 /**
  * ESPACE PARENT - Contrôleur pour toutes les fonctionnalités
@@ -49,80 +50,118 @@ exports.getBulletinEnfant = async (req, res) => {
     try {
         const parentId = req.user?.id;
         const enfantId = req.query.enfant_id;
-        const trimestre = req.query.trimestre || 1;
-
         if (!parentId || !enfantId) {
             return res.status(401).json({ message: 'Données manquantes' });
         }
 
-        const enfantsQuery = `
-            SELECT p.id_user FROM vie_scolaire.profils_eleves p
-            JOIN vie_scolaire.relations_parents_eleves pe ON p.id_user = pe.id_eleve
-            WHERE pe.id_parent = $1 AND p.id_user = $2
-            LIMIT 1
-        `;
-        const accessCheck = await db.query(enfantsQuery, [parentId, enfantId]);
-
+        // Vérifie que cet enfant est bien rattaché à ce parent
+        const accessCheck = await db.query(
+            `SELECT p.id_user FROM vie_scolaire.profils_eleves p
+             JOIN vie_scolaire.relations_parents_eleves pe ON p.id_user = pe.id_eleve
+             WHERE pe.id_parent = $1 AND p.id_user = $2 LIMIT 1`,
+            [parentId, enfantId]
+        );
         if (accessCheck.rows.length === 0) {
             return res.status(403).json({ message: 'Accès non autorisé' });
         }
 
-        const bulletinQuery = `
-            SELECT 
-                p.*, 
-                c.nom, 
-                c.prenom,
-                c.code_unique,
-                (SELECT AVG(note) FROM pedagogie.notes_evaluations 
-                 WHERE id_eleve=$1 AND trimestre=$2) as moyenne_generale
-            FROM vie_scolaire.profils_eleves p
-            JOIN authentification.comptes c ON p.id_user = c.id_user
-            WHERE p.id_user = $1
-        `;
-
-        const result = await db.query(bulletinQuery, [enfantId, trimestre]);
-
-        if (result.rows.length === 0) {
+        // ✅ Même moteur de calcul officiel BF que côté élève (moyennesEngine.js) —
+        // avant, ce endpoint utilisait une simple AVG(note) sans coefficients ni
+        // pondération devoirs/composition, ce qui donnait un chiffre différent de
+        // celui que l'élève voit sur son propre bulletin.
+        const classeRes = await db.query(
+            `SELECT pe.classe_actuelle, c.nom, c.prenom, c.code_unique
+             FROM vie_scolaire.profils_eleves pe
+             JOIN authentification.comptes c ON c.id_user = pe.id_user
+             WHERE pe.id_user = $1`, [enfantId]
+        );
+        if (!classeRes.rows.length) {
             return res.status(404).json({ message: 'Profil enfant non trouvé' });
         }
+        const { classe_actuelle, nom, prenom, code_unique } = classeRes.rows[0];
 
-        const eleve = result.rows[0];
+        const trimestreDemande = req.query.trimestre ? parseInt(req.query.trimestre) : null;
 
-        const notesQuery = `
-            SELECT 
-                COALESCE(m.nom_matiere, 'Matière') as nom_matiere,
-                m.coefficient,
-                AVG(n.note) as valeur_note,
-                COUNT(n.id_evaluation) as nb_evaluations
+        const notesRes = await db.query(`
+            SELECT
+                n.note, n.trimestre,
+                COALESCE(n.type_evaluation, 'DEVOIR') AS type_evaluation,
+                n.date_evaluation::text AS date_evaluation,
+                COALESCE(m.nom_matiere, 'Matière inconnue') AS nom_matiere,
+                COALESCE(m.coefficient, 1) AS coefficient
             FROM pedagogie.notes_evaluations n
             LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
-            WHERE n.id_eleve = $1 AND n.trimestre = $2
-            GROUP BY m.nom_matiere, m.coefficient
-            ORDER BY valeur_note DESC
-        `;
+            WHERE n.id_eleve = $1
+            ORDER BY n.trimestre, n.date_evaluation
+        `, [enfantId]);
 
-        const notesResult = await db.query(notesQuery, [enfantId, trimestre]);
+        const toutesNotes = notesRes.rows;
+        const notesFiltrees = trimestreDemande
+            ? toutesNotes.filter(n => parseInt(n.trimestre) === trimestreDemande)
+            : toutesNotes;
 
-        const notes = notesResult.rows.map(r => ({
-            nom_matiere: r.nom_matiere,
-            valeur_note: r.valeur_note ? Math.round(parseFloat(r.valeur_note) * 100) / 100 : null,
-            coefficient: parseInt(r.coefficient) || 1,
-            nb_evaluations: r.nb_evaluations
+        const parMatiere = {};
+        for (const n of notesFiltrees) {
+            if (!parMatiere[n.nom_matiere]) parMatiere[n.nom_matiere] = [];
+            parMatiere[n.nom_matiere].push(n);
+        }
+        const notesParMatiere = Object.entries(parMatiere)
+            .map(([nom_matiere, notes]) => ({ nom_matiere, notes }));
+
+        const resultat = engine.calculerMoyenneGenerale(classe_actuelle, notesParMatiere);
+        const evolution = engine.calculerEvolution(toutesNotes, classe_actuelle);
+
+        // Détail devoirs/composition par matière (pour affichage D1/D2/COMPO comme côté élève)
+        const _norm = engine.normaliserNomMatiereAvecAlias;
+        const detailNotesParMatiere = {};
+        for (const [nomMat, notesMat] of Object.entries(parMatiere)) {
+            const detail = {
+                devoirs: notesMat
+                    .filter(n => !n.type_evaluation || ['DEVOIR', 'DEVOIR1', 'DEVOIR2', 'RATTRAPAGE'].includes(n.type_evaluation))
+                    .map(n => parseFloat(n.note)),
+                compos: notesMat
+                    .filter(n => ['COMPO', 'COMPOSITION', 'EXAMEN'].includes(n.type_evaluation))
+                    .map(n => parseFloat(n.note)),
+            };
+            detailNotesParMatiere[nomMat] = detail;
+            detailNotesParMatiere[_norm(nomMat)] = detail;
+        }
+        resultat.detail_matieres = resultat.detail_matieres.map(m => ({
+            ...m,
+            notes_detail: detailNotesParMatiere[m.nom] || detailNotesParMatiere[_norm(m.nom)] || null,
         }));
+
+        // Analyse prédictive — identique à celle vue par l'élève
+        const mg = resultat.moyenne_generale;
+        const coefsTotaux = resultat.total_coefs;
+        const predictif = {
+            pour_avoir_10: engine.noteMinimalePourCible(mg, coefsTotaux, 2, 10),
+            pour_avoir_12: engine.noteMinimalePourCible(mg, coefsTotaux, 2, 12),
+            pour_avoir_14: engine.noteMinimalePourCible(mg, coefsTotaux, 2, 14),
+            pour_maintenir: mg ? engine.noteMinimalePourCible(mg, coefsTotaux, 2, mg) : null,
+        };
 
         res.json({
             success: true,
             enfant: {
-                nom_complet: `${eleve.prenom} ${eleve.nom}`,
-                prenom: eleve.prenom,
-                nom: eleve.nom,
-                code_unique: eleve.code_unique,
-                classe: eleve.classe_actuelle,
-                moyenne_generale: eleve.moyenne_generale ? Math.round(parseFloat(eleve.moyenne_generale) * 100) / 100 : null
+                nom_complet: `${prenom} ${nom}`,
+                prenom, nom, code_unique,
+                classe: classe_actuelle,
+                moyenne_generale: resultat.moyenne_generale
             },
-            notes: notes,
-            notes_par_matiere: notes,
-            trimestre: trimestre
+            moyenne_generale: resultat.moyenne_generale,
+            mention: resultat.mention,
+            admis: resultat.admis,
+            detail_matieres: resultat.detail_matieres,
+            notes: resultat.detail_matieres.map(m => ({
+                nom_matiere: m.nom,
+                valeur_note: m.moyenne,
+                coefficient: m.coefficient,
+                nb_evaluations: (parMatiere[m.nom] || []).length
+            })),
+            predictif,
+            evolution_trimestrielle: evolution,
+            trimestre: trimestreDemande || 'tous'
         });
 
     } catch (error) {
@@ -420,19 +459,33 @@ exports.updateProfilParent = async (req, res) => {
         const { telephone, adresse, profession, biographie, bio, photo_url } = req.body;
         const bioFinal = biographie || bio || null;
 
-        await db.query(`
-            INSERT INTO gestion_ape.profils_parents
-                (id_user, profession, adresse, biographie, bio, telephone, photo_url, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
-            ON CONFLICT (id_user) DO UPDATE SET
-                profession   = COALESCE(EXCLUDED.profession, gestion_ape.profils_parents.profession),
-                adresse      = COALESCE(EXCLUDED.adresse, gestion_ape.profils_parents.adresse),
-                biographie   = COALESCE(EXCLUDED.biographie, gestion_ape.profils_parents.biographie),
-                bio          = COALESCE(EXCLUDED.bio, gestion_ape.profils_parents.bio),
-                telephone    = COALESCE(EXCLUDED.telephone, gestion_ape.profils_parents.telephone),
-                photo_url    = COALESCE(EXCLUDED.photo_url, gestion_ape.profils_parents.photo_url),
-                updated_at   = NOW()
-        `, [parentId, profession || null, adresse || null, bioFinal, bioFinal, telephone || null, photo_url || null]);
+        // ✅ gestion_ape.profils_parents n'a pas de contrainte UNIQUE sur id_user
+        // (seulement sur id_parent) — ON CONFLICT (id_user) échouait donc à
+        // chaque appel. Upsert manuel, indépendant de toute contrainte.
+        const existant = await db.query(
+            `SELECT id_parent FROM gestion_ape.profils_parents WHERE id_user = $1`,
+            [parentId]
+        );
+
+        if (existant.rows.length) {
+            await db.query(`
+                UPDATE gestion_ape.profils_parents SET
+                    profession   = COALESCE($2, profession),
+                    adresse      = COALESCE($3, adresse),
+                    biographie   = COALESCE($4, biographie),
+                    bio          = COALESCE($4, bio),
+                    telephone    = COALESCE($5, telephone),
+                    photo_url    = COALESCE($6, photo_url),
+                    updated_at   = NOW()
+                WHERE id_user = $1
+            `, [parentId, profession || null, adresse || null, bioFinal, telephone || null, photo_url || null]);
+        } else {
+            await db.query(`
+                INSERT INTO gestion_ape.profils_parents
+                    (id_user, profession, adresse, biographie, bio, telephone, photo_url, updated_at)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+            `, [parentId, profession || null, adresse || null, bioFinal, bioFinal, telephone || null, photo_url || null]);
+        }
 
         res.json({ success: true, message: 'Profil mis à jour' });
     } catch (error) {
@@ -538,6 +591,52 @@ exports.getActivites = async (req, res) => {
 
     } catch (error) {
         console.error('Erreur récupération activités:', error);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
+// ═══════════════════════════════════════════
+// MES COTISATIONS APE (le parent voit ses propres paiements)
+// Fonction jamais construite jusqu'ici — /parents/cotisations renvoyait
+// systématiquement 500 depuis le début (route défensive, pas de fonction).
+// ═══════════════════════════════════════════
+exports.getCotisations = async (req, res) => {
+    try {
+        const parentId = req.user?.id;
+        if (!parentId) return res.status(401).json({ message: 'Non authentifié' });
+
+        // ✅ Un seul format de réponse désormais, utilisé à la fois par
+        // parent.html et ape.html (qui appellent tous les deux cette même
+        // route) : la liste brute des cotisations + un résumé des totaux.
+        const result = await db.query(`
+            SELECT cp.id_cotisation, cp.montant, cp.statut_paiement, cp.motif_cotisation,
+                   cp.periode_concernee, cp.date_cotisation,
+                   e.prenom AS prenom_enfant, e.nom AS nom_enfant
+            FROM gestion_ape.cotisations_parents cp
+            LEFT JOIN authentification.comptes e ON e.id_user = cp.id_eleve
+            WHERE cp.id_parent = $1
+            ORDER BY cp.date_cotisation DESC
+        `, [parentId]);
+
+        const rows = result.rows;
+        const total_paye = rows
+            .filter(c => c.statut_paiement === 'PAYE')
+            .reduce((s, c) => s + parseFloat(c.montant || 0), 0);
+        const total_du = rows
+            .filter(c => c.statut_paiement !== 'PAYE')
+            .reduce((s, c) => s + parseFloat(c.montant || 0), 0);
+
+        res.json({
+            success: true,
+            cotisations: rows,
+            resume: {
+                total_paye,
+                total_du,
+                total_general: total_paye + total_du
+            }
+        });
+    } catch (error) {
+        console.error('Erreur getCotisations parent:', error.message);
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };

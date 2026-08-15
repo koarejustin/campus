@@ -202,7 +202,7 @@ function getMention(m) {
   return 'Insuffisant';
 }
 
-// Règle officielle BF : (moy_devoirs×1 + moy_compo×2) / 3
+// Règle officielle BF (confirmée) : moyenne des devoirs = 40%, moyenne de(s) composition(s) = 60%
 function calculerMoyenneMatiere(notes) {
   if (!notes || notes.length === 0) return null;
   const devoirs = notes.filter(n => !n.type_evaluation || ['DEVOIR','RATTRAPAGE',null,undefined].includes(n.type_evaluation));
@@ -216,7 +216,7 @@ function calculerMoyenneMatiere(notes) {
 
   if (moyD !== null && moyC === null) return Math.round(moyD * 100) / 100;
   if (moyC !== null && moyD === null) return Math.round(moyC * 100) / 100;
-  return Math.round(((moyD * 1 + moyC * 2) / 3) * 100) / 100;
+  return Math.round(((moyD * 0.4) + (moyC * 0.6)) * 100) / 100;
 }
 
 function calculerMoyenneGenerale(classe, notesParMatiere) {

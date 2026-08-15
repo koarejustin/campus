@@ -22,6 +22,9 @@ const requireAlumni = require('../middleware/alumniMiddleware');
 // ── Profil public d'un mentor (élèves, profs, direction — pas seulement alumni) ──
 router.get('/profil-public/:id', authMiddleware, alumniController.getProfilAlumniById);
 
+// ── Liste de tous les mentors disponibles (un élève doit voir tous les alumni actifs) ──
+router.get('/liste-mentors', authMiddleware, alumniController.getListeMentorsDisponibles);
+
 // ── Garde globale sur le reste du routeur ──────────────────────────────────────
 router.use(authMiddleware);
 router.use(requireAlumni);  // <-- ajout de la vérification de rôle ALUMNI

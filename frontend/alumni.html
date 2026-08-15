@@ -1264,7 +1264,9 @@
                     headers: authH(),
                     body: JSON.stringify({
                         id_eleve: _pendingMentoratEleveId,
-                        description: objectif || `Accompagnement de ${_pendingMentoratEleveNom}`
+                        // Pas de description ici : le message va uniquement dans le journal
+                        // partagé ci-dessous, pour éviter le doublon en haut de la fiche mentor
+                        description: null
                     })
                 });
                 const d = await r.json();
@@ -1330,7 +1332,7 @@
                             </div>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:12px;">
-                            <button class="btn-p" style="flex:1;" onclick="repondreADemande(${dm.id_demande}, true)">✅ Accepter</button>
+                            <button class="btn-p" style="flex:1;" onclick="repondreADemande(${dm.id_demande}, true, '${dm.id_eleve}', '${esc(dm.prenom)} ${esc(dm.nom)}')">✅ Accepter</button>
                             <button style="flex:1;padding:8px 14px;background:#F1F5F9;border:none;border-radius:8px;font-weight:700;cursor:pointer;color:var(--muted);"
                                 onclick="repondreADemande(${dm.id_demande}, false)">✖️ Refuser</button>
                         </div>
@@ -1348,17 +1350,17 @@
             else { badge.style.display = 'none'; }
         }
 
-        async function repondreADemande(idDemande, accepter) {
+        async function repondreADemande(idDemande, accepter, idEleve, nomEleve) {
             if (accepter) {
                 confirmerAction('Accepter cette demande et devenir le mentor de cet élève ?', async () => {
-                    await _repondreADemandeConfirme(idDemande, true);
+                    await _repondreADemandeConfirme(idDemande, true, idEleve, nomEleve);
                 });
             } else {
                 await _repondreADemandeConfirme(idDemande, false);
             }
         }
 
-        async function _repondreADemandeConfirme(idDemande, accepter) {
+        async function _repondreADemandeConfirme(idDemande, accepter, idEleve, nomEleve) {
             try {
                 const r = await fetch(`${API}/mentorat/demandes/${idDemande}/repondre`, {
                     method: 'PUT',
@@ -1367,8 +1369,16 @@
                 });
                 const d = await r.json();
                 if (d.success) {
-                    toast(accepter ? '✅ Demande acceptée !' : 'Demande refusée', 'ok');
-                    loadDemandes();
+                    if (accepter && idEleve) {
+                        // ✅ Enchaîne directement sur la rédaction du premier message —
+                        // plus besoin de ressortir et rechercher l'élève ailleurs
+                        toast('✅ Demande acceptée ! Rédigez votre premier message.', 'ok');
+                        loadDemandes();
+                        ouvrirModalMentoratEleve(idEleve, nomEleve);
+                    } else {
+                        toast(accepter ? '✅ Demande acceptée !' : 'Demande refusée', 'ok');
+                        loadDemandes();
+                    }
                 } else {
                     toast('❌ ' + (d.message || 'Erreur'), 'err');
                 }

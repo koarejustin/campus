@@ -11,6 +11,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
   <link rel="stylesheet" href="responsive.css">
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap"
@@ -2338,6 +2339,10 @@
         <div class="ni" id="ni-conv" onclick="go('conv',this)">
           <i data-lucide="send" class="ni-icon"></i><span>Convocations</span>
         </div>
+        <!-- Incidents : section/JS déjà prête (PAGES.inc, loadIncList) mais
+             volontairement retirée du menu pour l'instant — à réactiver plus
+             tard (voir décision produit). Remettre le lien ni-inc ci-dessus
+             suffit. -->
         <div class="ni" id="ni-edt" onclick="go('edt',this)">
           <i data-lucide="calendar-days" class="ni-icon"></i><span>Emploi du Temps</span>
         </div>
@@ -2353,10 +2358,24 @@
           <i data-lucide="book-open" class="ni-icon"></i><span>Corps Enseignant</span>
           <span class="dir-tag" id="dt-corps">DIR</span>
         </div>
+        <div class="ni ni-locked-vis" id="ni-parents" data-page="parents">
+          <i data-lucide="users" class="ni-icon"></i><span>Parents</span>
+          <span class="dir-tag" id="dt-parents">DIR</span>
+        </div>
+        <div class="ni ni-locked-vis" id="ni-alumni" data-page="alumni">
+          <i data-lucide="graduation-cap" class="ni-icon"></i><span>Anciens Élèves</span>
+          <span class="dir-tag" id="dt-alumni">DIR</span>
+        </div>
         <div class="ni ni-locked-vis" id="ni-sign" data-page="sign">
           <i data-lucide="file-check" class="ni-icon"></i><span>Signatures</span>
           <span class="dir-tag" id="dt-sign">DIR</span>
         </div>
+        <!-- Comptabilité : retirée du menu pour l'instant, dépend du système
+             de paiement en ligne (voir CAHIER_DES_CHARGES_PAIEMENT.md) —
+             section/backend déjà prêts, à réactiver quand le paiement sera
+             mis en place. -->
+        <!-- Agenda Direction : retirée du menu pour l'instant (même décision
+             produit), section/backend déjà prêts. -->
         <div class="ni ni-locked-vis" id="ni-compo" data-page="compo">
           <i data-lucide="pen-square" class="ni-icon"></i><span>Compositions</span>
           <span class="dir-tag" id="dt-compo">DIR</span>
@@ -2570,6 +2589,10 @@
                 style="width:220px; padding:8px 12px 8px 32px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:.8rem; outline:none;"
                 oninput="filtEl()" onfocus="this.style.borderColor='#4F46E5'" onblur="this.style.borderColor='#E2E8F0'">
             </div>
+            <button class="btn-p" style="font-size:.72rem; background:#0EA5E9;"
+              id="btn-import-excel" onclick="openImportExcel()">
+              <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer depuis Excel
+            </button>
             <button class="btn-p" style="font-size:.72rem; background:linear-gradient(135deg,#4F46E5,#7C3AED);"
               id="btn-add-el" onclick="openAddEleve()">
               <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un élève
@@ -3082,20 +3105,29 @@
             <div style="font-size:.72rem;color:#64748B;margin-top:2px;">Grille horaire officielle · Année 2025-2026
             </div>
           </div>
-          <select id="edt-cls" onchange="renderEdt()"
-            style="width:150px;padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.8rem;font-weight:700;">
-            <option>6ème</option>
-            <option>5ème</option>
-            <option>4ème</option>
-            <option>3ème</option>
-            <option selected>2nde A</option>
-            <option>2nde C</option>
-            <option>1ère A</option>
-            <option>1ère D</option>
-            <option>Tle A</option>
-            <option>Tle D</option>
-          </select>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="edt-cls" onchange="renderEdt()"
+              style="width:150px;padding:7px 10px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.8rem;font-weight:700;">
+              <option>6ème</option>
+              <option>5ème</option>
+              <option>4ème</option>
+              <option>3ème</option>
+              <option selected>2nde A</option>
+              <option>2nde C</option>
+              <option>1ère A</option>
+              <option>1ère D</option>
+              <option>Tle A</option>
+              <option>Tle D</option>
+            </select>
+            <button id="btn-add-edt" class="btn-p" style="font-size:.72rem;display:none;" onclick="openSeanceForm()">
+              <i data-lucide="plus" style="width:14px;height:14px;"></i> Séance
+            </button>
+            <button id="btn-import-edt" class="btn-p" style="font-size:.72rem;display:none;background:#fff;color:#4F46E5;border:1.5px solid #4F46E5;" onclick="openImportEdt()">
+              <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer Excel
+            </button>
+          </div>
         </div>
+        <div style="font-size:.68rem;color:#94A3B8;margin-bottom:10px;" id="edt-hint">Clique sur une case pour la modifier.</div>
         <div style="overflow-x:auto;">
           <div class="edt-wrap" id="edt-grid"></div>
         </div>
@@ -3323,9 +3355,10 @@
             <button class="btn-p" onclick="signerTout()" style="font-size:.76rem;">
               <i data-lucide="check-square" style="width:13px;height:13px;"></i>Signer tous (classe filtrée)
             </button>
-            <input class="pin-inp" id="pin-global" type="password" maxlength="6" placeholder="PIN (6 chiffres)"
+            <input class="pin-inp" id="pin-global" type="password" placeholder="Votre mot de passe Direction"
               style="flex:1;">
           </div>
+          <div style="font-size:.62rem;color:#94A3B8;margin-top:6px;">🔒 Votre mot de passe habituel — jamais stocké, vérifié une seule fois pour signer.</div>
         </div>
         <!-- Stats signatures + autres docs -->
         <div style="display:flex;flex-direction:column;gap:14px;">
@@ -3356,14 +3389,37 @@
             <div style="font-size:.88rem;font-weight:800;color:#0F172A;margin-bottom:12px;">📋 Certificats de scolarité
             </div>
             <div id="cert-list">
-              <div class="fin-row"><span style="flex:1;font-size:.78rem;font-weight:700;">SAWADOGO Moussa · Tle
-                  D</span><button class="btn-p" style="padding:5px 10px;font-size:.68rem;"
-                  onclick="signCert(this,'SAWADOGO Moussa')">Signer</button></div>
-              <div class="fin-row"><span style="flex:1;font-size:.78rem;font-weight:700;">KABORE Aicha · 2nde
-                  A</span><button class="btn-p" style="padding:5px 10px;font-size:.68rem;"
-                  onclick="signCert(this,'KABORE Aicha')">Signer</button></div>
+              <div style="text-align:center;padding:20px;color:#94A3B8;font-size:.76rem;">Fonctionnalité pas encore développée</div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ PARENTS (DIR) ══════════ -->
+    <div id="s-parents" class="sec">
+      <div class="card" style="padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Parents d'élèves</div>
+          <input type="text" id="parents-srch" placeholder="Rechercher un parent…" style="width:220px;"
+            oninput="filtParents()">
+        </div>
+        <div id="parents-list">
+          <div style="text-align:center;padding:30px;color:#94A3B8;">Chargement…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ ANCIENS ÉLÈVES (DIR) ══════════ -->
+    <div id="s-alumni" class="sec">
+      <div class="card" style="padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Anciens élèves</div>
+          <input type="text" id="alumni-srch" placeholder="Rechercher un ancien élève…" style="width:220px;"
+            oninput="filtAlumniDir()">
+        </div>
+        <div id="alumni-dir-list">
+          <div style="text-align:center;padding:30px;color:#94A3B8;">Chargement…</div>
         </div>
       </div>
     </div>
@@ -3760,7 +3816,7 @@
     const TOK = SESS?.token || '';
     let ROLE = (SESS?.role_actuel || SESS?.role || '').toUpperCase();
     let perfChart = null, donutChart = null;
-    let eleveData = [], compData = [], signData = [], corpsData = [], clsFil = '', compFil = '';
+    let eleveData = [], compData = [], signData = [], corpsData = [], parentsData = [], alumniDirData = [], clsFil = '', compFil = '';
 
     const $ = id => document.getElementById(id);
     const api = (p, o = {}) => fetch('/api' + p, { ...o, headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json', ...(o.headers || {}) } }).then(r => r.json());
@@ -3841,16 +3897,24 @@
         $('right-panel-surv').style.display = 'none';
       }
       
-      // Les deux rôles (DIRECTION et SURVEILLANT) ont accès aux mêmes menus
-      ['ni-flux', 'ni-corps', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections'].forEach(id => {
-        const el = $(id); const page = el?.dataset.page;
-        if (el && page) {
-          el.classList.remove('ni-locked-vis');
-          el.onclick = () => go(page, el);
-        }
-      });
-      // Supprimer les badges DIR
-      ['dt-flux', 'dt-corps', 'dt-sign', 'dt-compta', 'dt-agenda', 'dt-compo', 'dt-elections'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
+      // ✅ Direction seule a accès à Communication, Corps Enseignant, Parents,
+      // Anciens Élèves, Signatures, Compositions, Élections — un surveillant
+      // garde Absences/Convocations/Emploi du temps/Élèves (déjà visibles par
+      // défaut) mais pas ces responsabilités de direction.
+      if (ROLE === 'DIRECTION') {
+        ['ni-flux', 'ni-corps', 'ni-parents', 'ni-alumni', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections'].forEach(id => {
+          const el = $(id); const page = el?.dataset.page;
+          if (el && page) {
+            el.classList.remove('ni-locked-vis');
+            el.onclick = () => go(page, el);
+          }
+        });
+        // Supprimer les badges DIR
+        ['dt-flux', 'dt-corps', 'dt-parents', 'dt-alumni', 'dt-sign', 'dt-compta', 'dt-agenda', 'dt-compo', 'dt-elections'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
+      } else {
+        // Surveillant : ces sections restent verrouillées (badge "DIR" visible,
+        // grisées, clic désactivé via CSS — état par défaut, rien à faire ici)
+      }
     }
 
     function accessDenied(titre) {
@@ -3869,6 +3933,8 @@
       edt: { sec: 's-edt', title: 'Emploi du Temps', sub: 'Grille horaire annuelle officielle 2025-2026' },
       flux: { sec: 's-flux', title: 'Canal de Communication', sub: 'Annonces officielles · Direction → Tous' },
       corps: { sec: 's-corps', title: 'Corps Enseignant', sub: 'Gestion du personnel · Demande de notes · Cahiers de texte' },
+      parents: { sec: 's-parents', title: 'Parents d\'élèves', sub: 'Annuaire des familles' },
+      alumni: { sec: 's-alumni', title: 'Anciens Élèves', sub: 'Annuaire des anciens élèves' },
       sign: { sec: 's-sign', title: 'Signatures & Documents', sub: 'Validation électronique des bulletins et documents officiels' },
       compta: { sec: 's-compta', title: 'Comptabilité', sub: 'Gestion financière · Cotisations APE · Suivi des paiements' },
       agenda: { sec: 's-agenda', title: 'Agenda Direction', sub: 'Calendrier des événements officiels' },
@@ -3889,6 +3955,8 @@
       if (page === 'inc') loadIncList();
       if (page === 'flux') loadFlux();
       if (page === 'corps' && !corpsData.length) loadCorps();
+      if (page === 'parents' && !parentsData.length) loadParents();
+      if (page === 'alumni' && !alumniDirData.length) loadAlumniDir();
       if (page === 'sign' && !signData.length) loadSignatures();
       if (page === 'compta' && !compData.length) loadCompta();
       if (page === 'agenda') loadAgenda();
@@ -3914,7 +3982,7 @@
           const total = s.users || 500;
           const cls = s.classes || 10;
           const absMonth = s.absences || 0;
-          const convEnAtt = s.alerts || 0;
+          const convEnAtt = s.convocations_en_attente || 0;
           ['abs-stat-total'].forEach(id => { const el = $(id); if (el) el.textContent = absMonth; });
           ['conv-stat-total'].forEach(id => { const el = $(id); if (el) el.textContent = convEnAtt; });
 
@@ -4320,6 +4388,7 @@
         if (cbtn) cbtn.onclick = () => m.remove();
       }
       m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
     }
 
     async function submitAddEleve() {
@@ -4337,14 +4406,152 @@
           body: JSON.stringify({ prenom, nom, classe, email, telephone: tel })
         });
         if (d.success) {
-          toast('Élève créé — code: ' + (d.code_unique || 'généré'), 'ok');
-          document.getElementById('m-add-eleve')?.remove();
-          loadEleves();
+          const inner = document.getElementById('m-add-eleve')?.querySelector('.dir-modal');
+          if (inner) inner.innerHTML = renderCredentialsPanel(d.code_unique, d.mot_de_passe_temporaire, 'm-add-eleve', 'loadEleves');
+          toast('Élève créé', 'ok');
         } else {
           if (msgEl) { msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = '#EF4444'; }
         }
       } catch (e) {
         if (msgEl) { msgEl.textContent = '❌ ' + e.message; msgEl.style.color = '#EF4444'; }
+      }
+    }
+
+    // Panneau affiché une seule fois après création d'un compte, pour que la
+    // Direction relève l'identifiant + le mot de passe temporaire (aléatoire,
+    // jamais égal à l'identifiant) et les communique à la personne concernée.
+    function renderCredentialsPanel(code, motDePasse, modalId, reloadFn) {
+      return '<div style="text-align:center;padding:6px 0;">'
+        + '<div style="font-size:.95rem;font-weight:800;color:#0F172A;margin-bottom:14px;">✅ Compte créé</div>'
+        + '<div style="background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:10px;padding:14px;text-align:left;">'
+        + '<div style="font-size:.72rem;font-weight:700;color:#64748B;margin-bottom:3px;">Identifiant de connexion</div>'
+        + '<div style="font-size:1rem;font-weight:800;color:#0F172A;font-family:monospace;margin-bottom:10px;">' + code + '</div>'
+        + '<div style="font-size:.72rem;font-weight:700;color:#64748B;margin-bottom:3px;">Mot de passe temporaire</div>'
+        + '<div style="font-size:1rem;font-weight:800;color:#0F172A;font-family:monospace;">' + motDePasse + '</div>'
+        + '</div>'
+        + '<div style="font-size:.72rem;color:#94A3B8;margin:12px 0;">⚠️ Note ces identifiants maintenant — ils ne seront plus affichés. Communique-les directement à la personne concernée.</div>'
+        + '<button onclick="document.getElementById(\'' + modalId + '\')?.remove(); ' + reloadFn + '();" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px 24px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">Fermer</button>'
+        + '</div>';
+    }
+
+    // ═══════════════════════════════════════════
+    // IMPORT EN MASSE DEPUIS EXCEL
+    // Deux étapes obligatoires : aperçu (rien n'est créé), puis
+    // confirmation explicite — jamais d'insertion à l'aveugle.
+    // ═══════════════════════════════════════════
+    let _fichierImportExcel = null;
+
+    function openImportExcel() {
+      let m = document.getElementById('m-import-excel');
+      if (!m) {
+        m = document.createElement('div');
+        m.id = 'm-import-excel';
+        m.className = 'dir-modal-overlay';
+        m.onclick = e => { if (e.target === m) closeImportExcel(); };
+        m.innerHTML = '<div class="dir-modal" style="max-width:720px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+          + '<div style="font-size:.95rem;font-weight:800;color:#0F172A;">📥 Importer des élèves depuis Excel</div>'
+          + '<button onclick="closeImportExcel()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94A3B8;">✕</button>'
+          + '</div>'
+          + '<div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:10px 12px;font-size:.72rem;color:#0369A1;margin-bottom:14px;">'
+          + '📋 Colonnes attendues dans le fichier (1ère ligne = en-têtes) : <strong>Nom, Prenom, Classe</strong>, et en option <strong>Email, Telephone</strong>.'
+          + '</div>'
+          + '<input type="file" id="ie-fichier" accept=".xlsx,.xls" style="margin-bottom:12px;" onchange="chargerApercuExcel(this)">'
+          + '<div id="ie-apercu" style="display:none;">'
+          + '<div id="ie-resume" style="font-size:.78rem;font-weight:700;margin-bottom:10px;"></div>'
+          + '<div id="ie-tableau" style="max-height:320px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;"></div>'
+          + '<button onclick="confirmerImportExcel()" id="ie-btn-confirmer" style="margin-top:14px;background:linear-gradient(135deg,#059669,#10B981);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">✅ Confirmer et créer ces comptes</button>'
+          + '</div>'
+          + '<div id="ie-msg" style="display:none;margin-top:10px;"></div>'
+          + '</div>';
+        document.body.appendChild(m);
+      }
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+    }
+
+    function closeImportExcel() {
+      const m = document.getElementById('m-import-excel');
+      if (m) m.remove();
+      _fichierImportExcel = null;
+    }
+
+    async function chargerApercuExcel(input) {
+      _fichierImportExcel = input.files[0];
+      if (!_fichierImportExcel) return;
+      const msgEl = document.getElementById('ie-msg');
+      msgEl.style.display = 'block'; msgEl.style.color = '#64748B'; msgEl.textContent = '⏳ Lecture du fichier…';
+      document.getElementById('ie-apercu').style.display = 'none';
+
+      try {
+        const fd = new FormData();
+        fd.append('fichier', _fichierImportExcel);
+        fd.append('dryRun', 'true');
+        const r = await fetch('/api/admin/eleves/import-excel', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK },
+          body: fd
+        });
+        const d = await r.json();
+        msgEl.style.display = 'none';
+        if (!d.success) { msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ ' + (d.message || 'Erreur'); return; }
+
+        document.getElementById('ie-resume').innerHTML =
+          `${d.total} ligne(s) lue(s) — <span style="color:#059669;">${d.nb_ok} prête(s)</span>` +
+          (d.nb_erreurs ? ` — <span style="color:#EF4444;">${d.nb_erreurs} en erreur (ignorée(s) à l'import)</span>` : '');
+
+        document.getElementById('ie-tableau').innerHTML =
+          '<table style="width:100%;border-collapse:collapse;font-size:.74rem;">'
+          + '<thead><tr style="background:#F8FAFF;"><th style="padding:6px 8px;text-align:left;">Ligne</th><th style="padding:6px 8px;text-align:left;">Nom</th><th style="padding:6px 8px;text-align:left;">Prénom</th><th style="padding:6px 8px;text-align:left;">Classe</th><th style="padding:6px 8px;text-align:left;">Statut</th></tr></thead>'
+          + '<tbody>' + d.resultats.map(r => `<tr style="border-top:1px solid #F1F5F9;${r.statut === 'ERREUR' ? 'background:#FEF2F2;' : ''}">`
+            + `<td style="padding:6px 8px;">${r.ligne}</td><td style="padding:6px 8px;">${r.nom || '—'}</td><td style="padding:6px 8px;">${r.prenom || '—'}</td><td style="padding:6px 8px;">${r.classe || '—'}</td>`
+            + `<td style="padding:6px 8px;">${r.statut === 'ERREUR' ? '❌ ' + (r.message || 'Erreur') : '✅ Prêt (code : ' + r.code_previsionnel + ')'}</td></tr>`).join('')
+          + '</tbody></table>';
+
+        document.getElementById('ie-apercu').style.display = 'block';
+        document.getElementById('ie-btn-confirmer').disabled = d.nb_ok === 0;
+      } catch (e) {
+        msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ Erreur réseau : ' + e.message;
+      }
+    }
+
+    async function confirmerImportExcel() {
+      if (!_fichierImportExcel) return;
+      const btn = document.getElementById('ie-btn-confirmer');
+      const msgEl = document.getElementById('ie-msg');
+      btn.disabled = true; btn.textContent = '⏳ Création en cours…';
+
+      try {
+        const fd = new FormData();
+        fd.append('fichier', _fichierImportExcel);
+        fd.append('dryRun', 'false');
+        const r = await fetch('/api/admin/eleves/import-excel', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK },
+          body: fd
+        });
+        const d = await r.json();
+        if (d.success) {
+          const crees = (d.resultats || []).filter(r => r.statut === 'CREE');
+          document.getElementById('ie-apercu').style.display = 'none';
+          msgEl.style.display = 'block'; msgEl.style.color = '';
+          msgEl.innerHTML = '<div style="font-size:.82rem;font-weight:800;color:#0F172A;margin-bottom:10px;">✅ '
+            + `${d.nb_ok} compte(s) créé(s)` + (d.nb_erreurs ? `, ${d.nb_erreurs} erreur(s)` : '') + '</div>'
+            + '<div style="font-size:.72rem;color:#94A3B8;margin-bottom:10px;">⚠️ Note ces identifiants maintenant — ils ne seront plus affichés. Communique-les à chaque élève.</div>'
+            + '<div style="max-height:280px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;">'
+            + '<table style="width:100%;border-collapse:collapse;font-size:.74rem;font-family:monospace;">'
+            + '<thead><tr style="background:#F8FAFF;font-family:inherit;"><th style="padding:6px 8px;text-align:left;">Identifiant</th><th style="padding:6px 8px;text-align:left;">Mot de passe</th></tr></thead>'
+            + '<tbody>' + crees.map(r => `<tr style="border-top:1px solid #F1F5F9;"><td style="padding:6px 8px;">${r.code_unique}</td><td style="padding:6px 8px;">${r.mot_de_passe_temporaire}</td></tr>`).join('')
+            + '</tbody></table></div>'
+            + '<button onclick="closeImportExcel(); loadEleves();" style="margin-top:14px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Fermer</button>';
+          btn.style.display = 'none';
+        } else {
+          msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ ' + (d.message || 'Erreur');
+          btn.disabled = false; btn.textContent = '✅ Confirmer et créer ces comptes';
+        }
+      } catch (e) {
+        msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ Erreur réseau : ' + e.message;
+        btn.disabled = false; btn.textContent = '✅ Confirmer et créer ces comptes';
       }
     }
 
@@ -4480,47 +4687,282 @@
     }
 
     // ══════════════════════════════════════
-    // EDT (annuel fixe)
+    // EDT — grille réelle par classe (pedagogie.emploi_du_temps),
+    // avant : grille EDTS codée en dur, identique pour tout le monde et
+    // jamais reliée à la saisie réelle des séances.
     // ══════════════════════════════════════
-    const EDTS = {
-      '6ème': [['Maths', 'Français', 'Anglais', 'SVT', 'EPS'], ['Français', 'Maths', 'HG', 'Anglais', 'Informatique'], ['SVT', 'HG', 'Maths', 'Français', 'Anglais'], ['Anglais', 'SVT', 'Français', 'EPS', 'Maths'], ['HG', 'Informatique', 'ECM', 'SVT', 'Français']],
-      '5ème': [['Maths', 'Français', 'Anglais', 'SVT', 'EPS'], ['Français', 'Maths', 'HG', 'Anglais', 'Informatique'], ['SVT', 'HG', 'Maths', 'Français', 'Anglais'], ['Anglais', 'SVT', 'Français', 'EPS', 'Maths'], ['HG', 'Informatique', 'ECM', 'SVT', 'Français']],
-      '4ème': [['Maths', 'Français', 'Anglais', 'Physique', 'EPS'], ['Français', 'Maths', 'HG', 'Anglais', 'Informatique'], ['SVT', 'HG', 'Maths', 'Français', 'Physique'], ['Anglais', 'SVT', 'Français', 'EPS', 'Maths'], ['HG', 'Physique', 'ECM', 'SVT', 'Français']],
-      '3ème': [['Maths', 'Français', 'Anglais', 'Physique', 'EPS'], ['Français', 'Maths', 'HG', 'Anglais', 'SVT'], ['SVT', 'HG', 'Maths', 'Français', 'Physique'], ['Anglais', 'Physique', 'Français', 'EPS', 'Maths'], ['HG', 'SVT', 'ECM', '', 'Français']],
-      '2nde A': [['Maths', 'Français', 'Anglais', 'HG', 'Philo'], ['Français', 'Maths', 'HG', 'Anglais', 'SVT'], ['SVT', 'HG', 'Maths', 'Français', 'Anglais'], ['Anglais', 'Philo', 'Français', 'EPS', 'Maths'], ['HG', 'SVT', 'Imm.', '', 'Français']],
-      '2nde C': [['Maths', 'Français', 'Anglais', 'Physique', 'EPS'], ['Physique', 'Maths', 'HG', 'Anglais', 'SVT'], ['SVT', 'HG', 'Maths', 'Français', 'Physique'], ['Anglais', 'SVT', 'Français', 'EPS', 'Maths'], ['HG', 'Physique', 'Imm.', '', 'Français']],
-      '1ère A': [['Maths', 'Philo', 'Français', 'HG', 'Anglais'], ['Français', 'Maths', 'HG', 'Anglais', 'Philo'], ['Philo', 'HG', 'Maths', 'Français', 'Anglais'], ['Anglais', 'Philo', 'Français', 'EPS', 'Maths'], ['HG', '', 'Imm.', '', 'Français']],
-      '1ère D': [['Maths', 'Physique', 'Français', 'SVT', 'Anglais'], ['Physique', 'Maths', 'HG', 'Anglais', 'SVT'], ['SVT', 'HG', 'Maths', 'Français', 'Physique'], ['Anglais', 'SVT', 'Français', 'EPS', 'Maths'], ['HG', 'Physique', 'Imm.', '', 'Français']],
-      'Tle A': [['Philo', 'Français', 'Anglais', 'HG', ''], ['Français', 'Philo', 'HG', 'Anglais', ''], ['Philo', 'HG', '', 'Français', 'Anglais'], ['Anglais', 'Philo', 'Français', 'EPS', ''], ['HG', '', 'Imm.', '', 'Français']],
-      'Tle D': [['Maths', 'Physique', 'Français', 'SVT', 'Anglais'], ['Physique', 'Maths', 'Philo', 'Anglais', 'SVT'], ['SVT', 'Maths', 'Physique', 'Français', 'Anglais'], ['Anglais', 'Philo', 'Français', 'EPS', 'Maths'], ['Maths', 'Physique', 'Imm.', '', 'SVT']]
-    };
-    const HEURES = ['7h30-9h00', '9h00-10h30', '10h45-12h00', '14h00-15h30', '15h45-17h15'];
-    const JOURS = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
     const MCOLS = { 'Maths': '#EFF6FF,#3730A3', 'Français': '#FFF7ED,#C2410C', 'Anglais': '#F0FDF4,#15803D', 'SVT': '#F0FDF4,#166534', 'HG': '#FDF4FF,#7E22CE', 'Philo': '#FAF5FF,#6D28D9', 'EPS': '#ECFDF5,#065F46', 'Physique': '#F0F9FF,#0369A1', 'Informatique': '#EFF6FF,#1D4ED8', 'ECM': '#F0FDF4,#14532D', 'Imm.': '#FFFBEB,#92400E', '': '#F8FAFC,#94A3B8' };
-    function renderEdt() {
+    const edtCache = {};
+    async function renderEdt() {
       const cls = $('edt-cls')?.value || '2nde A';
-      const grid = EDTS[cls] || EDTS['6ème'];
-      let h = '';
-      // header
-      h += `<div class="edt-hd" style="background:transparent;"></div>`;
-      JOURS.forEach(j => { h += `<div class="edt-hd">${j}</div>`; });
-      // rows
-      HEURES.forEach((hr, hi) => {
+      const grid = $('edt-grid');
+      if (!grid) return;
+      const btnAdd = $('btn-add-edt');
+      if (btnAdd) btnAdd.style.display = ROLE === 'DIRECTION' ? '' : 'none';
+      const btnImport = $('btn-import-edt');
+      if (btnImport) btnImport.style.display = ROLE === 'DIRECTION' ? '' : 'none';
+      const hint = $('edt-hint');
+      if (hint) hint.style.display = ROLE === 'DIRECTION' ? '' : 'none';
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#94A3B8;">Chargement…</div>';
+      let semaine = edtCache[cls];
+      if (!semaine) {
+        try {
+          const d = await api('/admin/emploi-du-temps?classe=' + encodeURIComponent(cls));
+          semaine = d.horaire?.semaine || [];
+          edtCache[cls] = semaine;
+        } catch { semaine = []; }
+      }
+      if (!semaine.length) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#94A3B8;">Aucun horaire saisi pour cette classe</div>';
+        return;
+      }
+      const jours = semaine.map(j => j.jour);
+      const heures = [...new Set(semaine.flatMap(j => j.cours.map(c => c.heure)))].sort();
+      const clickable = ROLE === 'DIRECTION';
+      let h = '<div class="edt-hd" style="background:transparent;"></div>';
+      jours.forEach(j => { h += `<div class="edt-hd">${j}</div>`; });
+      heures.forEach(hr => {
         h += `<div class="edt-time">${hr}</div>`;
-        JOURS.forEach((_, ji) => {
-          const mat = (grid[hi] || [])[ji] || '';
-          const [bg, tc] = (MCOLS[mat] || MCOLS['']).split(',');
-          if (mat) {
-            h += `<div class="edt-cell edt-full" style="background:${bg};border-color:${tc}40;">
-          <div class="edt-mat" style="color:${tc};">${mat}</div>
-          <div class="edt-room" style="color:${tc};">Salle ${ji + 1}0${hi + 1}</div>
+        jours.forEach(j => {
+          const cours = semaine.find(s => s.jour === j)?.cours.find(c => c.heure === hr);
+          const clickAttr = clickable ? `onclick="openSeanceForm(${cours ? cours.id : 'null'}, '${j}', '${hr}')" style="cursor:pointer;"` : '';
+          if (cours) {
+            const [bg, tc] = (MCOLS[cours.matiere] || MCOLS['']).split(',');
+            h += `<div class="edt-cell edt-full" ${clickAttr} style="background:${bg};border-color:${tc}40;${clickable ? 'cursor:pointer;' : ''}">
+          <div class="edt-mat" style="color:${tc};">${esc(cours.matiere)}</div>
+          <div class="edt-room" style="color:${tc};">${esc(cours.salle || cours.prof || '')}</div>
         </div>`;
           } else {
-            h += `<div class="edt-cell edt-empty"></div>`;
+            h += `<div class="edt-cell edt-empty" ${clickAttr}></div>`;
           }
         });
       });
-      $('edt-grid').innerHTML = h;
+      grid.innerHTML = h;
+    }
+
+    // ══ Gestion de l'emploi du temps (Direction) ══
+    let edtProfsList = null;
+    async function openSeanceForm(id, jour, heureRange) {
+      const cls = $('edt-cls')?.value || '';
+      let seance = null;
+      if (id) {
+        const semaine = edtCache[cls] || [];
+        for (const j of semaine) {
+          const c = (j.cours || []).find(c => c.id === id);
+          if (c) { seance = c; jour = j.jour; break; }
+        }
+      }
+      if (!edtProfsList) {
+        try {
+          const d = await api('/admin/professeurs');
+          edtProfsList = d.professeurs || [];
+        } catch { edtProfsList = []; }
+      }
+      const [hDebut, hFin] = seance ? [seance.heure_debut, seance.heure_fin] : (heureRange || '').split('-');
+      let m = document.getElementById('m-seance-edt');
+      if (m) m.remove();
+      m = document.createElement('div');
+      m.id = 'm-seance-edt';
+      m.className = 'dir-modal-overlay';
+      m.onclick = e => { if (e.target === m) m.remove(); };
+      const joursOpts = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
+        .map(j => `<option ${j === jour ? 'selected' : ''}>${j}</option>`).join('');
+      const profsOpts = '<option value="">— Aucun —</option>' + edtProfsList
+        .map(p => `<option value="${p.id_user}" ${seance && seance.id_prof === p.id_user ? 'selected' : ''}>${esc((p.prenom || '') + ' ' + (p.nom || ''))}</option>`).join('');
+      m.innerHTML = `<div class="dir-modal" style="max-width:440px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="font-size:.95rem;font-weight:800;color:#0F172A;">${seance ? '✏️ Modifier' : '➕ Nouvelle'} séance — ${esc(cls)}</div>
+          <button onclick="document.getElementById('m-seance-edt').remove()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94A3B8;">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Jour</label>
+          <select id="se-jour" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;box-sizing:border-box;">${joursOpts}</select></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Début</label>
+            <input id="se-debut" type="time" value="${hDebut || ''}" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;box-sizing:border-box;"></div>
+            <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Fin</label>
+            <input id="se-fin" type="time" value="${hFin || ''}" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;box-sizing:border-box;"></div>
+          </div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Matière</label>
+          <input id="se-matiere" type="text" value="${seance ? esc(seance.matiere) : ''}" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;box-sizing:border-box;"></div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Professeur</label>
+          <select id="se-prof" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;box-sizing:border-box;">${profsOpts}</select></div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Salle</label>
+          <input id="se-salle" type="text" value="${seance && seance.salle ? esc(seance.salle) : ''}" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;box-sizing:border-box;"></div>
+          <div id="se-msg" style="display:none;font-size:.75rem;color:#EF4444;"></div>
+          <div style="display:flex;gap:8px;">
+            ${seance ? `<button onclick="deleteSeance(${seance.id})" style="flex:0 0 auto;background:#FEF2F2;color:#EF4444;border:none;border-radius:10px;padding:11px 16px;font-size:.82rem;font-weight:800;cursor:pointer;">🗑️ Supprimer</button>` : ''}
+            <button onclick="saveSeance(${seance ? seance.id : 'null'})" style="flex:1;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;">✅ ${seance ? 'Enregistrer' : 'Ajouter'}</button>
+          </div>
+        </div>
+      </div>`;
+      document.body.appendChild(m);
+      setTimeout(() => m.classList.add('open'), 10);
+    }
+
+    async function saveSeance(id) {
+      const cls = $('edt-cls')?.value || '';
+      const payload = {
+        classe: cls,
+        jour_semaine: $('se-jour')?.value,
+        heure_debut: $('se-debut')?.value,
+        heure_fin: $('se-fin')?.value,
+        matiere: $('se-matiere')?.value?.trim(),
+        id_prof: $('se-prof')?.value || null,
+        salle: $('se-salle')?.value?.trim() || null
+      };
+      const msgEl = $('se-msg');
+      if (!payload.jour_semaine || !payload.heure_debut || !payload.heure_fin || !payload.matiere) {
+        if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Jour, horaires et matière requis'; }
+        return;
+      }
+      try {
+        const d = id
+          ? await api(`/admin/emploi-du-temps/${id}`, { method: 'PUT', body: JSON.stringify(payload) })
+          : await api('/admin/emploi-du-temps', { method: 'POST', body: JSON.stringify(payload) });
+        if (d.success) {
+          delete edtCache[cls];
+          document.getElementById('m-seance-edt')?.remove();
+          renderEdt();
+          toast(id ? 'Séance modifiée' : 'Séance ajoutée', 'ok');
+        } else if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = d.message || 'Erreur'; }
+      } catch (e) { if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Erreur réseau'; } }
+    }
+
+    async function deleteSeance(id) {
+      if (!confirm('Supprimer cette séance ?')) return;
+      const cls = $('edt-cls')?.value || '';
+      try {
+        const d = await api(`/admin/emploi-du-temps/${id}`, { method: 'DELETE' });
+        if (d.success) {
+          delete edtCache[cls];
+          document.getElementById('m-seance-edt')?.remove();
+          renderEdt();
+          toast('Séance supprimée', 'ok');
+        }
+      } catch (e) { toast('Erreur réseau', 'err'); }
+    }
+
+    // ── Import Excel de l'emploi du temps (plusieurs classes d'un coup) ──
+    let _fichierImportEdt = null;
+
+    async function telechargerModeleEdt() {
+      try {
+        const r = await fetch('/api/admin/emploi-du-temps/modele', { headers: { 'Authorization': 'Bearer ' + TOK } });
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'modele_emploi_du_temps.xlsx';
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+      } catch (e) { toast('Erreur de téléchargement', 'err'); }
+    }
+
+    function openImportEdt() {
+      let m = document.getElementById('m-import-edt');
+      if (!m) {
+        m = document.createElement('div');
+        m.id = 'm-import-edt';
+        m.className = 'dir-modal-overlay';
+        m.onclick = e => { if (e.target === m) closeImportEdt(); };
+        m.innerHTML = '<div class="dir-modal" style="max-width:760px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+          + '<div style="font-size:.95rem;font-weight:800;color:#0F172A;">📥 Importer l\'emploi du temps depuis Excel</div>'
+          + '<button onclick="closeImportEdt()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94A3B8;">✕</button>'
+          + '</div>'
+          + '<div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:10px 12px;font-size:.72rem;color:#0369A1;margin-bottom:14px;">'
+          + '📋 Une ligne = une séance. Toutes les classes peuvent être dans le même fichier. Colonnes : <strong>Classe, Jour, Heure début, Heure fin, Matière</strong>, et en option <strong>Professeur, Salle</strong>.'
+          + '</div>'
+          + '<button onclick="telechargerModeleEdt()" style="margin-bottom:12px;background:#fff;color:#4F46E5;border:1.5px solid #4F46E5;border-radius:10px;padding:9px 14px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;">⬇️ Télécharger le modèle Excel</button>'
+          + '<input type="file" id="ied-fichier" accept=".xlsx,.xls" style="display:block;margin-bottom:12px;" onchange="chargerApercuEdt(this)">'
+          + '<div id="ied-apercu" style="display:none;">'
+          + '<div id="ied-resume" style="font-size:.78rem;font-weight:700;margin-bottom:10px;"></div>'
+          + '<div id="ied-tableau" style="max-height:320px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;"></div>'
+          + '<button onclick="confirmerImportEdt()" id="ied-btn-confirmer" style="margin-top:14px;background:linear-gradient(135deg,#059669,#10B981);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">✅ Confirmer l\'import</button>'
+          + '</div>'
+          + '<div id="ied-msg" style="display:none;margin-top:10px;"></div>'
+          + '</div>';
+        document.body.appendChild(m);
+      }
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+    }
+
+    function closeImportEdt() {
+      const m = document.getElementById('m-import-edt');
+      if (m) m.remove();
+      _fichierImportEdt = null;
+    }
+
+    async function chargerApercuEdt(input) {
+      _fichierImportEdt = input.files[0];
+      if (!_fichierImportEdt) return;
+      const msgEl = document.getElementById('ied-msg');
+      msgEl.style.display = 'block'; msgEl.style.color = '#64748B'; msgEl.textContent = '⏳ Lecture du fichier…';
+      document.getElementById('ied-apercu').style.display = 'none';
+
+      try {
+        const fd = new FormData();
+        fd.append('fichier', _fichierImportEdt);
+        fd.append('dryRun', 'true');
+        const r = await fetch('/api/admin/emploi-du-temps/import-excel', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK },
+          body: fd
+        });
+        const d = await r.json();
+        msgEl.style.display = 'none';
+        if (!d.success) { msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ ' + (d.message || 'Erreur'); return; }
+
+        document.getElementById('ied-resume').innerHTML =
+          `${d.total} ligne(s) lue(s) — <span style="color:#059669;">${d.nb_ok} prête(s)</span>` +
+          (d.nb_erreurs ? ` — <span style="color:#EF4444;">${d.nb_erreurs} en erreur (ignorée(s) à l'import)</span>` : '');
+
+        document.getElementById('ied-tableau').innerHTML =
+          '<table style="width:100%;border-collapse:collapse;font-size:.74rem;">'
+          + '<thead><tr style="background:#F8FAFF;"><th style="padding:6px 8px;text-align:left;">Ligne</th><th style="padding:6px 8px;text-align:left;">Classe</th><th style="padding:6px 8px;text-align:left;">Jour</th><th style="padding:6px 8px;text-align:left;">Horaire</th><th style="padding:6px 8px;text-align:left;">Matière</th><th style="padding:6px 8px;text-align:left;">Statut</th></tr></thead>'
+          + '<tbody>' + d.resultats.map(r => `<tr style="border-top:1px solid #F1F5F9;${r.statut === 'ERREUR' ? 'background:#FEF2F2;' : ''}">`
+            + `<td style="padding:6px 8px;">${r.ligne}</td><td style="padding:6px 8px;">${r.classe || '—'}</td><td style="padding:6px 8px;">${r.jour || '—'}</td><td style="padding:6px 8px;">${r.heure_debut ? r.heure_debut + '-' + r.heure_fin : '—'}</td><td style="padding:6px 8px;">${r.matiere || '—'}</td>`
+            + `<td style="padding:6px 8px;">${r.statut === 'ERREUR' ? '❌ ' + (r.message || 'Erreur') : '✅ ' + (r.professeur || 'OK')}</td></tr>`).join('')
+          + '</tbody></table>';
+
+        document.getElementById('ied-apercu').style.display = 'block';
+        document.getElementById('ied-btn-confirmer').disabled = d.nb_ok === 0;
+      } catch (e) {
+        msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ Erreur réseau : ' + e.message;
+      }
+    }
+
+    async function confirmerImportEdt() {
+      if (!_fichierImportEdt) return;
+      const btn = document.getElementById('ied-btn-confirmer');
+      const msgEl = document.getElementById('ied-msg');
+      btn.disabled = true; btn.textContent = '⏳ Import en cours…';
+
+      try {
+        const fd = new FormData();
+        fd.append('fichier', _fichierImportEdt);
+        fd.append('dryRun', 'false');
+        const r = await fetch('/api/admin/emploi-du-temps/import-excel', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK },
+          body: fd
+        });
+        const d = await r.json();
+        if (d.success) {
+          document.getElementById('ied-apercu').style.display = 'none';
+          msgEl.style.display = 'block'; msgEl.style.color = '';
+          msgEl.innerHTML = `<div style="font-size:.82rem;font-weight:800;color:#059669;">✅ ${d.nb_ok} séance(s) importée(s)` + (d.nb_erreurs ? `, ${d.nb_erreurs} erreur(s)` : '') + '</div>';
+          Object.keys(edtCache).forEach(k => delete edtCache[k]);
+          setTimeout(() => { closeImportEdt(); renderEdt(); }, 1200);
+        } else {
+          msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ ' + (d.message || 'Erreur');
+          btn.disabled = false; btn.textContent = '✅ Confirmer l\'import';
+        }
+      } catch (e) {
+        msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ Erreur réseau';
+        btn.disabled = false; btn.textContent = '✅ Confirmer l\'import';
+      }
     }
 
     // ══════════════════════════════════════
@@ -4598,43 +5040,6 @@
     // ══════════════════════════════════════
     // CORPS ENSEIGNANT
     // ══════════════════════════════════════
-    const CORPS_MOCK = [
-      { id: 'P1', nom: 'SAWADOGO Issouf', mat: 'Mathématiques', cls: 'Tle D, 1ère D, 2nde C', statut: 'Permanent', col: '#4F46E5', code: 'PROF-2026-001' },
-      { id: 'P2', nom: 'KABORE Marie', mat: 'Français & Philo', cls: '3ème, 2nde A, Tle A', statut: 'Permanent', col: '#C2410C', code: 'PROF-2026-002' },
-      { id: 'P3', nom: 'TRAORE Ibrahim', mat: 'Anglais', cls: '6ème, 5ème, 4ème', statut: 'Contractuel', col: '#15803D', code: 'PROF-2026-003' },
-      { id: 'P4', nom: 'OUEDRAOGO Paul', mat: 'SVT & Physique', cls: '2nde A, 2nde C, 1ère D', statut: 'Permanent', col: '#0369A1', code: 'PROF-2026-004' },
-      { id: 'P5', nom: 'NANA Sophie', mat: 'Histoire-Géo', cls: 'Tle A, 1ère A, 3ème', statut: 'Contractuel', col: '#7E22CE', code: 'PROF-2026-005' },
-      { id: 'P6', nom: 'ZONGO Charles', mat: 'EPS', cls: 'Toutes classes', statut: 'Permanent', col: '#065F46', code: 'PROF-2026-006' },
-    ];
-
-    // Cahiers de texte fictifs par prof
-    const CAHIERS_MOCK = {
-      'P1': [
-        { date: 'Lun 10 Mar', classe: 'Tle D', seance: 'Fonctions dérivées — Exercices corrigés', fait: true },
-        { date: 'Mar 11 Mar', classe: '1ère D', seance: 'Trigonométrie — Introduction', fait: true },
-        { date: 'Mer 12 Mar', classe: '2nde C', seance: 'Équations du 2nd degré', fait: false },
-      ],
-      'P2': [
-        { date: 'Lun 10 Mar', classe: '3ème', seance: 'Lecture: Le Mariage de Figaro', fait: true },
-        { date: 'Mer 12 Mar', classe: 'Tle A', seance: 'Dissertation: La liberté', fait: true },
-      ],
-      'P3': [
-        { date: 'Lun 10 Mar', classe: '6ème', seance: 'Vocabulaire: les animaux', fait: true },
-        { date: 'Mar 11 Mar', classe: '5ème', seance: 'Grammaire: Present Perfect', fait: false },
-      ],
-      'P4': [
-        { date: 'Lun 10 Mar', classe: '2nde A', seance: 'La cellule eucaryote', fait: true },
-        { date: 'Mer 12 Mar', classe: '1ère D', seance: 'Lois de Newton — TP', fait: true },
-      ],
-      'P5': [
-        { date: 'Mar 11 Mar', classe: 'Tle A', seance: 'Révolution française — Causes', fait: true },
-        { date: 'Jeu 13 Mar', classe: '1ère A', seance: 'Cartographie Afrique de l\'Ouest', fait: false },
-      ],
-      'P6': [
-        { date: 'Lun 10 Mar', classe: 'Toutes', seance: 'Athlétisme — Course 100m', fait: true },
-        { date: 'Ven 14 Mar', classe: 'Toutes', seance: 'Basket-ball — Techniques', fait: true },
-      ],
-    };
 
     function openAddCorps() {
       let m = document.getElementById('m-add-corps');
@@ -4667,6 +5072,7 @@
         document.getElementById('btn-sub-corps').onclick = submitAddCorps;
       }
       m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
     }
 
     async function submitAddCorps() {
@@ -4683,9 +5089,9 @@
           body: JSON.stringify({ prenom, nom, specialite: mat, email })
         });
         if (d.success) {
-          toast('Professeur créé — code: ' + (d.code_unique || 'généré'), 'ok');
-          document.getElementById('m-add-corps')?.remove();
-          loadCorps();
+          const inner = document.getElementById('m-add-corps')?.querySelector('.dir-modal');
+          if (inner) inner.innerHTML = renderCredentialsPanel(d.code_unique, d.mot_de_passe_temporaire, 'm-add-corps', 'loadCorps');
+          toast('Professeur créé', 'ok');
         } else {
           if (msgEl) { msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = '#EF4444'; }
         }
@@ -4703,7 +5109,9 @@
             nom: (p.nom || '') + ' ' + (p.prenom || ''),
             mat: p.specialite || p.matiere || 'Non défini',
             cls: p.classes || (p.nb_classes ? p.nb_classes + ' classe(s)' : '—'),
-            statut: 'Permanent',
+            email: p.email || '',
+            telephone: p.telephone || '',
+            est_actif: p.est_actif !== false,
             code: p.code_unique,
             col: ['#4F46E5', '#C2410C', '#0369A1', '#7C3AED', '#B45309', '#059669'][i % 6]
           }));
@@ -4713,8 +5121,9 @@
           return;
         }
       } catch (e) { console.warn('loadCorps:', e.message); }
-      // Fallback mock
-      corpsData = CORPS_MOCK; renderCorps();
+      // ✅ Pas de données inventées : état d'erreur honnête si l'API échoue
+      corpsData = [];
+      $('corps-list').innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;">Impossible de charger le corps enseignant. Réessayez.</div>';
     }
 
     async function loadCahiersDir() {
@@ -4807,6 +5216,74 @@
       } catch (e) { toast('❌ Erreur réseau', 'err'); }
     }
 
+    // ══════════════════════════════════════
+    // PARENTS
+    // ══════════════════════════════════════
+    async function loadParents() {
+      const el = $('parents-list');
+      try {
+        const d = await api('/admin/parents');
+        parentsData = d.parents || [];
+        renderParents();
+      } catch (e) {
+        console.warn('loadParents:', e.message);
+        parentsData = [];
+        if (el) el.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;">Impossible de charger les parents. Réessayez.</div>';
+      }
+    }
+    function renderParents() {
+      const q = ($('parents-srch')?.value || '').toLowerCase();
+      const r = parentsData.filter(p => !q || `${p.nom} ${p.prenom}`.toLowerCase().includes(q));
+      const el = $('parents-list');
+      if (!el) return;
+      if (!r.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;">Aucun parent trouvé</div>'; return; }
+      el.innerHTML = r.map(p => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 4px;border-bottom:1px solid #F1F5F9;">
+          <div style="min-width:0;flex:1;">
+            <div style="font-size:.82rem;font-weight:800;color:#0F172A;">${esc(p.prenom)} ${esc(p.nom)}
+              <span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#94A3B8;font-weight:400;margin-left:6px;">${esc(p.code_unique || '')}</span></div>
+            <div style="font-size:.7rem;color:#64748B;margin-top:2px;">${esc(p.profession || 'Profession non renseignée')} · ${esc(p.email || 'Pas d\'email')} · ${esc(p.telephone || 'Pas de téléphone')}</div>
+            <div style="font-size:.68rem;color:#7C3AED;margin-top:2px;">${p.nb_enfants > 0 ? '👨‍👩‍👧 ' + esc(p.enfants || '') : 'Aucun enfant rattaché'}</div>
+          </div>
+          <span style="font-size:.65rem;font-weight:800;padding:3px 9px;border-radius:20px;background:${p.est_actif ? '#DCFCE7' : '#FEE2E2'};color:${p.est_actif ? '#15803D' : '#DC2626'};">${p.est_actif ? 'Actif' : 'Inactif'}</span>
+        </div>`).join('');
+    }
+    function filtParents() { if (parentsData.length) renderParents(); }
+
+    // ══════════════════════════════════════
+    // ANCIENS ÉLÈVES (ALUMNI)
+    // ══════════════════════════════════════
+    async function loadAlumniDir() {
+      const el = $('alumni-dir-list');
+      try {
+        const d = await api('/admin/alumni');
+        alumniDirData = d.alumni || [];
+        renderAlumniDir();
+      } catch (e) {
+        console.warn('loadAlumniDir:', e.message);
+        alumniDirData = [];
+        if (el) el.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;">Impossible de charger les anciens élèves. Réessayez.</div>';
+      }
+    }
+    function renderAlumniDir() {
+      const q = ($('alumni-srch')?.value || '').toLowerCase();
+      const r = alumniDirData.filter(a => !q || `${a.nom} ${a.prenom}`.toLowerCase().includes(q));
+      const el = $('alumni-dir-list');
+      if (!el) return;
+      if (!r.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;">Aucun ancien élève trouvé</div>'; return; }
+      el.innerHTML = r.map(a => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 4px;border-bottom:1px solid #F1F5F9;">
+          <div style="min-width:0;flex:1;">
+            <div style="font-size:.82rem;font-weight:800;color:#0F172A;">${esc(a.prenom)} ${esc(a.nom)}
+              <span style="font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#94A3B8;font-weight:400;margin-left:6px;">${esc(a.code_unique || '')}</span></div>
+            <div style="font-size:.7rem;color:#64748B;margin-top:2px;">${esc(a.derniere_classe || 'Classe non renseignée')}${a.annee_diplome ? ' · Promotion ' + esc(a.annee_diplome) : ''}</div>
+            <div style="font-size:.68rem;color:#7C3AED;margin-top:2px;">${esc(a.profession || a.situation_actuelle || 'Situation non renseignée')}</div>
+          </div>
+          <span style="font-size:.65rem;font-weight:800;padding:3px 9px;border-radius:20px;background:${a.est_actif ? '#DCFCE7' : '#FEE2E2'};color:${a.est_actif ? '#15803D' : '#DC2626'};">${a.est_actif ? 'Actif' : 'Inactif'}</span>
+        </div>`).join('');
+    }
+    function filtAlumniDir() { if (alumniDirData.length) renderAlumniDir(); }
+
     async function loadCahiersDirection() {
       const el = $('cahiers-list');
       if (!el) return;
@@ -4826,15 +5303,7 @@
             <button class="btn-p" style="padding:4px 9px;font-size:.65rem;flex-shrink:0;margin-left:8px;" onclick="voirCahierDir('${p.prof_id || p.id}','${esc(p.prof_nom || p.nom || "Prof")}','${esc(p.matiere || "")}')">📓 Voir</button>
           </div>`).join('');
       } catch (e) {
-        // Fallback sur CORPS_MOCK
-        el.innerHTML = corpsData.map(p => `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F1F5F9;">
-            <div style="min-width:0;flex:1;overflow:hidden;">
-              <div style="font-size:.75rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.nom)}</div>
-              <div style="font-size:.62rem;color:#94A3B8;">${esc(p.mat)}</div>
-            </div>
-            <button class="btn-p" style="padding:4px 9px;font-size:.65rem;flex-shrink:0;margin-left:8px;" onclick="voirCahier('${p.id}')">📓 Voir</button>
-          </div>`).join('');
+        el.innerHTML = '<div style="text-align:center;padding:16px;color:#94A3B8;font-size:.75rem;">Impossible de charger les cahiers de texte.</div>';
       }
     }
 
@@ -4847,10 +5316,11 @@
       <div class="prof-info">
         <div style="font-size:.82rem;font-weight:800;color:#0F172A;">${esc(p.nom)}</div>
         <div style="font-size:.7rem;color:#64748B;margin-top:1px;">${esc(p.mat)} · <span style="color:#4F46E5;font-weight:700;">${esc(p.cls)}</span></div>
+        <div style="font-size:.68rem;color:#94A3B8;margin-top:2px;">${esc(p.email || 'Pas d\'email')} · ${esc(p.telephone || 'Pas de téléphone')}</div>
         <div style="font-size:.62rem;color:#94A3B8;margin-top:1px;">${esc(p.code)}</div>
       </div>
       <div class="prof-actions">
-        <span class="b ${p.statut === 'Permanent' ? 'b-grn' : 'b-org'}">${p.statut}</span>
+        <span class="b ${p.est_actif ? 'b-grn' : 'b-org'}">${p.est_actif ? 'Actif' : 'Inactif'}</span>
         <button class="btn-p" style="padding:5px 10px;font-size:.68rem;" onclick="voirCahier('${p.id}')">
           <i data-lucide="book-open" style="width:12px;height:12px;"></i>Cahier
         </button>
@@ -4887,7 +5357,7 @@
 
     /* ── Modal Message Prof ── */
     function msgProf(id) {
-      const p = (corpsData || []).find(x => x.id === id) || (CORPS_MOCK || []).find(x => x.id === id);
+      const p = (corpsData || []).find(x => x.id === id);
       if (!p) { toast('Professeur introuvable', 'err'); return; }
       const modal = document.getElementById('modal-msg-prof');
       document.getElementById('mmp-titre').textContent = 'Message à ' + p.nom;
@@ -4911,7 +5381,7 @@
       if (!msg) { document.getElementById('mmp-ta').style.borderColor = '#EF4444'; return; }
       const id = document.getElementById('mmp-id').value;
       const btn = document.querySelector('#modal-msg-prof button[onclick="sendMsgProf()"]');
-      const p = (corpsData || []).find(x => x.id === id) || (CORPS_MOCK || []).find(x => x.id === id);
+      const p = (corpsData || []).find(x => x.id === id);
       if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi…'; }
       try {
         const d = await api('/admin/message-prof', {
@@ -4934,7 +5404,7 @@
 
     /* ── Modal Cahier de texte ── */
     async function voirCahier(id) {
-      const p = corpsData.find(x => x.id === id) || CORPS_MOCK.find(x => x.id === id);
+      const p = corpsData.find(x => x.id === id);
       if (!p) return;
       await voirCahierDir(p.code || id, p.nom, p.mat);
     }
@@ -5021,40 +5491,65 @@
       <div class="bul-name">${esc(b.eleve)} <span style="font-family:'JetBrains Mono',monospace;font-size:.68rem;color:#94A3B8;">${esc(b.code)}</span></div>
       <div class="bul-avg" style="color:${parseFloat(b.moy) >= 10 ? '#15803D' : '#DC2626'};">${b.moy}</div>
       <span class="bul-stat ${b.signe ? 's-ok' : 's-wait'}">${b.signe ? '✅ Signé' : '⏳ En attente'}</span>
-      ${!b.signe ? `<input type="password" maxlength="6" placeholder="PIN" style="width:90px;padding:5px 8px;border:1.5px solid #E2E8F0;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:.78rem;text-align:center;outline:none;" id="pin-${b.id}">
-        <button class="btn-p" style="padding:5px 11px;font-size:.68rem;" onclick="signerBulletin(${b.id})">Signer</button>` : ''}
+      ${!b.signe ? `<input type="password" placeholder="Mot de passe" style="width:150px;padding:5px 8px;border:1.5px solid #E2E8F0;border-radius:7px;font-size:.78rem;outline:none;" id="pin-${b.id}">
+        <button class="btn-p" style="padding:5px 11px;font-size:.68rem;" onclick="signerBulletin('${b.id}')">Signer</button>` : ''}
     </div>`).join('') : '<div style="text-align:center;padding:30px;color:#94A3B8;font-size:.78rem;">Aucun bulletin correspondant</div>';
     }
-    function signerBulletin(id) {
+    async function signerBulletin(id) {
       const pin = $('pin-' + id)?.value;
-      if (!pin || pin.length < 4) { toast('PIN requis (min. 4 chiffres)', 'err'); return; }
-      const b = signData.find(x => x.id === id);
-      if (b) { b.signe = true; filtSignatures(); toast('Bulletin signé électroniquement', 'ok'); }
+      if (!pin) { toast('Mot de passe requis', 'err'); return; }
+      try {
+        const tri = $('sign-tri-filter')?.value || $('sign-tri')?.value || '1';
+        const d = await api('/admin/bulletins/signer', {
+          method: 'POST',
+          body: JSON.stringify({ id_eleve: id, trimestre: parseInt(tri), mot_de_passe: pin })
+        });
+        if (d.success) {
+          const b = signData.find(x => x.id === id);
+          if (b) b.signe = true;
+          filtSignatures();
+          toast('Bulletin signé électroniquement', 'ok');
+        } else {
+          toast(d.message || 'Erreur de signature', 'err');
+        }
+      } catch (e) { toast('Erreur réseau', 'err'); }
     }
-    function signerTout() {
+    async function signerTout() {
       const pin = $('pin-global')?.value;
-      if (!pin || pin.length < 4) { toast('Saisir le PIN global (min. 4 chiffres)', 'err'); return; }
+      if (!pin) { toast('Mot de passe requis', 'err'); return; }
       const fc = $('sign-cls-filter')?.value || '';
-      signData.filter(b => !fc || b.classe === fc).forEach(b => b.signe = true);
-      filtSignatures(); toast('Tous les bulletins signés', 'ok');
+      const cible = signData.filter(b => !b.signe && (!fc || b.classe === fc));
+      if (!cible.length) { toast('Aucun bulletin à signer', 'err'); return; }
+      try {
+        const tri = $('sign-tri-filter')?.value || $('sign-tri')?.value || '1';
+        const d = await api('/admin/bulletins/signer-lot', {
+          method: 'POST',
+          body: JSON.stringify({ ids_eleves: cible.map(b => b.id), trimestre: parseInt(tri), mot_de_passe: pin })
+        });
+        if (d.success) {
+          cible.forEach(b => b.signe = true);
+          filtSignatures();
+          toast(d.message || 'Bulletins signés', 'ok');
+        } else {
+          toast(d.message || 'Erreur de signature', 'err');
+        }
+      } catch (e) { toast('Erreur réseau', 'err'); }
     }
     function signCert(btn, nom) { btn.textContent = '✅ Signé'; btn.style.background = '#059669'; btn.disabled = true; toast(nom + ' — certificat signé', 'ok'); }
     async function loadQuickSign() {
-      const pending = signData.filter ? signData.filter(b => !b.signe) : []; // avant chargement
-      $('sign-count').textContent = '11';
-      $('quick-sign-list').innerHTML = `
-    <div class="bul-row" style="margin-bottom:8px;">
-      <div style="flex:1;"><div style="font-size:.78rem;font-weight:800;">📄 Bulletins T1</div><div style="font-size:.7rem;color:#64748B;">8 en attente de signature</div></div>
-      <button class="btn-p" style="font-size:.72rem;padding:7px 12px;" onclick="go('sign',document.getElementById('ni-sign'))">Signer</button>
-    </div>
-    <div class="bul-row" style="margin-bottom:8px;">
-      <div style="flex:1;"><div style="font-size:.78rem;font-weight:800;">📋 Certificats</div><div style="font-size:.7rem;color:#64748B;">3 en attente</div></div>
-      <button class="btn-p" style="font-size:.72px;padding:7px 12px;" onclick="go('sign',document.getElementById('ni-sign'))">Valider</button>
-    </div>
+      try {
+        const d = await api('/admin/bulletins?trimestre=1');
+        const bulletins = d.bulletins || [];
+        const pending = bulletins.filter(b => !b.signe).length;
+        $('sign-count').textContent = String(bulletins.length);
+        $('quick-sign-list').innerHTML = `
     <div class="bul-row">
-      <div style="flex:1;"><div style="font-size:.78rem;font-weight:800;">✅ Autres</div><div style="font-size:.7rem;color:#94A3B8;">Aucun document</div></div>
-      <span style="font-size:.72rem;color:#94A3B8;font-weight:700;">Terminé</span>
+      <div style="flex:1;"><div style="font-size:.78rem;font-weight:800;">📄 Bulletins T1</div><div style="font-size:.7rem;color:#64748B;">${pending} en attente de signature</div></div>
+      <button class="btn-p" style="font-size:.72rem;padding:7px 12px;" onclick="go('sign',document.getElementById('ni-sign'))">Signer</button>
     </div>`;
+      } catch (e) {
+        $('quick-sign-list').innerHTML = '<div style="text-align:center;padding:16px;color:#94A3B8;font-size:.76rem;">Impossible de charger</div>';
+      }
       if (window.lucide) lucide.createIcons();
     }
 
@@ -5184,17 +5679,23 @@
         const d = await api('/admin/cotisations');
         const cots = d.cotisations || [];
 
+        // ✅ Le vrai champ en base est `statut_paiement` (PAYE/EN_ATTENTE/ANNULE),
+        // pas `statut` — avant : lecture d'un champ qui n'existait jamais,
+        // donc tout s'affichait "en attente" quel que soit le vrai statut.
+        // `mode_paiement` n'existe pas non plus en base (pas encore de
+        // distinction espèces/mobile money côté saisie).
+        const statutLabel = s => s === 'PAYE' ? 'payé' : s === 'ANNULE' ? 'annulé' : 'en attente';
         if (cots.length) {
           compData = cots.map(c => ({
-            id: c.id,
-            famille: c.famille || (c.nom || '') + ' ' + (c.prenom || ''),
+            id: c.id_cotisation || c.id,
+            famille: c.motif_cotisation || (c.nom || '') + ' ' + (c.prenom || ''),
             eleve: (c.prenom_eleve || c.prenom || '') + ' ' + (c.nom_eleve || c.nom || ''),
             classe: c.classe_actuelle || c.classe || '—',
             code: c.code_unique || c.eleve_code || '—',
             montant: parseFloat(c.montant || 0),
-            date: c.date_paiement || c.created_at || '',
-            statut: c.statut || 'en attente',
-            mode_paiement: c.mode_paiement || '—'
+            date: c.date_cotisation || c.created_at || '',
+            statut: statutLabel(c.statut_paiement),
+            mode_paiement: '—'
           }));
         } else {
           compData = [];
@@ -5270,20 +5771,19 @@
     function filtCompta() { if (compData.length) renderCompta(); }
     async function marquerPaye(i) {
       if (!confirm('Marquer ce paiement comme reçu ?')) return;
-      compData[i].statut = 'payé';
-      compData[i].date = new Date().toISOString().split('T')[0];
-      // Sauvegarder en DB
+      // ✅ Met à jour la cotisation existante (avant : créait une nouvelle
+      // ligne via /admin/paiement, laissant l'originale "en attente" en base).
       try {
-        await api('/admin/paiement', {
-          method: 'POST',
-          body: JSON.stringify({
-            famille: compData[i].famille,
-            montant: compData[i].montant,
-            date_paiement: compData[i].date,
-            eleve_code: compData[i].code
-          })
+        await api(`/admin/cotisations/${compData[i].id}/statut`, {
+          method: 'PUT',
+          body: JSON.stringify({ statut_paiement: 'PAYE' })
         });
-      } catch (e) { /* continuer si l'API n'existe pas encore */ }
+        compData[i].statut = 'payé';
+        compData[i].date = new Date().toISOString().split('T')[0];
+      } catch (e) {
+        toast('Erreur lors de la mise à jour', 'err');
+        return;
+      }
       renderCompta();
       buildDonut();
       // Recalculer les totaux
@@ -6320,35 +6820,67 @@
       toast('✏️ Fonction de modification à venir', 'info');
     }
 
-    function exportAbsencesToExcel() {
+    async function exportAbsencesToExcel() {
       const filtered = getFilteredAbsences();
-      const rows = [['Matricule', 'Élève', 'Classe', 'Date', 'Statut', 'Motif']];
+
+      if (typeof ExcelJS === 'undefined') {
+        toast('❌ Bibliothèque Excel non chargée — vérifie ta connexion internet', 'err');
+        return;
+      }
+
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet('Absences');
+
+      ws.columns = [
+        { header: 'Matricule', key: 'matricule', width: 16 },
+        { header: 'Élève', key: 'eleve', width: 26 },
+        { header: 'Classe', key: 'classe', width: 12 },
+        { header: 'Date', key: 'date', width: 12 },
+        { header: 'Statut', key: 'statut', width: 16 },
+        { header: 'Motif', key: 'motif', width: 34 },
+      ];
 
       filtered.forEach(a => {
         let statut = '';
         if (a.justifiee) statut = 'Justifiée';
         else if (a.retard) statut = 'Retard';
         else statut = 'Non justifiée';
-
-        rows.push([
-          a.code_unique || '',
-          `${a.prenom || ''} ${a.nom || ''}`,
-          a.classe_actuelle || a.classe || '',
-          new Date(a.date_absence).toLocaleDateString('fr-FR'),
+        const row = ws.addRow({
+          matricule: a.code_unique || '',
+          eleve: `${a.prenom || ''} ${a.nom || ''}`,
+          classe: a.classe_actuelle || a.classe || '',
+          date: new Date(a.date_absence).toLocaleDateString('fr-FR'),
           statut,
-          a.raison_absence || ''
-        ]);
+          motif: a.raison_absence || ''
+        });
+        // Couleur selon le statut, pour repérer d'un coup d'œil
+        const clr = statut === 'Justifiée' ? 'FFDCFCE7' : statut === 'Retard' ? 'FFFEF3C7' : 'FFFEE2E2';
+        row.getCell('statut').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: clr } };
       });
 
-      const csv = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      // ✅ Vrai fichier .xlsx : en-tête en gras avec fond, colonnes déjà
+      // dimensionnées, ligne d'en-tête figée — directement lisible à
+      // l'ouverture, aucun réglage à faire côté Excel.
+      const headerRow = ws.getRow(1);
+      headerRow.font = { bold: true, color: { argb: 'FF1E293B' } };
+      headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE5E7EB' } };
+      headerRow.alignment = { vertical: 'middle' };
+      ws.views = [{ state: 'frozen', ySplit: 1 }];
+      ws.eachRow(row => {
+        row.eachCell(cell => {
+          cell.border = { bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } } };
+        });
+      });
+
+      const buffer = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `absences_${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `absences_${new Date().toISOString().split('T')[0]}.xlsx`;
       a.click();
       URL.revokeObjectURL(url);
-      toast('📥 Export CSV téléchargé', 'ok');
+      toast('📥 Fichier Excel téléchargé', 'ok');
     }
 
     function printAbsences() {

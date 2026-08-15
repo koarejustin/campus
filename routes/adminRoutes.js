@@ -2,52 +2,86 @@ const express = require('express');
 const router = express.Router();
 const ctrl = require('../controller/adminController');
 const auth = require('../middleware/authMiddleware');
+const { ensureRoleIn } = require('../middleware/authMiddleware');
 const db = require('../config/db');
+const multer = require('multer');
+const uploadExcel = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+
+// ✅ SÉCURITÉ : deux niveaux d'accès désormais appliqués côté serveur (pas
+// seulement caché côté interface) — le partage Direction/Surveillant ne
+// couvre que ce qui relève réellement de la surveillance (élèves, absences,
+// emploi du temps, tableau de bord). Tout le reste (corps enseignant,
+// parents, alumni, signatures, compositions, élections, cotisations,
+// communication) reste réservé à la Direction seule.
+const dirOuSurv = ensureRoleIn(['DIRECTION', 'SURVEILLANT']);
+const dirSeule = ensureRoleIn(['DIRECTION']);
 
 // ── Stats dashboard ──
-router.get('/stats', auth, ctrl.getStats);
+router.get('/stats', auth, dirOuSurv, ctrl.getStats);
 
 // ── Élèves ──
-router.get('/eleves', auth, ctrl.getElevesDir);
-router.get('/eleve/:id', auth, ctrl.getEleveDetail);
-router.post('/eleves', auth, ctrl.createEleve);
+router.get('/eleves', auth, dirOuSurv, ctrl.getElevesDir);
+router.get('/eleve/:id', auth, dirOuSurv, ctrl.getEleveDetail);
+router.post('/eleves', auth, dirSeule, ctrl.createEleve);
+router.post('/eleves/import-excel', auth, dirSeule, uploadExcel.single('fichier'), ctrl.importElevesExcel);
 
 // ── Corps enseignant ──
-router.get('/corps', auth, ctrl.getProfesseurs);
-router.get('/professeurs', auth, ctrl.getProfesseurs);
-router.post('/professeurs', auth, ctrl.createProfesseur);
+router.get('/corps', auth, dirSeule, ctrl.getProfesseurs);
+router.get('/professeurs', auth, dirSeule, ctrl.getProfesseurs);
+router.post('/professeurs', auth, dirSeule, ctrl.createProfesseur);
+
+// ── Parents ──
+router.get('/parents', auth, dirSeule, ctrl.getParents);
+
+// ── Alumni (anciens élèves) ──
+router.get('/alumni', auth, dirSeule, ctrl.getAlumni);
+
+// ── Absences ──
+router.delete('/absences/:id', auth, dirOuSurv, ctrl.deleteAbsence);
+
+// ── Emploi du temps (par classe) — consultation partagée Direction/Surveillant,
+// gestion (créer/modifier/supprimer) réservée à la Direction ──
+router.get('/emploi-du-temps', auth, dirOuSurv, ctrl.getEmploiDuTemps);
+router.post('/emploi-du-temps', auth, dirSeule, ctrl.createSeanceEdt);
+router.put('/emploi-du-temps/:id', auth, dirSeule, ctrl.updateSeanceEdt);
+router.delete('/emploi-du-temps/:id', auth, dirSeule, ctrl.deleteSeanceEdt);
+router.get('/emploi-du-temps/modele', auth, dirSeule, ctrl.getEmploiDuTempsTemplate);
+router.post('/emploi-du-temps/import-excel', auth, dirSeule, uploadExcel.single('fichier'), ctrl.importEmploiDuTempsExcel);
 
 // ── Cahiers de texte ──
-router.get('/cahiers', auth, ctrl.getCahiersTexte);
-router.get('/cahiers-texte', auth, ctrl.getCahiersTexte);
-router.get('/cahier-texte/:prof_id', auth, ctrl.getCahierProf);
+router.get('/cahiers', auth, dirOuSurv, ctrl.getCahiersTexte);
+router.get('/cahiers-texte', auth, dirOuSurv, ctrl.getCahiersTexte);
+router.get('/cahier-texte/:prof_id', auth, dirOuSurv, ctrl.getCahierProf);
 
-// ── Bulletins & Signatures ──
-router.get('/bulletins', auth, ctrl.getBulletins);
+// ── Bulletins & Signatures (Direction seule — responsabilité officielle) ──
+router.get('/bulletins', auth, dirSeule, ctrl.getBulletins);
+router.post('/bulletins/signer', auth, dirSeule, ctrl.signerBulletin);
+router.post('/bulletins/signer-lot', auth, dirSeule, ctrl.signerBulletinsLot);
 
 // ── Agenda ──
-router.get('/agenda', auth, ctrl.getAgenda);
-router.post('/agenda', auth, ctrl.createAgenda);
+router.get('/agenda', auth, dirOuSurv, ctrl.getAgenda);
+router.post('/agenda', auth, dirOuSurv, ctrl.createAgenda);
 
-// ── Message vers profs ──
-router.post('/message-prof', auth, ctrl.messageProf);
+// ── Message vers profs (Direction seule) ──
+router.post('/message-prof', auth, dirSeule, ctrl.messageProf);
 
-// ── Cotisations ──
-router.get('/cotisations', auth, ctrl.getCotisations);
-router.post('/paiement', auth, ctrl.savePaiement);
+// ── Cotisations (Direction seule — comptabilité) ──
+router.get('/cotisations', auth, dirSeule, ctrl.getCotisations);
+router.post('/paiement', auth, dirSeule, ctrl.savePaiement);
+router.put('/cotisations/:id_cotisation/statut', auth, dirSeule, ctrl.updateStatutCotisation);
 
-// ── Compositions et examens ──
-router.get('/compositions', auth, ctrl.getCompositions);
-router.post('/compositions', auth, ctrl.createComposition);
-router.put('/compositions/:id', auth, ctrl.updateComposition);
-router.delete('/compositions/:id', auth, ctrl.deleteComposition);
+// ── Compositions et examens (Direction seule) ──
+router.get('/compositions', auth, dirSeule, ctrl.getCompositions);
+router.post('/compositions', auth, dirSeule, ctrl.createComposition);
+router.put('/compositions/:id', auth, dirSeule, ctrl.updateComposition);
+router.delete('/compositions/:id', auth, dirSeule, ctrl.deleteComposition);
 
-// ── Élections scolaires ──
-router.get('/elections', auth, ctrl.getElections);
-router.post('/elections', auth, ctrl.setElection);
-router.delete('/elections', auth, ctrl.removeElection);
+// ── Élections scolaires (Direction seule) ──
+router.get('/elections', auth, dirSeule, ctrl.getElections);
+router.post('/elections', auth, dirSeule, ctrl.setElection);
+router.delete('/elections', auth, dirSeule, ctrl.removeElection);
+
 // Récupérer l'image d'un espace spécifique
-// ✅ SÉCURITÉ : auth ajouté
 router.get('/espace-image/:espace', auth, async (req, res) => {
     try {
         const { espace } = req.params;
@@ -78,7 +112,7 @@ router.get('/espace-image/:espace', auth, async (req, res) => {
 // ============================================================
 router.get('/config-public', async (req, res) => {
     try {
-        const result = await db.query('SELECT nom_etablissement, logo_url FROM gestion.configuration LIMIT 1');
+        const result = await db.query('SELECT nom_etablissement, logo_url, adresse FROM gestion.configuration LIMIT 1');
         if (result.rows.length > 0) {
             res.json({ success: true, config: result.rows[0] });
         } else {

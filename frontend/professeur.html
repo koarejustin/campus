@@ -4553,6 +4553,41 @@
             </button>
           </div>
           <div id="note-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
+
+          <!-- Scanner la copie corrigée -->
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+            <button type="button" onclick="toggleScanZone()" style="background:none;border:1.5px dashed var(--border);border-radius:9px;padding:9px 12px;width:100%;font-size:.76rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;">
+              📎 Scanner la copie corrigée (optionnel)
+            </button>
+            <div id="scan-zone" style="display:none;margin-top:10px;">
+              <select id="scan-matiere" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:.78rem;font-family:inherit;margin-bottom:7px;">
+                ${mats.map(m => `<option value="${m.id}">${esc(m.n)}</option>`).join('')}
+              </select>
+              <div style="display:flex;gap:7px;margin-bottom:9px;">
+                <label style="flex:1;text-align:center;padding:10px;border:1.5px solid var(--accent3);background:#F0F7F3;border-radius:8px;font-size:.76rem;font-weight:700;color:var(--accent);cursor:pointer;">
+                  📷 Prendre une photo
+                  <input type="file" id="scan-fichier-camera" accept="image/*" capture="environment" style="display:none;" onchange="syncScanFile(this)">
+                </label>
+                <label style="flex:1;text-align:center;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:.76rem;font-weight:700;color:var(--muted);cursor:pointer;">
+                  📁 Choisir un fichier
+                  <input type="file" id="scan-fichier-disque" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="syncScanFile(this)">
+                </label>
+              </div>
+              <div id="scan-fichier-nom" style="font-size:.72rem;color:var(--muted);margin-bottom:9px;">Aucun fichier sélectionné</div>
+              <div style="display:flex;gap:12px;margin-bottom:10px;font-size:.76rem;">
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+                  <input type="radio" name="scan-visibilite" value="true" checked>Envoyer à l'élève
+                </label>
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
+                  <input type="radio" name="scan-visibilite" value="false">Garder pour moi (preuve)
+                </label>
+              </div>
+              <button class="btn-p" style="width:100%;justify-content:center;" onclick="envoyerCopieScan()">
+                📤 Envoyer la copie
+              </button>
+              <div id="scan-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
+            </div>
+          </div>
         </div>`;
 
       // Charger les notes déjà saisies pour cet élève
@@ -4684,6 +4719,63 @@
         }
       } catch (e) {
         showMsg(noteMsg, '❌ Erreur réseau : ' + e.message, 'err');
+      }
+    }
+
+    function toggleScanZone() {
+      const z = $('scan-zone');
+      if (z) z.style.display = z.style.display === 'none' ? 'block' : 'none';
+    }
+
+    let _scanSelectedFile = null;
+    function syncScanFile(input) {
+      if (input.files && input.files[0]) {
+        _scanSelectedFile = input.files[0];
+        const nomEl = $('scan-fichier-nom');
+        if (nomEl) nomEl.textContent = '✅ ' + input.files[0].name;
+        // Vide l'autre champ pour éviter toute confusion sur quel fichier sera envoyé
+        const autre = input.id === 'scan-fichier-camera' ? $('scan-fichier-disque') : $('scan-fichier-camera');
+        if (autre) autre.value = '';
+      }
+    }
+
+    async function envoyerCopieScan() {
+      if (!selEleve) { toast('Sélectionnez un élève', 'err'); return; }
+      const tri = $('tri-sel')?.value || '1';
+      const idMatiere = $('scan-matiere')?.value;
+      const visible = document.querySelector('input[name="scan-visibilite"]:checked')?.value;
+      const scanMsg = $('scan-msg');
+
+      if (!_scanSelectedFile) { toast('Prenez une photo ou choisissez un fichier', 'err'); return; }
+      if (!idMatiere) { toast('Choisissez une matière', 'err'); return; }
+
+      showMsg(scanMsg, '⏳ Envoi en cours…', 'info');
+      try {
+        const fd = new FormData();
+        fd.append('scan', _scanSelectedFile);
+        fd.append('id_eleve', selEleve.id);
+        fd.append('id_matiere', idMatiere);
+        fd.append('trimestre', tri);
+        fd.append('visible_eleve', visible);
+
+        const r = await fetch(API + '/professeurs/copies-scannees', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK },
+          body: fd
+        });
+        const data = await r.json();
+        if (data.success) {
+          showMsg(scanMsg, '✅ ' + data.message, 'ok');
+          toast(data.message, 'ok');
+          _scanSelectedFile = null;
+          if ($('scan-fichier-nom')) $('scan-fichier-nom').textContent = 'Aucun fichier sélectionné';
+          if ($('scan-fichier-camera')) $('scan-fichier-camera').value = '';
+          if ($('scan-fichier-disque')) $('scan-fichier-disque').value = '';
+        } else {
+          showMsg(scanMsg, '❌ ' + (data.message || 'Erreur serveur'), 'err');
+        }
+      } catch (e) {
+        showMsg(scanMsg, '❌ Erreur réseau : ' + e.message, 'err');
       }
     }
 
@@ -4909,7 +5001,7 @@
     async function toggleResVisible(id) {
       try {
         const r = await fetch(`${API}/professeurs/ressources/${id}/visibilite`, {
-          method: 'PATCH',
+          method: 'PUT',
           headers: { 'Authorization': 'Bearer ' + TOK }
         });
         const data = await r.json();

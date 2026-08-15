@@ -5,6 +5,15 @@ const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
+// ✅ Protection contre les tentatives de connexion répétées (force brute)
+// Nécessite : npm install express-rate-limit
+let rateLimit;
+try {
+    rateLimit = require('express-rate-limit');
+} catch (e) {
+    console.warn("⚠️ express-rate-limit non installé — lance 'npm install express-rate-limit' pour activer la protection anti-force-brute sur la connexion.");
+}
+
 const db = require('./config/db');
 const app = express();
 const server = http.createServer(app);
@@ -138,7 +147,9 @@ try {
 // MIDDLEWARE
 // ═══════════════════════════════════════════
 app.use(cors());
-app.use(express.json());
+// ✅ Limite augmentée : les photos de profil arrivent en base64 dans le JSON
+// (jusqu'à ~2 Mo côté client → ~2.7 Mo une fois encodées en base64)
+app.use(express.json({ limit: '10mb' }));
 
 // ── Fichiers statiques ──
 app.use(express.static('frontend'));
@@ -165,6 +176,22 @@ const parentRoutes = require('./routes/parentRoutes');
 const professeurRoutes = require('./routes/professeurRoutes');
 const alumniRoutes = require('./routes/alumniRoutes');
 const mentoratRoutes = require('./routes/mentoratRoutes');
+const apeRoutes = require('./routes/apeRoutes');
+
+// ✅ Maximum 5 tentatives de connexion ratées par 15 minutes, par adresse
+// IP — bloque le "bourrage" automatique de mots de passe sans gêner un
+// utilisateur normal qui se trompe deux ou trois fois.
+if (rateLimit) {
+    const loginLimiter = rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 5,
+        message: { success: false, message: 'Trop de tentatives de connexion. Réessaie dans 15 minutes.' },
+        standardHeaders: true,
+        legacyHeaders: false,
+        skipSuccessfulRequests: true, // une connexion réussie ne compte pas dans la limite
+    });
+    app.use('/api/auth/login', loginLimiter);
+}
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
@@ -174,6 +201,9 @@ app.use('/api/parents', parentRoutes);
 app.use('/api/professeurs', professeurRoutes);
 app.use('/api/alumni', alumniRoutes);
 app.use('/api/mentorat', mentoratRoutes);
+// ✅ Route manquante depuis le début — jamais montée nulle part, d'où les
+// erreurs 404 sur /api/ape/forum, /api/ape/projets, /api/ape/mes-enfants...
+app.use('/api/ape', apeRoutes);
 
 // ── Upload média salle des profs ──
 const multer = require('multer');

@@ -69,6 +69,129 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sb-logo-icon .ecole-logo {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ═════════════ NOTIFICATIONS ═════════════ */
+        .notif-panel {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            width: min(360px, 90vw);
+            max-height: 80vh;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14);
+            z-index: 10000;
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            border: 1px solid #E2E8F0;
+        }
+
+        .notif-panel.open {
+            display: flex;
+        }
+
+        .notif-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid #E2E8F0;
+            font-weight: 800;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .notif-header button {
+            background: rgba(255, 255, 255, 0.18);
+            border: none;
+            border-radius: 10px;
+            padding: 6px 11px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .notif-list {
+            max-height: calc(80vh - 110px);
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        .notif-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid #F1F5F9;
+            cursor: pointer;
+            transition: background 0.15s ease;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: #fff;
+        }
+
+        .notif-item.unread {
+            background: #F0FDF9;
+        }
+
+        .notif-item:hover {
+            background: #F3F4FF;
+        }
+
+        .notif-item-icon {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            border-radius: 10px;
+            background: #E6FAF3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .notif-title {
+            font-weight: 800;
+            font-size: 0.82rem;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+
+        .notif-desc {
+            font-size: 0.74rem;
+            color: #475569;
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+
+        .notif-time {
+            font-size: 0.65rem;
+            color: #94A3B8;
+        }
+
+        .sb-logo-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: #fff;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         .sb-logo-txt {
@@ -125,6 +248,32 @@
             font-weight: 500;
             color: rgba(255, 255, 255, .4);
             transition: all .15s;
+        }
+
+        /* ✅ Les SVG n'héritaient d'aucune couleur — remplissage noir par
+           défaut du navigateur, invisible sur le fond sombre de la barre
+           latérale. On force le style "icône trait fin" et on suit la
+           couleur du texte parent (currentColor). */
+        .ni svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .btn-out svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         .ni:hover {
@@ -263,6 +412,62 @@
             font-weight: 800;
         }
 
+        .badge-role {
+            display: inline-block;
+            font-size: .62rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: var(--accent);
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        .bureau-only { display: none; }
+        body.est-bureau .bureau-only { display: block; }
+        body.est-bureau .bureau-only-inline { display: inline-flex; }
+
+        .form-inline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .form-inline input, .form-inline select, .form-inline textarea {
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: .76rem;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .form-inline textarea { width: 100%; min-height: 60px; resize: vertical; }
+
+        .tbl { border-collapse: collapse; }
+        .tbl th, .tbl td {
+            text-align: left;
+            padding: 9px 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: .78rem;
+        }
+        .tbl th { color: var(--muted); text-transform: uppercase; font-size: .62rem; letter-spacing: .04em; }
+
+        .tag-statut {
+            font-size: .62rem;
+            font-weight: 800;
+            padding: 3px 9px;
+            border-radius: 20px;
+        }
+        .tag-EN_ATTENTE { background: #FEF3C7; color: #92400E; }
+        .tag-PAYE { background: #D1FAE5; color: #065F46; }
+        .tag-ANNULE { background: #FEE2E2; color: #991B1B; }
+
+        .empty-msg { color: var(--muted); font-size: .8rem; padding: 20px; text-align: center; }
+
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -293,7 +498,9 @@
     <aside class="sidebar">
         <div class="sb-head">
             <div class="sb-logo">
-                <div class="sb-logo-icon"><svg viewBox="0 0 24 24">
+                <div class="sb-logo-icon"><img class="ecole-logo hidden" id="sb-ecole-logo" alt=""
+                        style="width:100%;height:100%;border-radius:8px;object-fit:cover;"><svg viewBox="0 0 24 24"
+                        id="sb-logo-fallback">
                         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
                         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
                     </svg></div>
@@ -302,6 +509,7 @@
             <div class="sb-user">
                 <div class="sb-user-name" id="sb-nom">Chargement...</div>
                 <div class="sb-user-mat" id="sb-mat">--</div>
+                <div id="sb-role-badge" style="margin-top:6px;"></div>
             </div>
         </div>
         <div class="sb-scroll">
@@ -323,10 +531,6 @@
                     <path
                         d="M12 2v4M4.93 4.93l2.83 2.83M2 12h4M4.93 19.07l2.83-2.83M12 18v4M19.07 19.07l-2.83-2.83M18 12h4M19.07 4.93l-2.83 2.83" />
                 </svg>Projets</div>
-            <div class="ni" onclick="go('orientation')"><svg viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" />
-                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
-                </svg>Orientation</div>
         </div>
         <div class="sb-foot"><button class="btn-out" onclick="logout()"><svg viewBox="0 0 24 24">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -339,12 +543,25 @@
             <div class="pg-hd">
                 <div>
                     <div class="pg-title">Bureau APE</div>
-                    <div class="pg-sub">Gestion et suivi de l'association</div>
+                    <div class="pg-sub">Gestion et suivi de l'association des parents d'élèves</div>
+                </div>
+                <div id="notif-btn"
+                    style="position:relative;cursor:pointer;padding:8px;background:white;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,0.1);flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                    <span id="notif-badge"
+                        style="position:absolute;top:-4px;right:-4px;background:#EF4444;color:white;border-radius:50%;padding:2px 5px;font-size:10px;display:none;">0</span>
                 </div>
             </div>
             <div class="kpi-grid" id="dashboard-stats"></div>
             <div class="card">
-                <h3>📢 Derniers messages du forum</h3>
+                <h3 style="margin-bottom:12px;">👥 Le bureau</h3>
+                <div id="bureau-list"></div>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom:12px;">📢 Derniers messages du forum</h3>
                 <div id="last-forum-posts"></div>
             </div>
         </div>
@@ -353,16 +570,40 @@
                 <div>
                     <div class="pg-title">💰 Cotisations APE</div>
                     <div class="pg-sub">Suivi des paiements</div>
-                </div><button class="btn-p" onclick="openPaiementModal()">➕ Enregistrer un paiement</button>
+                </div>
             </div>
-            <div id="cotisations-list" class="card"></div>
+            <div class="card">
+                <h3 style="margin-bottom:12px;">Mes cotisations</h3>
+                <div id="mes-cotisations-list"></div>
+            </div>
+            <div class="card bureau-only">
+                <h3 style="margin-bottom:12px;">Enregistrer une cotisation <span class="badge-role">Bureau</span></h3>
+                <form class="form-inline" id="form-cotisation" onsubmit="return enregistrerCotisation(event)">
+                    <input type="text" id="cot-matricule-parent" placeholder="Matricule du parent" required>
+                    <input type="text" id="cot-matricule-eleve" placeholder="Matricule de l'élève (optionnel)">
+                    <input type="number" id="cot-montant" placeholder="Montant (FCFA)" required min="0" step="1">
+                    <input type="text" id="cot-motif" placeholder="Motif (ex: Cotisation annuelle)">
+                    <button type="submit" class="btn-p">Enregistrer</button>
+                </form>
+                <div id="cot-msg" style="font-size:.75rem;color:var(--muted);"></div>
+            </div>
+            <div class="card bureau-only">
+                <h3 style="margin-bottom:12px;">Vue d'ensemble — tous les parents <span class="badge-role">Bureau</span></h3>
+                <div id="cotisations-list"></div>
+            </div>
         </div>
         <div id="pg-forum" class="pg">
             <div class="pg-hd">
                 <div>
                     <div class="pg-title">💬 Forum APE</div>
                     <div class="pg-sub">Discussions entre membres</div>
-                </div><button class="btn-p" onclick="openForumModal()">➕ Nouveau message</button>
+                </div>
+            </div>
+            <div class="card">
+                <form class="form-inline" id="form-forum" onsubmit="return publierForum(event)">
+                    <textarea id="forum-texte" placeholder="Écrire un message aux autres parents..." required></textarea>
+                    <button type="submit" class="btn-p" style="align-self:flex-end;">Publier</button>
+                </form>
             </div>
             <div id="forum-list" class="card"></div>
         </div>
@@ -370,63 +611,446 @@
             <div class="pg-hd">
                 <div>
                     <div class="pg-title">📋 Projets en cours</div>
-                    <div class="pg-sub">Suivi des initiatives</div>
-                </div><button class="btn-p" onclick="openProjetModal()">➕ Nouveau projet</button>
+                    <div class="pg-sub">Suivi des initiatives de l'APE</div>
+                </div>
+            </div>
+            <div class="card bureau-only">
+                <h3 style="margin-bottom:12px;">Nouveau projet <span class="badge-role">Bureau</span></h3>
+                <form class="form-inline" id="form-projet" onsubmit="return creerProjet(event)">
+                    <input type="text" id="proj-titre" placeholder="Titre du projet" required>
+                    <input type="number" id="proj-budget" placeholder="Budget (FCFA)" min="0" step="1">
+                    <input type="date" id="proj-date-fin" placeholder="Date de fin prévue">
+                    <textarea id="proj-desc" placeholder="Description du projet"></textarea>
+                    <button type="submit" class="btn-p">Créer le projet</button>
+                </form>
             </div>
             <div id="projets-list" class="card"></div>
         </div>
-        <div id="pg-orientation" class="pg">
-            <div class="pg-hd">
-                <div>
-                    <div class="pg-title">🧭 Orientation</div>
-                    <div class="pg-sub">Donnez votre avis sur l'orientation de votre enfant</div>
-                </div>
-            </div>
-            <div class="card"><input type="text" id="search-eleve" placeholder="Matricule de votre enfant"><button
-                    class="btn-p" onclick="loadOrientationEnfant()">Consulter</button>
-                <div id="orientation-avis"></div>
+    </main>
+
+    <div id="notif-panel" class="notif-panel">
+        <div class="notif-header">
+            <span>🔔 Notifications</span>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <button id="mark-all-notif" type="button">Tout marquer lu</button>
+                <button id="close-notif-modal"
+                    style="background:none;border:none;cursor:pointer;font-size:1rem;color:#fff;">✕</button>
             </div>
         </div>
-    </main>
+        <div id="notif-list" class="notif-list"></div>
+    </div>
+
     <script>
         const API = window.API_BASE || 'http://localhost:5000/api';
-        const token = localStorage.getItem('token');
         let currentUser = JSON.parse(localStorage.getItem('user_session') || '{}');
-        if (!token || currentUser.role_actuel !== 'PARENT') window.location.href = 'login.html';
-        // ============================================================
-        // ✅ SÉCURITÉ : Vérification membre bureau APE
-        // ============================================================
-        (async function verifierMembreAPE() {
-            try {
-                const response = await fetch(`${API}/ape/verifier-membre`, {
-                    headers: { 'Authorization': 'Bearer ' + token }
-                });
-                const data = await response.json();
-                if (!data.estMembre) {
-                    alert('Accès refusé. Seuls les membres du bureau APE peuvent accéder à cet espace.');
-                    window.location.href = 'login.html';
-                }
-            } catch (error) {
-                console.error('Erreur vérification APE:', error);
-                window.location.href = 'login.html';
-            }
-        })();
+        const token = currentUser.token || localStorage.getItem('token');
+        if (!token || currentUser.role_actuel !== 'PARENT') {
+            window.location.href = 'login.html';
+        }
         const authH = () => ({ 'Authorization': 'Bearer ' + token });
-        const esc = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        function go(page) { document.querySelectorAll('.pg').forEach(p => p.classList.remove('on')); document.getElementById('pg-' + page).classList.add('on'); document.querySelectorAll('.ni').forEach(n => n.classList.remove('on')); document.querySelector(`.ni[onclick="go('${page}')"]`).classList.add('on'); if (page === 'accueil') loadDashboard(); else if (page === 'cotisations') loadCotisations(); else if (page === 'forum') loadForum(); else if (page === 'projets') loadProjets(); }
-        async function loadDashboard() { const r = await fetch(`${API}/ape/dashboard`, { headers: authH() }); const d = await r.json(); document.getElementById('dashboard-stats').innerHTML = `<div class="kpi"><div class="kpi-val">${d.stats?.total_cotisations?.toLocaleString() || 0} FCFA</div><div>Total cotisations</div></div><div class="kpi"><div class="kpi-val">${d.stats?.projets_actifs || 0}</div><div>Projets actifs</div></div><div class="kpi"><div class="kpi-val">${d.stats?.messages_forum || 0}</div><div>Messages forum</div></div>`; const f = await fetch(`${API}/ape/forum`, { headers: authH() }); const fd = await f.json(); document.getElementById('last-forum-posts').innerHTML = (fd.messages || []).slice(0, 3).map(m => `<div class="forum-msg"><div class="forum-avatar">${m.prenom?.[0] || 'P'}</div><div><strong>${esc(m.prenom)} ${esc(m.nom)}</strong><br>${esc(m.contenu)}</div></div>`).join('') || 'Aucun message'; }
-        async function loadCotisations() { const r = await fetch(`${API}/ape/cotisations`, { headers: authH() }); const d = await r.json(); document.getElementById('cotisations-list').innerHTML = `<table class="tbl" style="width:100%"><thead><tr><th>Élève</th><th>Montant</th><th>Date</th><th>Statut</th></tr></thead><tbody>${(d.cotisations || []).map(c => `<tr><td>${esc(c.prenom || '')} ${esc(c.nom || '')}</td><td>${c.montant} FCFA</td><td>${c.date_paiement?.split('T')[0] || '—'}</td><td>${c.statut || 'Payé'}</td></tr>`).join('')}</tbody></table>`; }
-        async function loadForum() { const r = await fetch(`${API}/ape/forum`, { headers: authH() }); const d = await r.json(); document.getElementById('forum-list').innerHTML = (d.messages || []).map(m => `<div class="forum-msg"><div class="forum-avatar">${m.prenom?.[0] || 'P'}</div><div><strong>${esc(m.prenom)} ${esc(m.nom)}</strong><div>${esc(m.contenu)}</div><small>${new Date(m.created_at).toLocaleString()}</small><button onclick="likeForum(${m.id_post})" style="background:none;border:none;color:var(--accent);cursor:pointer;">❤️ ${m.nb_likes || 0}</button></div></div>`).join('') || 'Aucun message'; }
-        async function likeForum(id) { await fetch(`${API}/ape/forum/${id}/like`, { method: 'POST', headers: authH() }); loadForum(); }
-        async function loadProjets() { const r = await fetch(`${API}/ape/projets`, { headers: authH() }); const d = await r.json(); document.getElementById('projets-list').innerHTML = (d.projets || []).map(p => `<div class="card"><h4>${esc(p.titre)}</h4><p>${esc(p.description || '')}</p><div>Budget: ${p.budget?.toLocaleString() || 0} FCFA</div><div>Dates: ${p.date_debut?.split('T')[0]} → ${p.date_fin?.split('T')[0] || 'en cours'}</div></div>`).join('') || 'Aucun projet'; }
-        function openPaiementModal() { const eleveCode = prompt("Matricule de l'élève"); const montant = prompt("Montant (FCFA)"); if (eleveCode && montant) fetch(`${API}/ape/paiement`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ id_eleve: eleveCode, montant: parseFloat(montant) }) }).then(() => loadCotisations()); }
-        function openForumModal() { const msg = prompt("Votre message :"); if (msg) fetch(`${API}/ape/forum`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ contenu: msg }) }).then(() => loadForum()); }
-        function openProjetModal() { const titre = prompt("Titre du projet"); const desc = prompt("Description"); if (titre) fetch(`${API}/ape/projets`, { method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' }, body: JSON.stringify({ titre, description: desc }) }).then(() => loadProjets()); }
-        async function loadOrientationEnfant() { const code = document.getElementById('search-eleve').value; if (!code) return; const r = await fetch(`${API}/ape/orientation-enfant?enfant_id=${code}`, { headers: authH() }); const d = await r.json(); document.getElementById('orientation-avis').innerHTML = (d.avis || []).map(a => `<div><strong>${esc(a.auteur_nom)} ${esc(a.auteur_prenom)}</strong><p>${esc(a.commentaire)}</p>${a.serie_recommandee ? `<span>🎯 ${a.serie_recommandee}</span>` : ''}</div>`).join('') || 'Aucun avis'; }
+        const authHJson = () => ({ 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' });
+        const esc = s => (s == null ? '' : String(s)).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const fmtFCFA = n => (parseFloat(n) || 0).toLocaleString('fr-FR') + ' FCFA';
+        const fmtDate = d => d ? new Date(d).toLocaleDateString('fr-FR') : '—';
+        const ago = d => { const m = Math.floor((Date.now() - new Date(d)) / 60000); if (m < 1) return 'maintenant'; if (m < 60) return m + 'min'; const h = Math.floor(m / 60); if (h < 24) return h + 'h'; return Math.floor(h / 24) + 'j'; };
+
+        /* ═════════════ NOTIFICATIONS ═════════════ */
+        let notifData = [];
+        let notifUnreadCount = 0;
+
+        async function fetchNotifications() {
+            try {
+                const res = await fetch(`${API}/notifications`, { headers: authH() });
+                const data = await res.json();
+                if (data.success) {
+                    notifData = Array.isArray(data.notifications) ? data.notifications.map(n => ({
+                        ...n,
+                        id: n.id || n.id_notification,
+                        lu: n.lu || n.lue || n.est_lu || false,
+                        message: n.message || n.contenu || ''
+                    })) : [];
+                    notifUnreadCount = typeof data.unreadCount === 'number'
+                        ? data.unreadCount
+                        : notifData.filter(n => !n.lu).length;
+                } else {
+                    notifData = []; notifUnreadCount = 0;
+                }
+            } catch (e) {
+                console.warn('Erreur chargement notifications:', e);
+                notifData = []; notifUnreadCount = 0;
+            }
+            updateNotifBadge();
+        }
+
+        function updateNotifBadge() {
+            const badge = document.getElementById('notif-badge');
+            if (!badge) return;
+            if (notifUnreadCount > 0) {
+                badge.textContent = notifUnreadCount > 99 ? '99+' : notifUnreadCount;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function renderNotifications() {
+            const container = document.getElementById('notif-list');
+            if (!container) return;
+            if (!notifData.length) {
+                container.innerHTML = '<div style="padding:16px;text-align:center;color:#94A3B8;">Aucune notification</div>';
+                return;
+            }
+            container.innerHTML = notifData.map(n => {
+                const icon = n.type === 'COTISATION_APE' ? '💰'
+                    : n.type === 'ANNONCE' ? '📢' : '🔔';
+                return `
+          <div class="notif-item ${!n.lu ? 'unread' : ''}" data-id="${n.id}" data-link="${n.lien || ''}">
+            <div class="notif-item-icon">${icon}</div>
+            <div style="flex:1;min-width:0;">
+              <div class="notif-title">${esc(n.titre || 'Notification')}</div>
+              <div class="notif-desc">${esc(n.message)}</div>
+              <div class="notif-time">${ago(n.created_at)}</div>
+            </div>
+          </div>`;
+            }).join('');
+            document.querySelectorAll('.notif-item').forEach(el => {
+                el.addEventListener('click', async () => {
+                    const id = el.dataset.id;
+                    const link = el.dataset.link;
+                    if (el.classList.contains('unread')) await markNotificationAsRead(id);
+                    document.getElementById('notif-panel')?.classList.remove('open');
+                    if (link) window.location.href = link;
+                });
+            });
+        }
+
+        async function markNotificationAsRead(id) {
+            try {
+                const res = await fetch(`${API}/notifications/${id}/read`, { method: 'PUT', headers: authH() });
+                if (res.ok) {
+                    const notif = notifData.find(n => n.id == id);
+                    if (notif && !notif.lu) {
+                        notif.lu = true;
+                        notifUnreadCount--;
+                        updateNotifBadge();
+                        renderNotifications();
+                    }
+                }
+            } catch (e) { console.warn(e); }
+        }
+
+        async function markAllNotificationsAsRead() {
+            try {
+                const res = await fetch(`${API}/notifications/read-all`, { method: 'PUT', headers: authH() });
+                if (res.ok) {
+                    notifData.forEach(n => n.lu = true);
+                    notifUnreadCount = 0;
+                    updateNotifBadge();
+                    renderNotifications();
+                }
+            } catch (e) { console.warn(e); }
+        }
+
+        function initNotifications() {
+            const notifBtn = document.getElementById('notif-btn');
+            const panel = document.getElementById('notif-panel');
+            const closeBtn = document.getElementById('close-notif-modal');
+            const markAllBtn = document.getElementById('mark-all-notif');
+            notifBtn?.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                await fetchNotifications();
+                renderNotifications();
+                panel?.classList.toggle('open');
+            });
+            closeBtn?.addEventListener('click', () => panel?.classList.remove('open'));
+            markAllBtn?.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                await markAllNotificationsAsRead();
+            });
+            window.addEventListener('click', (e) => {
+                if (panel?.classList.contains('open') && !panel.contains(e.target) && e.target !== notifBtn && !notifBtn?.contains(e.target)) {
+                    panel.classList.remove('open');
+                }
+            });
+            setInterval(fetchNotifications, 30000);
+            fetchNotifications();
+        }
+
+        let estBureau = false;
+        let monPoste = null;
+
+        function go(page) {
+            document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
+            document.getElementById('pg-' + page).classList.add('on');
+            document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+            document.querySelector(`.ni[onclick="go('${page}')"]`).classList.add('on');
+            if (page === 'accueil') loadDashboard();
+            else if (page === 'cotisations') loadCotisations();
+            else if (page === 'forum') loadForum();
+            else if (page === 'projets') loadProjets();
+        }
+
+        // ============================================================
+        // RÔLE : détermine si le parent est membre du bureau APE
+        // ============================================================
+        async function initRole() {
+            try {
+                const r = await fetch(`${API}/ape/mon-role`, { headers: authH() });
+                const d = await r.json();
+                estBureau = !!d.est_membre_bureau;
+                monPoste = d.poste || null;
+                document.body.classList.toggle('est-bureau', estBureau);
+                const badge = document.getElementById('sb-role-badge');
+                badge.innerHTML = estBureau
+                    ? `<span class="badge-role">${esc(monPoste)}</span>`
+                    : `<span class="badge-role" style="background:var(--muted);">Membre</span>`;
+            } catch (e) {
+                console.error('Erreur APE:', e);
+                console.warn('Impossible de déterminer le rôle APE:', e);
+            }
+        }
+
+        // ============================================================
+        // TABLEAU DE BORD
+        // ============================================================
+        async function loadDashboard() {
+            try {
+                const [bureauR, forumR, mesCotR] = await Promise.all([
+                    fetch(`${API}/ape/bureau`, { headers: authH() }).then(r => r.json()),
+                    fetch(`${API}/ape/forum`, { headers: authH() }).then(r => r.json()),
+                    fetch(`${API}/parents/cotisations`, { headers: authH() }).then(r => r.json())
+                ]);
+
+                const resume = mesCotR.resume || {};
+                document.getElementById('dashboard-stats').innerHTML = `
+                    <div class="kpi"><div class="kpi-val">${fmtFCFA(resume.total_paye)}</div><div>Mes cotisations payées</div></div>
+                    <div class="kpi"><div class="kpi-val">${fmtFCFA(resume.total_du)}</div><div>Restant dû</div></div>
+                    <div class="kpi"><div class="kpi-val">${(bureauR.bureau || []).length}</div><div>Membres du bureau</div></div>
+                `;
+
+                document.getElementById('bureau-list').innerHTML = (bureauR.bureau || []).map(b => `
+                    <div class="forum-msg">
+                        <div class="forum-avatar">${esc((b.prenom || 'P')[0])}</div>
+                        <div><strong>${esc(b.prenom)} ${esc(b.nom)}</strong> — <span class="badge-role">${esc(b.poste)}</span></div>
+                    </div>
+                `).join('') || '<div class="empty-msg">Bureau non encore constitué</div>';
+
+                document.getElementById('last-forum-posts').innerHTML = (forumR.posts || []).slice(0, 3).map(m => `
+                    <div class="forum-msg">
+                        <div class="forum-avatar">${esc((m.prenom || 'P')[0])}</div>
+                        <div><strong>${esc(m.prenom)} ${esc(m.nom)}</strong><br>${esc(m.contenu)}</div>
+                    </div>
+                `).join('') || '<div class="empty-msg">Aucun message pour le moment</div>';
+            } catch (e) {
+                console.error('Erreur APE:', e);
+                console.warn('Erreur chargement dashboard APE:', e);
+            }
+        }
+
+        // ============================================================
+        // COTISATIONS
+        // ============================================================
+        async function loadCotisations() {
+            try {
+                const r = await fetch(`${API}/parents/cotisations`, { headers: authH() });
+                const d = await r.json();
+                const rows = d.cotisations || [];
+                document.getElementById('mes-cotisations-list').innerHTML = rows.length ? `
+                    <table class="tbl" style="width:100%">
+                        <thead><tr><th>Enfant</th><th>Motif</th><th>Montant</th><th>Date</th><th>Statut</th></tr></thead>
+                        <tbody>${rows.map(c => `
+                            <tr>
+                                <td>${esc(c.prenom_enfant || '')} ${esc(c.nom_enfant || '')}</td>
+                                <td>${esc(c.motif_cotisation || '—')}</td>
+                                <td>${fmtFCFA(c.montant)}</td>
+                                <td>${fmtDate(c.date_cotisation)}</td>
+                                <td><span class="tag-statut tag-${c.statut_paiement}">${esc(c.statut_paiement)}</span></td>
+                            </tr>`).join('')}</tbody>
+                    </table>` : '<div class="empty-msg">Aucune cotisation enregistrée</div>';
+            } catch (e) {
+                console.error('Erreur APE:', e);
+                document.getElementById('mes-cotisations-list').innerHTML = '<div class="empty-msg">Erreur de chargement</div>';
+            }
+
+            if (estBureau) {
+                try {
+                    const r2 = await fetch(`${API}/ape/cotisations/toutes`, { headers: authH() });
+                    const d2 = await r2.json();
+                    const rows2 = d2.cotisations || [];
+                    document.getElementById('cotisations-list').innerHTML = rows2.length ? `
+                        <table class="tbl" style="width:100%">
+                            <thead><tr><th>Parent</th><th>Enfant</th><th>Classe</th><th>Montant</th><th>Statut</th><th></th></tr></thead>
+                            <tbody>${rows2.map(c => `
+                                <tr>
+                                    <td>${esc(c.prenom_parent || '')} ${esc(c.nom_parent || '')}</td>
+                                    <td>${esc(c.prenom_enfant || '')} ${esc(c.nom_enfant || '')}</td>
+                                    <td>${esc(c.classe_actuelle || '—')}</td>
+                                    <td>${fmtFCFA(c.montant)}</td>
+                                    <td><span class="tag-statut tag-${c.statut_paiement}">${esc(c.statut_paiement)}</span></td>
+                                    <td>${c.statut_paiement !== 'PAYE' ? `<button class="btn-g" onclick="marquerPayee('${c.id_cotisation}')">Marquer payée</button>` : ''}</td>
+                                </tr>`).join('')}</tbody>
+                        </table>` : '<div class="empty-msg">Aucune cotisation enregistrée</div>';
+                } catch (e) {
+                console.error('Erreur APE:', e);
+                    document.getElementById('cotisations-list').innerHTML = '<div class="empty-msg">Erreur de chargement</div>';
+                }
+            }
+        }
+
+        async function enregistrerCotisation(ev) {
+            ev.preventDefault();
+            const msgEl = document.getElementById('cot-msg');
+            msgEl.textContent = 'Enregistrement...';
+            try {
+                const matriculeParent = document.getElementById('cot-matricule-parent').value.trim();
+                const matriculeEleve = document.getElementById('cot-matricule-eleve').value.trim();
+
+                // Résoudre les matricules en id_user
+                const rParent = await fetch(`${API}/ape/resoudre-matricule/${encodeURIComponent(matriculeParent)}`, { headers: authH() }).catch(() => null);
+                let id_parent = null;
+                if (rParent && rParent.ok) { const dp = await rParent.json(); id_parent = dp.compte?.id_user; }
+                if (!id_parent) { msgEl.textContent = "Parent introuvable — vérifiez le matricule."; return false; }
+
+                let id_eleve = null;
+                if (matriculeEleve) {
+                    const rEleve = await fetch(`${API}/ape/resoudre-matricule/${encodeURIComponent(matriculeEleve)}`, { headers: authH() }).catch(() => null);
+                    if (rEleve && rEleve.ok) { const de = await rEleve.json(); id_eleve = de.compte?.id_user; }
+                }
+
+                const r = await fetch(`${API}/ape/cotisations`, {
+                    method: 'POST', headers: authHJson(),
+                    body: JSON.stringify({
+                        id_parent, id_eleve,
+                        montant: parseFloat(document.getElementById('cot-montant').value),
+                        motif_cotisation: document.getElementById('cot-motif').value || null
+                    })
+                });
+                const d = await r.json();
+                if (!r.ok) { msgEl.textContent = d.message || 'Erreur'; return false; }
+                msgEl.textContent = 'Cotisation enregistrée ✅';
+                document.getElementById('form-cotisation').reset();
+                loadCotisations();
+            } catch (e) {
+                console.error('Erreur APE:', e);
+                msgEl.textContent = 'Erreur réseau';
+            }
+            return false;
+        }
+
+        async function marquerPayee(id_cotisation) {
+            await fetch(`${API}/ape/cotisations/${id_cotisation}/statut`, {
+                method: 'PUT', headers: authHJson(),
+                body: JSON.stringify({ statut_paiement: 'PAYE' })
+            });
+            loadCotisations();
+        }
+
+        // ============================================================
+        // FORUM
+        // ============================================================
+        async function loadForum() {
+            try {
+                const r = await fetch(`${API}/ape/forum`, { headers: authH() });
+                const d = await r.json();
+                document.getElementById('forum-list').innerHTML = (d.posts || []).map(m => `
+                    <div class="forum-msg">
+                        <div class="forum-avatar">${esc((m.prenom || 'P')[0])}</div>
+                        <div style="flex:1;">
+                            <strong>${esc(m.prenom)} ${esc(m.nom)}</strong>
+                            <div>${esc(m.contenu)}</div>
+                            <small style="color:var(--muted);">${fmtDate(m.created_at)}</small>
+                            <button onclick="likeForum('${m.id_post}')" style="background:none;border:none;color:var(--accent);cursor:pointer;">❤️ ${m.nb_likes || 0}</button>
+                        </div>
+                    </div>
+                `).join('') || '<div class="empty-msg">Aucun message pour le moment — soyez le premier à écrire !</div>';
+            } catch (e) {
+                console.error('Erreur APE:', e);
+                document.getElementById('forum-list').innerHTML = '<div class="empty-msg">Erreur de chargement</div>';
+            }
+        }
+
+        async function publierForum(ev) {
+            ev.preventDefault();
+            const texte = document.getElementById('forum-texte').value.trim();
+            if (!texte) return false;
+            await fetch(`${API}/ape/forum`, { method: 'POST', headers: authHJson(), body: JSON.stringify({ contenu: texte }) });
+            document.getElementById('form-forum').reset();
+            loadForum();
+            return false;
+        }
+
+        async function likeForum(id) {
+            await fetch(`${API}/ape/forum/${id}/like`, { method: 'POST', headers: authH() });
+            loadForum();
+        }
+
+        // ============================================================
+        // PROJETS
+        // ============================================================
+        async function loadProjets() {
+            try {
+                const r = await fetch(`${API}/ape/projets`, { headers: authH() });
+                const d = await r.json();
+                document.getElementById('projets-list').innerHTML = (d.projets || []).map(p => `
+                    <div class="card" style="margin-bottom:10px;">
+                        <h4>${esc(p.titre)} <span class="tag-statut tag-EN_ATTENTE">${esc(p.statut)}</span></h4>
+                        <p style="color:var(--muted);font-size:.78rem;margin:6px 0;">${esc(p.description || '')}</p>
+                        <div style="font-size:.76rem;">💰 Budget : ${p.budget ? fmtFCFA(p.budget) : 'non défini'}</div>
+                        <div style="font-size:.76rem;">📅 ${fmtDate(p.date_debut)} → ${p.date_fin ? fmtDate(p.date_fin) : 'en cours'}</div>
+                    </div>
+                `).join('') || '<div class="empty-msg">Aucun projet en cours</div>';
+            } catch (e) {
+                console.error('Erreur APE:', e);
+                document.getElementById('projets-list').innerHTML = '<div class="empty-msg">Erreur de chargement</div>';
+            }
+        }
+
+        async function creerProjet(ev) {
+            ev.preventDefault();
+            const titre = document.getElementById('proj-titre').value.trim();
+            if (!titre) return false;
+            await fetch(`${API}/ape/projets`, {
+                method: 'POST', headers: authHJson(),
+                body: JSON.stringify({
+                    titre,
+                    description: document.getElementById('proj-desc').value || null,
+                    budget: parseFloat(document.getElementById('proj-budget').value) || null,
+                    date_fin: document.getElementById('proj-date-fin').value || null
+                })
+            });
+            document.getElementById('form-projet').reset();
+            loadProjets();
+            return false;
+        }
+
         function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+
+        // ============================================================
+        // INIT
+        // ============================================================
         document.getElementById('sb-nom').textContent = (currentUser.prenom || '') + ' ' + (currentUser.nom || '');
         document.getElementById('sb-mat').textContent = currentUser.code_unique || '';
-        loadDashboard();
+        // Chargement config école (logo) — même pattern que les autres pages
+        async function chargerConfigEcole() {
+            try {
+                const r = await fetch(`${API}/admin/config-public`);
+                const d = await r.json();
+                if (d.success && d.config) {
+                    if (d.config.logo_url) {
+                        document.querySelectorAll('.ecole-logo').forEach(el => {
+                            el.src = d.config.logo_url;
+                            el.classList.remove('hidden');
+                        });
+                    }
+                }
+            } catch (e) { console.warn('Config école non chargée:', e); }
+        }
+
+        document.getElementById('sb-nom').textContent = (currentUser.prenom || '') + ' ' + (currentUser.nom || '');
+        document.getElementById('sb-mat').textContent = currentUser.code_unique || '';
+        chargerConfigEcole();
+        (async () => { await initRole(); loadDashboard(); })();
+        initNotifications();
         if (window.lucide) lucide.createIcons();
     </script>
     <script src="responsive-init.js"></script>

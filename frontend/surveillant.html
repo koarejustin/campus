@@ -136,17 +136,19 @@
             }
         }
 
+        function escH(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
         function renderList(title, items, fields) {
             const container = document.getElementById('results');
-            container.innerHTML = `<div class=\"bg-white p-6 rounded-2xl border shadow-sm\"><h3 class=\"font-black mb-4\">${title}</h3>` +
-                (items.length === 0 ? '<p class=\"text-slate-500\">Aucun élément</p>' : '<ul class=\"space-y-2\">' + items.map(it => `<li class=\"p-3 bg-slate-50 rounded-lg border\">${fields.map(f => `<div><strong>${f.label}:</strong> ${it[f.key] || ''}</div>`).join('')} </li>`).join('') + '</ul>') + '</div>';
+            container.innerHTML = `<div class=\"bg-white p-6 rounded-2xl border shadow-sm\"><h3 class=\"font-black mb-4\">${escH(title)}</h3>` +
+                (items.length === 0 ? '<p class=\"text-slate-500\">Aucun élément</p>' : '<ul class=\"space-y-2\">' + items.map(it => `<li class=\"p-3 bg-slate-50 rounded-lg border\">${fields.map(f => `<div><strong>${escH(f.label)}:</strong> ${escH(it[f.key])}</div>`).join('')} </li>`).join('') + '</ul>') + '</div>';
         }
 
         document.getElementById('btnViewAbsences').addEventListener('click', async () => {
             try {
                 const res = await fetch('/api/surveillants/absences', { headers });
                 const d = await res.json();
-                renderList('Absences récentes', d.absences || [], [{ label: 'Élève', key: 'id_eleve' }, { label: 'Date', key: 'date_absence' }, { label: 'Motif', key: 'raison_absence' }]);
+                const items = (d.absences || []).map(it => ({ ...it, eleve_nom: `${it.prenom || ''} ${it.nom || ''}`.trim() || it.id_eleve, classe: it.classe_actuelle || '' }));
+                renderList('Absences récentes', items, [{ label: 'Élève', key: 'eleve_nom' }, { label: 'Classe', key: 'classe' }, { label: 'Date', key: 'date_absence' }, { label: 'Motif', key: 'raison_absence' }]);
             } catch (err) { alert('Erreur'); }
         });
 
@@ -154,7 +156,8 @@
             try {
                 const res = await fetch('/api/surveillants/convocations', { headers });
                 const d = await res.json();
-                renderList('Convocations', d.convocations || [], [{ label: 'Élève', key: 'id_eleve' }, { label: 'Sujet', key: 'sujet' }, { label: 'Date', key: 'date_convocation' }]);
+                const items = (d.convocations || []).map(it => ({ ...it, eleve_nom: `${it.prenom || ''} ${it.nom || ''}`.trim() || it.id_eleve }));
+                renderList('Convocations', items, [{ label: 'Élève', key: 'eleve_nom' }, { label: 'Sujet', key: 'sujet' }, { label: 'Date', key: 'date_convocation' }, { label: 'Statut', key: 'statut_accuse_label' }]);
             } catch (err) { alert('Erreur'); }
         });
 

@@ -1,2 +1,32 @@
 node_modules/
 .env
+
+# Clés Firebase — secrets serveur, ne jamais versionner
+config/secrets/
+mobile/android/app/google-services.json
+
+# ⚠️ Autres variantes de fichiers d'environnement — même règle que .env,
+# ne jamais versionner (JWT_SECRET, mot de passe de la base...)
+.env.local
+.env.*.local
+
+# Fichiers uploadés par les utilisateurs (photos, documents) — ne
+# devraient pas être dans le code source
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Logs
+*.log
+npm-debug.log*
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Config IDE (IntelliJ/Android Studio) — pas du code, propre à chaque poste
+.idea/
+
+# Environnement virtuel Python (si tu gardes le service séparé moteur_moyennes_bf.py)
+.venv/
+__pycache__/
+*.pyc

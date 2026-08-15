@@ -38,6 +38,16 @@ exports.createRelationMentorat = async (req, res) => {
             return res.status(404).json({ message: 'Élève introuvable' });
         }
 
+        // ✅ Mentorat réservé aux élèves de Terminale
+        const classeRes = await db.query(
+            `SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user = $1`,
+            [id_eleve]
+        );
+        const classe = (classeRes.rows[0]?.classe_actuelle || '').toUpperCase();
+        if (!classe.startsWith('TLE') && !classe.startsWith('TERMINALE')) {
+            return res.status(403).json({ message: 'Le mentorat est réservé aux élèves de Terminale.' });
+        }
+
         // Créer la relation
         const result = await db.query(`
             INSERT INTO gestion_ape.relations_mentorat
@@ -392,6 +402,18 @@ exports.getObjectifsMentorat = async (req, res) => {
 
         if (!userId) return res.status(401).json({ message: 'Non authentifié' });
 
+        // ✅ SÉCURITÉ : vérifie que l'appelant fait bien partie de cette
+        // relation de mentorat — avant ça, n'importe quel compte connecté
+        // pouvait lire les objectifs/notes privées d'un autre binôme en
+        // devinant un id_relation séquentiel.
+        const relationCheck = await db.query(`
+            SELECT id_relation FROM gestion_ape.relations_mentorat
+            WHERE id_relation = $1 AND (id_alumni = $2 OR id_eleve = $2)
+        `, [id_relation, userId]);
+        if (!relationCheck.rows.length) {
+            return res.status(403).json({ message: 'Accès non autorisé' });
+        }
+
         const result = await db.query(`
             SELECT * FROM gestion_ape.objectifs_mentorat
             WHERE id_relation = $1
@@ -418,6 +440,19 @@ exports.updateObjectifMentorat = async (req, res) => {
         const { statut, notes_alumni, notes_eleve } = req.body;
 
         if (!userId) return res.status(401).json({ message: 'Non authentifié' });
+
+        // ✅ SÉCURITÉ : vérifie que l'appelant fait bien partie de la relation
+        // de mentorat propriétaire de cet objectif — avant ça, n'importe quel
+        // compte connecté pouvait modifier le statut/les notes privées d'un
+        // autre binôme en devinant un id_objectif séquentiel.
+        const ownCheck = await db.query(`
+            SELECT om.id_objectif FROM gestion_ape.objectifs_mentorat om
+            JOIN gestion_ape.relations_mentorat rm ON rm.id_relation = om.id_relation
+            WHERE om.id_objectif = $1 AND (rm.id_alumni = $2 OR rm.id_eleve = $2)
+        `, [id_objectif, userId]);
+        if (!ownCheck.rows.length) {
+            return res.status(403).json({ message: 'Accès non autorisé' });
+        }
 
         const result = await db.query(`
             UPDATE gestion_ape.objectifs_mentorat
@@ -717,6 +752,17 @@ exports.requestMentorat = async (req, res) => {
         const eleveId = req.user?.id;
         const { id_alumni, message, domaines } = req.body;
         if (!eleveId) return res.status(401).json({ message: 'Non authentifié' });
+
+        // ✅ Mentorat réservé aux élèves de Terminale (Tle A / Tle D chez vous)
+        const classeRes = await db.query(
+            `SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user = $1`,
+            [eleveId]
+        );
+        const classe = (classeRes.rows[0]?.classe_actuelle || '').toUpperCase();
+        if (!classe.startsWith('TLE') && !classe.startsWith('TERMINALE')) {
+            return res.status(403).json({ message: 'Le mentorat est réservé aux élèves de Terminale.' });
+        }
+
         // Créer la table si besoin
         await db.query(`CREATE TABLE IF NOT EXISTS gestion_ape.demandes_mentorat (
             id_demande SERIAL PRIMARY KEY,

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const surveillantController = require('../controller/surveillantController');
 const authMiddleware = require('../middleware/authMiddleware');
+const { ensureRoleIn } = require('../middleware/authMiddleware');
+const dirOuSurv = ensureRoleIn(['DIRECTION', 'SURVEILLANT']);
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -33,7 +35,9 @@ const upload = multer({
 });
 
 // ============== DONNÉES ==============
-router.get('/eleves', authMiddleware, surveillantController.getElevesForClass);
+// ✅ SÉCURITÉ : n'importe quel compte connecté (élève, parent, alumni)
+// pouvait lister le nom + identifiant de connexion de toute une classe.
+router.get('/eleves', authMiddleware, dirOuSurv, surveillantController.getElevesForClass);
 
 // ============== STATISTIQUES ==============
 router.get('/stats', authMiddleware, surveillantController.getSurveillantStats);
@@ -42,6 +46,7 @@ router.get('/stats', authMiddleware, surveillantController.getSurveillantStats);
 router.post('/absences', authMiddleware, surveillantController.recordAbsence);
 router.get('/absences', authMiddleware, surveillantController.getAbsences);
 router.put('/absences/justification', authMiddleware, surveillantController.updateAbsenceJustification);
+router.delete('/absences/:id', authMiddleware, surveillantController.deleteAbsence);
 
 // ============== CONVOCATIONS ==============
 router.post('/convocations', authMiddleware, surveillantController.createConvocation);

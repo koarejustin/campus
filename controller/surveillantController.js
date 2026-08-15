@@ -870,3 +870,30 @@ exports.accuserReception = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur: ' + error.message });
     }
 };
+
+// ═══════════════════════════════════════════
+// SUPPRESSION D'UNE ABSENCE
+// (bouton "Supprimer" présent dans direction.html mais route absente
+// pour les deux rôles — DIRECTION passe par /admin/absences/:id, à
+// créer côté adminController le cas échéant)
+// ═══════════════════════════════════════════
+exports.deleteAbsence = async (req, res) => {
+    const role = req.user?.role;
+    if (!['SURVEILLANT', 'DIRECTION'].includes(role?.toUpperCase())) {
+        return res.status(403).json({ message: 'Accès refusé' });
+    }
+    try {
+        const { id } = req.params;
+        const result = await db.query(
+            `DELETE FROM gestion.absences WHERE id_absence = $1 RETURNING id_absence`,
+            [id]
+        );
+        if (!result.rows.length) {
+            return res.status(404).json({ message: 'Absence introuvable' });
+        }
+        res.json({ success: true, message: 'Absence supprimée' });
+    } catch (error) {
+        console.error('deleteAbsence:', error.message);
+        res.status(500).json({ message: 'Erreur: ' + error.message });
+    }
+};

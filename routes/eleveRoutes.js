@@ -4,35 +4,8 @@ const authMiddleware = require('../middleware/authMiddleware');
 const { ensureRole } = require('../middleware/authMiddleware');
 const eleveController = require('../controller/eleveController');
 const professeurController = require('../controller/professeurController');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
 const eleveAuth = [authMiddleware, ensureRole('ELEVE')];
-
-// ========== CONFIGURATION UPLOAD AUDIO ==========
-const audioDir = path.join(__dirname, '../public/uploads/audio');
-if (!fs.existsSync(audioDir)) fs.mkdirSync(audioDir, { recursive: true });
-
-const audioStorage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, audioDir),
-    filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname);
-        cb(null, `audio_${Date.now()}${ext}`);
-    }
-});
-
-const uploadAudio = multer({
-    storage: audioStorage,
-    limits: { fileSize: 10 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('audio/')) {
-            cb(null, true);
-        } else {
-            cb(new Error('Seuls les fichiers audio sont acceptés'));
-        }
-    }
-});
 
 // Bulletin et notes
 router.get('/bulletin', eleveAuth, eleveController.getBulletin);
@@ -61,11 +34,14 @@ router.get('/statistiques', eleveAuth, eleveController.getStatistiques);
 // Forum de classe
 router.get('/forum-classe', eleveAuth, eleveController.getForumClasse);
 router.post('/forum-classe', eleveAuth, eleveController.postForumClasse);
+router.post('/forum-reaction', eleveAuth, eleveController.toggleForumReaction);
 
 // Grand Élèves
 router.get('/grand-eleves', eleveAuth, eleveController.getGrandEleves);
 router.post('/grand-eleves', eleveAuth, eleveController.postGrandEleves);
 router.post('/grand-eleves/:postId/like', eleveAuth, eleveController.likeGrandEleves);
+router.get('/grand-eleves/:postId/commentaires', eleveAuth, eleveController.getCommentairesGrandEleves);
+router.post('/grand-eleves/:postId/commentaires', eleveAuth, eleveController.postCommentaireGrandEleves);
 
 // Inter-Classes
 router.get('/inter-classes', eleveAuth, eleveController.getInterClasses);
@@ -87,20 +63,13 @@ router.get('/professeur/:id', eleveAuth, professeurController.getProfilById);
 // Suppression de message (forum classe ou inter-classes)
 router.delete('/forum-message/:type/:messageId', eleveAuth, eleveController.deleteForumMessage);
 
-// Message vocal
-router.post('/message-vocal', eleveAuth, uploadAudio.single('audio'), eleveController.postMessageVocal);
-
-// Appels vidéo
-router.post('/video-call/create', eleveAuth, eleveController.creerSalleVideo);
-router.post('/video-call/join/:roomId', eleveAuth, eleveController.rejoindreSalleVideo);
-router.delete('/video-call/leave/:roomId', eleveAuth, eleveController.quitterSalleVideo);
-router.get('/video-call/active', eleveAuth, eleveController.getSallesActives);
-router.post('/video-call/signal', eleveAuth, eleveController.signalisationWebRTC);
-
 // Compositions et examens blancs
 router.get('/compositions', eleveAuth, eleveController.getCompositions);
 
 // ← AJOUTER CETTE LIGNE ICI
 router.get('/moyennes-avancees', eleveAuth, eleveController.getMoyennesAvancees);
+
+// Copies corrigées scannées (partagées par le prof)
+router.get('/copies-scannees', eleveAuth, eleveController.getMesCopiesScannees);
 
 module.exports = router;

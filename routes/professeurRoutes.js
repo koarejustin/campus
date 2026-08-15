@@ -1,11 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
+const { ensureRole } = require('../middleware/authMiddleware');
 const ctrl = require('../controller/professeurController');
 const db = require('../config/db');
 
+// ✅ SÉCURITÉ : ce fichier n'appliquait jusqu'ici que "es-tu connecté" (auth),
+// jamais "es-tu bien un professeur" — n'importe quel compte (élève, parent,
+// alumni) pouvait créer de faux devoirs, falsifier le cahier de texte, ou
+// uploader une fausse "copie corrigée" au nom d'un prof.
+router.use(authMiddleware, ensureRole('PROFESSEUR'));
+
 // ── Multer config ──
-let uploadFichier, uploadPhoto;
+let uploadFichier, uploadPhoto, uploadCopie;
 try {
     const multer = require('multer');
     const path = require('path');
@@ -28,6 +35,15 @@ try {
         filename: (req, file, cb) => {
             const ext = path.extname(file.originalname);
             cb(null, `photo_${req.user?.id || Date.now()}${ext}`);
+        }
+    });
+
+    // Storage pour copies corrigées scannées
+    const storageCopie = multer.diskStorage({
+        destination: (req, file, cb) => cb(null, uploadDir),
+        filename: (req, file, cb) => {
+            const ext = path.extname(file.originalname) || '.jpg';
+            cb(null, `copie_${Date.now()}${ext}`);
         }
     });
 
@@ -56,6 +72,16 @@ try {
         else cb(new Error('Seules les images sont acceptées pour la photo'), false);
     };
 
+    // ✅ Filtre dédié et strict pour les copies scannées : PDF ou image
+    // uniquement — contrairement à celui des ressources pédagogiques
+    // (qui accepte volontairement bien plus large), on ne veut ici que
+    // ce qui correspond réellement à une copie d'élève.
+    const copieFilter = (req, file, cb) => {
+        const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+        if (allowed.includes(file.mimetype)) cb(null, true);
+        else cb(new Error('Seuls les PDF et images sont acceptés pour une copie'), false);
+    };
+
     uploadFichier = multer({
         storage: storageFichier,
         limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo max
@@ -68,11 +94,18 @@ try {
         fileFilter: photoFilter
     });
 
+    uploadCopie = multer({
+        storage: storageCopie,
+        limits: { fileSize: 15 * 1024 * 1024 }, // 15 Mo max — une photo de copie suffit largement
+        fileFilter: copieFilter
+    });
+
 } catch (e) {
     console.error('Multer non disponible:', e.message);
     const noop = { single: () => (req, res, next) => next() };
     uploadFichier = noop;
     uploadPhoto = noop;
+    uploadCopie = noop;
 }
 
 // ── Gestion erreurs multer ──
@@ -118,6 +151,10 @@ router.put('/devoirs/:id', authMiddleware, ctrl.updateDevoir);
 router.delete('/devoirs/:id', authMiddleware, ctrl.deleteDevoir);
 // ── Annonces reçues (lecture seule) ──
 router.get('/annonces', authMiddleware, ctrl.getAnnonces);
+
+// ── Copies corrigées scannées ──
+router.post('/copies-scannees', authMiddleware, handleUpload(uploadCopie.single('scan')), ctrl.uploadCopieScannee);
+router.get('/copies-scannees', authMiddleware, ctrl.getCopiesScannees);
 // ========== MES CLASSES ET MATIERES ==========
 router.get('/mes-classes', authMiddleware, async (req, res) => {
     try {

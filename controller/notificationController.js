@@ -83,6 +83,20 @@ exports.getUnreadCount = async (req, res) => {
     }
 };
 
+exports.registerFcmToken = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { token, plateforme } = req.body;
+        if (!token) return res.status(400).json({ success: false, message: 'Token requis' });
+
+        const ok = await notificationService.registerFcmToken(userId, token, plateforme || 'android');
+        res.json({ success: ok });
+    } catch (err) {
+        console.error('Erreur registerFcmToken:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
 exports.deleteNotification = async (req, res) => {
     try {
         const userId = req.user.id;

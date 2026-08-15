@@ -2,6 +2,7 @@
 // CAMPUS NUMÉRIQUE FASO — services/notificationService.js
 // ================================================================
 const db = require('../config/db');
+const firebaseAdmin = require('./firebaseAdmin');
 
 // S'assurer que la table a les bonnes colonnes (migration auto)
 async function ensureColumns() {
@@ -11,11 +12,36 @@ async function ensureColumns() {
         await db.query(`ALTER TABLE gestion.notifications ADD COLUMN IF NOT EXISTS est_lu BOOLEAN NOT NULL DEFAULT false`);
         // Compatibilité : si la colonne s'appelle "lue" au lieu de "est_lu"
         await db.query(`ALTER TABLE gestion.notifications ADD COLUMN IF NOT EXISTS lue BOOLEAN NOT NULL DEFAULT false`);
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS authentification.fcm_tokens (
+                id_user UUID NOT NULL,
+                token TEXT NOT NULL,
+                plateforme VARCHAR(20) DEFAULT 'android',
+                updated_at TIMESTAMP DEFAULT NOW(),
+                PRIMARY KEY (id_user, token)
+            )
+        `);
     } catch (e) {
         // Silencieux
     }
 }
 ensureColumns().catch(() => {});
+
+// ── Enregistrer/rafraîchir le token FCM d'un appareil (un utilisateur peut
+// avoir plusieurs appareils, donc plusieurs tokens) ──
+exports.registerFcmToken = async (idUser, token, plateforme = 'android') => {
+    try {
+        await db.query(`
+            INSERT INTO authentification.fcm_tokens (id_user, token, plateforme, updated_at)
+            VALUES ($1, $2, $3, NOW())
+            ON CONFLICT (id_user, token) DO UPDATE SET updated_at = NOW(), plateforme = $3
+        `, [idUser, token, plateforme]);
+        return true;
+    } catch (err) {
+        console.error('registerFcmToken error:', err.message);
+        return false;
+    }
+};
 
 // ── Envoyer une notification à un ou plusieurs utilisateurs ──
 // destinataires : UUID string OU tableau de UUID
@@ -45,6 +71,24 @@ exports.sendNotification = async (destinataires, type, titre, contenu, lien = nu
                 }
             }
         } catch (e) { /* Socket.IO optionnel */ }
+
+        // Envoyer en push mobile (Firebase) si des tokens sont enregistrés —
+        // ne bloque jamais la notification in-app si Firebase est absent/échoue.
+        if (firebaseAdmin.isEnabled()) {
+            try {
+                const tokRes = await db.query(
+                    `SELECT token FROM authentification.fcm_tokens WHERE id_user = ANY($1::uuid[])`,
+                    [ids]
+                );
+                const tokens = tokRes.rows.map(r => r.token);
+                if (tokens.length) {
+                    const { invalides } = await firebaseAdmin.sendPush(tokens, { title: titre, body: contenu, data: { type, lien: lien || '' } });
+                    if (invalides.length) {
+                        await db.query(`DELETE FROM authentification.fcm_tokens WHERE token = ANY($1::text[])`, [invalides]);
+                    }
+                }
+            } catch (e) { /* push optionnel */ }
+        }
 
         return true;
     } catch (err) {

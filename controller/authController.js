@@ -32,7 +32,7 @@ exports.login = async (req, res) => {
             // Générer le Token après activation
             const token = jwt.sign(
                 { id: user.id_user, role: user.role_actuel, classe: user.classe_actuelle },
-                process.env.JWT_SECRET || 'ma_cle_secrete',
+                process.env.JWT_SECRET,
                 { expiresIn: '24h' }
             );
 
@@ -84,7 +84,7 @@ exports.login = async (req, res) => {
         // Génération du Token
         const token = jwt.sign(
             { id: user.id_user, role: user.role_actuel, classe: user.classe_actuelle },
-            process.env.JWT_SECRET || 'ma_cle_secrete',
+            process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
 

@@ -1260,7 +1260,7 @@
       </div>
       <div class="ni-sep"></div>
       <div class="sb-grp">Avenir</div>
-      <div class="ni" onclick="goPage('mentorat-eleve')" id="ni-mentorat">
+      <div class="ni" onclick="goPage('mentorat-eleve')" id="ni-mentorat" style="display:none;">
         <svg viewBox="0 0 24 24">
           <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"
             fill="none" stroke="currentColor" stroke-width="2" />
@@ -1395,6 +1395,10 @@
           <div class="skeleton" style="height:14px;margin-bottom:10px;width:85%;"></div>
           <div class="skeleton" style="height:14px;width:70%;"></div>
         </div>
+      </div>
+      <div class="card" id="copies-scan-card" style="display:none;margin-top:14px;">
+        <div style="font-weight:800;font-size:.85rem;margin-bottom:10px;">📎 Copies corrigées</div>
+        <div id="copies-scan-list"></div>
       </div>
     </div>
 
@@ -1639,59 +1643,31 @@
       <div id="view-no-mentor" style="display:none;gap:16px;flex-direction:column;">
 
         <!-- Bannière invitation -->
-        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:16px;padding:20px;color:#fff;text-align:center;">
+        <div id="alumni-banniere" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:16px;padding:20px;color:#fff;text-align:center;">
           <div style="font-size:2rem;margin-bottom:8px;">🤝</div>
-          <div style="font-size:1.05rem;font-weight:700;margin-bottom:4px;">Trouvez votre mentor</div>
-          <div style="font-size:0.82rem;opacity:0.85;">Un ancien élève de votre école, prêt à vous guider vers votre avenir.</div>
+          <div id="alumni-banniere-titre" style="font-size:1.05rem;font-weight:700;margin-bottom:4px;">Trouvez votre mentor</div>
+          <div id="alumni-banniere-sous-titre" style="font-size:0.82rem;opacity:0.85;">Un ancien élève de votre école, prêt à vous guider vers votre avenir.</div>
         </div>
 
         <!-- Liste des alumni disponibles -->
         <div class="card">
           <div class="card-hd" style="gap:8px;flex-wrap:wrap;">
-            <div class="card-hd-title">👥 Alumni disponibles</div>
+            <div class="card-hd-title" id="alumni-list-titre">👥 Alumni disponibles</div>
             <div id="alumni-count" style="font-size:0.75rem;color:var(--muted);"></div>
           </div>
           <div style="font-size:0.82rem;color:var(--muted);margin-bottom:12px;line-height:1.4;">
-            Cliquez sur un alumni pour lui envoyer votre demande ou utilisez la demande ouverte si vous n’avez pas de préférence.
+            Cliquez sur "Demander" pour envoyer votre demande à un alumni précis, ou "Envoyer une demande ouverte" si vous n'avez pas de préférence.
           </div>
-          <div id="alumni-list-container">
+          <input type="text" id="alumni-search" placeholder="🔍 Rechercher par nom, profession ou domaine..."
+            oninput="filtrerListeAlumni(this.value)"
+            style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;margin-bottom:14px;outline:none;">
+          <div id="alumni-list-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
             <div class="empty"><div class="empty-icon">⏳</div><div class="empty-txt">Chargement des alumni...</div></div>
           </div>
-        </div>
-
-        <!-- Formulaire demande de mentorat -->
-        <div class="card" id="form-demande-card" style="display:none;">
-          <div class="card-hd-title" style="margin-bottom:14px;">✉️ Envoyer une demande</div>
-          <div id="demande-alumni-info" style="display:flex;align-items:center;gap:12px;padding:12px;background:#F8FAFC;border-radius:10px;margin-bottom:14px;"></div>
-
-          <div style="margin-bottom:12px;">
-            <label style="font-size:0.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Domaines d'aide souhaités</label>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;" id="domaines-checkboxes">
-              <label class="domaine-chip"><input type="checkbox" value="Orientation"> 🎯 Orientation</label>
-              <label class="domaine-chip"><input type="checkbox" value="Révisions"> 📚 Révisions</label>
-              <label class="domaine-chip"><input type="checkbox" value="Motivation"> 💪 Motivation</label>
-              <label class="domaine-chip"><input type="checkbox" value="Méthodologie"> 🧠 Méthodologie</label>
-              <label class="domaine-chip"><input type="checkbox" value="Carrière"> 🚀 Carrière</label>
-            </div>
+          <div id="alumni-load-more-wrap" style="display:none;text-align:center;margin-top:14px;">
+            <button class="btn-p" onclick="afficherPlusAlumni()" style="background:none;border:1.5px solid var(--border);color:var(--text);">Afficher plus</button>
           </div>
-
-          <div style="margin-bottom:14px;">
-            <label style="font-size:0.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Votre message <span style="opacity:0.6;">(optionnel)</span></label>
-            <textarea id="demande-message" rows="3" placeholder="Expliquez brièvement pourquoi vous souhaitez ce mentor…"
-              style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;resize:none;box-sizing:border-box;outline:none;"></textarea>
-          </div>
-
-          <div style="display:flex;gap:10px;">
-            <button class="btn-p" onclick="envoyerDemandeMentorat()" style="flex:1;">📤 Envoyer la demande</button>
-            <button onclick="annulerDemande()" style="padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;background:none;cursor:pointer;font-weight:600;">Annuler</button>
-          </div>
-        </div>
-
-        <!-- Demande envoyée : confirmation -->
-        <div id="demande-envoyee-banner" style="display:none;background:#F0FDF4;border:1.5px solid #86EFAC;border-radius:14px;padding:16px;text-align:center;">
-          <div style="font-size:1.5rem;margin-bottom:6px;">✅</div>
-          <div style="font-weight:700;color:#166534;">Demande envoyée !</div>
-          <div style="font-size:0.82rem;color:#166534;margin-top:4px;">Un alumni pourra accepter votre demande prochainement.</div>
+          <button onclick="ouvrirModalConseil()" style="width:100%;margin-top:14px;padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;background:none;cursor:pointer;font-weight:600;">📢 Envoyer une demande ouverte (n'importe quel alumni)</button>
         </div>
       </div>
 
@@ -1748,9 +1724,19 @@
 
     <!-- ── MODALES (hors des pages .pg pour rester utilisables depuis n'importe quel onglet) ── -->
     <div id="modal-conseil" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:16px;">
-      <div style="background:#fff;border-radius:18px;padding:22px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+      <div style="background:#fff;border-radius:18px;padding:22px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;">
+        <div id="conseil-succes" style="display:none;text-align:center;padding:20px 0;">
+          <div style="font-size:2.4rem;margin-bottom:10px;">✅</div>
+          <div style="font-weight:800;font-size:1rem;color:#166534;">Demande envoyée !</div>
+        </div>
+        <div id="conseil-form-body">
         <div style="font-size:1rem;font-weight:800;margin-bottom:4px;">✉️ Demander un conseil</div>
-        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:16px;">Votre message sera transmis à votre mentor.</div>
+        <div style="margin-bottom:12px;">
+          <label style="font-size:0.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Destinataire</label>
+          <select id="conseil-destinataire" onchange="_majApercuDestinataireConseil()"
+            style="width:100%;box-sizing:border-box;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;outline:none;"></select>
+        </div>
+        <div id="conseil-apercu-destinataire" style="font-size:0.78rem;color:var(--muted);margin-bottom:14px;"></div>
         <div style="margin-bottom:12px;">
           <label style="font-size:0.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Domaines concernés</label>
           <div style="display:flex;flex-wrap:wrap;gap:8px;">
@@ -1762,11 +1748,13 @@
           </div>
         </div>
         <textarea id="conseil-message" rows="4" placeholder="Décrivez votre question ou situation…"
-          style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;resize:none;box-sizing:border-box;outline:none;margin-bottom:14px;"></textarea>
+          style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;resize:none;box-sizing:border-box;outline:none;margin-bottom:6px;"></textarea>
+        <div id="conseil-erreur" style="display:none;color:#DC2626;font-size:0.78rem;margin-bottom:8px;"></div>
         <div style="display:flex;gap:10px;">
           <button class="btn-p" onclick="envoyerConseil()" style="flex:1;">📤 Envoyer</button>
           <button onclick="document.getElementById('modal-conseil').style.display='none'"
             style="padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;background:none;cursor:pointer;font-weight:600;">Annuler</button>
+        </div>
         </div>
       </div>
     </div>
@@ -1841,12 +1829,25 @@
       return status === 'ACCUSE_RECU' || String(c?.statut || '').toUpperCase() === 'ACCUSERECU' || c?.accuse_recu === true;
     };
 
+    // ✅ atob() seul décode le base64 en octets bruts, sans reconstituer les
+    // caractères accentués (UTF-8 multi-octets) — "6ème" redevenait "6Ã¨me"
+    // après décodage, ce qui cassait la comparaison de classe juste après et
+    // provoquait un faux "Session invalide" pour les classes avec un accent
+    // (6ème, 5ème, 4ème, 3ème, 1ère...). Cette version gère l'UTF-8 correctement.
+    function decodeJwtPayload(tok) {
+      const base64 = tok.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(
+        atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+      );
+      return JSON.parse(json);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       // ══ SÉCURITÉ : Guard de rôle strict ══
       if (!token) { window.location.href = 'login.html'; return; }
       // Décoder le token JWT pour vérifier le rôle réel (côté backend)
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
+        const payload = decodeJwtPayload(token);
         // 1. Vérifier que c'est bien un ÉLÈVE
         if (!payload.role || payload.role !== 'ELEVE') {
           localStorage.clear();
@@ -1888,6 +1889,13 @@
       document.getElementById('sb-classe').textContent = classe;
       document.getElementById('dash-prenom').textContent = currentUser.prenom || 'Élève';
       document.getElementById('dash-classe-sub').textContent = `Classe : ${classe} · Année scolaire 2025-2026`;
+      // ✅ Mentorat réservé aux Terminale (Tle A / Tle D) — l'onglet
+      // n'apparaît que si c'est vraiment le cas, pour ne pas montrer une
+      // fonctionnalité que le serveur refusera de toute façon à la fin.
+      if (classe.toUpperCase().startsWith('TLE')) {
+        const ni = document.getElementById('ni-mentorat');
+        if (ni) ni.style.display = '';
+      }
       loadDashboard();
       initInterClasses();
       initForumClasse();
@@ -1926,6 +1934,12 @@
 
     function authH() { return { 'Authorization': `Bearer ${getStoredToken()}` }; }
     function escHtml(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    // Produit un littéral JS entre guillemets SIMPLES, sûr à insérer dans un
+    // attribut onclick="..." (double-guillemets) sans jamais le casser —
+    // contrairement à JSON.stringify() qui produit des guillemets doubles.
+    function jsQuote(s) {
+      return "'" + String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+    }
     function showBadge(id, val) { const b = document.getElementById(id); if (b) { b.textContent = val; b.style.display = ''; } }
     function logout() { localStorage.clear(); window.location.href = 'login.html'; }
 
@@ -1961,7 +1975,7 @@
           fetch(`${API}/eleves/convocations`, { headers: authH() }).then(r => r.json()),
           fetch(`${API}/eleves/ressources`, { headers: authH() }).then(r => r.json()),
           fetch(`${API}/eleves/annonces`, { headers: authH() }).then(r => r.json()),
-          fetch(`${API}/eleves/bulletin?trimestre=${document.getElementById('dash-tri')?.value || 1}`, { headers: authH() }).then(r => r.json())
+          fetch(`${API}/eleves/moyennes-avancees?trimestre=${document.getElementById('dash-tri')?.value || 1}`, { headers: authH() }).then(r => r.json())
         ]);
 
         const stats = statsR.status === 'fulfilled' ? statsR.value : {};
@@ -1998,7 +2012,10 @@
       const el = document.getElementById('dash-notes-list');
       if (!el) return;
 
-      const notes = bulletinData.notes_par_matiere || [];
+      // Format renvoyé par /eleves/moyennes-avancees : detail_matieres est un tableau [{nom, coefficient, moyenne, mention}, ...]
+      const notes = (bulletinData.detail_matieres || [])
+        .map(d => ({ matiere: d.nom, moyenne: d.moyenne, coefficient: d.coefficient }))
+        .filter(n => n.moyenne !== null && n.moyenne !== undefined);
 
       if (!notes.length) {
         el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Aucune note pour ce trimestre</div></div>';
@@ -2008,10 +2025,10 @@
       const topNotes = notes.slice(0, 4);
 
       el.innerHTML = topNotes.map(n => {
-        const v = parseFloat(n.note_moyenne || n.moyenne || 0);
+        const v = parseFloat(n.moyenne || 0);
         const pct = Math.min(v / 20 * 100, 100);
         const color = v >= 14 ? '#10B981' : v >= 10 ? '#3B49DF' : '#EF4444';
-        const matiere = n.matiere || n.libelle_matiere || 'Matière';
+        const matiere = n.matiere || 'Matière';
         return `
             <div class="mat-row" style="padding: 8px 0;">
                 <div class="mat-name" style="font-size: 0.75rem;">${escHtml(matiere)}</div>
@@ -2034,141 +2051,7 @@
     }
 
 
-    // ==================== GRAPHIQUE ÉVOLUTION DES MOYENNES ====================
-    async function loadEvoChartWithRealData() {
-      const chartEl = document.getElementById('chart-evo');
-      if (!chartEl) return;
-
-      try {
-        const [t1, t2, t3] = await Promise.all([
-          fetch(`${API}/eleves/bulletin?trimestre=1`, { headers: authH() }).then(r => r.json()),
-          fetch(`${API}/eleves/bulletin?trimestre=2`, { headers: authH() }).then(r => r.json()),
-          fetch(`${API}/eleves/bulletin?trimestre=3`, { headers: authH() }).then(r => r.json())
-        ]);
-
-        const moyT1 = t1.eleve?.moyenne_generale ? parseFloat(t1.eleve.moyenne_generale) : null;
-        const moyT2 = t2.eleve?.moyenne_generale ? parseFloat(t2.eleve.moyenne_generale) : null;
-        const moyT3 = t3.eleve?.moyenne_generale ? parseFloat(t3.eleve.moyenne_generale) : null;
-
-        const labels = [];
-        const data = [];
-
-        if (moyT1 !== null) { labels.push('T1'); data.push(moyT1); }
-        if (moyT2 !== null) { labels.push('T2'); data.push(moyT2); }
-        if (moyT3 !== null) { labels.push('T3'); data.push(moyT3); }
-
-        if (data.length === 0) {
-          labels.push('T1', 'T2', 'T3');
-          data.push(12.5, 13.2, 14.8);
-        }
-
-        const ctx = chartEl.getContext('2d');
-
-        if (window.evoChart) {
-          window.evoChart.destroy();
-        }
-
-        window.evoChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: labels,
-            datasets: [{
-              label: 'Moyenne générale',
-              data: data,
-              borderColor: '#3B49DF',
-              backgroundColor: 'rgba(59,73,223,0.1)',
-              borderWidth: 3,
-              tension: 0.3,
-              pointBackgroundColor: '#3B49DF',
-              pointBorderColor: '#fff',
-              pointBorderWidth: 2,
-              pointRadius: 5,
-              pointHoverRadius: 7,
-              fill: true
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: function (context) {
-                    return `Moyenne: ${context.parsed.y.toFixed(2)}/20`;
-                  }
-                }
-              }
-            },
-            scales: {
-              y: {
-                min: 0,
-                max: 20,
-                title: {
-                  display: true,
-                  text: 'Note /20',
-                  font: { size: 10, weight: 'bold' },
-                  color: '#94A3B8'
-                },
-                grid: { color: 'rgba(0,0,0,0.05)' },
-                ticks: { stepSize: 5, font: { size: 10 } }
-              },
-              x: {
-                title: {
-                  display: true,
-                  text: 'Trimestre',
-                  font: { size: 10, weight: 'bold' },
-                  color: '#94A3B8'
-                },
-                grid: { display: false },
-                ticks: { font: { size: 11, weight: 'bold' } }
-              }
-            }
-          }
-        });
-
-      } catch (e) {
-        console.warn('Erreur chargement graphique:', e);
-        const ctx = chartEl.getContext('2d');
-        if (window.evoChart) window.evoChart.destroy();
-        window.evoChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: ['T1', 'T2', 'T3'],
-            datasets: [{
-              label: 'Moyenne générale',
-              data: [12.5, 13.2, 14.8],
-              borderColor: '#3B49DF',
-              backgroundColor: 'rgba(59,73,223,0.1)',
-              borderWidth: 3,
-              tension: 0.3,
-              fill: true
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { min: 0, max: 20 } }
-          }
-        });
-      }
-    }
-
-    // ==================== BULLETIN ====================
-    async function loadBulletinPage() {
-      const tri = document.getElementById('bul-tri')?.value || 1;
-      try {
-        const r = await fetch(`${API}/eleves/bulletin`, { headers: authH() });
-        const data = await r.json();
-        const e = data.eleve || {};
-        const moy = parseFloat(e.moyenne_generale || 0);
-        document.getElementById('bul-resume').innerHTML = `<div class="kpi" style="padding:14px;"><div class="kpi-label">Classe</div><div style="font-size:1.3rem;font-weight:900;">${e.classe || '--'}</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Moyenne Générale</div><div style="font-size:1.3rem;font-weight:900;color:${moy >= 10 ? 'var(--green)' : 'var(--red)'}">${moy.toFixed(2)}/20</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Trimestre</div><div style="font-size:1.3rem;font-weight:900;">${data.trimestre || tri}</div></div>`;
-        const notes = data.notes_par_matiere || [];
-        if (!notes.length) { document.getElementById('bul-content').innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-txt">Aucune note pour ce trimestre</div></div>'; return; }
-        document.getElementById('bul-content').innerHTML = `<table class="tbl"><thead><tr><th>Matière</th><th>Coeff</th><th>Moyenne</th><th>Nb Évals</th><th>Appréciation</th></tr></thead><tbody>${notes.map(n => { const v = parseFloat(n.note_moyenne || n.moyenne || 0); const pct = Math.min(v / 20 * 100, 100); const color = v >= 14 ? 'var(--green)' : v >= 10 ? 'var(--accent)' : 'var(--red)'; const apprec = v >= 16 ? 'Très Bien' : v >= 14 ? 'Bien' : v >= 12 ? 'Assez Bien' : v >= 10 ? 'Passable' : 'Insuffisant'; const badgeClass = v >= 14 ? 'badge-ok' : v >= 10 ? 'badge-blue' : 'badge-red'; return `<tr><td style="font-weight:600">${n.matiere || n.libelle_matiere || '—'}</td><td><span class="badge-gray">×${n.coefficient || 1}</span></td><td><div style="display:flex;align-items:center;gap:8px;"><span style="font-weight:900;color:${color}">${v.toFixed(2)}</span><div class="mat-bar-wrap"><div class="mat-bar" style="width:${pct}%;background:${color};"></div></div></div></td><td>${n.nb_evaluations || 0}</td><td><span class="${badgeClass}">${apprec}</span></td></tr>`; }).join('')}</tbody></table>`;
-      } catch (e) { document.getElementById('bul-content').innerHTML = `<div style="background:#FEE2E2;border:1px solid #FECACA;border-radius:10px;padding:14px;">⚠️ Erreur : ${e.message}</div>`; }
-    }
+    // ==================== BULLETIN (widget résumé + graphique évolution gérés par la version 'live' plus bas) ====================
     async function loadBulletinTri() { await loadBulletinPage(); }
 
     // ==================== ABSENCES ====================
@@ -2350,9 +2233,10 @@
               const thumb = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
               return `<div class="res-card" onclick="openRessource('${v.id}','${url}')" style="cursor:pointer;padding:8px;flex-direction:column;"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;position:relative;background:#000"><img src="${thumb}" alt="${title}" style="width:100%;height:100%;object-fit:cover;display:block;"/><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:28px;opacity:0.95;">▶️</div></div><div style="margin-top:8px;"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
             }
-            // Direct video file
+            // Direct video file — bouton ▶️ visible et cliquable (avant : juste un
+            // survol de souris pour prévisualiser, invisible et inutilisable au tactile/mobile).
             if (/\.(mp4|webm|mov)$/i.test(v.url||'')) {
-              return `<div class="res-card" style="padding:8px;flex-direction:column;"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;background:#000"><video muted loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;" onmouseover="this.play()" onmouseout="this.pause()"><source src="${url}" type="video/mp4">${title}</video></div><div style="margin-top:8px;cursor:pointer;" onclick="openRessource('${v.id}','${url}')"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
+              return `<div class="res-card" style="padding:8px;flex-direction:column;cursor:pointer;" onclick="openRessource('${v.id}','${url}')"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;position:relative;background:#000"><video muted loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"><source src="${url}" type="video/mp4">${title}</video><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-size:20px;">▶️</div></div><div style="margin-top:8px;"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
             }
             // fallback link
             return `<div class="res-card" onclick="openRessource('${v.id}','${url}')"><div class="res-icon" style="background:#EEF2FF;">🎬</div><div><div class="res-title">${title}</div><div class="res-meta">${meta}</div></div></div>`;
@@ -2366,14 +2250,48 @@
       box.innerHTML = html;
     }
 
-    function openRessource(id, url) {
+    // ✅ Les vidéos s'ouvraient dans un nouvel onglet (window.open), ce qui
+    // déclenche la page d'avertissement de ngrok (version gratuite) sur
+    // chaque nouvelle navigation directe — bloquant la lecture sur mobile.
+    // Un lecteur intégré à la page contourne complètement ce problème.
+    function openRessource(id, url, type) {
       if (!url || url === 'null' || url === '') { alert('Aucun fichier attaché à cette ressource.'); return; }
       const SERVER = window.SERVER_BASE || 'http://localhost:5000';
       const fullUrl = url.startsWith('http') ? url : SERVER + url;
+      const isVideoFile = type === 'video' || /\.(mp4|webm|mov)$/i.test(url);
+      if (isVideoFile) {
+        playVideoInline(fullUrl);
+        return;
+      }
       const newWindow = window.open(fullUrl, '_blank', 'noopener,noreferrer');
       if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
         window.location.href = fullUrl;
       }
+    }
+
+    function playVideoInline(url) {
+      let modal = document.getElementById('video-modal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'video-modal';
+        modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;align-items:center;justify-content:center;padding:16px;';
+        modal.innerHTML = `
+          <div style="position:relative;width:100%;max-width:900px;">
+            <button onclick="closeVideoModal()" style="position:absolute;top:-40px;right:0;background:none;border:none;color:#fff;font-size:1.6rem;cursor:pointer;">✕</button>
+            <video id="video-modal-player" controls autoplay style="width:100%;border-radius:12px;background:#000;max-height:80vh;"></video>
+          </div>`;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', e => { if (e.target === modal) closeVideoModal(); });
+      }
+      document.getElementById('video-modal-player').src = url;
+      modal.style.display = 'flex';
+    }
+
+    function closeVideoModal() {
+      const modal = document.getElementById('video-modal');
+      const player = document.getElementById('video-modal-player');
+      if (player) { player.pause(); player.src = ''; }
+      if (modal) modal.style.display = 'none';
     }
 
     // ==================== FORUM DE CLASSE ====================
@@ -2400,7 +2318,9 @@
           time: m.time || '',
           reply_to: m.reply_to || null,
           initiales: m.initiales || (m.nom_auteur || '?')[0].toUpperCase(),
-          color: '#' + ((parseInt(m.id_auteur || 0) * 2654435761) % 0xFFFFFF).toString(16).padStart(6, '0').slice(0, 6) || '#7C3AED'
+          color: '#' + ((parseInt(m.id_auteur || 0) * 2654435761) % 0xFFFFFF).toString(16).padStart(6, '0').slice(0, 6) || '#7C3AED',
+          reactions: m.reactions || {},
+          ma_reaction: m.ma_reaction || null
         }));
         renderThread('fc-thread', forumMsgs, 'classe');
       } catch (e) {
@@ -2446,23 +2366,96 @@
             <div style="color:#64748B;margin-top:2px;">${escHtml((cited.texte || '').slice(0, 80))}${(cited.texte || '').length > 80 ? '…' : ''}</div>
           </div>` : '';
 
+        const msgDataAttrs = `data-msgtype="${type || 'classe'}" data-msgid="${m.id}" data-auteur="${escHtml(m.auteur || 'Vous').replace(/"/g, '&quot;')}" data-texte="${escHtml(m.texte).replace(/"/g, '&quot;')}" data-moi="${m.moi ? '1' : '0'}"`;
+
+        const reacts = [['like', '👍'], ['love', '❤️'], ['dislike', '👎'], ['angry', '😠']];
+        const reactionsHtml = reacts.map(([t, emoji]) => {
+          const n = (m.reactions || {})[t] || 0;
+          const active = m.ma_reaction === t;
+          return `<button onclick="toggleForumReaction(event,'${type}',${m.id},'${t}')" style="border:${active ? '1px solid #4F46E5' : '1px solid transparent'};background:${active ? 'rgba(79,70,229,.12)' : 'rgba(148,163,184,.12)'};border-radius:10px;padding:2px 6px;font-size:.7rem;cursor:pointer;display:inline-flex;align-items:center;gap:3px;">${emoji}${n ? `<span style="font-size:.65rem;font-weight:700;color:#64748B;">${n}</span>` : ''}</button>`;
+        }).join(' ');
+
         return `<div class="msg-bubble ${m.moi ? 'me' : ''}" id="msg-${m.id}" style="position:relative;">
           <div class="msg-avatar" style="background:${m.color}">${m.initiales}</div>
           <div class="msg-body">
             <div class="msg-name">${m.moi ? 'Vous' : escHtml(m.auteur)}</div>
-            <div class="msg-txt ${m.moi ? 'mine' : 'other'}" style="position:relative;">
+            <div class="msg-txt ${m.moi ? 'mine' : 'other'}" style="position:relative;cursor:pointer;" onclick="ouvrirMenuMessage(event, this)" ${msgDataAttrs}>
               ${citedHtml}
               <span>${escHtml(m.texte)}</span>
-              <button onclick="setReply('${type || 'classe'}',${m.id},'${escHtml(m.auteur || 'Vous').replace(/'/g, "\'")}','${escHtml(m.texte).replace(/'/g, "\'")}')"
-                title="Répondre"
-                style="position:absolute;top:4px;right:6px;background:none;border:none;cursor:pointer;font-size:0.75rem;opacity:0.5;padding:0;line-height:1;"
-                onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.5'">↩️</button>
             </div>
             <div class="msg-time">${m.time}</div>
+            <div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap;">${reactionsHtml}</div>
           </div>
         </div>`;
       }).join('');
       el.scrollTop = el.scrollHeight;
+    }
+
+    // ── Réactions multiples sur un message (forum de classe / inter-classes) ──
+    async function toggleForumReaction(ev, type, msgId, reactionType) {
+      ev.stopPropagation();
+      try {
+        await fetch(`${API}/eleves/forum-reaction`, {
+          method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type_forum: type, id_message: msgId, type_reaction: reactionType })
+        });
+      } catch (e) { }
+      if (type === 'classe') { loadForumClasse(); } else { reloadInterThread(currentInterClasse); }
+    }
+
+    // ── Menu contextuel au clic sur un message (façon WhatsApp) ──
+    function ouvrirMenuMessage(ev, el) {
+      ev.stopPropagation();
+      document.getElementById('menu-message')?.remove();
+
+      const type = el.dataset.msgtype;
+      const msgId = el.dataset.msgid;
+      const auteur = el.dataset.auteur;
+      const texte = el.dataset.texte;
+      const moi = el.dataset.moi === '1';
+
+      const menu = document.createElement('div');
+      menu.id = 'menu-message';
+      menu.style.cssText = `
+        position:fixed;z-index:9999;background:#fff;border-radius:12px;
+        box-shadow:0 8px 28px rgba(0,0,0,0.18);border:1px solid rgba(15,23,42,0.08);
+        min-width:190px;overflow:hidden;padding:6px 0;
+      `;
+      const rect = el.getBoundingClientRect();
+      const top = Math.min(rect.bottom + 6, window.innerHeight - 160);
+      const left = Math.min(rect.left, window.innerWidth - 200);
+      menu.style.top = top + 'px';
+      menu.style.left = left + 'px';
+
+      const itemStyle = 'padding:10px 16px;font-size:0.82rem;cursor:pointer;display:flex;align-items:center;gap:8px;';
+      let html = `<div style="${itemStyle}" onclick="setReply('${type}',${msgId},'${auteur.replace(/'/g, "\\'")}','${texte.replace(/'/g, "\\'")}');fermerMenuMessage();">↩️ Répondre</div>`;
+      if (moi) {
+        html += `<div style="${itemStyle}" onclick="supprimerMessage('${type}',${msgId},false);fermerMenuMessage();">🗑️ Supprimer pour moi</div>`;
+        html += `<div style="${itemStyle}color:#DC2626;" onclick="supprimerMessage('${type}',${msgId},true);fermerMenuMessage();">🗑️ Supprimer pour tout le monde</div>`;
+      } else {
+        html += `<div style="${itemStyle}" onclick="supprimerMessage('${type}',${msgId},false);fermerMenuMessage();">🗑️ Supprimer pour moi</div>`;
+      }
+      menu.innerHTML = html;
+      document.body.appendChild(menu);
+
+      setTimeout(() => document.addEventListener('click', fermerMenuMessage, { once: true }), 0);
+    }
+
+    function fermerMenuMessage() {
+      document.getElementById('menu-message')?.remove();
+    }
+
+    async function supprimerMessage(type, msgId, pourTous) {
+      try {
+        await fetch(`${API}/eleves/forum-message/${type}/${msgId}`, {
+          method: 'DELETE',
+          headers: { ...authH(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pourTous })
+        });
+        if (type === 'classe') loadForumClasse(); else loadInterClasses();
+      } catch (e) {
+        console.warn('Erreur suppression message:', e);
+      }
     }
 
     async function sendForumMsg(type) {
@@ -2476,7 +2469,7 @@
       let classeToken = '';
       try {
         const tok = localStorage.getItem('token') || '';
-        if (tok) classeToken = JSON.parse(atob(tok.split('.')[1])).classe || '';
+        if (tok) classeToken = decodeJwtPayload(tok).classe || '';
       } catch (e) { }
       const classeVerifiee = classeToken || maClasse;
 
@@ -2507,7 +2500,7 @@
       let classeToken = '';
       try {
         const tok = localStorage.getItem('token') || '';
-        if (tok) classeToken = JSON.parse(atob(tok.split('.')[1])).classe || '';
+        if (tok) classeToken = decodeJwtPayload(tok).classe || '';
       } catch (e) { }
 
       if (classeToken && maClasse && classeToken !== maClasse) {
@@ -2566,7 +2559,7 @@
       try {
         const r = await fetch(`${API}/eleves/inter-classes?classe_cible=${encodeURIComponent(cls)}`, { headers: authH() });
         const data = await r.json();
-        const msgs = (data.messages || []).map(m => ({ id: m.id, auteur: m.nom_auteur, moi: m.id_auteur === currentUser.id, texte: m.texte, time: m.time || '', reply_to: m.reply_to || null, initiales: m.initiales || (m.nom_auteur || '?')[0], color: '#7C3AED' }));
+        const msgs = (data.messages || []).map(m => ({ id: m.id, auteur: m.nom_auteur, moi: m.id_auteur === currentUser.id, texte: m.texte, time: m.time || '', reply_to: m.reply_to || null, initiales: m.initiales || (m.nom_auteur || '?')[0], color: '#7C3AED', reactions: m.reactions || {}, ma_reaction: m.ma_reaction || null }));
         renderThread('inter-thread', msgs, 'inter');
       } catch (e) { }
     }
@@ -2646,8 +2639,60 @@
         const tag = escHtml(p.tag || 'GENERAL');
         const content = renderPostContent(p.texte || '');
         const likes = Number(p.likes || 0);
-        return `<div class="post-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><strong>${author}</strong> <span style="font-size:0.7rem;">${time}</span></div><span class="badge-blue">${tag}</span></div><div style="margin:8px 0;line-height:1.45;color:var(--muted);">${content}</div><div class="post-actions"><button class="post-action-btn" onclick="toggleLike(${p.id})"><span>❤️</span> ${likes}</button></div></div>`;
+        const nbComments = Number(p.nb_commentaires || 0);
+        return `<div class="post-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><strong>${author}</strong> <span style="font-size:0.7rem;">${time}</span></div><span class="badge-blue">${tag}</span></div><div style="margin:8px 0;line-height:1.45;color:var(--muted);">${content}</div><div class="post-actions"><button class="post-action-btn" onclick="toggleLike(${p.id})"><span>❤️</span> ${likes}</button><button class="post-action-btn" onclick="toggleCommentsSection(${p.id})"><span>💬</span> <span id="ge-cmt-count-${p.id}">${nbComments}</span></button></div><div id="ge-comments-${p.id}" style="display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px;"></div></div>`;
       }).join('');
+    }
+
+    // ── Commentaires Grand Élèves ──
+    const _geCommentsOpen = new Set();
+    function toggleCommentsSection(postId) {
+      const el = document.getElementById(`ge-comments-${postId}`);
+      if (!el) return;
+      if (_geCommentsOpen.has(postId)) {
+        el.style.display = 'none';
+        _geCommentsOpen.delete(postId);
+      } else {
+        el.style.display = 'block';
+        _geCommentsOpen.add(postId);
+        loadCommentairesGE(postId);
+      }
+    }
+
+    async function loadCommentairesGE(postId) {
+      const el = document.getElementById(`ge-comments-${postId}`);
+      if (!el) return;
+      el.innerHTML = '<div style="text-align:center;padding:10px;color:var(--muted);font-size:.75rem;">Chargement…</div>';
+      try {
+        const r = await fetch(`${API}/eleves/grand-eleves/${postId}/commentaires`, { headers: authH() });
+        const d = await r.json();
+        const list = d.commentaires || [];
+        const listHtml = list.length
+          ? list.map(c => `<div style="display:flex;gap:8px;margin-bottom:8px;"><div style="width:26px;height:26px;border-radius:50%;background:#EEF2FF;color:#4F46E5;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${escHtml(c.initiales || '?')}</div><div style="background:var(--bg,#F8FAFC);border-radius:10px;padding:6px 10px;flex:1;"><div style="font-size:.72rem;font-weight:700;">${escHtml(c.nom_auteur || '')} <span style="font-weight:400;color:var(--muted);font-size:.65rem;">${escHtml(c.time || '')}</span></div><div style="font-size:.78rem;margin-top:2px;">${escHtml(c.texte || '')}</div></div></div>`).join('')
+          : '<div style="text-align:center;padding:8px;color:var(--muted);font-size:.75rem;">Aucun commentaire</div>';
+        el.innerHTML = listHtml + `<div style="display:flex;gap:6px;margin-top:8px;"><input type="text" id="ge-cmt-input-${postId}" placeholder="Écrire un commentaire..." style="flex:1;padding:7px 10px;border:1.5px solid var(--border);border-radius:16px;font-size:.78rem;outline:none;" onkeydown="if(event.key==='Enter')postCommentaireGE(${postId})"><button class="btn-sm" onclick="postCommentaireGE(${postId})">Envoyer</button></div>`;
+      } catch (e) {
+        el.innerHTML = '<div style="text-align:center;padding:8px;color:#EF4444;font-size:.75rem;">Erreur de chargement</div>';
+      }
+    }
+
+    async function postCommentaireGE(postId) {
+      const input = document.getElementById(`ge-cmt-input-${postId}`);
+      const texte = input?.value.trim();
+      if (!texte) return;
+      try {
+        const r = await fetch(`${API}/eleves/grand-eleves/${postId}/commentaires`, {
+          method: 'POST', headers: { ...authH(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texte })
+        });
+        const d = await r.json();
+        if (d.success) {
+          if (input) input.value = '';
+          await loadCommentairesGE(postId);
+          const countEl = document.getElementById(`ge-cmt-count-${postId}`);
+          if (countEl) countEl.textContent = (parseInt(countEl.textContent) || 0) + 1;
+        }
+      } catch (e) { }
     }
 
     async function toggleLike(postId) {
@@ -2768,20 +2813,6 @@
     }
 
     // ==================== PROGRAMME & DEVOIRS ====================
-    const EMPLOIS_DU_TEMPS = {
-      '6ème': { Lundi: ['Français', 'Maths', 'Anglais', 'PAUSE', 'SVT', 'EPS'], Mardi: ['Maths', 'Français', 'HG', 'PAUSE', 'Anglais', 'EPS'], Mercredi: ['SVT', 'HG', 'Français', 'PAUSE', 'Maths'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Français', 'EPS'], Vendredi: ['HG', 'Anglais', 'EPS', 'PAUSE', 'Maths', 'Français'] },
-      '5ème': { Lundi: ['Français', 'Maths', 'Anglais', 'PAUSE', 'SVT', 'EPS'], Mardi: ['Maths', 'Français', 'HG', 'PAUSE', 'Anglais', 'EPS'], Mercredi: ['SVT', 'HG', 'Français', 'PAUSE', 'Maths'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Français', 'EPS'], Vendredi: ['HG', 'Anglais', 'EPS', 'PAUSE', 'Maths', 'Français'] },
-      '4ème': { Lundi: ['Français', 'Maths', 'Anglais', 'PAUSE', 'Physique', 'EPS'], Mardi: ['Maths', 'Français', 'HG', 'PAUSE', 'Anglais', 'SVT'], Mercredi: ['Physique', 'SVT', 'Français', 'PAUSE', 'Maths'], Jeudi: ['Anglais', 'Physique', 'Maths', 'PAUSE', 'Français', 'HG'], Vendredi: ['SVT', 'Anglais', 'HG', 'PAUSE', 'Maths', 'EPS'] },
-      '3ème': { Lundi: ['Maths', 'Physique', 'Français', 'PAUSE', 'SVT', 'Anglais'], Mardi: ['Français', 'Maths', 'HG', 'PAUSE', 'Physique', 'SVT'], Mercredi: ['Anglais', 'Français', 'Maths', 'PAUSE', 'HG'], Jeudi: ['SVT', 'HG', 'Anglais', 'PAUSE', 'Maths', 'Français'], Vendredi: ['Physique', 'Anglais', 'SVT', 'PAUSE', 'Français', 'Maths'] },
-      '2nde A': { Lundi: ['Français', 'Maths', 'Anglais', 'PAUSE', 'HG', 'Philo'], Mardi: ['Maths', 'Français', 'HG', 'PAUSE', 'Anglais', 'SVT'], Mercredi: ['Philo', 'SVT', 'Maths', 'PAUSE', 'Français'], Jeudi: ['Anglais', 'Philo', 'Français', 'PAUSE', 'Maths', 'HG'], Vendredi: ['SVT', 'Anglais', 'HG', 'PAUSE', 'Maths', 'EPS'] },
-      '2nde C': { Lundi: ['Maths', 'Physique', 'SVT', 'PAUSE', 'Français', 'Anglais'], Mardi: ['Physique', 'Maths', 'SVT', 'PAUSE', 'Anglais', 'Français'], Mercredi: ['SVT', 'Maths', 'Physique', 'PAUSE', 'Français'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Physique', 'Français'], Vendredi: ['Physique', 'Anglais', 'Maths', 'PAUSE', 'SVT', 'EPS'] },
-      '1ère A': { Lundi: ['Français', 'Philo', 'Anglais', 'PAUSE', 'HG', 'Maths'], Mardi: ['Philo', 'Français', 'HG', 'PAUSE', 'Anglais', 'Maths'], Mercredi: ['Anglais', 'Philo', 'Français', 'PAUSE', 'HG'], Jeudi: ['Maths', 'Anglais', 'Philo', 'PAUSE', 'Français', 'HG'], Vendredi: ['HG', 'Maths', 'Anglais', 'PAUSE', 'Philo', 'EPS'] },
-      '1ère D': { Lundi: ['Maths', 'Physique', 'SVT', 'PAUSE', 'Français', 'Anglais'], Mardi: ['Physique', 'Maths', 'SVT', 'PAUSE', 'Anglais', 'Français'], Mercredi: ['SVT', 'Maths', 'Physique', 'PAUSE', 'Anglais'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Physique', 'Français'], Vendredi: ['Physique', 'Anglais', 'Maths', 'PAUSE', 'SVT', 'EPS'] },
-      'Tle A': { Lundi: ['Philo', 'Français', 'Anglais', 'PAUSE', 'HG', 'Maths'], Mardi: ['Français', 'Philo', 'HG', 'PAUSE', 'Anglais', 'Maths'], Mercredi: ['Anglais', 'Français', 'Philo', 'PAUSE', 'HG'], Jeudi: ['Maths', 'Anglais', 'Français', 'PAUSE', 'Philo', 'HG'], Vendredi: ['HG', 'Maths', 'Anglais', 'PAUSE', 'Philo', 'EPS'] },
-      'Tle D': { Lundi: ['Maths', 'Physique', 'SVT', 'PAUSE', 'Anglais', 'Français'], Mardi: ['Physique', 'Maths', 'SVT', 'PAUSE', 'Français', 'Anglais'], Mercredi: ['SVT', 'Maths', 'Physique', 'PAUSE', 'Anglais'], Jeudi: ['Anglais', 'SVT', 'Maths', 'PAUSE', 'Physique', 'Français'], Vendredi: ['Physique', 'Anglais', 'Maths', 'PAUSE', 'SVT', 'EPS'] }
-    };
-    const JOURS_SEMAINE = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
-    const CRENEAUX = [{ h: '07h30-09h00', idx: 0 }, { h: '09h00-10h30', idx: 1 }, { h: '10h30-10h45', pause: true, label: 'PAUSE' }, { h: '10h45-12h15', idx: 2 }, { h: '12h15-14h30', pause: true, label: 'DÉJEUNER' }, { h: '14h30-16h00', idx: 3 }, { h: '16h00-17h30', idx: 4 }];
 
     async function loadProgramme() {
       const classe = currentUser.classe || '';
@@ -2797,48 +2828,50 @@
       if (estClasseExamen) await renderExamensBlancs();
     }
 
-    function renderEmploiDuTemps() {
-      const classe = currentUser.classe || '';
-      const edt = EMPLOIS_DU_TEMPS[classe] || EMPLOIS_DU_TEMPS['3ème'];
+    // ✅ Avant : emploi du temps entièrement inventé (objet EMPLOIS_DU_TEMPS
+    // codé en dur, mêmes matières génériques pour toutes les classes, jamais
+    // connecté à la base). Corrigé pour interroger la vraie route
+    // /api/eleves/horaire (table pedagogie.emploi_du_temps) — tant que la
+    // Direction n'y a pas saisi de vraies données, on affiche un état vide
+    // honnête plutôt qu'un faux emploi du temps.
+    async function renderEmploiDuTemps() {
+      const container = document.getElementById('prog-edt-content');
+      if (!container) return;
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement de l\'emploi du temps...</div></div>';
 
-      let html = `
-        <div style="overflow-x: auto;">
-          <table class="prog-table">
-            <thead>
-              <tr>
-                <th style="width: 100px;">Horaire</th>
-                ${JOURS_SEMAINE.map(j => `<th>${j}</th>`).join('')}
-              </tr>
-            </thead>
-            <tbody>
-      `;
+      try {
+        const response = await fetch(`${API}/eleves/horaire`, { headers: authH() });
+        const data = await response.json();
+        const semaine = data.horaire?.semaine || [];
 
-      CRENEAUX.forEach(c => {
-        if (c.pause) {
-          html += `
-            <tr style="background: #FEF3C7;">
-              <td style="font-weight: 700; color: #D97706;">${c.h}</td>
-              <td colspan="5" style="text-align: center; color: #D97706;">☕ ${c.label}</td>
-            </tr>
-          `;
-        } else {
-          html += `<tr><td style="font-weight: 600;">${c.h}</td>`;
-          JOURS_SEMAINE.forEach(jour => {
-            const matiere = edt[jour]?.[c.idx] || '—';
-            const style = matiere !== '—' ? 'font-weight: 600;' : 'color: #94A3B8;';
-            html += `<td style="${style}">${matiere}</td>`;
-          });
-          html += `</tr>`;
+        if (!semaine.length) {
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">🗓️</div><div class="empty-prog-text">L\'emploi du temps de ta classe n\'a pas encore été saisi par la Direction.</div></div>';
+          return;
         }
-      });
 
-      html += `
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      document.getElementById('prog-edt-content').innerHTML = html;
+        container.innerHTML = `
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">
+            ${semaine.map(jour => `
+              <div class="card" style="padding:14px;">
+                <div style="font-weight:800;font-size:.9rem;margin-bottom:10px;">${escHtml(jour.jour)}</div>
+                ${(jour.cours || []).map(c => {
+                  const pause = (c.matiere || '').toUpperCase().includes('PAUSE');
+                  return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F1F5F9;${pause ? 'color:#D97706;' : ''}">
+                    <div>
+                      <div style="font-weight:700;font-size:.82rem;">${pause ? '☕ ' : ''}${escHtml(c.matiere || '')}</div>
+                      ${!pause ? `<div style="font-size:.72rem;color:var(--muted);">${escHtml(c.prof || '')}${c.salle ? ' · Salle ' + escHtml(c.salle) : ''}</div>` : ''}
+                    </div>
+                    <div style="font-size:.74rem;font-weight:700;white-space:nowrap;">${escHtml(c.heure || '')}</div>
+                  </div>`;
+                }).join('')}
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } catch (e) {
+        console.warn('Erreur chargement emploi du temps:', e);
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Erreur de chargement de l\'emploi du temps</div></div>';
+      }
     }
 
     // Ajoute cette fonction formatDate au début du script (avant renderDevoirs)
@@ -3030,10 +3063,18 @@
   <script>
     // ==================== MENTORAT ÉLÈVE ====================
 
-    let _mentoratAlumniId = null; // alumni sélectionné pour la demande
 
     async function loadMentoratEleve() {
       refreshSessionState();
+      const classeActuelle = (currentUser.classe || '').toUpperCase();
+      if (!classeActuelle.startsWith('TLE')) {
+        document.getElementById('mentor-container').innerHTML = `
+          <div class="card" style="padding:24px;text-align:center;">
+            <div style="font-size:2rem;margin-bottom:8px;">🎓</div>
+            <div style="color:var(--muted);font-size:0.85rem;">Le mentorat par les anciens élèves est réservé aux classes de Terminale.</div>
+          </div>`;
+        return;
+      }
       try {
         const data = await MentoratAPI.getAlumniMentor();
 
@@ -3050,6 +3091,14 @@
 
           afficherObjectifs(objData.objectifs || [], journalData.entrees || []);
           afficherEntreesJournalEleve(journalData.entrees || [], data.alumni.id_relation);
+
+          // ✅ En plus du mentor déjà assigné, l'élève peut consulter/solliciter
+          // n'importe quel autre alumni (libre choix, pas de relation exclusive)
+          document.getElementById('view-no-mentor').style.display = 'flex';
+          document.getElementById('alumni-banniere-titre').textContent = 'Consultez d\'autres mentors';
+          document.getElementById('alumni-banniere-sous-titre').textContent = 'En plus de votre mentor actuel, vous pouvez solliciter n\'importe quel autre alumni pour une question précise.';
+          document.getElementById('alumni-list-titre').textContent = '👥 Autres alumni disponibles';
+          chargerListeAlumni(data.alumni.id_alumni);
 
         } else {
           // ── B) Pas de mentor → montrer la liste des alumni ──
@@ -3068,6 +3117,7 @@
     }
 
     let currentMentorAlumniId = null;
+    let currentMentorNom = null;
 
     function afficherVueMentorActif(alumni) {
       document.getElementById('mentor-container').style.display = 'none';
@@ -3076,6 +3126,7 @@
       vue.style.display = 'flex';
 
       currentMentorAlumniId = alumni.id_alumni || alumni.id_user || null;
+      currentMentorNom = `${alumni.prenom || ''} ${alumni.nom || ''}`.trim();
 
       const avatarEl = document.getElementById('mentor-avatar');
       const ini = ((alumni.prenom?.[0] || '') + (alumni.nom?.[0] || '')).toUpperCase() || '?';
@@ -3153,71 +3204,122 @@
       vue.style.display = 'flex';
     }
 
-    async function chargerListeAlumni() {
+    // Cache client + pagination pour rester fluide même avec des milliers d'alumni
+    let _tousLesAlumni = [];
+    let _alumniAffiches = 0;
+    const ALUMNI_PAR_PAGE = 12;
+
+    async function chargerListeAlumni(excludeAlumniId = null) {
       const container = document.getElementById('alumni-list-container');
       try {
-        // On utilise la route orientation/eleves de l'alumni pour lister les alumni disponibles
-        // Mais côté élève on passe par mentorat/alumni-mentor qui retourne null,
-        // donc on requête directement les mentorats publiés
-        const r = await fetch(`${API}/alumni/mentorats`, { headers: authH() }).catch(() => null);
+        // Liste TOUS les alumni actifs disponibles au mentorat (pas seulement
+        // ceux ayant publié un conseil — voir getListeMentorsDisponibles)
+        const r = await fetch(`${API}/alumni/liste-mentors`, { headers: authH() }).catch(() => null);
         let alumni = [];
 
         if (r && r.ok) {
           const d = await r.json();
-          alumni = (d.mentorats || []).filter(a => a.disponible_mentorat !== false);
+          alumni = d.alumni || [];
         }
 
-        // Fallback : chercher via l'orientation
-        if (!alumni.length) {
-          const r2 = await fetch(`${API}/eleves/orientation`, { headers: authH() }).catch(() => null);
-          if (r2 && r2.ok) {
-            const d2 = await r2.json();
-            // Extraire alumni depuis les avis d'orientation si disponibles
-          }
+        // Exclure le mentor déjà assigné (déjà visible dans la carte au-dessus)
+        if (excludeAlumniId) {
+          alumni = alumni.filter(a => (a.id_alumni || a.auteur_id) !== excludeAlumniId);
         }
 
-        if (!alumni.length) {
-          container.innerHTML = `
-            <div style="padding:20px;text-align:center;">
-              <div style="font-size:2rem;margin-bottom:8px;">🔍</div>
-              <div style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">Aucun mentor disponible pour le moment.</div>
-              <button class="btn-p" onclick="ouvrirDemandeGenerale()">📤 Envoyer une demande ouverte</button>
-            </div>`;
-          document.getElementById('alumni-count').textContent = '0 disponible';
-          return;
-        }
-
+        _tousLesAlumni = alumni;
+        _alumniAffiches = 0;
         document.getElementById('alumni-count').textContent = `${alumni.length} disponible${alumni.length > 1 ? 's' : ''}`;
-        container.innerHTML = alumni.map(a => {
-          const idAlumni = a.id_alumni || a.auteur_id;
-          const nomAlumni = a.auteur || (a.prenom + ' ' + a.nom);
-          const alumnIdText = JSON.stringify(idAlumni);
-        const alumnNameText = JSON.stringify(nomAlumni);
-        const alumnProfessionText = JSON.stringify(a.profession || '');
-        const alumnDomaineText = JSON.stringify(a.domaine_expertise || '');
-        return `
-          <div class="mat-row" id="alumni-row-${idAlumni}" style="padding:12px 0;border-bottom:1px solid rgba(15,23,42,0.06);">
-            <div style="display:flex;align-items:center;gap:12px;cursor:pointer;"
-                 onclick="selectionnerAlumni(${alumnIdText}, ${alumnNameText}, ${alumnProfessionText}, ${alumnDomaineText})">
-              <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:0.95rem;flex-shrink:0;">
-                ${(a.auteur || a.prenom || '?')[0].toUpperCase()}
-              </div>
-              <div style="flex:1;">
-                <div style="font-weight:700;font-size:0.9rem;">${escHtml(nomAlumni)}</div>
-                <div style="font-size:0.75rem;color:var(--muted);">${escHtml(a.profession || a.domaine_expertise || 'Alumni')}</div>
-              </div>
-              <button onclick="event.stopPropagation();voirProfilMentor(${alumnIdText})"
-                style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.7rem;font-weight:700;background:#fff;cursor:pointer;white-space:nowrap;">👤 Profil</button>
-            </div>
-            ${a.contenu_conseil || a.titre ? `<div style="font-size:0.78rem;color:var(--muted);margin-top:6px;padding-left:52px;">${escHtml((a.contenu_conseil || a.titre || '').substring(0, 80))}…</div>` : ''}
-          </div>
-        `;
-        }).join('');
+        rendreListeAlumni(alumni);
 
       } catch (e) {
         container.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger la liste.</div></div>`;
         console.warn('Erreur liste alumni:', e);
       }
+    }
+
+    function carteAlumniHTML(a) {
+      const idAlumni = a.id_alumni || a.auteur_id;
+      const nomAlumni = a.auteur || (a.prenom + ' ' + a.nom);
+      const alumnIdText = jsQuote(idAlumni);
+      const alumnNameText = jsQuote(nomAlumni);
+      const alumnProfessionText = jsQuote(a.profession || '');
+      const alumnDomaineText = jsQuote(a.domaine_expertise || '');
+      const iniAlumni = (a.auteur || a.prenom || '?')[0].toUpperCase();
+      const avatarStyle = a.photo_url
+        ? `background:url('${a.photo_url}') center/cover;`
+        : `background:linear-gradient(135deg,#667eea,#764ba2);`;
+      return `
+        <div class="mat-row" id="alumni-row-${idAlumni}"
+             style="padding:14px;border:1px solid rgba(15,23,42,0.08);border-radius:14px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s;"
+             onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.06)'" onmouseout="this.style.boxShadow='none'">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:44px;height:44px;border-radius:12px;${avatarStyle}display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:1rem;flex-shrink:0;">
+              ${a.photo_url ? '' : iniAlumni}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:700;font-size:0.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(nomAlumni)}</div>
+              <div style="font-size:0.72rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(a.profession || a.domaine_expertise || 'Alumni')}</div>
+            </div>
+          </div>
+          ${a.entreprise_actuelle ? `<div style="font-size:0.72rem;color:var(--muted);">📍 ${escHtml(a.entreprise_actuelle)}</div>` : ''}
+          ${a.contenu_conseil || a.titre ? `<div style="font-size:0.74rem;color:var(--muted);line-height:1.35;">${escHtml((a.contenu_conseil || a.titre || '').substring(0, 70))}…</div>` : ''}
+          <div style="display:flex;gap:8px;">
+            <button onclick="voirProfilMentor(${alumnIdText})"
+              style="flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:0.72rem;font-weight:700;background:#fff;cursor:pointer;">👤 Profil</button>
+            <button class="btn-p" onclick="ouvrirModalConseil(${alumnIdText}, ${alumnNameText})"
+              style="flex:1;padding:8px 10px;font-size:0.72rem;">✉️ Demander</button>
+          </div>
+        </div>`;
+    }
+
+    function rendreListeAlumni(liste) {
+      const container = document.getElementById('alumni-list-container');
+      const loadMoreWrap = document.getElementById('alumni-load-more-wrap');
+
+      if (!liste.length) {
+        container.style.display = 'block';
+        container.innerHTML = `
+          <div style="padding:20px;text-align:center;grid-column:1/-1;">
+            <div style="font-size:2rem;margin-bottom:8px;">🔍</div>
+            <div style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">Aucun mentor ne correspond à votre recherche.</div>
+            <button class="btn-p" onclick="ouvrirModalConseil()">📤 Envoyer une demande ouverte</button>
+          </div>`;
+        loadMoreWrap.style.display = 'none';
+        return;
+      }
+
+      container.style.display = 'grid';
+      const aAfficher = liste.slice(0, _alumniAffiches + ALUMNI_PAR_PAGE);
+      _alumniAffiches = aAfficher.length;
+      container.innerHTML = aAfficher.map(carteAlumniHTML).join('');
+      loadMoreWrap.style.display = _alumniAffiches < liste.length ? 'block' : 'none';
+    }
+
+    function afficherPlusAlumni() {
+      const filtre = document.getElementById('alumni-search').value;
+      const liste = filtre ? _listeAlumniFiltree(filtre) : _tousLesAlumni;
+      rendreListeAlumni(liste);
+    }
+
+    function _listeAlumniFiltree(terme) {
+      const t = terme.trim().toLowerCase();
+      if (!t) return _tousLesAlumni;
+      return _tousLesAlumni.filter(a => {
+        const nom = (a.auteur || `${a.prenom || ''} ${a.nom || ''}`).toLowerCase();
+        const profession = (a.profession || '').toLowerCase();
+        const domaine = (a.domaine_expertise || '').toLowerCase();
+        return nom.includes(t) || profession.includes(t) || domaine.includes(t);
+      });
+    }
+
+    let _filtreAlumniTimeout = null;
+    function filtrerListeAlumni(terme) {
+      clearTimeout(_filtreAlumniTimeout);
+      _filtreAlumniTimeout = setTimeout(() => {
+        _alumniAffiches = 0;
+        rendreListeAlumni(_listeAlumniFiltree(terme));
+      }, 200);
     }
 
     async function voirProfilMentor(id) {
@@ -3251,6 +3353,10 @@
           <div style="display:flex;flex-direction:column;gap:8px;font-size:0.78rem;">
             ${p.universite ? `<div>🎓 <strong>${escHtml(p.universite)}</strong>${p.annee_graduation ? ' · ' + escHtml(p.annee_graduation) : ''}</div>` : ''}
             ${p.secteur_activite ? `<div>💼 ${escHtml(p.secteur_activite)}</div>` : ''}
+            ${p.ville_residence ? `<div>📍 ${escHtml(p.ville_residence)}${p.pays_residence ? ', ' + escHtml(p.pays_residence) : ''}</div>` : ''}
+            ${p.linkedin_url ? `<div>🔗 <a href="${escHtml(p.linkedin_url)}" target="_blank" rel="noopener" style="color:#4F46E5;text-decoration:none;font-weight:600;">Profil LinkedIn</a></div>` : ''}
+            ${p.site_web ? `<div>🌐 <a href="${escHtml(p.site_web)}" target="_blank" rel="noopener" style="color:#4F46E5;text-decoration:none;font-weight:600;">Site personnel</a></div>` : ''}
+            ${(p.langues_parlees && p.langues_parlees.length) ? `<div>🗣️ ${p.langues_parlees.map(escHtml).join(', ')}</div>` : ''}
             ${(p.competences && p.competences.length) ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">${p.competences.map(c => `<span style="background:#EEF2FF;color:#4F46E5;padding:3px 9px;border-radius:6px;font-size:0.7rem;font-weight:700;">${escHtml(c)}</span>`).join('')}</div>` : ''}
           </div>
           <div style="margin-top:12px;padding:10px;border-radius:10px;background:#F5F3FF;color:#6D28D9;font-size:0.78rem;line-height:1.5;">
@@ -3288,7 +3394,7 @@
             </div>
             <div style="flex:1;">
               <div style="font-weight:700;font-size:0.9rem;">${escHtml(p.prenom)} ${escHtml(p.nom)}</div>
-              <div style="font-size:0.75rem;color:var(--muted);">${escHtml(p.specialite || 'Professeur')}</div>
+              <div style="font-size:0.75rem;color:var(--accent);font-weight:600;">${escHtml((p.matieres || []).join(', ') || 'Matière non renseignée')}</div>
             </div>
             <span style="font-size:0.7rem;color:var(--muted);">👤 Voir</span>
           </div>
@@ -3328,94 +3434,60 @@
       }
     }
 
-    function selectionnerAlumni(id, nom, profession, domaine) {
-      _mentoratAlumniId = id;
-      const card = document.getElementById('form-demande-card');
-      card.style.display = 'block';
-      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // ── Modal conseil — UNIFIÉ : fonctionne pour le mentor actif OU n'importe quel autre alumni ──
+    let _conseilAlumniIdParDefaut = null;
 
-      document.getElementById('demande-alumni-info').innerHTML = `
-        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:0.95rem;flex-shrink:0;">
-          ${(nom?.[0] || '?').toUpperCase()}
-        </div>
-        <div>
-          <div style="font-weight:700;font-size:0.9rem;">${escHtml(nom)}</div>
-          <div style="font-size:0.75rem;color:var(--muted);">${escHtml(profession || domaine || 'Alumni')}</div>
-          <div style="font-size:0.72rem;color:var(--muted);margin-top:4px;">Votre demande sera envoyée à ce mentor.</div>
-        </div>`;
-
-      document.querySelector('#form-demande-card .btn-p').textContent = '📤 Envoyer au mentor';
-      document.querySelectorAll('#domaines-checkboxes input[type=checkbox]').forEach(cb => cb.checked = false);
-      document.getElementById('demande-message').value = '';
-      document.querySelectorAll('#alumni-list-container .mat-row').forEach(row => row.style.background = '');
-      const selectedRow = document.getElementById(`alumni-row-${id}`);
-      if (selectedRow) selectedRow.style.background = 'rgba(99, 102, 241, 0.08)';
-      document.getElementById('demande-envoyee-banner').style.display = 'none';
+    function _optionsDestinatairesConseil() {
+      const options = [];
+      if (currentMentorAlumniId && currentMentorNom) {
+        options.push({ id: currentMentorAlumniId, label: `⭐ ${currentMentorNom} (mon mentor)` });
+      }
+      (_tousLesAlumni || []).forEach(a => {
+        const id = a.id_alumni || a.auteur_id;
+        if (id === currentMentorAlumniId) return; // déjà listé au-dessus
+        const nom = a.auteur || `${a.prenom || ''} ${a.nom || ''}`.trim();
+        options.push({ id, label: nom });
+      });
+      options.push({ id: '', label: '📢 Demande ouverte (n\'importe quel alumni disponible)' });
+      return options;
     }
 
-    function ouvrirDemandeGenerale() {
-      _mentoratAlumniId = null;
-      const card = document.getElementById('form-demande-card');
-      card.style.display = 'block';
-      document.getElementById('demande-alumni-info').innerHTML = `
-        <div style="font-size:0.85rem;color:var(--muted);">📢 Demande ouverte — n'importe quel alumni disponible pourra vous répondre.</div>`;
-      document.querySelector('#form-demande-card .btn-p').textContent = '📤 Envoyer une demande ouverte';
-      document.querySelectorAll('#alumni-list-container .mat-row').forEach(row => row.style.background = '');
-      document.querySelectorAll('#domaines-checkboxes input[type=checkbox]').forEach(cb => cb.checked = false);
-      document.getElementById('demande-message').value = '';
-      document.getElementById('demande-envoyee-banner').style.display = 'none';
-    }
+    function ouvrirModalConseil(alumniId = null, alumniNom = null) {
+      const select = document.getElementById('conseil-destinataire');
+      const options = _optionsDestinatairesConseil();
 
-    function annulerDemande() {
-      document.getElementById('form-demande-card').style.display = 'none';
-      _mentoratAlumniId = null;
-    }
-
-    async function envoyerDemandeMentorat() {
-      const message = document.getElementById('demande-message').value.trim();
-      const domaines = Array.from(document.querySelectorAll('#domaines-checkboxes input:checked')).map(cb => cb.value);
-
-      if (!_mentoratAlumniId && !message && domaines.length === 0) {
-        alert('Veuillez sélectionner un mentor ou remplir un message / domaines avant d’envoyer.');
-        return;
+      // Si on cible quelqu'un qui n'est pas encore dans la liste (ex: alumni cliqué
+      // directement depuis sa carte), on l'ajoute en tête pour être sûr qu'il apparaisse
+      if (alumniId && !options.some(o => o.id === alumniId)) {
+        options.unshift({ id: alumniId, label: alumniNom || 'Alumni' });
       }
 
-      const btn = document.querySelector('#form-demande-card .btn-p');
-      btn.disabled = true;
-      btn.textContent = '⏳ Envoi…';
+      select.innerHTML = options.map(o => `<option value="${o.id}">${escHtml(o.label)}</option>`).join('');
+      select.value = alumniId || (currentMentorAlumniId || '');
 
-      try {
-        const r = await fetch(`${API}/mentorat/demandes`, {
-          method: 'POST',
-          headers: { ...authH(), 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id_alumni: _mentoratAlumniId || null, message, domaines })
-        });
-        const d = await r.json();
-        if (d.success) {
-          document.getElementById('form-demande-card').style.display = 'none';
-          document.getElementById('demande-envoyee-banner').style.display = 'block';
-          document.getElementById('demande-envoyee-banner').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        } else {
-          alert('Erreur : ' + (d.message || 'Impossible d\'envoyer la demande.'));
-        }
-      } catch (e) {
-        alert('Erreur réseau.');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = _mentoratAlumniId ? '📤 Envoyer au mentor' : '📤 Envoyer une demande ouverte';
-      }
-    }
-
-    // ── Modal conseil (élève avec mentor actif) ──
-    function ouvrirModalConseil() {
       document.querySelectorAll('#modal-conseil input[type=checkbox]').forEach(cb => cb.checked = false);
       document.getElementById('conseil-message').value = '';
+      document.getElementById('conseil-erreur').style.display = 'none';
+      document.getElementById('conseil-succes').style.display = 'none';
+      document.getElementById('conseil-form-body').style.display = 'block';
       document.getElementById('modal-conseil').style.display = 'flex';
+      _majApercuDestinataireConseil();
+    }
+
+    function _majApercuDestinataireConseil() {
+      const select = document.getElementById('conseil-destinataire');
+      const apercu = document.getElementById('conseil-apercu-destinataire');
+      apercu.textContent = select.value
+        ? 'Votre message sera transmis directement à cette personne.'
+        : 'Votre message sera visible par tous les alumni disponibles — le premier à répondre pourra devenir votre interlocuteur.';
     }
 
     async function envoyerConseil() {
       const message = document.getElementById('conseil-message').value.trim();
       const domaines = Array.from(document.querySelectorAll('input[name="conseil-domaine"]:checked')).map(cb => cb.value);
+      const id_alumni = document.getElementById('conseil-destinataire').value || null;
+      const erreurEl = document.getElementById('conseil-erreur');
+      erreurEl.style.display = 'none';
 
       if (!message && !domaines.length) {
         document.getElementById('conseil-message').focus();
@@ -3430,17 +3502,21 @@
         const r = await fetch(`${API}/mentorat/demandes`, {
           method: 'POST',
           headers: { ...authH(), 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message, domaines })
+          body: JSON.stringify({ id_alumni, message, domaines })
         });
         const d = await r.json();
         if (d.success) {
-          document.getElementById('modal-conseil').style.display = 'none';
-          alert('✅ Votre conseil a bien été demandé !');
+          // Retour direct dans la fenêtre — pas de popup navigateur
+          document.getElementById('conseil-form-body').style.display = 'none';
+          document.getElementById('conseil-succes').style.display = 'block';
+          setTimeout(() => { document.getElementById('modal-conseil').style.display = 'none'; }, 1100);
         } else {
-          alert('Erreur : ' + (d.message || 'Impossible d\'envoyer.'));
+          erreurEl.textContent = d.message || 'Impossible d\'envoyer la demande.';
+          erreurEl.style.display = 'block';
         }
       } catch (e) {
-        alert('Erreur réseau.');
+        erreurEl.textContent = 'Erreur réseau — vérifiez votre connexion.';
+        erreurEl.style.display = 'block';
       } finally {
         btn.disabled = false;
         btn.textContent = '📤 Envoyer';
@@ -3660,6 +3736,27 @@
     loadEvoChartWithRealData = async function () {
       var chartEl = document.getElementById('chart-evo');
       if (!chartEl) return;
+
+      // ✅ Chart.js se charge depuis internet en parallèle de la page — si
+      // ça n'est pas encore arrivé (connexion lente ce jour-là), le
+      // graphique échouait une seule fois, silencieusement, sans jamais
+      // réessayer. On attend maintenant que la librairie soit vraiment
+      // prête (jusqu'à 5 secondes) avant d'abandonner pour de vrai.
+      if (typeof Chart === 'undefined') {
+        var tentatives = 0;
+        var pret = await new Promise(function (resolve) {
+          var t = setInterval(function () {
+            tentatives++;
+            if (typeof Chart !== 'undefined') { clearInterval(t); resolve(true); }
+            else if (tentatives >= 25) { clearInterval(t); resolve(false); }
+          }, 200);
+        });
+        if (!pret) {
+          chartEl.parentElement.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:.8rem;">📉 Graphique indisponible — vérifiez votre connexion internet</div>';
+          return;
+        }
+      }
+
       try {
         var moyData = window._moyennesData;
         if (!moyData || !moyData.evolution_trimestrielle) {
@@ -3736,6 +3833,30 @@
     };
 
     // 3. BULLETIN COMPLET BF - CALCUL PROGRESSIF - SANS "EN ATTENTE"
+    async function loadCopiesScannees() {
+      var card = document.getElementById('copies-scan-card');
+      var list = document.getElementById('copies-scan-list');
+      if (!card || !list) return;
+      try {
+        var r = await fetch(API + '/eleves/copies-scannees', { headers: authH() });
+        var data = await r.json();
+        var copies = (data.copies || []);
+        if (!copies.length) { card.style.display = 'none'; return; }
+        card.style.display = 'block';
+        list.innerHTML = copies.map(function(c) {
+          var SERVER = window.SERVER_BASE || 'http://localhost:5000';
+          var url = c.url_fichier.startsWith('http') ? c.url_fichier : SERVER + c.url_fichier;
+          return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #F1F5F9;">'
+            + '<div>'
+            + '<div style="font-size:.8rem;font-weight:700;">' + escHtml(c.nom_matiere || 'Matière') + ' · T' + c.trimestre + '</div>'
+            + '<div style="font-size:.68rem;color:var(--muted);">' + escHtml(c.prof_prenom || '') + ' ' + escHtml(c.prof_nom || '') + (c.note ? ' · ' + c.note + '/20' : '') + '</div>'
+            + '</div>'
+            + '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="btn-ghost" style="text-decoration:none;">📄 Voir</a>'
+            + '</div>';
+        }).join('');
+      } catch (e) { console.warn('loadCopiesScannees:', e.message); card.style.display = 'none'; }
+    }
+
     loadBulletinPage = async function () {
       var tri = document.getElementById('bul-tri') ? document.getElementById('bul-tri').value : 1;
       var bulContent = document.getElementById('bul-content');
@@ -3746,6 +3867,8 @@
           + '<div class="skeleton" style="height:14px;margin-bottom:10px;width:85%;"></div>'
           + '<div class="skeleton" style="height:14px;width:70%;"></div>';
       }
+
+      loadCopiesScannees();
 
       try {
         var r = await fetch(API + '/eleves/moyennes-avancees?trimestre=' + tri, { headers: authH() });
@@ -3947,6 +4070,12 @@
         // Analyse predictive
         var pred = data.predictif || {};
         var predHtml = '';
+        var predTitre = 'Analyse Prédictive';
+        if (pred.trimestre_complet) {
+          predTitre += ' — Programme du trimestre déjà entièrement couvert, projection sur une évaluation supplémentaire (coef ' + (pred.coef_restant || 2) + ')';
+        } else {
+          predTitre += ' — Note min. sur les évaluations restantes (coef réel restant : ' + (pred.coef_restant || 2) + ')';
+        }
         [{label:'Pour avoir 10/20',val:pred.pour_avoir_10,clr:'#EF4444'},
          {label:'Pour atteindre 12',val:pred.pour_avoir_12,clr:'#F59E0B'},
          {label:'Pour viser 14',val:pred.pour_avoir_14,clr:'#10B981'},
@@ -3965,7 +4094,7 @@
             + '<table class="tbl" style="min-width:700px;">' + thead + '<tbody>' + tbody + '</tbody></table></div>'
             + '<div style="padding:16px;background:#F8FAFF;border-radius:14px;border:1px solid #E0E7FF;">'
             + '<div style="font-size:.65rem;font-weight:800;text-transform:uppercase;color:#6366F1;margin-bottom:12px;">'
-            + 'Analyse Predictive - Note min. au prochain devoir (coef 2)</div>'
+            + predTitre + '</div>'
             + predHtml + '</div>';
         }
 

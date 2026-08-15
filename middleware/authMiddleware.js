@@ -29,5 +29,20 @@ function ensureRole(role) {
     };
 }
 
+// Comme ensureRole, mais accepte une liste de rôles autorisés — utile pour
+// les routes partagées entre plusieurs rôles (ex: DIRECTION + SURVEILLANT).
+function ensureRoleIn(roles) {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({ message: "Accès refusé. Aucun utilisateur connecté." });
+        }
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({ message: `Accès refusé. Ce point de terminaison est réservé aux rôles : ${roles.join(', ')}.` });
+        }
+        next();
+    };
+}
+
 module.exports = authMiddleware;
 module.exports.ensureRole = ensureRole;
+module.exports.ensureRoleIn = ensureRoleIn;

@@ -740,6 +740,12 @@
         padding: 10px 16px !important;
       }
     }
+    @media print {
+      body * { visibility: hidden; }
+      #bul-doc, #bul-doc * { visibility: visible; }
+      #bul-doc { position: absolute; top: 0; left: 0; width: 100%; }
+      .sb, #btn-pdf, .tri { display: none !important; }
+    }
   </style>
 </head>
 
@@ -783,6 +789,8 @@
         <div class="nl" style="margin-top:6px;">Communauté APE</div>
         <div class="ni" onclick="go('cotisations')" data-s="cotisations"><i data-lucide="credit-card"
             style="width:14px;height:14px;"></i>Cotisations APE</div>
+        <div class="ni" onclick="window.location.href='ape.html'"><i data-lucide="users"
+            style="width:14px;height:14px;"></i>Espace APE (forum, projets)</div>
         <div class="nl" style="margin-top:6px;">École</div>
         <div class="ni" onclick="go('annonces')" data-s="annonces"><i data-lucide="megaphone"
             style="width:14px;height:14px;"></i>Annonces</div>
@@ -939,6 +947,8 @@
             <button class="btn bo bs tri" onclick="selTri(3,this)">Trim. 3</button>
             <button class="btn bg bs" id="btn-pdf" onclick="dlPDF()"><i data-lucide="download"
                 style="width:12px;height:12px;"></i>PDF</button>
+            <button class="btn bo bs" onclick="window.print()"><i data-lucide="printer"
+                style="width:12px;height:12px;"></i>Imprimer</button>
           </div>
         </div>
         <div class="bul-doc" id="bul-doc">
@@ -947,17 +957,13 @@
               style="display:flex; justify-content:space-between; align-items:flex-start; position:relative; z-index:1;">
               <div>
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
-                  <div
-                    style="width:40px; height:40px; background:rgba(255,255,255,.12); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
-                    🏫</div>
+                  <img class="ecole-logo hidden" id="bul-ecole-logo" alt="" style="width:40px;height:40px;border-radius:10px;object-fit:cover;">
                   <div>
-                    <div style="font-size:1rem; font-weight:900; font-style:italic;">ÉCOLE<span
-                        style="color:#60A5FA;">NUM</span></div>
+                    <div id="bul-ecole-nom" style="font-size:1rem; font-weight:900; font-style:italic;">Établissement</div>
                     <div style="font-size:.58rem; color:rgba(255,255,255,.45);">Campus Numérique · Burkina Faso</div>
                   </div>
                 </div>
-                <div style="font-size:.56rem; color:rgba(255,255,255,.35);">B.P. 0001 · Ouagadougou ·
-                  burkina-faso.ecolenum.bf</div>
+                <div id="bul-ecole-adresse" style="font-size:.56rem; color:rgba(255,255,255,.35);"></div>
               </div>
               <div style="text-align:right;">
                 <div
@@ -994,15 +1000,12 @@
                 style="background:rgba(255,255,255,.08); border-radius:10px; padding:10px 12px; border:1px solid rgba(255,255,255,.1);">
                 <div style="font-size:.54rem; font-weight:800; color:rgba(255,255,255,.45); text-transform:uppercase;">
                   Établissement</div>
-                <div style="font-size:.82rem; font-weight:800;">Lycée ÉcoleNum</div>
+                <div id="bul-etablissement-h" style="font-size:.82rem; font-weight:800;">---</div>
               </div>
             </div>
           </div>
           <div>
-            <div class="bul-th"><span>Matière</span><span style="text-align:center;">Coef</span><span
-                style="text-align:center;">Note /20</span><span style="text-align:center;">Pts</span><span>Progression
-                &amp; Appréciation</span></div>
-            <div id="bul-rows">
+            <div id="bul-rows" style="overflow-x:auto;">
               <div style="text-align:center; padding:36px;">
                 <div class="spin" style="margin:0 auto 8px;"></div>
                 <div style="font-size:.76rem; font-weight:700; color:#94A3B8;">Chargement du bulletin…</div>
@@ -1036,11 +1039,7 @@
               <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Signature du
                 parent</div>
             </div>
-            <div style="text-align:center;">
-              <div style="font-size:.62rem; font-weight:700; color:#94A3B8; font-style:italic;">Document officiel
-                numérique</div>
-              <div id="bul-date" style="font-size:.56rem; color:#CBD5E1;"></div>
-            </div>
+            <div></div>
             <div style="text-align:center;">
               <div style="height:40px; border-bottom:1px dashed #CBD5E1;"></div>
               <div style="font-size:.56rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Cachet de la
@@ -1054,20 +1053,6 @@
       <div id="sec-absences" class="sec">
         <h2 style="font-size:1rem; font-weight:900; color:#1E293B; text-transform:uppercase; font-style:italic;">📋
           Absences de <span id="abs-en" style="color:#4F46E5;">mon enfant</span></h2>
-        <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:11px;">
-          <div class="card" style="text-align:center; background:#FEF2F2; border-color:#FECACA;">
-            <div id="ab-inj" style="font-size:1.8rem; font-weight:900; color:#DC2626;">0</div>
-            <div style="font-size:.56rem; font-weight:800; color:#EF4444;">Non justifiées</div>
-          </div>
-          <div class="card" style="text-align:center; background:#F0FDF4; border-color:#BBF7D0;">
-            <div id="ab-jus" style="font-size:1.8rem; font-weight:900; color:#16A34A;">0</div>
-            <div style="font-size:.56rem; font-weight:800; color:#22C55E;">Justifiées</div>
-          </div>
-          <div class="card" style="text-align:center;">
-            <div id="ab-tot" style="font-size:1.8rem; font-weight:900; color:#1E293B;">0</div>
-            <div style="font-size:.56rem; font-weight:800; color:#94A3B8;">Total</div>
-          </div>
-        </div>
         <div class="card" id="ab-list"></div>
       </div>
 
@@ -1419,7 +1404,7 @@
       document.querySelectorAll('[data-s="' + id + '"]').forEach(n => n.classList.add('active'));
 
       if (id === 'bulletin') loadBulletin(triActif);
-      if (id === 'absences') loadAbs();
+      if (id === 'absences') { loadAbs(); marquerAbsencesVues(); }
       if (id === 'convocations') loadConv();
       if (id === 'cotisations') loadCot();
       if (id === 'annonces') loadAnn();
@@ -1549,65 +1534,128 @@
       triActif = tri;
       const tn = ['', '1er Trimestre', '2e Trimestre', '3e Trimestre'];
       document.getElementById('bul-tri-b').textContent = tn[tri];
-      document.getElementById('bul-date').textContent = 'Généré le ' + new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
       document.getElementById('bul-rows').innerHTML = '<div style="text-align:center;padding:36px;"><div class="spin"></div><div style="font-size:.74rem;font-weight:700;color:#94A3B8;">Chargement…</div></div>';
-      let notes = null;
       try {
         const id = E.id_enfant;
-        if (id) {
-          const d = await api(`/parents/bulletin-enfant?enfant_id=${id}&trimestre=${tri}`);
-          if (d.success) {
-            const rawNotes = d.notes || d.notes_par_matiere || [];
-            if (rawNotes.length > 0) {
-              notes = rawNotes.map(n => ({
-                nom_matiere: n.nom_matiere || n.matiere || 'Matière',
-                valeur_note: parseFloat(n.valeur_note || n.note_moyenne || n.note || 0),
-                coefficient: parseInt(n.coefficient || 1)
-              }));
-            }
-            if (d.enfant) {
-              const en = d.enfant;
-              const nomE = en.nom_complet || ((en.prenom || '') + ' ' + (en.nom || '')).trim() || '---';
-              document.getElementById('bul-nom-h').textContent = nomE;
-              document.getElementById('bul-mat-h').textContent = en.code_unique || E.code_unique || '---';
-              document.getElementById('bul-cls-h').textContent = en.classe || en.classe_actuelle || E.classe || '---';
-              if (en.moyenne_generale) document.getElementById('st-moy').textContent = parseFloat(en.moyenne_generale).toFixed(2);
-              if (!E.code_unique && en.code_unique) E.code_unique = en.code_unique;
-              if (!E.classe && en.classe) E.classe = en.classe;
-            }
+        if (!id) { renderBulletin(null); return; }
+        const d = await api(`/parents/bulletin-enfant?enfant_id=${id}&trimestre=${tri}`);
+        if (d.success) {
+          if (d.enfant) {
+            const en = d.enfant;
+            const nomE = en.nom_complet || ((en.prenom || '') + ' ' + (en.nom || '')).trim() || '---';
+            document.getElementById('bul-nom-h').textContent = nomE;
+            document.getElementById('bul-mat-h').textContent = en.code_unique || E.code_unique || '---';
+            document.getElementById('bul-cls-h').textContent = en.classe || en.classe_actuelle || E.classe || '---';
+            if (en.moyenne_generale) document.getElementById('st-moy').textContent = parseFloat(en.moyenne_generale).toFixed(2);
+            if (!E.code_unique && en.code_unique) E.code_unique = en.code_unique;
+            if (!E.classe && en.classe) E.classe = en.classe;
           }
-        }
-      } catch (e) { console.warn('loadBulletin:', e); }
-      renderBulletin(notes || []);
+          renderBulletin(d);
+        } else renderBulletin(null);
+      } catch (e) { console.warn('loadBulletin:', e); renderBulletin(null); }
     }
 
-    function renderBulletin(notes) {
-      let tot = 0, ct = 0;
-      const rows = notes.map((n, i) => {
-        const v = parseFloat(n.valeur_note || n.note || 0);
-        const c = parseInt(n.coefficient || 1);
-        const pts = v * c; tot += pts; ct += c;
-        const col = COLS[i % COLS.length];
-        const nc = nCol(v);
-        const app = v >= 15 ? 'Excellent' : v >= 13 ? 'Très bien' : v >= 12 ? 'Bien' : v >= 10 ? 'Assez bien' : v >= 8 ? 'Peut mieux faire' : 'Insuffisant';
-        return `<div class="bul-row">
-          <div style="display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;color:#1E293B;"><span style="width:8px;height:8px;border-radius:50%;background:${col};"></span>${icn(n.nom_matiere || '')} ${esc(n.nom_matiere || '—')}</div>
-          <div style="text-align:center;font-size:.74rem;font-weight:700;color:#64748B;">${c}</div>
-          <div style="text-align:center;font-size:.98rem;font-weight:900;color:${nc};">${v.toFixed(2)}</div>
-          <div style="text-align:center;font-size:.78rem;font-weight:800;color:#1E293B;">${pts.toFixed(1)}</div>
-          <div><div class="nb"><div class="nf" style="width:0%;background:${col};" data-w="${(v / 20) * 100}"></div></div><div style="font-size:.62rem;color:#94A3B8;font-style:italic;">${app}</div></div>
-        </div>`;
-      }).join('');
-      document.getElementById('bul-rows').innerHTML = rows;
-      const moy = ct > 0 ? (tot / ct).toFixed(2) : '—';
-      document.getElementById('bul-moy').textContent = moy;
-      const m = parseFloat(moy);
-      document.getElementById('bul-mention').textContent = men(m).split(' ').slice(0, -1).join(' ');
-      document.getElementById('bul-appr').textContent = m >= 14 ? '"Félicitations du jury"' : m >= 12 ? '"Encouragements du jury"' : '"Des efforts à fournir"';
-      document.getElementById('bul-pts').textContent = tot.toFixed(1);
-      document.getElementById('bul-coef').textContent = 'coef total : ' + ct;
-      document.getElementById('st-moy').textContent = moy;
-      setTimeout(() => { document.querySelectorAll('.nf[data-w]').forEach(el => { el.style.width = el.dataset.w + '%'; }); }, 120);
+    // Même format "pédagogique" que côté élève : séparation par domaine,
+    // détail D1/D2 des devoirs, moyenne devoirs (40%) + composition (60%), moyenne finale.
+    function renderBulletin(data) {
+      const matieres = (data && data.detail_matieres) || [];
+      const rowsEl = document.getElementById('bul-rows');
+
+      if (!matieres.length) {
+        rowsEl.innerHTML = '<div style="text-align:center;padding:36px;color:#94A3B8;">Aucune note pour ce trimestre</div>';
+        document.getElementById('bul-moy').textContent = '—';
+        document.getElementById('bul-mention').textContent = '—';
+        document.getElementById('bul-pts').textContent = '—';
+        return;
+      }
+
+      let maxDevoirs = 2;
+      matieres.forEach(m => {
+        const nb = (m.notes_detail && m.notes_detail.devoirs) ? m.notes_detail.devoirs.length : 0;
+        if (nb > maxDevoirs) maxDevoirs = nb;
+      });
+
+      let thD = '';
+      for (let i = 1; i <= maxDevoirs; i++) {
+        thD += `<th style="text-align:center;white-space:nowrap;font-size:.7rem;">D${i}<br><span style="font-size:.58rem;font-weight:400;color:#94A3B8">/20</span></th>`;
+      }
+      const thead = `<thead><tr style="background:#f8faff;border-bottom:2px solid #e0e7ff;">
+        <th style="min-width:170px;font-size:.72rem;text-align:left;padding:14px 16px;">MATIÈRE</th>
+        <th style="text-align:center;font-size:.72rem;padding:14px 10px;">COEFF</th>
+        ${thD}
+        <th style="text-align:center;font-size:.72rem;color:#6366F1;white-space:nowrap;padding:14px 12px;">MOY.DEV<br><small style="font-weight:400;font-size:.6rem">(40%)</small></th>
+        <th style="text-align:center;font-size:.72rem;color:#8B5CF6;white-space:nowrap;padding:14px 12px;">COMPO<br><small style="font-weight:400;font-size:.6rem">(60%)</small></th>
+        <th style="text-align:center;font-size:.72rem;font-weight:900;padding:14px 12px;">MOY.FINALE</th>
+        <th style="text-align:center;font-size:.72rem;padding:14px 16px;">APPRÉCIATION</th>
+        </tr></thead>`;
+
+      let tbody = '';
+      let domaineActuel = '';
+      matieres.forEach(m => {
+        if (m.domaine && m.domaine !== domaineActuel) {
+          domaineActuel = m.domaine;
+          tbody += `<tr style="background:#f1f5f9;"><td colspan="${maxDevoirs + 5}" style="font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#64748b;padding:12px 16px;">${esc(m.domaine)}</td></tr>`;
+        }
+
+        const devoirs = (m.notes_detail && m.notes_detail.devoirs) || [];
+        const compos = (m.notes_detail && m.notes_detail.compos) || [];
+        const moyD = devoirs.length ? devoirs.reduce((a, b) => a + b, 0) / devoirs.length : null;
+        const compo = compos.length ? compos[0] : null;
+        const moyF = (moyD !== null && compo !== null) ? (moyD * 0.4 + compo * 0.6) : (moyD !== null ? moyD : compo);
+        const hasNote = moyF !== null;
+
+        let tdD = '';
+        for (let i = 0; i < maxDevoirs; i++) {
+          tdD += i < devoirs.length
+            ? `<td style="text-align:center;font-weight:800;font-size:.88rem;color:${nCol(devoirs[i])};padding:14px 12px;">${devoirs[i].toFixed(1)}</td>`
+            : '<td style="text-align:center;color:#CBD5E1;font-size:.8rem;padding:14px 12px;">-</td>';
+        }
+
+        const tdMoyD = moyD !== null
+          ? `<td style="text-align:center;font-weight:800;font-size:.88rem;color:${nCol(moyD)};background:#EEF2FF;padding:14px 12px;">${moyD.toFixed(2)}</td>`
+          : '<td style="text-align:center;color:#CBD5E1;font-size:.8rem;padding:14px 12px;">-</td>';
+
+        const tdCompo = compo !== null
+          ? `<td style="text-align:center;font-weight:800;font-size:.88rem;color:${nCol(compo)};background:#F5F3FF;padding:14px 12px;">${compo.toFixed(1)}</td>`
+          : '<td style="text-align:center;color:#CBD5E1;font-size:.8rem;padding:14px 12px;">-</td>';
+
+        const pct = moyF !== null ? Math.min(moyF / 20 * 100, 100) : 0;
+        const tdF = moyF !== null
+          ? `<td style="text-align:center;padding:14px 12px;"><div style="font-weight:900;font-size:.95rem;color:${nCol(moyF)};">${moyF.toFixed(2)}</div><div style="height:4px;background:#f0f2f8;border-radius:2px;margin-top:5px;width:50px;margin-left:auto;margin-right:auto;"><div style="height:100%;width:${pct}%;background:${nCol(moyF)};border-radius:2px;"></div></div></td>`
+          : '<td style="text-align:center;color:#CBD5E1;font-size:.8rem;padding:14px 12px;">-</td>';
+
+        const ap = moyF === null ? '' : (moyF >= 16 ? 'Très Bien' : moyF >= 14 ? 'Bien' : moyF >= 12 ? 'Assez Bien' : moyF >= 10 ? 'Passable' : 'Insuffisant');
+        const tdAp = ap
+          ? `<td style="text-align:center;padding:14px 16px;"><span style="padding:4px 10px;border-radius:20px;font-size:.66rem;font-weight:700;background:${nCol(moyF)}18;color:${nCol(moyF)};">${ap}</span></td>`
+          : '<td style="padding:14px 16px;"></td>';
+
+        tbody += `<tr style="border-bottom:1px solid #f0f2f8;${!hasNote ? 'opacity:.5;' : ''}">
+          <td style="font-weight:700;padding:14px 16px;font-size:.82rem;">${icn(m.nom || '')} ${esc(m.nom)}${m.optionnel ? ' <span style="font-size:.6rem;color:#94A3B8">(opt.)</span>' : ''}</td>
+          <td style="text-align:center;font-weight:800;color:#94A3B8;font-size:.85rem;padding:14px 10px;">${m.coefficient}</td>
+          ${tdD}${tdMoyD}${tdCompo}${tdF}${tdAp}
+        </tr>`;
+      });
+
+      const mg = data.moyenne_generale;
+      const mgColor = mg !== null && mg !== undefined ? nCol(mg) : '#94A3B8';
+      let emptyD = '';
+      for (let i = 0; i < maxDevoirs; i++) emptyD += '<td></td>';
+      tbody += `<tr style="background:#f8faff;border-top:3px solid ${mgColor};">
+        <td style="font-weight:900;padding:16px;font-size:.84rem;color:#1e293b;">MOYENNE GÉNÉRALE <span style="font-size:.64rem;font-weight:400;color:#94A3B8">(calcul progressif sur matières notées)</span></td>
+        <td></td>${emptyD}<td></td><td></td>
+        <td style="text-align:center;padding:16px 12px;"><div style="font-size:1.15rem;font-weight:900;color:${mgColor};">${mg !== null && mg !== undefined ? mg.toFixed(2) + '/20' : '-'}</div></td>
+        <td style="text-align:center;padding:16px;"><span style="padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:700;background:${mgColor}18;color:${mgColor};">${data.mention || '—'}</span></td>
+      </tr>`;
+
+      rowsEl.innerHTML = `<table class="tbl" style="min-width:820px;border-collapse:separate;border-spacing:0;">${thead}<tbody>${tbody}</tbody></table>`;
+
+      document.getElementById('bul-moy').textContent = (mg !== null && mg !== undefined) ? mg.toFixed(2) : '—';
+      document.getElementById('bul-mention').textContent = data.mention || '—';
+      document.getElementById('bul-appr').textContent = mg >= 14 ? 'Continuez ainsi !' : mg >= 12 ? 'Encourageant, à consolider' : 'Des efforts à fournir';
+      document.getElementById('bul-pts').textContent = mg !== null && mg !== undefined ? mg.toFixed(1) : '—';
+      document.getElementById('bul-coef').textContent = 'coef total : ' + (data.detail_matieres || []).reduce((s, m) => s + (m.coefficient || 0), 0);
+      document.getElementById('st-moy').textContent = mg !== null && mg !== undefined ? mg.toFixed(2) : '—';
+
       if (window.lucide) lucide.createIcons();
     }
 
@@ -1645,8 +1693,31 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    // Clé de "dernière visite" de l'onglet Absences, par enfant — permet de
+    // savoir quelles absences le parent n'a pas encore vues.
+    function _absVuesKey() { return 'abs_vues_' + (E.id_enfant || 'defaut'); }
+    function marquerAbsencesVues() {
+      localStorage.setItem(_absVuesKey(), new Date().toISOString());
+      const b = document.getElementById('babs');
+      if (b) b.style.display = 'none';
+    }
+
     async function loadAbsCpt() {
-      try { const d = await api('/parents/absences-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : '')); if (d.success) { const inj = (d.absences || []).filter(a => !a.justifiee).length, tot = (d.absences || []).length; document.getElementById('st-abs').textContent = tot; if (inj > 0) { const b = document.getElementById('babs'); b.textContent = inj; b.style.display = 'inline'; } } } catch { }
+      try {
+        const d = await api('/parents/absences-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : ''));
+        if (d.success) {
+          const a = d.absences || [];
+          document.getElementById('st-abs').textContent = a.length;
+          // Badge = absences enregistrées après la dernière visite de l'onglet
+          const derniereVisite = localStorage.getItem(_absVuesKey());
+          const nonVues = derniereVisite
+            ? a.filter(x => new Date(x.created_at || x.date_absence) > new Date(derniereVisite))
+            : a;
+          const b = document.getElementById('babs');
+          if (nonVues.length > 0) { b.textContent = nonVues.length; b.style.display = 'inline'; }
+          else { b.style.display = 'none'; }
+        }
+      } catch { }
     }
 
     function formatDateAbs(dateStr) {
@@ -1660,10 +1731,7 @@
       try {
         const d = await api('/parents/absences-enfant' + (E.id_enfant ? `?enfant_id=${E.id_enfant}` : ''));
         if (d.success && d.absences) {
-          const a = d.absences, inj = a.filter(x => !x.justifiee).length, jus = a.filter(x => x.justifiee).length;
-          document.getElementById('ab-inj').textContent = inj;
-          document.getElementById('ab-jus').textContent = jus;
-          document.getElementById('ab-tot').textContent = a.length;
+          const a = d.absences;
           document.getElementById('ab-list').innerHTML = a.length ? a.map(ab => `
             <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;">
               <div style="width:7px;height:7px;border-radius:50%;background:${ab.justifiee ? '#10B981' : '#EF4444'};"></div>
@@ -1676,7 +1744,7 @@
         } else abDm();
       } catch { abDm(); }
     }
-    function abDm() { document.getElementById('ab-inj').textContent = 0; document.getElementById('ab-jus').textContent = 0; document.getElementById('ab-tot').textContent = 0; document.getElementById('ab-list').innerHTML = '<div style="text-align:center;color:#CBD5E1;padding:22px;">✅ Aucune absence enregistrée</div>'; }
+    function abDm() { document.getElementById('ab-list').innerHTML = '<div style="text-align:center;color:#CBD5E1;padding:22px;">✅ Aucune absence enregistrée</div>'; }
 
     async function loadCvCpt() {
       try {
@@ -1684,16 +1752,18 @@
         const convocations = Array.isArray(d.convocations) ? d.convocations : [];
         const nb = convocations.length;
         document.getElementById('st-cv').textContent = nb;
+        // Le badge ne compte que les convocations pas encore accusées —
+        // il diminue à mesure que le parent accuse réception.
+        const enAttente = convocations.filter(c => !isAccuseReception(c));
         const b = document.getElementById('bconv');
+        if (enAttente.length > 0) { b.textContent = enAttente.length; b.style.display = 'inline'; }
+        else { b.style.display = 'none'; }
         const al = document.getElementById('al-cv');
         if (nb > 0) {
-          b.textContent = nb;
-          b.style.display = 'inline';
           const c = convocations[0];
           al.style.display = 'flex';
           document.getElementById('al-cv-t').textContent = (c.motif || c.objet || 'Convocation') + ' — ' + formatDateConv(c.date_convocation);
         } else {
-          b.style.display = 'none';
           al.style.display = 'none';
         }
       } catch (e) {
@@ -1759,17 +1829,23 @@
     async function loadCot() {
       try {
         const d = await api('/parents/cotisations');
-        if (d.success && d.cotisations) {
-          const c = d.cotisations;
-          document.getElementById('cp').textContent = (c.montant_paye || 0).toLocaleString('fr-FR') + ' FCFA';
-          document.getElementById('cr').textContent = (c.montant_restant || 0).toLocaleString('fr-FR') + ' FCFA';
-          document.getElementById('ct').textContent = (c.montant_total || 10000).toLocaleString('fr-FR') + ' FCFA';
-          document.getElementById('ch').innerHTML = (c.historique || []).map(h => `
+        if (d.success) {
+          const resume = d.resume || {};
+          const rows = d.cotisations || [];
+          document.getElementById('cp').textContent = (resume.total_paye || 0).toLocaleString('fr-FR') + ' FCFA';
+          document.getElementById('cr').textContent = (resume.total_du || 0).toLocaleString('fr-FR') + ' FCFA';
+          document.getElementById('ct').textContent = (resume.total_general || 0).toLocaleString('fr-FR') + ' FCFA';
+          document.getElementById('ch').innerHTML = rows.length ? rows.map(c => {
+            const paye = c.statut_paiement === 'PAYE';
+            const libelle = c.motif_cotisation || c.periode_concernee || 'Cotisation APE';
+            const dateStr = c.date_cotisation ? new Date(c.date_cotisation).toLocaleDateString('fr-FR') : '';
+            return `
             <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F1F5F9;">
-              <i data-lucide="${h.statut === 'payé' ? 'check-circle' : 'clock'}" style="width:16px;height:16px;color:${h.statut === 'payé' ? '#10B981' : '#EF4444'};"></i>
-              <div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">${esc(h.libelle || 'Cotisation')}</div><div style="font-size:.6rem;color:#94A3B8;">${esc(h.date || '')}</div></div>
-              <span style="font-weight:900;font-size:.8rem;color:${h.statut === 'payé' ? '#10B981' : '#EF4444'};">${(h.montant || 0).toLocaleString('fr-FR')} FCFA</span>
-            </div>`).join('');
+              <i data-lucide="${paye ? 'check-circle' : 'clock'}" style="width:16px;height:16px;color:${paye ? '#10B981' : '#EF4444'};"></i>
+              <div style="flex:1;"><div style="font-size:.76rem;font-weight:700;">${esc(libelle)}</div><div style="font-size:.6rem;color:#94A3B8;">${esc(dateStr)}</div></div>
+              <span style="font-weight:900;font-size:.8rem;color:${paye ? '#10B981' : '#EF4444'};">${parseFloat(c.montant || 0).toLocaleString('fr-FR')} FCFA</span>
+            </div>`;
+          }).join('') : '<div style="text-align:center;padding:16px;color:#94A3B8;">Aucune cotisation enregistrée</div>';
           if (window.lucide) lucide.createIcons();
         } else cotDm();
       } catch { cotDm(); }
@@ -1865,6 +1941,15 @@
           if (data.config.logo_url) {
             document.querySelectorAll('.ecole-logo').forEach(el => { el.src = data.config.logo_url; el.classList.remove('hidden'); });
           }
+          // En-tête du bulletin — vraies infos de l'établissement
+          const nomEl = document.getElementById('bul-ecole-nom');
+          if (nomEl) nomEl.textContent = data.config.nom_etablissement || 'Établissement';
+          const etabEl = document.getElementById('bul-etablissement-h');
+          if (etabEl) etabEl.textContent = data.config.nom_etablissement || '—';
+          const adrEl = document.getElementById('bul-ecole-adresse');
+          if (adrEl) adrEl.textContent = data.config.adresse || '';
+          const logoEl = document.getElementById('bul-ecole-logo');
+          if (logoEl && data.config.logo_url) { logoEl.src = data.config.logo_url; logoEl.classList.remove('hidden'); }
         }
       } catch (error) { console.error('Erreur chargement config:', error); }
     }

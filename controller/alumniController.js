@@ -199,9 +199,30 @@ exports.updateProfilAlumni = async (req, res) => {
     }
 };
 
-// ========== MENTORATS ==========
+// ========== MENTORATS (mur de conseils publics) ==========
 exports.getMentorats = async (req, res) => {
     try {
+        // ✅ Cette table n'a jamais existé dans la vraie base (dépendait d'un
+        // script alumni_tables.sql jamais exécuté) — cette fonctionnalité
+        // était cassée depuis le début. Auto-création, comme ailleurs dans
+        // le projet, pour ne plus dépendre d'un script à lancer à part.
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS gestion_ape.mentorats (
+                id_mentorat       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                id_alumni         UUID NOT NULL REFERENCES authentification.comptes(id_user) ON DELETE CASCADE,
+                titre             VARCHAR(200),
+                contenu_conseil   TEXT NOT NULL,
+                filiere_suggeree  VARCHAR(50),
+                date_publication  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            )
+        `).catch(() => {});
+        // Ces colonnes ne sont normalement créées que si un alumni a déjà
+        // modifié son profil au moins une fois (via updateProfilAlumni) —
+        // on les garantit ici aussi pour ne dépendre de rien d'autre.
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS photo_url TEXT`).catch(() => {});
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS domaine_expertise VARCHAR(100)`).catch(() => {});
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS disponible_mentorat BOOLEAN`).catch(() => {});
+
         const mesConseilsSeulement = req.query.mine === 'true';
         let query = `
             SELECT m.*, c.prenom, c.nom, c.code_unique,
@@ -239,6 +260,17 @@ exports.createMentorat = async (req, res) => {
         const alumniId = req.user?.id;
         if (!alumniId) return res.status(401).json({ message: 'Non authentifié' });
 
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS gestion_ape.mentorats (
+                id_mentorat       UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                id_alumni         UUID NOT NULL REFERENCES authentification.comptes(id_user) ON DELETE CASCADE,
+                titre             VARCHAR(200),
+                contenu_conseil   TEXT NOT NULL,
+                filiere_suggeree  VARCHAR(50),
+                date_publication  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            )
+        `).catch(() => {});
+
         const { titre, contenu, filiere_suggeree } = req.body;
         if (!contenu) return res.status(400).json({ message: 'Contenu requis' });
 
@@ -265,16 +297,18 @@ exports.getOrientationEleves = async (req, res) => {
             FROM authentification.comptes c
             JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
             WHERE c.role_actuel = 'ELEVE' AND c.est_actif = true
+              AND pe.classe_actuelle IN ('Tle A', 'Tle D')
         `;
         const params = [];
 
+        // ✅ Le mentorat alumni ne concerne que les Terminales — avant, ce
+        // filtre était contournable en passant ?classe=xxx directement à
+        // l'API (pas via l'interface, mais possible en appelant l'API
+        // directement). Le filtre Terminale est désormais toujours actif,
+        // "classe" ne fait plus que restreindre DAVANTAGE (Tle A ou Tle D).
         if (classe) {
             params.push(classe);
             query += ` AND pe.classe_actuelle = $${params.length}`;
-        } else {
-            // Par défaut : le mentorat par les alumni ne concerne que les Terminales
-            // (dernière classe — les autres niveaux peuvent s'entraider entre eux)
-            query += ` AND pe.classe_actuelle IN ('Tle A', 'Tle D')`;
         }
 
         if (recherche) {
@@ -297,6 +331,7 @@ exports.getOrientationEleves = async (req, res) => {
 
 exports.getAvisOrientation = async (req, res) => {
     try {
+        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS id_alumni UUID REFERENCES authentification.comptes(id_user)`).catch(() => {});
         const { eleveId } = req.params;
         const result = await db.query(`
             SELECT ao.*, c.prenom, c.nom
@@ -320,6 +355,15 @@ exports.createAvisOrientation = async (req, res) => {
     try {
         const alumniId = req.user?.id;
         if (!alumniId) return res.status(401).json({ message: 'Non authentifié' });
+
+        // ✅ La vraie table pedagogie.avis_orientation n'a jamais eu de colonne
+        // id_alumni (conçue uniquement pour les profs, id_prof obligatoire) —
+        // le code insérait l'id de l'alumni dans une colonne id_alumni
+        // inexistante, ce qui devait échouer à chaque tentative. On ajoute
+        // la colonne et on rend id_prof optionnel (il ne s'applique pas
+        // quand l'auteur est un alumni).
+        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS id_alumni UUID REFERENCES authentification.comptes(id_user)`).catch(() => {});
+        await db.query(`ALTER TABLE pedagogie.avis_orientation ALTER COLUMN id_prof DROP NOT NULL`).catch(() => {});
 
         const { eleveId, classe, commentaire, serie_recommandee } = req.body;
         if (!commentaire || (!eleveId && !classe)) {
@@ -358,8 +402,8 @@ exports.createAvisOrientation = async (req, res) => {
                 await db.query(`
                     INSERT INTO pedagogie.avis_orientation
                         (id_prof, id_eleve, id_alumni, commentaire, serie_recommandee, updated_at)
-                    VALUES ($1, $2, $3, $4, $5, NOW())
-                `, [alumniId, idEleve, alumniId, commentaire, serie_recommandee || null]);
+                    VALUES (NULL, $1, $2, $3, $4, NOW())
+                `, [idEleve, alumniId, commentaire, serie_recommandee || null]);
             }
         }
 
@@ -389,7 +433,8 @@ exports.getProfilAlumniById = async (req, res) => {
         const extra = await db.query(
             `SELECT photo_url, biographie, bio, domaine_expertise, secteur_activite,
                     entreprise_actuelle, poste_actuel, universite, annee_graduation,
-                    competences, disponible_mentorat
+                    competences, disponible_mentorat, linkedin_url, site_web,
+                    ville_residence, pays_residence, langues_parlees
              FROM gestion_ape.profils_alumni WHERE id_user = $1`, [id]
         );
         const p = extra.rows[0] || {};
@@ -411,12 +456,66 @@ exports.getProfilAlumniById = async (req, res) => {
                 universite: p.universite || null,
                 annee_graduation: p.annee_graduation || null,
                 competences: p.competences || [],
-                disponible_mentorat: p.disponible_mentorat !== false
+                disponible_mentorat: p.disponible_mentorat !== false,
+                linkedin_url: p.linkedin_url || null,
+                site_web: p.site_web || null,
+                ville_residence: p.ville_residence || null,
+                pays_residence: p.pays_residence || null,
+                langues_parlees: p.langues_parlees || []
             }
         });
     } catch (error) {
         console.error('getProfilAlumniById:', error);
         res.status(500).json({ message: 'Erreur récupération profil mentor' });
+    }
+};
+
+// ========== LISTE DE TOUS LES MENTORS DISPONIBLES (élève cherche un mentor) ==========
+// Contrairement à getMentorats (basé sur les conseils publiés), ceci liste TOUS
+// les alumni actifs, qu'ils aient publié un conseil ou non.
+exports.getListeMentorsDisponibles = async (req, res) => {
+    try {
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS photo_url TEXT`).catch(() => {});
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS biographie TEXT`).catch(() => {});
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS bio TEXT`).catch(() => {});
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS domaine_expertise VARCHAR(100)`).catch(() => {});
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS secteur_activite VARCHAR(100)`).catch(() => {});
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS entreprise_actuelle VARCHAR(100)`).catch(() => {});
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS poste_actuel VARCHAR(100)`).catch(() => {});
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS universite VARCHAR(100)`).catch(() => {});
+        await db.query(`ALTER TABLE gestion_ape.profils_alumni ADD COLUMN IF NOT EXISTS disponible_mentorat BOOLEAN`).catch(() => {});
+
+        const result = await db.query(`
+            SELECT c.id_user, c.code_unique, c.nom, c.prenom,
+                   pa.photo_url, pa.biographie, pa.bio, pa.domaine_expertise,
+                   pa.secteur_activite, pa.entreprise_actuelle, pa.poste_actuel,
+                   pa.universite, pa.disponible_mentorat
+            FROM authentification.comptes c
+            LEFT JOIN gestion_ape.profils_alumni pa ON pa.id_user = c.id_user
+            WHERE c.role_actuel = 'ALUMNI' AND c.est_actif = true
+              AND COALESCE(pa.disponible_mentorat, true) = true
+            ORDER BY c.nom, c.prenom
+        `);
+
+        res.json({
+            success: true,
+            alumni: result.rows.map(a => ({
+                id_alumni: a.id_user,
+                code_unique: a.code_unique,
+                nom: a.nom,
+                prenom: a.prenom,
+                auteur: `${a.prenom} ${a.nom}`,
+                photo_url: a.photo_url || null,
+                biographie: a.biographie || a.bio || null,
+                domaine_expertise: a.domaine_expertise || null,
+                profession: a.poste_actuel || a.secteur_activite || null,
+                entreprise_actuelle: a.entreprise_actuelle || null,
+                universite: a.universite || null
+            }))
+        });
+    } catch (error) {
+        console.error('getListeMentorsDisponibles:', error);
+        res.status(500).json({ message: 'Erreur récupération liste mentors' });
     }
 };
 

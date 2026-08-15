@@ -15,5 +15,6 @@ router.get('/count', notificationController.getUnreadCount);
 router.put('/read-all', notificationController.markAllAsRead);
 router.put('/:id/read', notificationController.markAsRead);
 router.delete('/:id', notificationController.deleteNotification);
+router.post('/fcm-token', notificationController.registerFcmToken);
 
 module.exports = router;

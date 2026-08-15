@@ -484,7 +484,7 @@ exports.getRessources = async (req, res) => {
         const { classe, type } = req.query;
         let q = `
             SELECT r.id_ressource, r.titre, r.type_document, r.url_fichier,
-                   r.classe_concernee, r.date_depot,
+                   r.classe_concernee, r.date_depot, r.est_visible,
                    c.nom as prof_nom, c.prenom as prof_prenom
             FROM pedagogie.ressources_pedagogiques r
             JOIN pedagogie.profils_profs pp ON pp.id_prof = r.id_prof
@@ -515,8 +515,8 @@ exports.getRessources = async (req, res) => {
                 : '—',
             taille: '—',
             format: row.url_fichier ? row.url_fichier.split('.').pop().toUpperCase() : '—',
-            est_visible: true,
-            visible: true,
+            est_visible: row.est_visible !== false,
+            visible: row.est_visible !== false,
             mat: 'Ma matière',
             prof_nom: row.prof_nom,
             prof_prenom: row.prof_prenom,
@@ -637,8 +637,30 @@ exports.supprimerRessource = async (req, res) => {
     }
 };
 
+// ✅ Avant : stub qui ne faisait rien (ne touchait ni :id ni la BD) — le
+// bouton "Visible/Masqué" du web ne fonctionnait donc pas (en plus d'un
+// mismatch PATCH/PUT côté frontend, corrigé aussi).
 exports.toggleVisibilite = async (req, res) => {
-    res.json({ success: true });
+    try {
+        const profId = req.user?.id;
+        const { id } = req.params;
+        const check = await db.query(`
+            SELECT r.est_visible FROM pedagogie.ressources_pedagogiques r
+            JOIN pedagogie.profils_profs pp ON pp.id_prof = r.id_prof
+            WHERE r.id_ressource=$1 AND pp.id_user=$2
+        `, [id, profId]);
+        if (!check.rows.length) return res.status(403).json({ message: 'Non autorisé' });
+
+        const nouvelleValeur = !(check.rows[0].est_visible !== false);
+        await db.query(
+            `UPDATE pedagogie.ressources_pedagogiques SET est_visible=$1 WHERE id_ressource=$2`,
+            [nouvelleValeur, id]
+        );
+        res.json({ success: true, est_visible: nouvelleValeur });
+    } catch (e) {
+        console.error('Erreur toggleVisibilite:', e);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
 };
 
 // ═══════════════════════════════════════════
@@ -1025,5 +1047,90 @@ exports.getAnnonces = async (req, res) => {
     } catch (error) {
         console.error('getAnnonces prof:', error.message);
         res.status(500).json({ success: false, annonces: [] });
+    }
+};
+
+// ═══════════════════════════════════════════
+// COPIES CORRIGÉES SCANNÉES
+// Le prof scanne une copie après correction et choisit de l'envoyer
+// à l'élève ou de la garder pour lui (preuve en cas de contestation).
+// ═══════════════════════════════════════════
+exports.uploadCopieScannee = async (req, res) => {
+    try {
+        const profId = req.user?.id;
+        const { id_eleve, id_matiere, trimestre, type_evaluation, note, visible_eleve } = req.body;
+        if (!profId) return res.status(401).json({ message: 'Non authentifié' });
+        if (!req.file) return res.status(400).json({ message: 'Fichier requis (scan ou photo de la copie)' });
+        if (!id_eleve || !id_matiere || !trimestre) {
+            return res.status(400).json({ message: 'Élève, matière et trimestre requis' });
+        }
+
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS pedagogie.copies_scannees (
+                id_copie        UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+                id_eleve        UUID        NOT NULL REFERENCES authentification.comptes(id_user) ON DELETE CASCADE,
+                id_matiere      INTEGER     REFERENCES pedagogie.matieres(id_matiere),
+                id_professeur   UUID        NOT NULL REFERENCES authentification.comptes(id_user),
+                trimestre       SMALLINT    NOT NULL CHECK (trimestre IN (1,2,3)),
+                type_evaluation VARCHAR(20) DEFAULT 'DEVOIR',
+                url_fichier     TEXT        NOT NULL,
+                note            NUMERIC(5,2),
+                visible_eleve   BOOLEAN     NOT NULL DEFAULT FALSE,
+                date_upload     TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        `).catch(() => {});
+
+        const url_fichier = `/uploads/${req.file.filename}`;
+
+        const r = await db.query(`
+            INSERT INTO pedagogie.copies_scannees
+                (id_eleve, id_matiere, id_professeur, trimestre, type_evaluation, url_fichier, note, visible_eleve)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            RETURNING id_copie, date_upload
+        `, [
+            id_eleve, parseInt(id_matiere), profId, parseInt(trimestre),
+            (type_evaluation || 'DEVOIR').toUpperCase(), url_fichier,
+            note ? parseFloat(note) : null,
+            visible_eleve === 'true' || visible_eleve === true
+        ]);
+
+        res.json({
+            success: true,
+            message: visible_eleve === 'true' || visible_eleve === true
+                ? 'Copie envoyée à l\'élève'
+                : 'Copie enregistrée (gardée pour vous)',
+            copie: r.rows[0]
+        });
+    } catch (e) {
+        console.error('uploadCopieScannee:', e.message);
+        res.status(500).json({ message: 'Erreur: ' + e.message });
+    }
+};
+
+exports.getCopiesScannees = async (req, res) => {
+    try {
+        const profId = req.user?.id;
+        const { id_eleve, trimestre } = req.query;
+        if (!profId) return res.status(401).json({ message: 'Non authentifié' });
+
+        let q = `
+            SELECT cs.id_copie, cs.id_eleve, cs.trimestre, cs.type_evaluation,
+                   cs.url_fichier, cs.note, cs.visible_eleve, cs.date_upload,
+                   m.nom_matiere, c.nom, c.prenom
+            FROM pedagogie.copies_scannees cs
+            LEFT JOIN pedagogie.matieres m ON m.id_matiere = cs.id_matiere
+            JOIN authentification.comptes c ON c.id_user = cs.id_eleve
+            WHERE cs.id_professeur = $1
+        `;
+        const params = [profId];
+        if (id_eleve) { params.push(id_eleve); q += ` AND cs.id_eleve = $${params.length}`; }
+        if (trimestre) { params.push(parseInt(trimestre)); q += ` AND cs.trimestre = $${params.length}`; }
+        q += ` ORDER BY cs.date_upload DESC LIMIT 100`;
+
+        const r = await db.query(q, params);
+        res.json({ success: true, copies: r.rows });
+    } catch (e) {
+        console.error('getCopiesScannees:', e.message);
+        res.json({ success: true, copies: [] });
     }
 };

@@ -265,70 +265,70 @@ GROUP BY rp.id_prof, rp.classe_concernee;
 -- PROF-2026-001 — KABORE Marie
 INSERT INTO pedagogie.profils_profs (id_user, matieres, classes, diplome, annees_exp, telephone)
 SELECT id_user, ARRAY['Mathématiques','Physique-Chimie'], ARRAY['Tle D','1ère D','2nde C','3ème'],
-       'Licence Mathématiques · Université de Ouagadougou', 8, '+226 70 00 00 01'
+        'Licence Mathématiques · Université de Ouagadougou', 8, '+226 70 00 00 01'
 FROM authentification.comptes WHERE code_unique = 'PROF-2026-001'
 ON CONFLICT (id_user) DO UPDATE SET matieres = EXCLUDED.matieres, classes = EXCLUDED.classes;
 
 -- PROF-2026-002 — TRAORE Ibrahim
 INSERT INTO pedagogie.profils_profs (id_user, matieres, classes, diplome, annees_exp, telephone)
 SELECT id_user, ARRAY['Français','Philosophie'], ARRAY['Tle A','1ère A','2nde A'],
-       'Master Lettres Modernes · Université Ouaga 1', 12, '+226 70 00 00 02'
+        'Master Lettres Modernes · Université Ouaga 1', 12, '+226 70 00 00 02'
 FROM authentification.comptes WHERE code_unique = 'PROF-2026-002'
 ON CONFLICT (id_user) DO UPDATE SET matieres = EXCLUDED.matieres, classes = EXCLUDED.classes;
 
 -- PROF-2026-003 — OUEDRAOGO Paul
 INSERT INTO pedagogie.profils_profs (id_user, matieres, classes, diplome, annees_exp, telephone)
 SELECT id_user, ARRAY['Anglais'], ARRAY['Tle A','Tle D','1ère A','1ère D','2nde A','2nde C'],
-       'Licence LEA · Université Ouaga 2', 6, '+226 70 00 00 03'
+        'Licence LEA · Université Ouaga 2', 6, '+226 70 00 00 03'
 FROM authentification.comptes WHERE code_unique = 'PROF-2026-003'
 ON CONFLICT (id_user) DO UPDATE SET matieres = EXCLUDED.matieres, classes = EXCLUDED.classes;
 
 -- PROF-2026-004 — NANA Sophie
 INSERT INTO pedagogie.profils_profs (id_user, matieres, classes, diplome, annees_exp, telephone)
 SELECT id_user, ARRAY['Histoire-Géographie'], ARRAY['3ème','4ème','5ème','6ème'],
-       'Licence Histoire · Université de Koudougou', 5, '+226 70 00 00 04'
+        'Licence Histoire · Université de Koudougou', 5, '+226 70 00 00 04'
 FROM authentification.comptes WHERE code_unique = 'PROF-2026-004'
 ON CONFLICT (id_user) DO UPDATE SET matieres = EXCLUDED.matieres, classes = EXCLUDED.classes;
 
 -- PROF-2026-005 — ZONGO Charles (celui qu'on a testé)
 INSERT INTO pedagogie.profils_profs (id_user, matieres, classes, diplome, annees_exp, telephone)
 SELECT id_user, ARRAY['SVT'], ARRAY['Tle D','1ère D','2nde C','3ème','4ème'],
-       'Licence Biologie · Université Joseph Ki-Zerbo', 9, '+226 70 00 00 05'
+        'Licence Biologie · Université Joseph Ki-Zerbo', 9, '+226 70 00 00 05'
 FROM authentification.comptes WHERE code_unique = 'PROF-2026-005'
 ON CONFLICT (id_user) DO UPDATE SET matieres = EXCLUDED.matieres, classes = EXCLUDED.classes;
 
 -- PROF-2026-006 — SOME Honorine
 INSERT INTO pedagogie.profils_profs (id_user, matieres, classes, diplome, annees_exp, telephone)
 SELECT id_user, ARRAY['Français'], ARRAY['3ème','4ème','5ème','6ème'],
-       'Licence Lettres · Université de Ouagadougou', 7, '+226 70 00 00 06'
+        'Licence Lettres · Université de Ouagadougou', 7, '+226 70 00 00 06'
 FROM authentification.comptes WHERE code_unique = 'PROF-2026-006'
 ON CONFLICT (id_user) DO UPDATE SET matieres = EXCLUDED.matieres, classes = EXCLUDED.classes;
 
 -- PROF-2026-007 — DIALLO Moussa
 INSERT INTO pedagogie.profils_profs (id_user, matieres, classes, diplome, annees_exp, telephone)
 SELECT id_user, ARRAY['Mathématiques'], ARRAY['5ème','6ème','4ème'],
-       'Licence Mathématiques · Université de Koudougou', 4, '+226 70 00 00 07'
+        'Licence Mathématiques · Université de Koudougou', 4, '+226 70 00 00 07'
 FROM authentification.comptes WHERE code_unique = 'PROF-2026-007'
 ON CONFLICT (id_user) DO UPDATE SET matieres = EXCLUDED.matieres, classes = EXCLUDED.classes;
 
 -- PROF-2026-008 — TAPSOBA Rasmata
 INSERT INTO pedagogie.profils_profs (id_user, matieres, classes, diplome, annees_exp, telephone)
 SELECT id_user, ARRAY['Informatique'], ARRAY['Tle A','Tle D','1ère A','1ère D'],
-       'Licence Informatique · 2iE Ouagadougou', 3, '+226 70 00 00 08'
+        'Licence Informatique · 2iE Ouagadougou', 3, '+226 70 00 00 08'
 FROM authentification.comptes WHERE code_unique = 'PROF-2026-008'
 ON CONFLICT (id_user) DO UPDATE SET matieres = EXCLUDED.matieres, classes = EXCLUDED.classes;
 
 -- PROF-2026-009 — SAWADOGO Alimata
 INSERT INTO pedagogie.profils_profs (id_user, matieres, classes, diplome, annees_exp, telephone)
 SELECT id_user, ARRAY['EPS'], ARRAY['Tle A','Tle D','1ère A','1ère D','2nde A','2nde C','3ème','4ème','5ème','6ème'],
-       'Licence STAPS · INJEPS Ouagadougou', 11, '+226 70 00 00 09'
+        'Licence STAPS · INJEPS Ouagadougou', 11, '+226 70 00 00 09'
 FROM authentification.comptes WHERE code_unique = 'PROF-2026-009'
 ON CONFLICT (id_user) DO UPDATE SET matieres = EXCLUDED.matieres, classes = EXCLUDED.classes;
 
 -- PROF-2026-010 — COMPAORE Jean-Pierre
 INSERT INTO pedagogie.profils_profs (id_user, matieres, classes, diplome, annees_exp, telephone)
 SELECT id_user, ARRAY['Économie'], ARRAY['Tle A','1ère A','2nde A'],
-       'Master Économie · Université Ouaga 2', 15, '+226 70 00 00 10'
+        'Master Économie · Université Ouaga 2', 15, '+226 70 00 00 10'
 FROM authentification.comptes WHERE code_unique = 'PROF-2026-010'
 ON CONFLICT (id_user) DO UPDATE SET matieres = EXCLUDED.matieres, classes = EXCLUDED.classes;
 
