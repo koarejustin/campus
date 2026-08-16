@@ -10,7 +10,7 @@ class ApiClient {
 
   // Backend hébergé sur Render — accessible depuis n'importe quel réseau,
   // contrairement à localhost/ngrok utilisés pendant le développement.
-  static const String baseUrl = 'https://campus-0b5u.onrender.com/api';
+  static const String baseUrl = 'https://campus-1-v4kf.onrender.com/api';
 
   String? _token;
   Map<String, dynamic>? _user;
