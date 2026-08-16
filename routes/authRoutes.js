@@ -5,6 +5,7 @@ const authGuard = require('../middleware/authMiddleware');
 
 router.post('/register', authController.register);
 router.post('/login', authController.login);
+router.put('/changer-mot-de-passe', authGuard, authController.changerMotDePasse);
 
 router.get('/me', authGuard, (req, res) => {
     res.json({

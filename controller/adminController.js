@@ -841,6 +841,160 @@ exports.createProfesseur = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════
+// CRÉER UN SURVEILLANT
+// ═══════════════════════════════════════════
+exports.createSurveillant = async (req, res) => {
+    try {
+        const { prenom, nom, email, telephone, poste_occupe } = req.body;
+        if (!prenom || !nom) {
+            return res.status(400).json({ message: 'Prénom et nom requis' });
+        }
+        const bcrypt = require('bcryptjs');
+        const countR = await db.query(
+            "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='SURVEILLANT'"
+        );
+        const nb = parseInt(countR.rows[0].count) || 0;
+        const code = 'SURV-2026-' + String(nb + 1).padStart(3, '0');
+        const motDePasseTemp = genTempPassword();
+        const hash = await bcrypt.hash(motDePasseTemp, 10);
+
+        const r = await db.query(`
+            INSERT INTO authentification.comptes
+            (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+            VALUES ($1,$2,$3,$4,$5,$6,'SURVEILLANT',true)
+            RETURNING id_user, code_unique
+        `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
+
+        const survId = r.rows[0].id_user;
+        // ⚠️ Pas de ON CONFLICT ici : authentification.profils_administratifs
+        // n'a pas de contrainte UNIQUE sur id_user (seulement sa PK id_admin) —
+        // sans risque puisque survId vient d'être généré juste au-dessus.
+        await db.query(
+            `INSERT INTO authentification.profils_administratifs (id_user, poste_occupe) VALUES ($1,$2)`,
+            [survId, poste_occupe || 'Surveillant']
+        );
+
+        res.json({ success: true, message: 'Surveillant créé', code_unique: code, mot_de_passe_temporaire: motDePasseTemp });
+    } catch (e) {
+        console.error('createSurveillant:', e.message);
+        res.status(500).json({ message: 'Erreur: ' + e.message });
+    }
+};
+
+// ═══════════════════════════════════════════
+// CRÉER UN ALUMNI
+// ═══════════════════════════════════════════
+exports.createAlumni = async (req, res) => {
+    try {
+        const { prenom, nom, email, telephone, derniere_classe, annee_diplome } = req.body;
+        if (!prenom || !nom) {
+            return res.status(400).json({ message: 'Prénom et nom requis' });
+        }
+        const bcrypt = require('bcryptjs');
+        const countR = await db.query(
+            "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ALUMNI'"
+        );
+        const nb = parseInt(countR.rows[0].count) || 0;
+        const code = 'ALUM-2026-' + String(nb + 1).padStart(3, '0');
+        const motDePasseTemp = genTempPassword();
+        const hash = await bcrypt.hash(motDePasseTemp, 10);
+
+        const r = await db.query(`
+            INSERT INTO authentification.comptes
+            (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+            VALUES ($1,$2,$3,$4,$5,$6,'ALUMNI',true)
+            RETURNING id_user, code_unique
+        `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
+
+        const alumniId = r.rows[0].id_user;
+        await db.query(
+            `INSERT INTO gestion_ape.profils_alumni (id_user, derniere_classe, annee_diplome) VALUES ($1,$2,$3)
+             ON CONFLICT (id_user) DO UPDATE SET derniere_classe=$2, annee_diplome=$3`,
+            [alumniId, derniere_classe || null, annee_diplome || null]
+        );
+
+        res.json({ success: true, message: 'Alumni créé', code_unique: code, mot_de_passe_temporaire: motDePasseTemp });
+    } catch (e) {
+        console.error('createAlumni:', e.message);
+        res.status(500).json({ message: 'Erreur: ' + e.message });
+    }
+};
+
+// ═══════════════════════════════════════════
+// CRÉER UN PARENT (avec liaison optionnelle à un élève par matricule —
+// c'est ce compte qui alimente aussi l'espace APE, d'où la création du
+// profil gestion_ape.profils_parents en même temps)
+// ═══════════════════════════════════════════
+exports.createParent = async (req, res) => {
+    try {
+        const { prenom, nom, email, telephone, profession, matricule_enfant, lien_parente } = req.body;
+        if (!prenom || !nom) {
+            return res.status(400).json({ message: 'Prénom et nom requis' });
+        }
+        // ✅ Requis : un déclencheur BD ("Activation refusée : un parent doit
+        // avoir au moins un enfant lié ou être membre du bureau APE") rejette
+        // déjà toute création de parent actif sans enfant lié — autant le
+        // vérifier ici avec un message clair plutôt que de laisser échouer
+        // l'INSERT plus bas avec une erreur SQL brute.
+        if (!matricule_enfant) {
+            return res.status(400).json({ message: 'Le matricule de l\'enfant (élève) est requis pour créer un compte parent' });
+        }
+
+        const eleve = await db.query(
+            `SELECT id_user FROM authentification.comptes WHERE code_unique = $1 AND role_actuel = 'ELEVE'`,
+            [String(matricule_enfant).trim()]
+        );
+        if (!eleve.rows.length) {
+            return res.status(404).json({ message: `Aucun élève trouvé avec le matricule ${matricule_enfant}` });
+        }
+        const idEleve = eleve.rows[0].id_user;
+
+        const bcrypt = require('bcryptjs');
+        const countR = await db.query(
+            "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='PARENT'"
+        );
+        const nb = parseInt(countR.rows[0].count) || 0;
+        const code = 'PAR-2026-' + String(nb + 1).padStart(4, '0');
+        const motDePasseTemp = genTempPassword();
+        const hash = await bcrypt.hash(motDePasseTemp, 10);
+
+        // ⚠️ Un déclencheur BD (trg_prevent_parent_activation) refuse tout
+        // parent est_actif=true sans relation vers un élève — mais cette
+        // relation ne peut être créée qu'une fois le compte parent existant
+        // (contrainte de clé étrangère). On crée donc le compte inactif
+        // d'abord, on lie l'enfant, puis on active — le déclencheur retrouve
+        // alors bien la relation et laisse passer l'activation.
+        const r = await db.query(`
+            INSERT INTO authentification.comptes
+            (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+            VALUES ($1,$2,$3,$4,$5,$6,'PARENT',false)
+            RETURNING id_user, code_unique
+        `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
+
+        const parentId = r.rows[0].id_user;
+        // ⚠️ Pas de ON CONFLICT ici : gestion_ape.profils_parents n'a pas de
+        // contrainte UNIQUE sur id_user (seulement sa PK id_parent) — sans
+        // risque puisque parentId vient d'être généré juste au-dessus.
+        await db.query(
+            `INSERT INTO gestion_ape.profils_parents (id_user, profession, telephone) VALUES ($1,$2,$3)`,
+            [parentId, profession || null, telephone || null]
+        );
+
+        await db.query(
+            `INSERT INTO vie_scolaire.relations_parents_eleves (id_parent, id_eleve, lien_parente) VALUES ($1,$2,$3)`,
+            [parentId, idEleve, lien_parente || 'Parent']
+        );
+
+        await db.query(`UPDATE authentification.comptes SET est_actif = true WHERE id_user = $1`, [parentId]);
+
+        res.json({ success: true, message: 'Parent créé', code_unique: code, mot_de_passe_temporaire: motDePasseTemp, lie_a_eleve: true });
+    } catch (e) {
+        console.error('createParent:', e.message);
+        res.status(500).json({ message: 'Erreur: ' + e.message });
+    }
+};
+
+// ═══════════════════════════════════════════
 // COTISATIONS
 // ═══════════════════════════════════════════
 exports.getCotisations = async (req, res) => {

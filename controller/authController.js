@@ -119,3 +119,32 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
     res.status(501).json({ message: "Utilisez la simulation pour créer des comptes." });
 };
+
+// ── Changer son propre mot de passe (tous rôles) ──
+exports.changerMotDePasse = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        const { ancien_mot_de_passe, nouveau_mot_de_passe } = req.body;
+        if (!userId) return res.status(401).json({ success: false, message: 'Non authentifié' });
+        if (!ancien_mot_de_passe || !nouveau_mot_de_passe) {
+            return res.status(400).json({ success: false, message: 'Ancien et nouveau mot de passe requis' });
+        }
+        if (String(nouveau_mot_de_passe).length < 4) {
+            return res.status(400).json({ success: false, message: 'Le nouveau mot de passe doit faire au moins 4 caractères' });
+        }
+
+        const r = await db.query(`SELECT mot_de_passe FROM authentification.comptes WHERE id_user = $1`, [userId]);
+        if (!r.rows.length) return res.status(404).json({ success: false, message: 'Compte introuvable' });
+
+        const isMatch = await bcrypt.compare(ancien_mot_de_passe, r.rows[0].mot_de_passe);
+        if (!isMatch) return res.status(400).json({ success: false, message: 'Ancien mot de passe incorrect' });
+
+        const hash = await bcrypt.hash(nouveau_mot_de_passe, 10);
+        await db.query(`UPDATE authentification.comptes SET mot_de_passe = $1 WHERE id_user = $2`, [hash, userId]);
+
+        res.json({ success: true, message: 'Mot de passe modifié avec succès' });
+    } catch (err) {
+        console.error('changerMotDePasse:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
