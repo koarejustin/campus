@@ -8,12 +8,13 @@
 // connexion au serveur, comme WhatsApp ou Gmail.
 // ================================================================
 
-const CACHE_NAME = 'campus-numerique-v1';
+const CACHE_NAME = 'campus-numerique-v2';
 const APP_SHELL = [
   '/eleve.html',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/vendor/chart.umd.js',
 ];
 
 self.addEventListener('install', (event) => {
@@ -42,6 +43,24 @@ self.addEventListener('fetch', (event) => {
 
   // Uniquement les requêtes GET peuvent être mises en cache.
   if (req.method !== 'GET') return;
+
+  // ✅ Chart.js (/vendor/) est un fichier statique versionné qui ne
+  // change jamais entre deux déploiements identiques — le stratégie
+  // "réseau d'abord" ci-dessous le retéléchargeait entièrement (~200 Ko)
+  // à chaque chargement de page, ce qui dépassait le délai d'attente
+  // côté élève sur une connexion lente et affichait "Graphique
+  // indisponible" même avec du réseau. Cache d'abord : instantané dès
+  // la deuxième visite, sans jamais retélécharger inutilement.
+  if (req.url.includes('/vendor/')) {
+    event.respondWith(
+      caches.match(req).then((cached) => cached || fetch(req).then((res) => {
+        const resClone = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+        return res;
+      }))
+    );
+    return;
+  }
 
   event.respondWith(
     fetch(req)

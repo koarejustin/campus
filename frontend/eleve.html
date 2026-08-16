@@ -1172,9 +1172,30 @@
           <div class="sb-role">● Espace Élève</div>
         </div>
       </div>
-      <div class="sb-user">
-        <div class="sb-user-name" id="sb-nom">Chargement...</div>
-        <div class="sb-user-mat" id="sb-mat">--</div>
+      <div class="sb-user" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div>
+          <div class="sb-user-name" id="sb-nom">Chargement...</div>
+          <div class="sb-user-mat" id="sb-mat">--</div>
+        </div>
+        <button onclick="openChangePassword()" title="Changer mon mot de passe"
+          style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px;cursor:pointer;color:#fff;flex-shrink:0;">🔒</button>
+      </div>
+    </div>
+
+    <div id="m-chg-pwd" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none';">
+      <div style="background:#fff;border-radius:14px;padding:20px;max-width:380px;width:92%;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div style="font-size:.9rem;font-weight:800;color:#0F172A;">🔒 Changer mon mot de passe</div>
+          <button onclick="document.getElementById('m-chg-pwd').style.display='none';" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:#94A3B8;">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;">
+          <div><label style="font-size:.68rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Mot de passe actuel</label>
+            <input id="cp-ancien" type="password" style="width:100%;padding:8px 11px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.8rem;box-sizing:border-box;"></div>
+          <div><label style="font-size:.68rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Nouveau mot de passe</label>
+            <input id="cp-nouveau" type="password" style="width:100%;padding:8px 11px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:.8rem;box-sizing:border-box;"></div>
+          <div id="cp-msg" style="display:none;font-size:.72rem;padding:7px;border-radius:7px;"></div>
+          <button onclick="submitChangePassword()" style="background:var(--accent);color:#fff;border:none;border-radius:9px;padding:10px;font-size:.8rem;font-weight:700;cursor:pointer;">Changer le mot de passe</button>
+        </div>
       </div>
     </div>
 
@@ -1939,6 +1960,40 @@
     }
 
     function authH() { return { 'Authorization': `Bearer ${getStoredToken()}` }; }
+
+    function openChangePassword() {
+      const m = document.getElementById('m-chg-pwd');
+      if (m) m.style.display = 'flex';
+    }
+
+    async function submitChangePassword() {
+      const ancien_mot_de_passe = document.getElementById('cp-ancien')?.value;
+      const nouveau_mot_de_passe = document.getElementById('cp-nouveau')?.value;
+      const msgEl = document.getElementById('cp-msg');
+      if (!ancien_mot_de_passe || !nouveau_mot_de_passe) {
+        if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Les deux champs sont requis'; msgEl.style.background = '#FEF2F2'; msgEl.style.color = '#EF4444'; }
+        return;
+      }
+      if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = '⏳ Modification...'; msgEl.style.background = '#F8FAFF'; msgEl.style.color = '#64748B'; }
+      try {
+        const r = await fetch(`${API}/auth/changer-mot-de-passe`, {
+          method: 'PUT',
+          headers: { ...authH(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ancien_mot_de_passe, nouveau_mot_de_passe })
+        });
+        const d = await r.json();
+        if (d.success) {
+          if (msgEl) { msgEl.textContent = '✅ Mot de passe changé'; msgEl.style.background = '#F0FDF4'; msgEl.style.color = '#059669'; }
+          document.getElementById('cp-ancien').value = '';
+          document.getElementById('cp-nouveau').value = '';
+          setTimeout(() => { document.getElementById('m-chg-pwd').style.display = 'none'; }, 1200);
+        } else {
+          if (msgEl) { msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.background = '#FEF2F2'; msgEl.style.color = '#EF4444'; }
+        }
+      } catch (e) {
+        if (msgEl) { msgEl.textContent = '❌ Erreur réseau'; msgEl.style.background = '#FEF2F2'; msgEl.style.color = '#EF4444'; }
+      }
+    }
     function escHtml(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
     // Produit un littéral JS entre guillemets SIMPLES, sûr à insérer dans un
     // attribut onclick="..." (double-guillemets) sans jamais le casser —
@@ -3747,14 +3802,15 @@
       // ça n'est pas encore arrivé (connexion lente ce jour-là), le
       // graphique échouait une seule fois, silencieusement, sans jamais
       // réessayer. On attend maintenant que la librairie soit vraiment
-      // prête (jusqu'à 5 secondes) avant d'abandonner pour de vrai.
+      // prête (jusqu'à 15 secondes, pour laisser sa chance à une connexion
+      // lente lors de la toute première visite) avant d'abandonner.
       if (typeof Chart === 'undefined') {
         var tentatives = 0;
         var pret = await new Promise(function (resolve) {
           var t = setInterval(function () {
             tentatives++;
             if (typeof Chart !== 'undefined') { clearInterval(t); resolve(true); }
-            else if (tentatives >= 25) { clearInterval(t); resolve(false); }
+            else if (tentatives >= 75) { clearInterval(t); resolve(false); }
           }, 200);
         });
         if (!pret) {
