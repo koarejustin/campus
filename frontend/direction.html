@@ -3230,7 +3230,12 @@
             <div style="display:flex;gap:8px;">
               <input type="text" id="corps-srch" placeholder="Rechercher prof…" style="width:180px;"
                 oninput="filtCorps()">
-
+              <button class="btn-p" style="font-size:.72rem;background:linear-gradient(135deg,#4F46E5,#7C3AED);white-space:nowrap;" onclick="openAddCorps()">
+                <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un professeur
+              </button>
+              <button class="btn-p" style="font-size:.72rem;background:#0369A1;white-space:nowrap;" onclick="openAddSurveillant()">
+                <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un surveillant
+              </button>
             </div>
           </div>
           <div id="corps-list">
@@ -3401,8 +3406,13 @@
       <div class="card" style="padding:20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Parents d'élèves</div>
-          <input type="text" id="parents-srch" placeholder="Rechercher un parent…" style="width:220px;"
-            oninput="filtParents()">
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="parents-srch" placeholder="Rechercher un parent…" style="width:220px;"
+              oninput="filtParents()">
+            <button class="btn-p" style="font-size:.72rem;background:linear-gradient(135deg,#4F46E5,#7C3AED);white-space:nowrap;" onclick="openAddParent()">
+              <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un parent
+            </button>
+          </div>
         </div>
         <div id="parents-list">
           <div style="text-align:center;padding:30px;color:#94A3B8;">Chargement…</div>
@@ -3415,8 +3425,13 @@
       <div class="card" style="padding:20px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div style="font-size:.9rem;font-weight:800;color:#0F172A;">Anciens élèves</div>
-          <input type="text" id="alumni-srch" placeholder="Rechercher un ancien élève…" style="width:220px;"
-            oninput="filtAlumniDir()">
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="alumni-srch" placeholder="Rechercher un ancien élève…" style="width:220px;"
+              oninput="filtAlumniDir()">
+            <button class="btn-p" style="font-size:.72rem;background:linear-gradient(135deg,#4F46E5,#7C3AED);white-space:nowrap;" onclick="openAddAlumni()">
+              <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un alumni
+            </button>
+          </div>
         </div>
         <div id="alumni-dir-list">
           <div style="text-align:center;padding:30px;color:#94A3B8;">Chargement…</div>
@@ -5154,6 +5169,199 @@
           const inner = document.getElementById('m-add-corps')?.querySelector('.dir-modal');
           if (inner) inner.innerHTML = renderCredentialsPanel(d.code_unique, d.mot_de_passe_temporaire, 'm-add-corps', 'loadCorps');
           toast('Professeur créé', 'ok');
+        } else {
+          if (msgEl) { msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = '#EF4444'; }
+        }
+      } catch (e) {
+        if (msgEl) { msgEl.textContent = '❌ ' + e.message; msgEl.style.color = '#EF4444'; }
+      }
+    }
+
+    // ══════════════════════════════════════
+    // AJOUTER UN SURVEILLANT
+    // ══════════════════════════════════════
+    function openAddSurveillant() {
+      let m = document.getElementById('m-add-surv');
+      if (!m) {
+        m = document.createElement('div');
+        m.id = 'm-add-surv';
+        m.className = 'dir-modal-overlay';
+        m.onclick = e => { if (e.target === m) m.remove(); };
+        m.innerHTML = '<div class="dir-modal" style="max-width:480px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+          + '<div style="font-size:.95rem;font-weight:800;">➕ Ajouter un surveillant</div>'
+          + '<button onclick="document.getElementById(\'m-add-surv\')?.remove();" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94A3B8;">✕</button>'
+          + '</div>'
+          + '<div style="display:flex;flex-direction:column;gap:10px;">'
+          + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Prénom *</label>'
+          + '<input id="sv-prenom" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Nom *</label>'
+          + '<input id="sv-nom" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '</div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Poste occupé</label>'
+          + '<input id="sv-poste" type="text" placeholder="Ex: Surveillant Général" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Email</label>'
+          + '<input id="sv-email" type="email" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div id="sv-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;"></div>'
+          + '<button onclick="submitAddSurveillant()" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">✅ Créer le compte surveillant</button>'
+          + '</div></div>';
+        document.body.appendChild(m);
+      }
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+    }
+
+    async function submitAddSurveillant() {
+      const prenom = document.getElementById('sv-prenom')?.value?.trim();
+      const nom = document.getElementById('sv-nom')?.value?.trim();
+      const poste_occupe = document.getElementById('sv-poste')?.value?.trim();
+      const email = document.getElementById('sv-email')?.value?.trim();
+      const msgEl = document.getElementById('sv-msg');
+      if (!prenom || !nom) { toast('Prénom et nom requis', 'err'); return; }
+      if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = '⏳ Création...'; msgEl.style.color = '#64748B'; }
+      try {
+        const d = await api('/admin/surveillants', {
+          method: 'POST',
+          body: JSON.stringify({ prenom, nom, poste_occupe, email })
+        });
+        if (d.success) {
+          const inner = document.getElementById('m-add-surv')?.querySelector('.dir-modal');
+          if (inner) inner.innerHTML = renderCredentialsPanel(d.code_unique, d.mot_de_passe_temporaire, 'm-add-surv', 'loadCorps');
+          toast('Surveillant créé', 'ok');
+        } else {
+          if (msgEl) { msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = '#EF4444'; }
+        }
+      } catch (e) {
+        if (msgEl) { msgEl.textContent = '❌ ' + e.message; msgEl.style.color = '#EF4444'; }
+      }
+    }
+
+    // ══════════════════════════════════════
+    // AJOUTER UN PARENT (lié obligatoirement à un élève par matricule)
+    // ══════════════════════════════════════
+    function openAddParent() {
+      let m = document.getElementById('m-add-parent');
+      if (!m) {
+        m = document.createElement('div');
+        m.id = 'm-add-parent';
+        m.className = 'dir-modal-overlay';
+        m.onclick = e => { if (e.target === m) m.remove(); };
+        m.innerHTML = '<div class="dir-modal" style="max-width:480px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+          + '<div style="font-size:.95rem;font-weight:800;">➕ Ajouter un parent</div>'
+          + '<button onclick="document.getElementById(\'m-add-parent\')?.remove();" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94A3B8;">✕</button>'
+          + '</div>'
+          + '<div style="display:flex;flex-direction:column;gap:10px;">'
+          + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Prénom *</label>'
+          + '<input id="pr-prenom" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Nom *</label>'
+          + '<input id="pr-nom" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '</div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Matricule de l\'enfant (élève) *</label>'
+          + '<input id="pr-matricule" type="text" placeholder="Ex: CN-2026-2001" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Lien de parenté</label>'
+          + '<select id="pr-lien" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;">'
+          + '<option value="Pere">Père</option><option value="Mere">Mère</option><option value="Tuteur">Tuteur légal</option><option value="Autre">Autre</option>'
+          + '</select></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Téléphone</label>'
+          + '<input id="pr-tel" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Email</label>'
+          + '<input id="pr-email" type="email" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div id="pr-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;"></div>'
+          + '<button onclick="submitAddParent()" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">✅ Créer le compte parent</button>'
+          + '</div></div>';
+        document.body.appendChild(m);
+      }
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+    }
+
+    async function submitAddParent() {
+      const prenom = document.getElementById('pr-prenom')?.value?.trim();
+      const nom = document.getElementById('pr-nom')?.value?.trim();
+      const matricule_enfant = document.getElementById('pr-matricule')?.value?.trim();
+      const lien_parente = document.getElementById('pr-lien')?.value;
+      const telephone = document.getElementById('pr-tel')?.value?.trim();
+      const email = document.getElementById('pr-email')?.value?.trim();
+      const msgEl = document.getElementById('pr-msg');
+      if (!prenom || !nom || !matricule_enfant) { toast('Prénom, nom et matricule de l\'enfant requis', 'err'); return; }
+      if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = '⏳ Création...'; msgEl.style.color = '#64748B'; }
+      try {
+        const d = await api('/admin/parents', {
+          method: 'POST',
+          body: JSON.stringify({ prenom, nom, matricule_enfant, lien_parente, telephone, email })
+        });
+        if (d.success) {
+          const inner = document.getElementById('m-add-parent')?.querySelector('.dir-modal');
+          if (inner) inner.innerHTML = renderCredentialsPanel(d.code_unique, d.mot_de_passe_temporaire, 'm-add-parent', 'loadParents');
+          toast('Parent créé', 'ok');
+        } else {
+          if (msgEl) { msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = '#EF4444'; }
+        }
+      } catch (e) {
+        if (msgEl) { msgEl.textContent = '❌ ' + e.message; msgEl.style.color = '#EF4444'; }
+      }
+    }
+
+    // ══════════════════════════════════════
+    // AJOUTER UN ALUMNI
+    // ══════════════════════════════════════
+    function openAddAlumni() {
+      let m = document.getElementById('m-add-alumni');
+      if (!m) {
+        m = document.createElement('div');
+        m.id = 'm-add-alumni';
+        m.className = 'dir-modal-overlay';
+        m.onclick = e => { if (e.target === m) m.remove(); };
+        m.innerHTML = '<div class="dir-modal" style="max-width:480px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+          + '<div style="font-size:.95rem;font-weight:800;">➕ Ajouter un alumni</div>'
+          + '<button onclick="document.getElementById(\'m-add-alumni\')?.remove();" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94A3B8;">✕</button>'
+          + '</div>'
+          + '<div style="display:flex;flex-direction:column;gap:10px;">'
+          + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Prénom *</label>'
+          + '<input id="al-prenom" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Nom *</label>'
+          + '<input id="al-nom" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '</div>'
+          + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Dernière classe</label>'
+          + '<input id="al-classe" type="text" placeholder="Ex: Terminale D" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Année diplôme</label>'
+          + '<input id="al-annee" type="text" placeholder="Ex: 2022" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '</div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Email</label>'
+          + '<input id="al-email" type="email" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div id="al-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;"></div>'
+          + '<button onclick="submitAddAlumni()" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">✅ Créer le compte alumni</button>'
+          + '</div></div>';
+        document.body.appendChild(m);
+      }
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+    }
+
+    async function submitAddAlumni() {
+      const prenom = document.getElementById('al-prenom')?.value?.trim();
+      const nom = document.getElementById('al-nom')?.value?.trim();
+      const derniere_classe = document.getElementById('al-classe')?.value?.trim();
+      const annee_diplome = document.getElementById('al-annee')?.value?.trim();
+      const email = document.getElementById('al-email')?.value?.trim();
+      const msgEl = document.getElementById('al-msg');
+      if (!prenom || !nom) { toast('Prénom et nom requis', 'err'); return; }
+      if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = '⏳ Création...'; msgEl.style.color = '#64748B'; }
+      try {
+        const d = await api('/admin/alumni', {
+          method: 'POST',
+          body: JSON.stringify({ prenom, nom, derniere_classe, annee_diplome, email })
+        });
+        if (d.success) {
+          const inner = document.getElementById('m-add-alumni')?.querySelector('.dir-modal');
+          if (inner) inner.innerHTML = renderCredentialsPanel(d.code_unique, d.mot_de_passe_temporaire, 'm-add-alumni', 'loadAlumniDir');
+          toast('Alumni créé', 'ok');
         } else {
           if (msgEl) { msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = '#EF4444'; }
         }
