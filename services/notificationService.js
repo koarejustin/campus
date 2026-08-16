@@ -50,13 +50,16 @@ exports.sendNotification = async (destinataires, type, titre, contenu, lien = nu
         const ids = Array.isArray(destinataires) ? destinataires : [destinataires];
         if (!ids.length) return;
 
-        // Insérer en batch
-        for (const id_user of ids) {
-            await db.query(`
-                INSERT INTO gestion.notifications (id_user, type, titre, contenu, lien, est_lu, lue)
-                VALUES ($1, $2, $3, $4, $5, false, false)
-            `, [id_user, type, titre || '', contenu || '', lien]);
-        }
+        // ✅ Un seul aller-retour réseau pour tous les destinataires (avant :
+        // une requête par destinataire dans une boucle séquentielle — pour
+        // une annonce à 49 élèves, ça faisait 49 allers-retours vers Supabase
+        // l'un après l'autre, monopolisant le pool de connexions limité et
+        // provoquant des timeouts en cascade sur les autres requêtes en
+        // attente pendant ce temps).
+        await db.query(`
+            INSERT INTO gestion.notifications (id_user, type, titre, contenu, lien, est_lu, lue)
+            SELECT unnest($1::uuid[]), $2, $3, $4, $5, false, false
+        `, [ids, type, titre || '', contenu || '', lien]);
 
         // Envoyer via Socket.IO si disponible (temps réel)
         try {
