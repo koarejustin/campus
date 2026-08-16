@@ -3870,7 +3870,7 @@
           if (typeof p.annees_exp !== 'undefined' && p.annees_exp !== null) PROF.exp = p.annees_exp;
           if (p.matieres && Array.isArray(p.matieres)) PROF.matieres = p.matieres;
           if (p.photo_url) {
-            PROF.photo = BASE_URL + p.photo_url;
+            PROF.photo = p.photo_url.startsWith('http') ? p.photo_url : BASE_URL + p.photo_url;
             const av = $('prof-avatar-display');
             if (av) av.innerHTML = `<img src="${PROF.photo}" alt="photo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
             updateSbAvatar(PROF.photo);
@@ -3991,19 +3991,20 @@
         conversations[convId] = data.messages.map(m => {
           const url = m.txt || '';
           const ext = url.split('.').pop().toLowerCase();
+          const fullUrl = url.startsWith('http') ? url : BASE_URL + url;
           const obj = {
             id: m.id, from: m.from, nm: m.nom, txt: url,
             t: m.time, date: m.date, mine: m.from === PROF.code, read: true, media: null
           };
           // Reconstruire le type média depuis l'URL stockée
           if (m.type === 'img' || /\.(jpg|jpeg|png|gif|webp)$/i.test(url)) {
-            obj.media = 'img'; obj.src = BASE_URL + url;
+            obj.media = 'img'; obj.src = fullUrl;
           } else if (m.type === 'video' || /\.(mp4|webm|mov|ogv)$/i.test(url)) {
-            obj.media = 'video'; obj.src = BASE_URL + url;
+            obj.media = 'video'; obj.src = fullUrl;
           } else if (m.type === 'audio' || /\.(mp3|ogg|wav|m4a|webm)$/i.test(url)) {
-            obj.media = 'audio'; obj.src = BASE_URL + url;
+            obj.media = 'audio'; obj.src = fullUrl;
           } else if (m.type === 'file' || /\.(pdf|doc|docx|pptx|xlsx)$/i.test(url)) {
-            obj.media = 'file'; obj.fileName = url.split('/').pop(); obj.src = BASE_URL + url;
+            obj.media = 'file'; obj.fileName = url.split('/').pop(); obj.src = fullUrl;
           }
           return obj;
         });
@@ -4304,7 +4305,7 @@
           }
           // ── Photo persistante ──
           if (p.photo_url) {
-            PROF.photo = BASE_URL + p.photo_url;
+            PROF.photo = p.photo_url.startsWith('http') ? p.photo_url : BASE_URL + p.photo_url;
             const av = $('prof-avatar-display');
             if (av) av.innerHTML = `<img src="${PROF.photo}" alt="photo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
             // Mettre à jour aussi l'avatar dans la sidebar
@@ -4401,7 +4402,7 @@
           }
 
           if (data.profil?.photo_url) {
-            const fullPhotoUrl = BASE_URL + data.profil.photo_url;
+            const fullPhotoUrl = data.profil.photo_url.startsWith('http') ? data.profil.photo_url : BASE_URL + data.profil.photo_url;
             PROF.photo = fullPhotoUrl;
             const av = $('prof-avatar-display');
             if (av) av.innerHTML = `<img src="${fullPhotoUrl}?v=${Date.now()}" alt="photo" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`;
@@ -5417,7 +5418,7 @@
           const msg = {
             id: data.id, from: PROF.code, nm: PROF.prenom + ' ' + PROF.nom,
             txt: url, t: nowHHMM(), mine: true, date: "Aujourd'hui",
-            media: type, src: BASE_URL + url,
+            media: type, src: url.startsWith('http') ? url : BASE_URL + url,
             fileName: data.fileName, fileSize: data.fileSize
           };
           if (!conversations[currentConv].find(m => m.id === data.id))

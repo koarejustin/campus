@@ -141,6 +141,7 @@ class _AlumniProfilScreenState extends State<AlumniProfilScreen> {
         return null;
       }
     }
+    if (_photoUrl!.startsWith('http')) return NetworkImage(_photoUrl!);
     return NetworkImage('${ApiClient.baseUrl.replaceFirst('/api', '')}$_photoUrl');
   }
 

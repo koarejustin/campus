@@ -158,7 +158,11 @@ class _ProfProfilScreenState extends State<ProfProfilScreen> {
                           image: _newPhotoBytes != null
                               ? DecorationImage(image: MemoryImage(Uint8List.fromList(_newPhotoBytes!)), fit: BoxFit.cover)
                               : (_photoUrl != null && _photoUrl!.isNotEmpty)
-                                  ? DecorationImage(image: NetworkImage('${ApiClient.baseUrl.replaceFirst('/api', '')}$_photoUrl'), fit: BoxFit.cover)
+                                  ? DecorationImage(
+                                      image: NetworkImage(_photoUrl!.startsWith('http')
+                                          ? _photoUrl!
+                                          : '${ApiClient.baseUrl.replaceFirst('/api', '')}$_photoUrl'),
+                                      fit: BoxFit.cover)
                                   : null,
                         ),
                         alignment: Alignment.center,

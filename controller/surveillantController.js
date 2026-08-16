@@ -685,8 +685,12 @@ exports.uploadPhoto = async (req, res) => {
 
         if (!req.file) return res.status(400).json({ message: 'Aucun fichier reçu' });
 
-        const filename = req.file.filename;
-        const photoUrl = `${req.protocol}://${req.get('host')}/uploads/${filename}`;
+        const fileStorage = require('../services/fileStorage');
+        const rel = await fileStorage.saveUploadedFile(req.file, { prefix: 'photo', keyed: userId });
+        // Supabase Storage renvoie déjà une URL absolue ; le repli disque
+        // local renvoie un chemin relatif — on le complète pour préserver
+        // le comportement historique de cette route (photo_url toujours absolu ici).
+        const photoUrl = rel.startsWith('http') ? rel : `${req.protocol}://${req.get('host')}${rel}`;
 
         try {
             await db.query(`ALTER TABLE authentification.profils_administratifs ADD COLUMN IF NOT EXISTS photo_url TEXT`);

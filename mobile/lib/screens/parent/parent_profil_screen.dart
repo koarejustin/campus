@@ -99,6 +99,7 @@ class _ParentProfilScreenState extends State<ParentProfilScreen> {
         return null;
       }
     }
+    if (_photoUrl!.startsWith('http')) return NetworkImage(_photoUrl!);
     return NetworkImage('${ApiClient.baseUrl.replaceFirst('/api', '')}$_photoUrl');
   }
 

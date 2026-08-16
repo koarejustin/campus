@@ -170,9 +170,9 @@ exports.updateProfil = async (req, res) => {
 
         let photo_url = null;
         if (req.file) {
-            const baseUrl = `${req.protocol}://${req.get('host')}`;
-            photo_url = `/uploads/${req.file.filename}`;
             try {
+                const fileStorage = require('../services/fileStorage');
+                photo_url = await fileStorage.saveUploadedFile(req.file, { prefix: 'photo', keyed: profId });
                 const updatePhoto = await db.query(
                     `UPDATE pedagogie.profils_profs SET photo_url=$1 WHERE id_user=$2 RETURNING photo_url`,
                     [photo_url, profId]
@@ -545,7 +545,9 @@ exports.ajouterRessource = async (req, res) => {
             message: 'Profil prof introuvable. Allez d\'abord dans Mon Profil et enregistrez.'
         });
         const id_prof = pp.rows[0].id_prof;
-        const url_fichier = req.file ? `/uploads/${req.file.filename}` : null;
+        const url_fichier = req.file
+            ? await require('../services/fileStorage').saveUploadedFile(req.file, { prefix: 'res' })
+            : null;
 
         const r = await db.query(`
             INSERT INTO pedagogie.ressources_pedagogiques
@@ -1080,7 +1082,7 @@ exports.uploadCopieScannee = async (req, res) => {
             )
         `).catch(() => {});
 
-        const url_fichier = `/uploads/${req.file.filename}`;
+        const url_fichier = await require('../services/fileStorage').saveUploadedFile(req.file, { prefix: 'copie' });
 
         const r = await db.query(`
             INSERT INTO pedagogie.copies_scannees

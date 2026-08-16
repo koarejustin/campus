@@ -15,37 +15,12 @@ router.use(authMiddleware, ensureRole('PROFESSEUR'));
 let uploadFichier, uploadPhoto, uploadCopie;
 try {
     const multer = require('multer');
-    const path = require('path');
-    const fs = require('fs');
-    const uploadDir = path.join(__dirname, '../public/uploads');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-    // Storage pour ressources pédagogiques
-    const storageFichier = multer.diskStorage({
-        destination: (req, file, cb) => cb(null, uploadDir),
-        filename: (req, file, cb) => {
-            const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-            cb(null, `res_${Date.now()}_${safeName}`);
-        }
-    });
-
-    // Storage pour photos de profil
-    const storagePhoto = multer.diskStorage({
-        destination: (req, file, cb) => cb(null, uploadDir),
-        filename: (req, file, cb) => {
-            const ext = path.extname(file.originalname);
-            cb(null, `photo_${req.user?.id || Date.now()}${ext}`);
-        }
-    });
-
-    // Storage pour copies corrigées scannées
-    const storageCopie = multer.diskStorage({
-        destination: (req, file, cb) => cb(null, uploadDir),
-        filename: (req, file, cb) => {
-            const ext = path.extname(file.originalname) || '.jpg';
-            cb(null, `copie_${Date.now()}${ext}`);
-        }
-    });
+    // ✅ En mémoire (pas sur disque) : les fichiers sont ensuite envoyés à
+    // Supabase Storage par le contrôleur via services/fileStorage.js — le
+    // disque local de Render est effacé à chaque redéploiement, donc y
+    // écrire directement ferait perdre les fichiers uploadés.
+    const memStorage = multer.memoryStorage();
 
     // Filtre : PDF, Word, vidéos, images, audio
     const fileFilter = (req, file, cb) => {
@@ -83,19 +58,19 @@ try {
     };
 
     uploadFichier = multer({
-        storage: storageFichier,
+        storage: memStorage,
         limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo max
         fileFilter
     });
 
     uploadPhoto = multer({
-        storage: storagePhoto,
+        storage: memStorage,
         limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo max
         fileFilter: photoFilter
     });
 
     uploadCopie = multer({
-        storage: storageCopie,
+        storage: memStorage,
         limits: { fileSize: 15 * 1024 * 1024 }, // 15 Mo max — une photo de copie suffit largement
         fileFilter: copieFilter
     });

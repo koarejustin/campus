@@ -207,15 +207,9 @@ app.use('/api/ape', apeRoutes);
 
 // ── Upload média salle des profs ──
 const multer = require('multer');
-const msgStorage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, UPLOAD_DIR),
-    filename: (req, file, cb) => {
-        const safeName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-        cb(null, `msg_${Date.now()}_${safeName}`);
-    }
-});
+const fileStorage = require('./services/fileStorage');
 const msgUpload = multer({
-    storage: msgStorage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 50 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const allowed = [
@@ -251,7 +245,7 @@ app.post('/api/messages/upload', (req, res, next) => {
         const from_code = req.user.code_unique || req.user.id;
         const from_nom = req.body.nom || 'Professeur';
         const type_msg = req.body.type || 'media';
-        const url = `/uploads/${req.file.filename}`;
+        const url = await fileStorage.saveUploadedFile(req.file, { prefix: 'msg' });
 
         let msgId = Date.now();
         try {
