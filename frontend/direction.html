@@ -3830,6 +3830,7 @@
         const response = await fetch('/api/admin/config-public');
         const data = await response.json();
         if (data.success && data.config) {
+          window._ecoleConfig = data.config;
           document.querySelectorAll('.ecole-nom').forEach(el => el.textContent = data.config.nom_etablissement);
           if (data.config.logo_url) {
             document.querySelectorAll('.ecole-logo').forEach(el => { el.src = data.config.logo_url; el.classList.remove('hidden'); });
@@ -4533,17 +4534,19 @@
         const d = await r.json();
         if (d.success) {
           const crees = (d.resultats || []).filter(r => r.statut === 'CREE');
+          window._dernierImportComptes = crees;
           document.getElementById('ie-apercu').style.display = 'none';
           msgEl.style.display = 'block'; msgEl.style.color = '';
           msgEl.innerHTML = '<div style="font-size:.82rem;font-weight:800;color:#0F172A;margin-bottom:10px;">✅ '
             + `${d.nb_ok} compte(s) créé(s)` + (d.nb_erreurs ? `, ${d.nb_erreurs} erreur(s)` : '') + '</div>'
-            + '<div style="font-size:.72rem;color:#94A3B8;margin-bottom:10px;">⚠️ Note ces identifiants maintenant — ils ne seront plus affichés. Communique-les à chaque élève.</div>'
+            + '<div style="font-size:.72rem;color:#94A3B8;margin-bottom:10px;">⚠️ Note ces identifiants maintenant — ils ne seront plus affichés. Communique-les à chaque élève (ou imprime les fiches ci-dessous).</div>'
             + '<div style="max-height:280px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;">'
             + '<table style="width:100%;border-collapse:collapse;font-size:.74rem;font-family:monospace;">'
             + '<thead><tr style="background:#F8FAFF;font-family:inherit;"><th style="padding:6px 8px;text-align:left;">Identifiant</th><th style="padding:6px 8px;text-align:left;">Mot de passe</th></tr></thead>'
             + '<tbody>' + crees.map(r => `<tr style="border-top:1px solid #F1F5F9;"><td style="padding:6px 8px;">${r.code_unique}</td><td style="padding:6px 8px;">${r.mot_de_passe_temporaire}</td></tr>`).join('')
             + '</tbody></table></div>'
-            + '<button onclick="closeImportExcel(); loadEleves();" style="margin-top:14px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Fermer</button>';
+            + '<button onclick="imprimerFichesIdentifiants(window._dernierImportComptes)" style="margin-top:14px;background:#fff;color:#4F46E5;border:1.5px solid #4F46E5;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">🖨️ Imprimer les fiches</button>'
+            + '<button onclick="closeImportExcel(); loadEleves();" style="margin-top:8px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Fermer</button>';
           btn.style.display = 'none';
         } else {
           msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ ' + (d.message || 'Erreur');
@@ -4552,7 +4555,66 @@
       } catch (e) {
         msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ Erreur réseau : ' + e.message;
         btn.disabled = false; btn.textContent = '✅ Confirmer et créer ces comptes';
+        return;
       }
+    }
+
+    // ── Fiches imprimables — une carte détachable par élève, pour
+    // distribuer les identifiants sans devoir les envoyer un par un.
+    // Les mots de passe ne sont disponibles qu'à cet instant précis (jamais
+    // revisibles ensuite) — c'est pour ça que ça se déclenche juste après
+    // l'import, pas plus tard.
+    function imprimerFichesIdentifiants(comptes) {
+      if (!comptes || !comptes.length) return;
+      const ecole = (window._ecoleConfig && window._ecoleConfig.nom_etablissement) || 'Établissement';
+      const logo = (window._ecoleConfig && window._ecoleConfig.logo_url) || '';
+      const url = window.location.origin;
+
+      const cartes = comptes.map(c => `
+        <div class="fiche">
+          <div class="fiche-hd">
+            ${logo ? `<img src="${logo}" class="fiche-logo">` : ''}
+            <div class="fiche-ecole">${esc(ecole)}</div>
+          </div>
+          <div class="fiche-nom">${esc(c.prenom || '')} ${esc((c.nom || '').toUpperCase())}</div>
+          <div class="fiche-classe">${esc(c.classe || '')}</div>
+          <div class="fiche-champ">
+            <span class="fiche-label">Matricule</span>
+            <span class="fiche-val">${esc(c.code_unique || '')}</span>
+          </div>
+          <div class="fiche-champ">
+            <span class="fiche-label">Mot de passe</span>
+            <span class="fiche-val">${esc(c.mot_de_passe_temporaire || '')}</span>
+          </div>
+          <div class="fiche-url">${esc(url)}</div>
+        </div>
+      `).join('');
+
+      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fiches identifiants — ${esc(ecole)}</title>
+      <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 12mm; }
+        .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+        .fiche { border: 1.5px dashed #94A3B8; border-radius: 10px; padding: 10px 12px; break-inside: avoid; }
+        .fiche-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .fiche-logo { width: 26px; height: 26px; object-fit: contain; border-radius: 4px; }
+        .fiche-ecole { font-size: 11px; font-weight: 800; color: #4F46E5; text-transform: uppercase; }
+        .fiche-nom { font-size: 15px; font-weight: 800; color: #0F172A; }
+        .fiche-classe { font-size: 11px; color: #64748B; margin-bottom: 8px; }
+        .fiche-champ { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; border-top: 1px solid #F1F5F9; }
+        .fiche-label { font-size: 10px; color: #94A3B8; }
+        .fiche-val { font-size: 13px; font-weight: 800; font-family: 'Courier New', monospace; color: #0F172A; }
+        .fiche-url { margin-top: 8px; font-size: 9.5px; color: #94A3B8; text-align: center; }
+        @media print { body { padding: 6mm; } .fiche { border-color: #999; } }
+      </style></head>
+      <body><div class="grille">${cartes}</div>
+      <script>window.onload = () => setTimeout(() => window.print(), 300);<\/script>
+      </body></html>`;
+
+      const w = window.open('', '_blank');
+      if (!w) { alert('Autorise les pop-ups pour imprimer les fiches.'); return; }
+      w.document.write(html);
+      w.document.close();
     }
 
 
