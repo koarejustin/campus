@@ -6,10 +6,19 @@
 const path = require('path');
 const fs = require('fs');
 
-const SERVICE_ACCOUNT_PATH = path.join(__dirname, '..', 'config', 'secrets', 'firebase-service-account.json');
+// ✅ Render monte les "Secret Files" de façon garantie sous /etc/secrets/<nom>,
+// quel que soit le chemin donné au moment de leur création — le montage
+// "depuis la racine de l'app" avec sous-dossiers (config/secrets/...) ne
+// s'est pas révélé fiable en pratique. On essaie donc les deux : le chemin
+// garanti Render en premier, puis le chemin local (développement).
+const CANDIDATE_PATHS = [
+    '/etc/secrets/firebase-service-account.json',
+    path.join(__dirname, '..', 'config', 'secrets', 'firebase-service-account.json'),
+];
+const SERVICE_ACCOUNT_PATH = CANDIDATE_PATHS.find(p => fs.existsSync(p));
 
 let messaging = null;
-if (fs.existsSync(SERVICE_ACCOUNT_PATH)) {
+if (SERVICE_ACCOUNT_PATH) {
     try {
         const { initializeApp, getApps, cert } = require('firebase-admin/app');
         const { getMessaging } = require('firebase-admin/messaging');

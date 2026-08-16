@@ -8,10 +8,9 @@ class ApiClient {
   ApiClient._();
   static final ApiClient instance = ApiClient._();
 
-  // En dev sur ce PC, le serveur Node tourne sur localhost:3000.
-  // Pour tester depuis un vrai téléphone plus tard, remplacer par
-  // l'adresse IP du PC sur le réseau local, ou l'URL ngrok.
-  static const String baseUrl = 'http://localhost:3000/api';
+  // Backend hébergé sur Render — accessible depuis n'importe quel réseau,
+  // contrairement à localhost/ngrok utilisés pendant le développement.
+  static const String baseUrl = 'https://campus-0b5u.onrender.com/api';
 
   String? _token;
   Map<String, dynamic>? _user;

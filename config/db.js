@@ -28,7 +28,25 @@ const pool = new Pool({
     // à false est la pratique standard recommandée par Supabase elle-même.
     ssl: needsSSL ? { rejectUnauthorized: false } : false,
     // ⚠️ AJOUT CRUCIAL : Force l'encodage client en UTF8 pour les accents + timezone Ouagadougou
-    options: "-c client_encoding=UTF8 -c timezone=Africa/Ouagadougou"
+    options: "-c client_encoding=UTF8 -c timezone=Africa/Ouagadougou",
+    // ✅ Le Session Pooler Supabase (plan gratuit) a un nombre limité de
+    // connexions simultanées, partagé entre toutes les instances connectées
+    // (serveur local + Render en même temps, par exemple) — un pool par
+    // défaut (max=10) par instance peut suffire à le saturer, provoquant des
+    // ETIMEDOUT/ECONNRESET aléatoires. On reste volontairement modeste.
+    max: useConnectionString ? 5 : 10,
+    // Le trajet réseau vers Supabase est bien plus long qu'un Postgres
+    // local — laisser plus de temps avant de déclarer une connexion morte.
+    connectionTimeoutMillis: useConnectionString ? 10000 : 2000,
+    idleTimeoutMillis: 30000,
+});
+
+// Sans ce handler, une erreur réseau sur une connexion inactive du pool
+// (coupure momentanée vers Supabase) fait planter tout le process Node —
+// avec lui, l'erreur est juste journalisée et le pool en récupère une
+// nouvelle à la prochaine requête.
+pool.on('error', (err) => {
+    console.error('⚠️ Erreur pool PostgreSQL (connexion inactive) :', err.message);
 });
 
 // Test de connexion automatique au démarrage du serveur
