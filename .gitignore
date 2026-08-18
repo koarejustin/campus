@@ -30,3 +30,8 @@ Thumbs.db
 .venv/
 __pycache__/
 *.pyc
+
+# ngrok — abandonné : le backend est hébergé en permanence sur Render,
+# plus besoin de tunnel local pour le rendre accessible
+ngrok.exe
+ngrok.yml

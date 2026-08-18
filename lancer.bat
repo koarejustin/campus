@@ -1,29 +1,12 @@
 @echo off
 echo ========================================
-echo   CAMPUS NUMERIQUE FASO - Lancement
+echo   CAMPUS NUMERIQUE FASO - Lancement local
 echo ========================================
 echo.
-
-:: Lancer node server.js dans une nouvelle fenetre
-start "Serveur Node" cmd /k "cd /d "%~dp0" && node server.js"
-
-:: Attendre 3 secondes que le serveur demarre
-timeout /t 3 /nobreak >nul
-
-:: Lancer ngrok dans une nouvelle fenetre
-start "Tunnel ngrok" cmd /k "cd /d "%~dp0" && ngrok.exe http 3000"
-
-:: Attendre 4 secondes que ngrok demarre
-timeout /t 4 /nobreak >nul
-
-:: Afficher l'URL publique
+echo Ce script demarre uniquement le serveur en local, pour
+echo developper/tester sur cette machine (http://localhost:3000).
+echo L'application en production reste accessible en permanence
+echo sur https://campus-1-v4kf.onrender.com — pas besoin de tunnel.
 echo.
-echo Recuperation de votre URL publique...
-curl -s http://localhost:4040/api/tunnels | findstr /o "public_url"
-echo.
-echo ========================================
-echo  Copiez l'URL ci-dessus et envoyez-la
-echo  a vos collaborateurs !
-echo ========================================
-echo.
-pause
+
+node server.js
