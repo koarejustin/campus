@@ -4,6 +4,8 @@ node_modules/
 # Clés Firebase — secrets serveur, ne jamais versionner
 config/secrets/
 mobile/android/app/google-services.json
+/google-services.json
+/*firebase-adminsdk*.json
 
 # ⚠️ Autres variantes de fichiers d'environnement — même règle que .env,
 # ne jamais versionner (JWT_SECRET, mot de passe de la base...)
