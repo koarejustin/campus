@@ -146,6 +146,23 @@ try {
 // ═══════════════════════════════════════════
 // MIDDLEWARE
 // ═══════════════════════════════════════════
+// ✅ En-têtes de sécurité HTTP (repéré par un scan OWASP ZAP : HSTS,
+// anti-clickjacking, X-Content-Type-Options manquants, "X-Powered-By"
+// qui révélait Express). CSP désactivé volontairement : le frontend
+// utilise des attributs onclick="..." inline sur toutes les pages —
+// le CSP par défaut de helmet bloquerait ces scripts et casserait
+// l'appli entière. L'activer proprement demanderait de réécrire tout
+// le frontend pour sortir les scripts inline — chantier séparé.
+const helmet = require('helmet');
+app.use(helmet({
+    contentSecurityPolicy: false,
+    // Le CORS est volontairement ouvert à tous (app Flutter web/mobile
+    // sur d'autres origines) — garder CORP par défaut ("same-origin")
+    // bloquerait le chargement cross-origin des photos/fichiers /uploads
+    // depuis ces mêmes clients, ce qui serait incohérent.
+    crossOriginResourcePolicy: false,
+}));
+
 app.use(cors());
 // ✅ Limite augmentée : les photos de profil arrivent en base64 dans le JSON
 // (jusqu'à ~2 Mo côté client → ~2.7 Mo une fois encodées en base64)
