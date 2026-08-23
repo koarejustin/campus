@@ -129,8 +129,8 @@ exports.changerMotDePasse = async (req, res) => {
         if (!ancien_mot_de_passe || !nouveau_mot_de_passe) {
             return res.status(400).json({ success: false, message: 'Ancien et nouveau mot de passe requis' });
         }
-        if (String(nouveau_mot_de_passe).length < 4) {
-            return res.status(400).json({ success: false, message: 'Le nouveau mot de passe doit faire au moins 4 caractères' });
+        if (String(nouveau_mot_de_passe).length < 8) {
+            return res.status(400).json({ success: false, message: 'Le nouveau mot de passe doit faire au moins 8 caractères' });
         }
 
         const r = await db.query(`SELECT mot_de_passe FROM authentification.comptes WHERE id_user = $1`, [userId]);
