@@ -1191,6 +1191,17 @@
       #s-salle .msg-row {
         max-width: 84vw !important;
       }
+
+      /* ✅ .notes-grid avait une colonne fixe de 260px non responsive —
+         sur téléphone ça forçait toute la page (dont la barre "choisir
+         la classe" juste au-dessus) hors de l'écran visible. */
+      .notes-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      .eleve-list {
+        max-height: 240px !important;
+      }
     }
 
     @keyframes fu {
@@ -3162,6 +3173,10 @@
                 </div>
               </div>
               <div>
+                <label>Mot de passe actuel</label>
+                <input type="password" id="pf-pwd-old" placeholder="Requis pour changer le mot de passe">
+              </div>
+              <div>
                 <label>Nouveau mot de passe</label>
                 <div style="position:relative;">
                   <input type="password" id="pf-pwd" placeholder="Laisser vide pour ne pas changer">
@@ -4424,6 +4439,34 @@
           PROF._photoFile = null;
           showMsg(msgEl, '✅ Profil enregistré avec succès', 'ok');
           toast('Profil mis à jour ✓', 'ok');
+
+          // ✅ Champ "Nouveau mot de passe" rempli → changement séparé,
+          // via l'endpoint dédié (vérifie l'ancien mot de passe).
+          const ancien = $('pf-pwd-old')?.value;
+          const nouveau = $('pf-pwd')?.value;
+          if (nouveau) {
+            if (!ancien) {
+              toast('Mot de passe actuel requis pour le changer', 'err');
+            } else {
+              try {
+                const rp = await fetch(API + '/auth/changer-mot-de-passe', {
+                  method: 'PUT',
+                  headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ ancien_mot_de_passe: ancien, nouveau_mot_de_passe: nouveau })
+                });
+                const dp = await rp.json();
+                if (dp.success) {
+                  toast('✅ Mot de passe changé', 'ok');
+                  $('pf-pwd-old').value = '';
+                  $('pf-pwd').value = '';
+                } else {
+                  toast('❌ ' + (dp.message || 'Mot de passe non changé'), 'err');
+                }
+              } catch (ep) {
+                toast('❌ Erreur changement mot de passe: ' + ep.message, 'err');
+              }
+            }
+          }
         } else {
           showMsg(msgEl, '❌ ' + (data.message || 'Erreur'), 'err');
         }

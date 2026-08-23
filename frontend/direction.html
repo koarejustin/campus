@@ -2314,9 +2314,15 @@
         </div>
       </div>
       <!-- User card -->
-      <div class="user-card">
-        <div style="font-size:.78rem;font-weight:800;color:#fff;" id="sb-name">Chargement…</div>
-        <div id="sb-role-tag" style="font-size:.65rem;font-weight:700;margin-top:2px;" class="role-dir">DIRECTION</div>
+      <div class="user-card" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div>
+          <div style="font-size:.78rem;font-weight:800;color:#fff;" id="sb-name">Chargement…</div>
+          <div id="sb-role-tag" style="font-size:.65rem;font-weight:700;margin-top:2px;" class="role-dir">DIRECTION</div>
+        </div>
+        <button onclick="openChangePassword()" title="Changer mon mot de passe"
+          style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px;cursor:pointer;color:#fff;flex-shrink:0;">
+          <i data-lucide="lock" style="width:14px;height:14px;"></i>
+        </button>
       </div>
     </div>
 
@@ -3230,6 +3236,9 @@
             <div style="display:flex;gap:8px;">
               <input type="text" id="corps-srch" placeholder="Rechercher prof…" style="width:180px;"
                 oninput="filtCorps()">
+              <button class="btn-p" style="font-size:.72rem;background:#0EA5E9;white-space:nowrap;" onclick="openImportGenerique('professeurs')">
+                <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer (Excel)
+              </button>
               <button class="btn-p" style="font-size:.72rem;background:linear-gradient(135deg,#4F46E5,#7C3AED);white-space:nowrap;" onclick="openAddCorps()">
                 <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un professeur
               </button>
@@ -3409,6 +3418,9 @@
           <div style="display:flex;gap:8px;">
             <input type="text" id="parents-srch" placeholder="Rechercher un parent…" style="width:220px;"
               oninput="filtParents()">
+            <button class="btn-p" style="font-size:.72rem;background:#0EA5E9;white-space:nowrap;" onclick="openImportGenerique('parents')">
+              <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer (Excel)
+            </button>
             <button class="btn-p" style="font-size:.72rem;background:linear-gradient(135deg,#4F46E5,#7C3AED);white-space:nowrap;" onclick="openAddParent()">
               <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un parent
             </button>
@@ -3428,6 +3440,9 @@
           <div style="display:flex;gap:8px;">
             <input type="text" id="alumni-srch" placeholder="Rechercher un ancien élève…" style="width:220px;"
               oninput="filtAlumniDir()">
+            <button class="btn-p" style="font-size:.72rem;background:#0EA5E9;white-space:nowrap;" onclick="openImportGenerique('alumni')">
+              <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer (Excel)
+            </button>
             <button class="btn-p" style="font-size:.72rem;background:linear-gradient(135deg,#4F46E5,#7C3AED);white-space:nowrap;" onclick="openAddAlumni()">
               <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un alumni
             </button>
@@ -3580,9 +3595,6 @@
           <div style="font-size:.75rem;color:#64748B;margin-top:3px;">Planification des épreuves — Examens réservés aux
             classes terminales</div>
         </div>
-        <button class="btn-p" onclick="openAddCompo()" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);">
-          <i data-lucide="plus" style="width:13px;height:13px;"></i> Nouvelle épreuve
-        </button>
       </div>
 
       <!-- Onglets Composition / Examen -->
@@ -4632,6 +4644,145 @@
       w.document.close();
     }
 
+    // ═══════════════════════════════════════════
+    // IMPORT EXCEL EN MASSE — Professeurs / Parents / Alumni
+    // Même principe que l'import élèves ci-dessus (aperçu obligatoire avant
+    // création), factorisé ici pour les 3 rôles restants plutôt que
+    // dupliqué trois fois.
+    // ═══════════════════════════════════════════
+    const IMPORT_ROLE_CONFIG = {
+      professeurs: {
+        titre: '📥 Importer des professeurs depuis Excel',
+        endpoint: '/api/admin/professeurs/import-excel',
+        colonnesInfo: 'Nom, Prenom, Specialite, et en option Email, Telephone.',
+        reloadFn: 'loadCorps',
+      },
+      parents: {
+        titre: '📥 Importer des parents depuis Excel',
+        endpoint: '/api/admin/parents/import-excel',
+        colonnesInfo: "Nom, Prenom, MatriculeEnfant (matricule d'un élève déjà existant dans l'appli), et en option Email, Telephone, Profession, LienParente.",
+        reloadFn: 'loadParents',
+      },
+      alumni: {
+        titre: '📥 Importer des alumni depuis Excel',
+        endpoint: '/api/admin/alumni/import-excel',
+        colonnesInfo: 'Nom, Prenom, et en option Email, Telephone, DerniereClasse, AnneeDiplome.',
+        reloadFn: 'loadAlumniDir',
+      },
+    };
+    let _fichierImportGenerique = null;
+    let _roleImportGenerique = null;
+
+    function openImportGenerique(role) {
+      _roleImportGenerique = role;
+      const cfg = IMPORT_ROLE_CONFIG[role];
+      let m = document.getElementById('m-import-generique');
+      if (m) m.remove();
+      m = document.createElement('div');
+      m.id = 'm-import-generique';
+      m.className = 'dir-modal-overlay';
+      m.onclick = e => { if (e.target === m) closeImportGenerique(); };
+      m.innerHTML = '<div class="dir-modal" style="max-width:720px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">'
+        + '<div style="font-size:.95rem;font-weight:800;color:#0F172A;">' + cfg.titre + '</div>'
+        + '<button onclick="closeImportGenerique()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94A3B8;">✕</button>'
+        + '</div>'
+        + '<div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:10px 12px;font-size:.72rem;color:#0369A1;margin-bottom:14px;">'
+        + '📋 Colonnes attendues dans le fichier (1ère ligne = en-têtes) : <strong>' + cfg.colonnesInfo + '</strong>'
+        + '</div>'
+        + '<input type="file" id="ig-fichier" accept=".xlsx,.xls" style="margin-bottom:12px;" onchange="chargerApercuGenerique(this)">'
+        + '<div id="ig-apercu" style="display:none;">'
+        + '<div id="ig-resume" style="font-size:.78rem;font-weight:700;margin-bottom:10px;"></div>'
+        + '<div id="ig-tableau" style="max-height:320px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;"></div>'
+        + '<button onclick="confirmerImportGenerique()" id="ig-btn-confirmer" style="margin-top:14px;background:linear-gradient(135deg,#059669,#10B981);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">✅ Confirmer et créer ces comptes</button>'
+        + '</div>'
+        + '<div id="ig-msg" style="display:none;margin-top:10px;"></div>'
+        + '</div>';
+      document.body.appendChild(m);
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+    }
+
+    function closeImportGenerique() {
+      const m = document.getElementById('m-import-generique');
+      if (m) m.remove();
+      _fichierImportGenerique = null;
+    }
+
+    async function chargerApercuGenerique(input) {
+      _fichierImportGenerique = input.files[0];
+      if (!_fichierImportGenerique) return;
+      const cfg = IMPORT_ROLE_CONFIG[_roleImportGenerique];
+      const msgEl = document.getElementById('ig-msg');
+      msgEl.style.display = 'block'; msgEl.style.color = '#64748B'; msgEl.textContent = '⏳ Lecture du fichier…';
+      document.getElementById('ig-apercu').style.display = 'none';
+
+      try {
+        const fd = new FormData();
+        fd.append('fichier', _fichierImportGenerique);
+        fd.append('dryRun', 'true');
+        const r = await fetch(cfg.endpoint, { method: 'POST', headers: { 'Authorization': 'Bearer ' + TOK }, body: fd });
+        const d = await r.json();
+        msgEl.style.display = 'none';
+        if (!d.success) { msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ ' + (d.message || 'Erreur'); return; }
+
+        document.getElementById('ig-resume').innerHTML =
+          `${d.total} ligne(s) lue(s) — <span style="color:#059669;">${d.nb_ok} prête(s)</span>` +
+          (d.nb_erreurs ? ` — <span style="color:#EF4444;">${d.nb_erreurs} en erreur (ignorée(s) à l'import)</span>` : '');
+
+        document.getElementById('ig-tableau').innerHTML =
+          '<table style="width:100%;border-collapse:collapse;font-size:.74rem;">'
+          + '<thead><tr style="background:#F8FAFF;"><th style="padding:6px 8px;text-align:left;">Ligne</th><th style="padding:6px 8px;text-align:left;">Nom</th><th style="padding:6px 8px;text-align:left;">Prénom</th><th style="padding:6px 8px;text-align:left;">Statut</th></tr></thead>'
+          + '<tbody>' + d.resultats.map(r => `<tr style="border-top:1px solid #F1F5F9;${r.statut === 'ERREUR' ? 'background:#FEF2F2;' : ''}">`
+            + `<td style="padding:6px 8px;">${r.ligne}</td><td style="padding:6px 8px;">${r.nom || '—'}</td><td style="padding:6px 8px;">${r.prenom || '—'}</td>`
+            + `<td style="padding:6px 8px;">${r.statut === 'ERREUR' ? '❌ ' + (r.message || 'Erreur') : '✅ Prêt (code : ' + r.code_previsionnel + ')'}</td></tr>`).join('')
+          + '</tbody></table>';
+
+        document.getElementById('ig-apercu').style.display = 'block';
+        document.getElementById('ig-btn-confirmer').disabled = d.nb_ok === 0;
+      } catch (e) {
+        msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ Erreur réseau : ' + e.message;
+      }
+    }
+
+    async function confirmerImportGenerique() {
+      if (!_fichierImportGenerique) return;
+      const cfg = IMPORT_ROLE_CONFIG[_roleImportGenerique];
+      const btn = document.getElementById('ig-btn-confirmer');
+      const msgEl = document.getElementById('ig-msg');
+      btn.disabled = true; btn.textContent = '⏳ Création en cours…';
+
+      try {
+        const fd = new FormData();
+        fd.append('fichier', _fichierImportGenerique);
+        fd.append('dryRun', 'false');
+        const r = await fetch(cfg.endpoint, { method: 'POST', headers: { 'Authorization': 'Bearer ' + TOK }, body: fd });
+        const d = await r.json();
+        if (d.success) {
+          const crees = (d.resultats || []).filter(r => r.statut === 'CREE');
+          window._dernierImportComptes = crees;
+          document.getElementById('ig-apercu').style.display = 'none';
+          msgEl.style.display = 'block'; msgEl.style.color = '';
+          msgEl.innerHTML = '<div style="font-size:.82rem;font-weight:800;color:#0F172A;margin-bottom:10px;">✅ '
+            + `${d.nb_ok} compte(s) créé(s)` + (d.nb_erreurs ? `, ${d.nb_erreurs} erreur(s)` : '') + '</div>'
+            + '<div style="font-size:.72rem;color:#94A3B8;margin-bottom:10px;">⚠️ Note ces identifiants maintenant — ils ne seront plus affichés. Communique-les (ou imprime les fiches ci-dessous).</div>'
+            + '<div style="max-height:280px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;">'
+            + '<table style="width:100%;border-collapse:collapse;font-size:.74rem;font-family:monospace;">'
+            + '<thead><tr style="background:#F8FAFF;font-family:inherit;"><th style="padding:6px 8px;text-align:left;">Identifiant</th><th style="padding:6px 8px;text-align:left;">Mot de passe</th></tr></thead>'
+            + '<tbody>' + crees.map(r => `<tr style="border-top:1px solid #F1F5F9;"><td style="padding:6px 8px;">${r.code_unique}</td><td style="padding:6px 8px;">${r.mot_de_passe_temporaire}</td></tr>`).join('')
+            + '</tbody></table></div>'
+            + '<button onclick="imprimerFichesIdentifiants(window._dernierImportComptes)" style="margin-top:14px;background:#fff;color:#4F46E5;border:1.5px solid #4F46E5;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">🖨️ Imprimer les fiches</button>'
+            + '<button onclick="closeImportGenerique(); ' + cfg.reloadFn + '();" style="margin-top:8px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Fermer</button>';
+          btn.style.display = 'none';
+        } else {
+          msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ ' + (d.message || 'Erreur');
+          btn.disabled = false; btn.textContent = '✅ Confirmer et créer ces comptes';
+        }
+      } catch (e) {
+        msgEl.style.display = 'block'; msgEl.style.color = '#EF4444'; msgEl.textContent = '❌ Erreur réseau : ' + e.message;
+        btn.disabled = false; btn.textContent = '✅ Confirmer et créer ces comptes';
+      }
+    }
 
     // ══════════════════════════════════════
     // CONVOCATIONS
@@ -5169,6 +5320,57 @@
           const inner = document.getElementById('m-add-corps')?.querySelector('.dir-modal');
           if (inner) inner.innerHTML = renderCredentialsPanel(d.code_unique, d.mot_de_passe_temporaire, 'm-add-corps', 'loadCorps');
           toast('Professeur créé', 'ok');
+        } else {
+          if (msgEl) { msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = '#EF4444'; }
+        }
+      } catch (e) {
+        if (msgEl) { msgEl.textContent = '❌ ' + e.message; msgEl.style.color = '#EF4444'; }
+      }
+    }
+
+    // ══════════════════════════════════════
+    // CHANGER MON MOT DE PASSE (tous rôles, générique)
+    // ══════════════════════════════════════
+    function openChangePassword() {
+      let m = document.getElementById('m-chg-pwd');
+      if (!m) {
+        m = document.createElement('div');
+        m.id = 'm-chg-pwd';
+        m.className = 'dir-modal-overlay';
+        m.onclick = e => { if (e.target === m) m.remove(); };
+        m.innerHTML = '<div class="dir-modal" style="max-width:420px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+          + '<div style="font-size:.95rem;font-weight:800;">🔒 Changer mon mot de passe</div>'
+          + '<button onclick="document.getElementById(\'m-chg-pwd\')?.remove();" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94A3B8;">✕</button>'
+          + '</div>'
+          + '<div style="display:flex;flex-direction:column;gap:10px;">'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Mot de passe actuel *</label>'
+          + '<input id="pwc-ancien" type="password" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Nouveau mot de passe *</label>'
+          + '<input id="pwc-nouveau" type="password" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div id="pwc-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;"></div>'
+          + '<button onclick="submitChangePassword()" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">✅ Changer le mot de passe</button>'
+          + '</div></div>';
+        document.body.appendChild(m);
+      }
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+    }
+
+    async function submitChangePassword() {
+      const ancien_mot_de_passe = document.getElementById('pwc-ancien')?.value;
+      const nouveau_mot_de_passe = document.getElementById('pwc-nouveau')?.value;
+      const msgEl = document.getElementById('pwc-msg');
+      if (!ancien_mot_de_passe || !nouveau_mot_de_passe) { toast('Les deux champs sont requis', 'err'); return; }
+      if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = '⏳ Modification...'; msgEl.style.color = '#64748B'; }
+      try {
+        const d = await api('/auth/changer-mot-de-passe', {
+          method: 'PUT',
+          body: JSON.stringify({ ancien_mot_de_passe, nouveau_mot_de_passe })
+        });
+        if (d.success) {
+          document.getElementById('m-chg-pwd')?.remove();
+          toast('✅ Mot de passe changé avec succès', 'ok');
         } else {
           if (msgEl) { msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = '#EF4444'; }
         }
@@ -6234,6 +6436,13 @@
     const EXAM_CLASSES = ['3ème', 'Tle A', 'Tle D'];
 
     async function loadCompositions() {
+      // Préremplit la date du jour dans le formulaire (toujours visible à
+      // droite) au premier chargement de la page — avant, ça se faisait
+      // seulement au clic sur un bouton "Nouvelle épreuve" qui n'avait plus
+      // d'utilité une fois le formulaire rendu visible en permanence.
+      const dateEl = $('cp-date');
+      if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().split('T')[0];
+
       const tbody = $('compo-tbody');
       if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#94A3B8;">⏳ Chargement…</td></tr>';
       try {
@@ -6301,12 +6510,6 @@
         });
         toast('💡 Classes BEPC/BAC pré-sélectionnées', 'info');
       }
-    }
-
-    function openAddCompo() {
-      resetCompoForm();
-      const today = new Date().toISOString().split('T')[0];
-      const dateEl = $('cp-date'); if (dateEl) dateEl.value = today;
     }
 
     function resetCompoForm() {
