@@ -868,6 +868,17 @@ exports.createDevoir = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Titre, matière, classe et date limite requis' });
         }
 
+        // ✅ Empêche de publier deux fois le même devoir (même titre, même
+        // classe, même matière) — arrivait facilement par double-clic ou
+        // par erreur de saisie, dupliquant la notification envoyée aux élèves.
+        const doublon = await db.query(`
+            SELECT id_devoir FROM pedagogie.devoirs
+            WHERE id_prof = $1 AND classe = $2 AND matiere = $3 AND LOWER(TRIM(titre)) = LOWER(TRIM($4))
+        `, [profId, classe, matiere, titre]);
+        if (doublon.rows.length > 0) {
+            return res.status(409).json({ success: false, message: 'Ce devoir existe déjà pour cette classe et cette matière.' });
+        }
+
         const result = await db.query(`
             INSERT INTO pedagogie.devoirs (id_prof, titre, description, matiere, classe, date_limite)
             VALUES ($1, $2, $3, $4, $5, $6)

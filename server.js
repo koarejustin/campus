@@ -310,7 +310,20 @@ app.post('/api/messages/upload', (req, res, next) => {
 });
 
 // ── Messages salle des profs ──
-app.get('/api/messages/:conv_id', async (req, res) => {
+// ✅ Manquait la vérification d'authentification présente sur la route
+// d'upload — n'importe qui connaissant un conv_id pouvait lire l'historique
+// des messages sans être connecté.
+app.get('/api/messages/:conv_id', (req, res, next) => {
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : auth;
+    if (!token) return res.status(401).json({ success: false, message: 'Non authentifié' });
+    try {
+        req.user = jwt.verify(token, process.env.JWT_SECRET || 'ma_cle_secrete');
+        next();
+    } catch (e) {
+        return res.status(401).json({ success: false, message: 'Token invalide' });
+    }
+}, async (req, res) => {
     try {
         const { conv_id } = req.params;
         const limit = Math.min(parseInt(req.query.limit) || 60, 200);
