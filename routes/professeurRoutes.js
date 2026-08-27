@@ -130,6 +130,12 @@ router.get('/annonces', authMiddleware, ctrl.getAnnonces);
 // ── Copies corrigées scannées ──
 router.post('/copies-scannees', authMiddleware, handleUpload(uploadCopie.single('scan')), ctrl.uploadCopieScannee);
 router.get('/copies-scannees', authMiddleware, ctrl.getCopiesScannees);
+
+// ── QCM (correction automatique) ──
+router.post('/qcm', authMiddleware, ctrl.creerQcm);
+router.get('/qcm', authMiddleware, ctrl.listerQcm);
+router.get('/qcm/:id', authMiddleware, ctrl.getQcmDetail);
+router.post('/qcm/:id/notes', authMiddleware, ctrl.noterQcmEleve);
 // ========== MES CLASSES ET MATIERES ==========
 router.get('/mes-classes', authMiddleware, async (req, res) => {
     try {

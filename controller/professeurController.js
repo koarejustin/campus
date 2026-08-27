@@ -476,6 +476,215 @@ exports.saveNotes = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════
+// QCM — correction automatique
+// Le prof définit la grille de réponses correctes une fois ; chaque copie
+// est ensuite notée en quelques secondes en cliquant la réponse cochée par
+// l'élève pour chaque question (pas de lecture automatique de scan papier —
+// fiable à 100%, contrairement à une reconnaissance d'image qui pourrait se
+// tromper sur une vraie note d'élève). La note calculée alimente directement
+// le même tableau que la saisie de notes classique (notes_evaluations), donc
+// elle apparaît normalement dans le bulletin de l'élève et du parent.
+// ═══════════════════════════════════════════
+async function _ensureQcmTables() {
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS pedagogie.qcm (
+            id_qcm              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+            id_prof             UUID        NOT NULL REFERENCES authentification.comptes(id_user) ON DELETE CASCADE,
+            id_matiere          INTEGER     NOT NULL REFERENCES pedagogie.matieres(id_matiere),
+            classe              VARCHAR(50) NOT NULL,
+            titre               VARCHAR(255) NOT NULL,
+            trimestre           SMALLINT    NOT NULL CHECK (trimestre IN (1,2,3)),
+            annee_scolaire      VARCHAR(20) NOT NULL DEFAULT '2025-2026',
+            nb_questions        SMALLINT    NOT NULL,
+            bareme              NUMERIC(5,2) NOT NULL DEFAULT 20,
+            reponses_correctes  JSONB       NOT NULL,
+            date_creation       TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS pedagogie.qcm_reponses (
+            id_reponse      UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+            id_qcm          UUID        NOT NULL REFERENCES pedagogie.qcm(id_qcm) ON DELETE CASCADE,
+            id_eleve        UUID        NOT NULL REFERENCES authentification.comptes(id_user) ON DELETE CASCADE,
+            reponses_eleve  JSONB       NOT NULL,
+            nb_correctes    SMALLINT    NOT NULL,
+            note            NUMERIC(5,2) NOT NULL,
+            date_correction TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (id_qcm, id_eleve)
+        )
+    `);
+    // ✅ pedagogie.notes_evaluations limitait type_evaluation à une liste
+    // fixe (DEVOIR, COMPO, EXAMEN...) qui ne prévoyait pas 'QCM' — sans
+    // cet élargissement, chaque note calculée automatiquement échouait
+    // silencieusement avec une erreur de contrainte de base de données.
+    await db.query(`ALTER TABLE pedagogie.notes_evaluations DROP CONSTRAINT IF EXISTS notes_evaluations_type_evaluation_check`);
+    await db.query(`
+        ALTER TABLE pedagogie.notes_evaluations ADD CONSTRAINT notes_evaluations_type_evaluation_check
+        CHECK (type_evaluation IN ('DEVOIR','DEVOIR1','DEVOIR2','COMPO','COMPOSITION','RATTRAPAGE','EXAMEN','QCM'))
+    `);
+}
+
+exports.creerQcm = async (req, res) => {
+    try {
+        await _ensureQcmTables();
+        const profId = req.user?.id;
+        const { classe, id_matiere, titre, trimestre, bareme, reponses_correctes, annee_scolaire } = req.body;
+
+        if (!classe || !id_matiere || !titre || !trimestre || !Array.isArray(reponses_correctes) || !reponses_correctes.length) {
+            return res.status(400).json({ success: false, message: 'Classe, matière, titre, trimestre et grille de réponses requis' });
+        }
+
+        // 🔒 Le prof ne peut créer un QCM que pour une matière qu'il enseigne réellement
+        const profRes = await db.query(`SELECT matieres FROM pedagogie.profils_profs WHERE id_user = $1`, [profId]);
+        const mesMatieresNoms = profRes.rows[0]?.matieres || [];
+        const matiereRow = await db.query(`SELECT nom_matiere FROM pedagogie.matieres WHERE id_matiere = $1`, [id_matiere]);
+        const nomMatiere = matiereRow.rows[0]?.nom_matiere;
+        const autorise = nomMatiere && mesMatieresNoms.some(nm => _normMat(nm) === _normMat(nomMatiere));
+        if (!autorise) {
+            return res.status(403).json({ success: false, message: "Vous n'enseignez pas cette matière" });
+        }
+
+        // ✅ Empêche de créer deux fois le même QCM (même titre, classe,
+        // matière et trimestre) — même logique que pour les devoirs.
+        const doublon = await db.query(`
+            SELECT id_qcm FROM pedagogie.qcm
+            WHERE id_prof = $1 AND classe = $2 AND id_matiere = $3 AND trimestre = $4 AND LOWER(TRIM(titre)) = LOWER(TRIM($5))
+        `, [profId, classe, id_matiere, trimestre, titre]);
+        if (doublon.rows.length > 0) {
+            return res.status(409).json({ success: false, message: 'Ce QCM existe déjà pour cette classe, cette matière et ce trimestre.' });
+        }
+
+        const r = await db.query(`
+            INSERT INTO pedagogie.qcm (id_prof, id_matiere, classe, titre, trimestre, annee_scolaire, nb_questions, bareme, reponses_correctes)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            RETURNING id_qcm, titre, classe, trimestre, nb_questions, bareme, date_creation
+        `, [profId, id_matiere, classe, titre, trimestre, annee_scolaire || '2025-2026', reponses_correctes.length, bareme || 20, JSON.stringify(reponses_correctes)]);
+
+        res.json({ success: true, message: 'QCM créé', qcm: r.rows[0] });
+    } catch (e) {
+        console.error('Erreur creerQcm:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+exports.listerQcm = async (req, res) => {
+    try {
+        await _ensureQcmTables();
+        const profId = req.user?.id;
+        const r = await db.query(`
+            SELECT q.id_qcm, q.titre, q.classe, q.trimestre, q.nb_questions, q.bareme, q.date_creation,
+                   m.nom_matiere,
+                   (SELECT COUNT(*) FROM pedagogie.qcm_reponses qr WHERE qr.id_qcm = q.id_qcm) AS nb_corriges,
+                   (SELECT COUNT(*) FROM vie_scolaire.profils_eleves pe
+                        JOIN authentification.comptes c ON c.id_user = pe.id_user
+                        WHERE pe.classe_actuelle = q.classe AND c.est_actif = true) AS nb_eleves_classe
+            FROM pedagogie.qcm q
+            JOIN pedagogie.matieres m ON m.id_matiere = q.id_matiere
+            WHERE q.id_prof = $1
+            ORDER BY q.date_creation DESC
+        `, [profId]);
+        res.json({ success: true, qcms: r.rows });
+    } catch (e) {
+        console.error('Erreur listerQcm:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+exports.getQcmDetail = async (req, res) => {
+    try {
+        await _ensureQcmTables();
+        const profId = req.user?.id;
+        const { id } = req.params;
+
+        const qcmRes = await db.query(`
+            SELECT q.*, m.nom_matiere FROM pedagogie.qcm q
+            JOIN pedagogie.matieres m ON m.id_matiere = q.id_matiere
+            WHERE q.id_qcm = $1 AND q.id_prof = $2
+        `, [id, profId]);
+        if (!qcmRes.rows.length) return res.status(404).json({ success: false, message: 'QCM introuvable' });
+        const qcm = qcmRes.rows[0];
+
+        const elevesRes = await db.query(`
+            SELECT c.id_user AS id_eleve, c.nom, c.prenom, c.code_unique,
+                   qr.reponses_eleve, qr.nb_correctes, qr.note, qr.date_correction
+            FROM authentification.comptes c
+            JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
+            LEFT JOIN pedagogie.qcm_reponses qr ON qr.id_qcm = $1 AND qr.id_eleve = c.id_user
+            WHERE pe.classe_actuelle = $2 AND c.est_actif = true
+            ORDER BY c.nom, c.prenom
+        `, [id, qcm.classe]);
+
+        res.json({ success: true, qcm, eleves: elevesRes.rows });
+    } catch (e) {
+        console.error('Erreur getQcmDetail:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+exports.noterQcmEleve = async (req, res) => {
+    try {
+        await _ensureQcmTables();
+        const profId = req.user?.id;
+        const { id } = req.params;
+        const { id_eleve, reponses_eleve } = req.body;
+
+        if (!id_eleve || !Array.isArray(reponses_eleve)) {
+            return res.status(400).json({ success: false, message: 'Élève et réponses requis' });
+        }
+
+        const qcmRes = await db.query(`SELECT * FROM pedagogie.qcm WHERE id_qcm = $1 AND id_prof = $2`, [id, profId]);
+        if (!qcmRes.rows.length) return res.status(404).json({ success: false, message: 'QCM introuvable' });
+        const qcm = qcmRes.rows[0];
+        const correctes = qcm.reponses_correctes;
+
+        let nbCorrectes = 0;
+        for (let i = 0; i < correctes.length; i++) {
+            if ((reponses_eleve[i] || '').toString().toUpperCase() === (correctes[i] || '').toString().toUpperCase()) nbCorrectes++;
+        }
+        const note = Math.round((nbCorrectes / qcm.nb_questions) * parseFloat(qcm.bareme) * 100) / 100;
+
+        await db.query(`
+            INSERT INTO pedagogie.qcm_reponses (id_qcm, id_eleve, reponses_eleve, nb_correctes, note)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (id_qcm, id_eleve) DO UPDATE SET
+                reponses_eleve = $3, nb_correctes = $4, note = $5, date_correction = NOW()
+        `, [id, id_eleve, JSON.stringify(reponses_eleve), nbCorrectes, note]);
+
+        // ✅ Alimente le vrai carnet de notes (même table que la saisie
+        // manuelle) — la note QCM apparaît donc normalement dans le
+        // bulletin, avec la même notification élève/parent.
+        const matiereNom = (await db.query(`SELECT nom_matiere FROM pedagogie.matieres WHERE id_matiere = $1`, [qcm.id_matiere])).rows[0]?.nom_matiere || 'matière';
+        const existing = await db.query(`
+            SELECT id_evaluation FROM pedagogie.notes_evaluations
+            WHERE id_eleve = $1 AND id_matiere = $2 AND id_professeur = $3
+            AND trimestre = $4 AND annee_scolaire = $5 AND type_evaluation = 'QCM'
+        `, [id_eleve, qcm.id_matiere, profId, qcm.trimestre, qcm.annee_scolaire]);
+        if (existing.rows.length > 0) {
+            await db.query(`UPDATE pedagogie.notes_evaluations SET note = $1, date_evaluation = NOW() WHERE id_evaluation = $2`, [note, existing.rows[0].id_evaluation]);
+        } else {
+            await db.query(`
+                INSERT INTO pedagogie.notes_evaluations (id_eleve, id_matiere, id_professeur, note, trimestre, annee_scolaire, type_evaluation, date_evaluation)
+                VALUES ($1, $2, $3, $4, $5, $6, 'QCM', NOW())
+            `, [id_eleve, qcm.id_matiere, profId, note, qcm.trimestre, qcm.annee_scolaire]);
+        }
+
+        try {
+            const notificationService = require('../services/notificationService');
+            await notificationService.sendNotification([id_eleve], 'NOTE', 'Nouvelle note', `Note de ${note}/${qcm.bareme} en ${matiereNom} (QCM)`, '/eleve.html?page=bulletin');
+            const parentResult = await db.query(`SELECT id_parent FROM vie_scolaire.relations_parents_eleves WHERE id_eleve = $1`, [id_eleve]);
+            if (parentResult.rows.length > 0) {
+                await notificationService.sendNotification(parentResult.rows.map(r => r.id_parent), 'NOTE', 'Note de votre enfant', `Votre enfant a reçu ${note}/${qcm.bareme} en ${matiereNom} (QCM)`, '/parent.html?page=bulletin');
+            }
+        } catch (e) { console.warn('Erreur notification note QCM:', e.message); }
+
+        res.json({ success: true, nb_correctes: nbCorrectes, nb_questions: qcm.nb_questions, note });
+    } catch (e) {
+        console.error('Erreur noterQcmEleve:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+// ═══════════════════════════════════════════
 // RESSOURCES PÉDAGOGIQUES
 // ═══════════════════════════════════════════
 exports.getRessources = async (req, res) => {

@@ -2959,6 +2959,13 @@
       </div>
 
       <!-- ========== NOUVEAUX ONGLETS AJOUTÉS ICI ========== -->
+      <div class="ni" id="ni-qcm" onclick="go('qcm',this)">
+        <svg viewBox="0 0 24 24">
+          <path d="M9 11l3 3L22 4" />
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+        </svg>
+        QCM
+      </div>
       <div class="ni" id="ni-devoirs" onclick="go('devoirs',this)">
         <svg viewBox="0 0 24 24">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -3705,6 +3712,92 @@
           </div>
         </div>
       </div>
+      <!-- ══ QCM (correction automatique) ══ -->
+      <div id="s-qcm" class="sec">
+        <div id="qcm-list-view">
+          <div class="card">
+            <div class="card-hd">
+              <div>
+                <div class="card-hd-title">📊 QCM</div>
+                <div class="card-hd-sub">Grille de réponses une fois, correction automatique ensuite</div>
+              </div>
+              <button class="btn-p" onclick="openAddQcm()">
+                <svg viewBox="0 0 24 24">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Nouveau QCM
+              </button>
+            </div>
+            <div id="qcm-list" style="padding:12px;"></div>
+          </div>
+
+          <div class="card" id="add-qcm-panel" style="display:none; margin-top:14px;">
+            <div class="card-hd">
+              <div class="card-hd-title">➕ Nouveau QCM</div>
+              <button class="btn-g" onclick="closeAddQcm()">✕</button>
+            </div>
+            <div style="padding:12px; display:flex; flex-direction:column; gap:12px;">
+              <div>
+                <label>Classe *</label>
+                <select id="qc-cls" class="inp" onchange="onQcmClasseChange()">
+                  <option value="">— Sélectionner —</option>
+                </select>
+              </div>
+              <div>
+                <label>Matière *</label>
+                <select id="qc-mat" class="inp"></select>
+              </div>
+              <div>
+                <label>Titre *</label>
+                <input id="qc-titre" type="text" placeholder="ex: QCM Chapitre 3 — Les fractions" class="inp">
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div>
+                  <label>Trimestre *</label>
+                  <select id="qc-trim" class="inp">
+                    <option value="1">Trimestre 1</option>
+                    <option value="2">Trimestre 2</option>
+                    <option value="3">Trimestre 3</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Barème</label>
+                  <input id="qc-bareme" type="number" value="20" min="1" max="100" class="inp">
+                </div>
+              </div>
+              <div>
+                <label>Nombre de questions *</label>
+                <input id="qc-nbq" type="number" value="10" min="1" max="60" class="inp" oninput="renderQcmGrille()">
+              </div>
+              <div>
+                <label>Grille de réponses correctes *</label>
+                <div id="qc-grille" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(78px,1fr)); gap:8px; margin-top:6px;"></div>
+              </div>
+              <div id="qc-msg" style="display:none;"></div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-p" onclick="saveQcm()" style="flex:1;">✅ Créer le QCM</button>
+                <button class="btn-g" onclick="closeAddQcm()">Annuler</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vue correction : liste des élèves de la classe pour un QCM donné -->
+        <div id="qcm-grade-view" style="display:none;">
+          <div class="card">
+            <div class="card-hd">
+              <div>
+                <div class="card-hd-title" id="qcm-grade-title">Correction</div>
+                <div class="card-hd-sub" id="qcm-grade-sub"></div>
+              </div>
+              <button class="btn-g" onclick="closeQcmGrade()">← Retour à la liste</button>
+            </div>
+            <div id="qcm-grade-list" style="padding:12px;"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- ══ DEVOIRS ══ -->
       <div id="s-devoirs" class="sec">
         <div style="display:grid; grid-template-columns:1fr 340px; gap:14px;">
@@ -4109,6 +4202,7 @@
       dash: { title: 'Tableau de Bord', sub: 'Vue d\'ensemble de votre activité' },
       profil: { title: 'Mon Profil', sub: 'Informations personnelles · Photo · Matières' },
       notes: { title: 'Saisie des Notes', sub: 'Seulement vos classes · Seulement vos matières' },
+      qcm: { title: 'QCM', sub: 'Grille de réponses une fois, correction automatique ensuite' },
       ct: { title: 'Cahier de Texte', sub: 'Journal de séances · Visible par la Direction' },
       res: { title: 'Ressources & Cours', sub: 'Publications visibles par vos élèves uniquement' },
       devoirs: { title: 'Mes Devoirs', sub: 'Programmer et gérer les devoirs pour vos classes' },  // ← AJOUT
@@ -4124,6 +4218,7 @@
       if (p) { $('pg-title').textContent = p.title; $('pg-sub').textContent = p.sub; }
       if (page === 'salle') setTimeout(scrollMsgs, 100);
       if (page === 'devoirs') loadDevoirs();  // ← AJOUT
+      if (page === 'qcm') loadQcmList();
       if (page === 'annonces') { loadAnnonces(); refreshSmsBadgeCount(); }
     }
 
@@ -5764,6 +5859,186 @@
       document.body.appendChild(overlay);
       document.addEventListener('keydown', function h(e) { if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', h); } });
     }
+    // ========== QCM (correction automatique) ==========
+    let qcmMatieres = []; // [{n: nom, id: id_matiere}] pour la classe sélectionnée
+
+    async function loadQcmList() {
+      const box = $('qcm-list');
+      if (!box) return;
+      box.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);">⏳ Chargement…</div>';
+      try {
+        const r = await fetch(`${API}/professeurs/qcm`, { headers: { 'Authorization': 'Bearer ' + TOK } });
+        const d = await r.json();
+        const qcms = d.success ? d.qcms : [];
+        if (!qcms.length) {
+          box.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);">Aucun QCM créé pour l\'instant.</div>';
+          return;
+        }
+        box.innerHTML = qcms.map(q => `
+          <div class="card" style="padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <div>
+              <div style="font-weight:700;font-size:.88rem;">${esc(q.titre)}</div>
+              <div style="font-size:.72rem;color:var(--muted);margin-top:2px;">${esc(q.classe)} · ${esc(q.nom_matiere)} · Trimestre ${q.trimestre} · ${q.nb_questions} questions</div>
+            </div>
+            <button class="btn-p" onclick="openQcmGrade('${q.id_qcm}')" style="white-space:nowrap;">
+              Corriger (${q.nb_corriges}/${q.nb_eleves_classe})
+            </button>
+          </div>`).join('');
+      } catch (e) {
+        box.innerHTML = '<div style="text-align:center;padding:30px;color:var(--red);">Erreur de chargement</div>';
+      }
+    }
+
+    function openAddQcm() {
+      const panel = $('add-qcm-panel');
+      if (!panel) return;
+      panel.style.display = 'block';
+      $('qc-titre').value = '';
+      $('qc-nbq').value = 10;
+      $('qc-bareme').value = 20;
+      $('qc-msg').style.display = 'none';
+      const clsSelect = $('qc-cls');
+      clsSelect.innerHTML = '<option value="">— Sélectionner —</option>' +
+        (PROF.classes || []).map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+      $('qc-mat').innerHTML = '<option value="">— Choisir une classe d\'abord —</option>';
+      renderQcmGrille();
+    }
+
+    function closeAddQcm() { const p = $('add-qcm-panel'); if (p) p.style.display = 'none'; }
+
+    async function onQcmClasseChange() {
+      const cls = $('qc-cls').value;
+      const matSelect = $('qc-mat');
+      if (!cls) { matSelect.innerHTML = '<option value="">— Choisir une classe d\'abord —</option>'; return; }
+      matSelect.innerHTML = '<option>⏳…</option>';
+      try {
+        const r = await fetch(`${API}/professeurs/mes-matieres?classe=${encodeURIComponent(cls)}`, { headers: { 'Authorization': 'Bearer ' + TOK } });
+        const d = await r.json();
+        qcmMatieres = (d.success && d.matieres) ? d.matieres.map(m => ({ n: m.nom_matiere, id: m.id_matiere })) : [];
+        matSelect.innerHTML = qcmMatieres.length
+          ? qcmMatieres.map(m => `<option value="${m.id}">${esc(m.n)}</option>`).join('')
+          : '<option value="">Aucune matière trouvée</option>';
+      } catch (e) {
+        matSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+      }
+    }
+
+    const QCM_LETTRES = ['A', 'B', 'C', 'D', 'E'];
+    function renderQcmGrille() {
+      const n = Math.max(1, Math.min(60, parseInt($('qc-nbq').value) || 1));
+      $('qc-grille').innerHTML = Array.from({ length: n }, (_, i) => `
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <label style="font-size:.65rem;color:var(--muted);">Q${i + 1}</label>
+          <select class="inp qc-grille-rep" style="padding:5px;font-size:.78rem;">
+            ${QCM_LETTRES.map(l => `<option value="${l}">${l}</option>`).join('')}
+          </select>
+        </div>`).join('');
+    }
+
+    async function saveQcm() {
+      const classe = $('qc-cls').value;
+      const id_matiere = $('qc-mat').value;
+      const titre = $('qc-titre').value.trim();
+      const trimestre = parseInt($('qc-trim').value);
+      const bareme = parseFloat($('qc-bareme').value) || 20;
+      const reponses_correctes = [...document.querySelectorAll('.qc-grille-rep')].map(s => s.value);
+      const msgEl = $('qc-msg');
+
+      if (!classe || !id_matiere || !titre) {
+        msgEl.style.display = 'block'; msgEl.textContent = '⚠️ Classe, matière et titre requis'; msgEl.style.color = 'var(--red)';
+        return;
+      }
+      try {
+        const r = await fetch(`${API}/professeurs/qcm`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ classe, id_matiere, titre, trimestre, bareme, reponses_correctes })
+        });
+        const d = await r.json();
+        if (d.success) {
+          toast('QCM créé ✓', 'ok');
+          closeAddQcm();
+          loadQcmList();
+        } else {
+          msgEl.style.display = 'block'; msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = 'var(--red)';
+        }
+      } catch (e) {
+        msgEl.style.display = 'block'; msgEl.textContent = '❌ Erreur réseau : ' + e.message; msgEl.style.color = 'var(--red)';
+      }
+    }
+
+    let qcmEnCours = null;
+    async function openQcmGrade(idQcm) {
+      $('qcm-list-view').style.display = 'none';
+      $('qcm-grade-view').style.display = 'block';
+      $('qcm-grade-list').innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);">⏳ Chargement…</div>';
+      try {
+        const r = await fetch(`${API}/professeurs/qcm/${idQcm}`, { headers: { 'Authorization': 'Bearer ' + TOK } });
+        const d = await r.json();
+        if (!d.success) { $('qcm-grade-list').innerHTML = '<div style="color:var(--red);padding:20px;">Erreur de chargement</div>'; return; }
+        qcmEnCours = d.qcm;
+        $('qcm-grade-title').textContent = d.qcm.titre;
+        $('qcm-grade-sub').textContent = `${d.qcm.classe} · ${d.qcm.nom_matiere} · ${d.qcm.nb_questions} questions · Barème /${d.qcm.bareme}`;
+        const n = d.qcm.nb_questions;
+        $('qcm-grade-list').innerHTML = d.eleves.map(e => {
+          const dejaFait = e.note !== null && e.note !== undefined;
+          const reponses = e.reponses_eleve || [];
+          const selects = Array.from({ length: n }, (_, i) => `
+            <select class="inp qcm-rep-eleve" data-idx="${i}" style="padding:4px;font-size:.72rem;width:48px;">
+              ${QCM_LETTRES.map(l => `<option value="${l}" ${reponses[i] === l ? 'selected' : ''}>${l}</option>`).join('')}
+            </select>`).join('');
+          return `
+          <div class="card" style="padding:10px 12px;margin-bottom:8px;" data-eleve="${e.id_eleve}">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+              <div>
+                <div style="font-weight:700;font-size:.85rem;">${esc(e.prenom)} ${esc(e.nom)}</div>
+                <div style="font-size:.68rem;color:var(--muted);">${esc(e.code_unique)}</div>
+              </div>
+              <div class="qcm-note-badge" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.85rem;color:${dejaFait ? 'var(--accent)' : 'var(--muted)'};">
+                ${dejaFait ? e.note + '/' + qcmEnCours.bareme : 'Non corrigé'}
+              </div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">${selects}</div>
+            <button class="btn-p" style="font-size:.72rem;padding:6px 12px;" onclick="submitQcmNote('${idQcm}','${e.id_eleve}',this)">
+              ${dejaFait ? '🔁 Recorriger' : '✅ Corriger'}
+            </button>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        $('qcm-grade-list').innerHTML = '<div style="color:var(--red);padding:20px;">Erreur : ' + e.message + '</div>';
+      }
+    }
+
+    function closeQcmGrade() {
+      $('qcm-grade-view').style.display = 'none';
+      $('qcm-list-view').style.display = 'block';
+      loadQcmList();
+    }
+
+    async function submitQcmNote(idQcm, idEleve, btn) {
+      const card = btn.closest('[data-eleve]');
+      const reponses_eleve = [...card.querySelectorAll('.qcm-rep-eleve')].map(s => s.value);
+      try {
+        const r = await fetch(`${API}/professeurs/qcm/${idQcm}/notes`, {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_eleve: idEleve, reponses_eleve })
+        });
+        const d = await r.json();
+        if (d.success) {
+          const badge = card.querySelector('.qcm-note-badge');
+          badge.textContent = `${d.note}/${qcmEnCours.bareme} (${d.nb_correctes}/${d.nb_questions})`;
+          badge.style.color = 'var(--accent)';
+          btn.textContent = '🔁 Recorriger';
+          toast(`Note calculée : ${d.note}/${qcmEnCours.bareme}`, 'ok');
+        } else {
+          toast('❌ ' + (d.message || 'Erreur'), 'err');
+        }
+      } catch (e) {
+        toast('❌ Erreur réseau : ' + e.message, 'err');
+      }
+    }
+
     // ========== GESTION DES DEVOIRS ==========
     let devoirsData = [];
 
