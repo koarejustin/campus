@@ -29,9 +29,12 @@ router.post('/eleves/import-excel', auth, dirSeule, uploadExcel.single('fichier'
 router.get('/corps', auth, dirSeule, ctrl.getProfesseurs);
 router.get('/professeurs', auth, dirSeule, ctrl.getProfesseurs);
 router.post('/professeurs', auth, dirSeule, ctrl.createProfesseur);
+router.post('/professeurs/import-excel', auth, dirSeule, uploadExcel.single('fichier'), ctrl.importProfesseursExcel);
 router.post('/surveillants', auth, dirSeule, ctrl.createSurveillant);
 router.post('/alumni', auth, dirSeule, ctrl.createAlumni);
+router.post('/alumni/import-excel', auth, dirSeule, uploadExcel.single('fichier'), ctrl.importAlumniExcel);
 router.post('/parents', auth, dirSeule, ctrl.createParent);
+router.post('/parents/import-excel', auth, dirSeule, uploadExcel.single('fichier'), ctrl.importParentsExcel);
 
 // ── Parents ──
 router.get('/parents', auth, dirSeule, ctrl.getParents);

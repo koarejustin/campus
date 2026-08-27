@@ -1540,6 +1540,274 @@ exports.importElevesExcel = async (req, res) => {
     }
 };
 
+// ✅ Petit helper partagé par les 3 imports ci-dessous (Professeurs, Parents,
+// Alumni) : tolère plusieurs variantes d'en-têtes (Nom/nom/NOM...), comme
+// dans importElevesExcel.
+function getColExcel(obj, keys) {
+    for (const k of keys) {
+        for (const realKey of Object.keys(obj)) {
+            if (realKey.trim().toLowerCase() === k) return String(obj[realKey]).trim();
+        }
+    }
+    return '';
+}
+
+// ═══════════════════════════════════════════
+// IMPORT EXCEL — PROFESSEURS
+// Colonnes attendues : Nom, Prenom, Specialite (obligatoires),
+// Email, Telephone (optionnelles).
+// ═══════════════════════════════════════════
+exports.importProfesseursExcel = async (req, res) => {
+    let XLSX;
+    try { XLSX = require('xlsx'); } catch (e) {
+        return res.status(500).json({ message: "La librairie 'xlsx' n'est pas installée." });
+    }
+    try {
+        if (!req.file) return res.status(400).json({ message: 'Aucun fichier reçu' });
+        const dryRun = req.body.dryRun !== 'false';
+
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        if (!rows.length) return res.status(400).json({ message: 'Le fichier est vide ou illisible.' });
+
+        const bcrypt = require('bcryptjs');
+        const countR = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='PROFESSEUR'");
+        let compteur = parseInt(countR.rows[0].count) || 0;
+
+        const resultats = [];
+        for (let i = 0; i < rows.length; i++) {
+            const ligne = rows[i];
+            const nom = getColExcel(ligne, ['nom']);
+            const prenom = getColExcel(ligne, ['prenom', 'prénom']);
+            const specialite = getColExcel(ligne, ['specialite', 'spécialité', 'matiere', 'matière']);
+            const email = getColExcel(ligne, ['email', 'e-mail']) || null;
+            const telephone = getColExcel(ligne, ['telephone', 'téléphone', 'tel']) || null;
+
+            if (!nom || !prenom || !specialite) {
+                resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: 'Nom, prénom et spécialité sont obligatoires' });
+                continue;
+            }
+
+            compteur++;
+            const code = 'PROF-2026-' + String(compteur + 10).padStart(3, '0');
+
+            if (dryRun) {
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, specialite, email, telephone, code_previsionnel: code, statut: 'OK' });
+                continue;
+            }
+
+            try {
+                const motDePasseTemp = genTempPassword();
+                const hash = await bcrypt.hash(motDePasseTemp, 10);
+                const r = await db.query(`
+                    INSERT INTO authentification.comptes
+                    (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                    VALUES ($1,$2,$3,$4,$5,$6,'PROFESSEUR',true)
+                    RETURNING id_user, code_unique
+                `, [code, nom.toUpperCase(), prenom, email, telephone, hash]);
+                await db.query(
+                    `INSERT INTO pedagogie.profils_profs (id_user, specialite) VALUES ($1,$2)
+                     ON CONFLICT (id_user) DO UPDATE SET specialite=$2`,
+                    [r.rows[0].id_user, specialite]
+                );
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, specialite, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE' });
+            } catch (err) {
+                resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: err.message });
+            }
+        }
+
+        res.json({
+            success: true, dryRun, total: rows.length,
+            nb_ok: resultats.filter(r => r.statut === 'OK' || r.statut === 'CREE').length,
+            nb_erreurs: resultats.filter(r => r.statut === 'ERREUR').length,
+            resultats
+        });
+    } catch (error) {
+        console.error('importProfesseursExcel:', error.message);
+        res.status(500).json({ message: 'Erreur import: ' + error.message });
+    }
+};
+
+// ═══════════════════════════════════════════
+// IMPORT EXCEL — ALUMNI
+// Colonnes attendues : Nom, Prenom (obligatoires), Email, Telephone,
+// DerniereClasse, AnneeDiplome (optionnelles).
+// ═══════════════════════════════════════════
+exports.importAlumniExcel = async (req, res) => {
+    let XLSX;
+    try { XLSX = require('xlsx'); } catch (e) {
+        return res.status(500).json({ message: "La librairie 'xlsx' n'est pas installée." });
+    }
+    try {
+        if (!req.file) return res.status(400).json({ message: 'Aucun fichier reçu' });
+        const dryRun = req.body.dryRun !== 'false';
+
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        if (!rows.length) return res.status(400).json({ message: 'Le fichier est vide ou illisible.' });
+
+        const bcrypt = require('bcryptjs');
+        const countR = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ALUMNI'");
+        let compteur = parseInt(countR.rows[0].count) || 0;
+
+        const resultats = [];
+        for (let i = 0; i < rows.length; i++) {
+            const ligne = rows[i];
+            const nom = getColExcel(ligne, ['nom']);
+            const prenom = getColExcel(ligne, ['prenom', 'prénom']);
+            const email = getColExcel(ligne, ['email', 'e-mail']) || null;
+            const telephone = getColExcel(ligne, ['telephone', 'téléphone', 'tel']) || null;
+            const derniereClasse = getColExcel(ligne, ['derniereclasse', 'derniere classe', 'dernière classe', 'classe']) || null;
+            const anneeDiplome = getColExcel(ligne, ['anneediplome', 'annee diplome', 'année diplôme', 'annee']) || null;
+
+            if (!nom || !prenom) {
+                resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: 'Nom et prénom sont obligatoires' });
+                continue;
+            }
+
+            compteur++;
+            const code = 'ALUM-2026-' + String(compteur).padStart(3, '0');
+
+            if (dryRun) {
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, code_previsionnel: code, statut: 'OK' });
+                continue;
+            }
+
+            try {
+                const motDePasseTemp = genTempPassword();
+                const hash = await bcrypt.hash(motDePasseTemp, 10);
+                const r = await db.query(`
+                    INSERT INTO authentification.comptes
+                    (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                    VALUES ($1,$2,$3,$4,$5,$6,'ALUMNI',true)
+                    RETURNING id_user, code_unique
+                `, [code, nom.toUpperCase(), prenom, email, telephone, hash]);
+                await db.query(
+                    `INSERT INTO gestion_ape.profils_alumni (id_user, derniere_classe, annee_diplome) VALUES ($1,$2,$3)
+                     ON CONFLICT (id_user) DO UPDATE SET derniere_classe=$2, annee_diplome=$3`,
+                    [r.rows[0].id_user, derniereClasse, anneeDiplome]
+                );
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE' });
+            } catch (err) {
+                resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: err.message });
+            }
+        }
+
+        res.json({
+            success: true, dryRun, total: rows.length,
+            nb_ok: resultats.filter(r => r.statut === 'OK' || r.statut === 'CREE').length,
+            nb_erreurs: resultats.filter(r => r.statut === 'ERREUR').length,
+            resultats
+        });
+    } catch (error) {
+        console.error('importAlumniExcel:', error.message);
+        res.status(500).json({ message: 'Erreur import: ' + error.message });
+    }
+};
+
+// ═══════════════════════════════════════════
+// IMPORT EXCEL — PARENTS
+// Colonnes attendues : Nom, Prenom, MatriculeEnfant (obligatoires — un
+// parent doit toujours être lié à un élève déjà existant, voir
+// createParent ci-dessus pour le pourquoi), Email, Telephone,
+// Profession, LienParente (optionnelles).
+// ═══════════════════════════════════════════
+exports.importParentsExcel = async (req, res) => {
+    let XLSX;
+    try { XLSX = require('xlsx'); } catch (e) {
+        return res.status(500).json({ message: "La librairie 'xlsx' n'est pas installée." });
+    }
+    try {
+        if (!req.file) return res.status(400).json({ message: 'Aucun fichier reçu' });
+        const dryRun = req.body.dryRun !== 'false';
+
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        if (!rows.length) return res.status(400).json({ message: 'Le fichier est vide ou illisible.' });
+
+        const bcrypt = require('bcryptjs');
+        const countR = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='PARENT'");
+        let compteur = parseInt(countR.rows[0].count) || 0;
+
+        const resultats = [];
+        for (let i = 0; i < rows.length; i++) {
+            const ligne = rows[i];
+            const nom = getColExcel(ligne, ['nom']);
+            const prenom = getColExcel(ligne, ['prenom', 'prénom']);
+            const matriculeEnfant = getColExcel(ligne, ['matriculeenfant', 'matricule enfant', 'matricule_enfant', 'matricule']);
+            const email = getColExcel(ligne, ['email', 'e-mail']) || null;
+            const telephone = getColExcel(ligne, ['telephone', 'téléphone', 'tel']) || null;
+            const profession = getColExcel(ligne, ['profession']) || null;
+            const lienParente = getColExcel(ligne, ['lienparente', 'lien parente', 'lien parenté', 'lien']) || 'Parent';
+
+            if (!nom || !prenom || !matriculeEnfant) {
+                resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: 'Nom, prénom et matricule de l\'enfant sont obligatoires' });
+                continue;
+            }
+
+            const eleve = await db.query(
+                `SELECT id_user FROM authentification.comptes WHERE code_unique = $1 AND role_actuel = 'ELEVE'`,
+                [matriculeEnfant]
+            );
+            if (!eleve.rows.length) {
+                resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: `Aucun élève trouvé avec le matricule ${matriculeEnfant}` });
+                continue;
+            }
+            const idEleve = eleve.rows[0].id_user;
+
+            compteur++;
+            const code = 'PAR-2026-' + String(compteur).padStart(4, '0');
+
+            if (dryRun) {
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, matricule_enfant: matriculeEnfant, code_previsionnel: code, statut: 'OK' });
+                continue;
+            }
+
+            try {
+                const motDePasseTemp = genTempPassword();
+                const hash = await bcrypt.hash(motDePasseTemp, 10);
+                // Voir createParent ci-dessus : compte créé inactif puis activé
+                // après la liaison, à cause du déclencheur BD qui refuse tout
+                // parent actif sans enfant lié.
+                const r = await db.query(`
+                    INSERT INTO authentification.comptes
+                    (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                    VALUES ($1,$2,$3,$4,$5,$6,'PARENT',false)
+                    RETURNING id_user, code_unique
+                `, [code, nom.toUpperCase(), prenom, email, telephone, hash]);
+                const parentId = r.rows[0].id_user;
+
+                await db.query(
+                    `INSERT INTO gestion_ape.profils_parents (id_user, profession, telephone) VALUES ($1,$2,$3)`,
+                    [parentId, profession, telephone]
+                );
+                await db.query(
+                    `INSERT INTO vie_scolaire.relations_parents_eleves (id_parent, id_eleve, lien_parente) VALUES ($1,$2,$3)`,
+                    [parentId, idEleve, lienParente]
+                );
+                await db.query(`UPDATE authentification.comptes SET est_actif = true WHERE id_user = $1`, [parentId]);
+
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE' });
+            } catch (err) {
+                resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: err.message });
+            }
+        }
+
+        res.json({
+            success: true, dryRun, total: rows.length,
+            nb_ok: resultats.filter(r => r.statut === 'OK' || r.statut === 'CREE').length,
+            nb_erreurs: resultats.filter(r => r.statut === 'ERREUR').length,
+            resultats
+        });
+    } catch (error) {
+        console.error('importParentsExcel:', error.message);
+        res.status(500).json({ message: 'Erreur import: ' + error.message });
+    }
+};
+
 // ═══════════════════════════════════════════
 // EMPLOI DU TEMPS — modèle Excel + import en masse
 // ═══════════════════════════════════════════

@@ -950,6 +950,28 @@
                         ⚠️ Le prénom et le nom sont gérés par l'administration.
                     </div>
                 </div>
+
+                <div class="card" style="grid-column:2;">
+                    <div style="font-size:.74rem; font-weight:900; color:#1E293B; text-transform:uppercase; margin-bottom:14px;">
+                        🔒 Sécurité
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
+                        <div>
+                            <label style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Mot de passe actuel</label>
+                            <input class="inp" id="cp-ancien" type="password">
+                        </div>
+                        <div>
+                            <label style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Nouveau mot de passe</label>
+                            <input class="inp" id="cp-nouveau" type="password">
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:13px;">
+                        <button class="btn-p" onclick="changerMotDePasse()" style="flex:1; justify-content:center;">
+                            Changer le mot de passe
+                        </button>
+                        <span id="cp-ok" style="font-size:.7rem; font-weight:700; display:none;"></span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1693,6 +1715,29 @@
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Enregistrer';
+            }
+        }
+
+        async function changerMotDePasse() {
+            const ancien_mot_de_passe = document.getElementById('cp-ancien').value;
+            const nouveau_mot_de_passe = document.getElementById('cp-nouveau').value;
+            if (!ancien_mot_de_passe || !nouveau_mot_de_passe) { toast('Les deux champs sont requis', 'err'); return; }
+            try {
+                const r = await fetch(`${API}/auth/changer-mot-de-passe`, {
+                    method: 'PUT',
+                    headers: authH(),
+                    body: JSON.stringify({ ancien_mot_de_passe, nouveau_mot_de_passe })
+                });
+                const d = await r.json();
+                if (d.success) {
+                    toast('✅ Mot de passe changé', 'ok');
+                    document.getElementById('cp-ancien').value = '';
+                    document.getElementById('cp-nouveau').value = '';
+                } else {
+                    toast('❌ ' + (d.message || 'Erreur'), 'err');
+                }
+            } catch (e) {
+                toast('❌ Erreur réseau', 'err');
             }
         }
 

@@ -55,6 +55,20 @@
             </div>
         </section>
 
+        <section class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm mb-6">
+            <label class="block text-sm font-black mb-2">🔒 Sécurité — Changer mon mot de passe</label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                <input type="password" id="cpAncien" placeholder="Mot de passe actuel"
+                    class="px-4 py-2 border border-slate-200 rounded-lg text-sm">
+                <input type="password" id="cpNouveau" placeholder="Nouveau mot de passe"
+                    class="px-4 py-2 border border-slate-200 rounded-lg text-sm">
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="btnChangePwd" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">Changer le mot de passe</button>
+                <span id="cpMsg" class="text-sm text-slate-500"></span>
+            </div>
+        </section>
+
         <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div class="bg-white p-6 rounded-2xl border shadow-sm text-center">
                 <h3 class="font-black text-slate-800">Absences</h3>
@@ -188,6 +202,28 @@
                 if (res.ok) {
                     document.getElementById('profilePhoto').src = d.photo_url + '?v=' + Date.now();
                     msg.innerText = 'Photo enregistrée.';
+                } else {
+                    msg.innerText = d.message || 'Erreur';
+                }
+            } catch (err) { console.error(err); msg.innerText = 'Erreur réseau'; }
+            setTimeout(() => msg.innerText = '', 3000);
+        });
+
+        document.getElementById('btnChangePwd').addEventListener('click', async () => {
+            const ancien_mot_de_passe = document.getElementById('cpAncien').value;
+            const nouveau_mot_de_passe = document.getElementById('cpNouveau').value;
+            const msg = document.getElementById('cpMsg');
+            if (!ancien_mot_de_passe || !nouveau_mot_de_passe) { msg.innerText = 'Les deux champs sont requis'; return; }
+            msg.innerText = 'Modification...';
+            try {
+                const res = await fetch('/api/auth/changer-mot-de-passe', {
+                    method: 'PUT', headers, body: JSON.stringify({ ancien_mot_de_passe, nouveau_mot_de_passe })
+                });
+                const d = await res.json();
+                if (d.success) {
+                    msg.innerText = '✅ Mot de passe changé';
+                    document.getElementById('cpAncien').value = '';
+                    document.getElementById('cpNouveau').value = '';
                 } else {
                     msg.innerText = d.message || 'Erreur';
                 }

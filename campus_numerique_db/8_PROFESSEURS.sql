@@ -155,25 +155,7 @@ ORDER BY c.nom, c.prenom;
 
 
 -- ── B. PROFESSEURS + DÉTAILS PÉDAGOGIQUES COMPLETS ──
-SELECT
-    c.code_unique                               AS matricule,
-    c.nom,
-    c.prenom,
-    c.email,
-    p.matieres,
-    p.classes,
-    p.diplome,
-    p.annees_exp                                AS années_expérience,
-    p.telephone,
-    CASE
-        WHEN c.mot_de_passe = 'NON_ACTIVE'       THEN '🔴 À activer'
-        ELSE                                          '🟢 Connecté'
-    END                                         AS statut,
-    c.est_actif
-FROM authentification.comptes c
-LEFT JOIN pedagogie.profils_profs p ON c.id_user = p.id_user
-WHERE c.role_actuel = 'PROFESSEUR'
-ORDER BY c.nom;
+ 
 
 
 -- ── C. VOIR QUELLES MATIÈRES ENSEIGNE CHAQUE PROF (format lisible) ──

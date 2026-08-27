@@ -1152,6 +1152,20 @@
               style="margin-top:11px; padding:9px 13px; background:#FFF7ED; border-radius:11px; font-size:.62rem; color:#92400E;">
               ⚠️ Le prénom et le nom sont gérés par l'administration.</div>
           </div>
+          <div class="card" style="grid-column:2;">
+            <div style="font-size:.74rem; font-weight:900; color:#1E293B; text-transform:uppercase; margin-bottom:14px;">
+              🔒 Sécurité</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
+              <div><label style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Mot de passe actuel</label>
+                <input class="inp" id="cp-ancien" type="password"></div>
+              <div><label style="font-size:.58rem; font-weight:800; color:#94A3B8; text-transform:uppercase;">Nouveau mot de passe</label>
+                <input class="inp" id="cp-nouveau" type="password"></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; margin-top:13px;">
+              <button class="btn bp" onclick="changerMotDePasse()" style="flex:1; justify-content:center;">Changer le mot de passe</button>
+              <span id="cp-ok" style="font-size:.7rem; font-weight:700; display:none;"></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1887,6 +1901,26 @@
         if (P.telephone) { const e = document.getElementById('acc-tel'); e.textContent = '📞 ' + P.telephone; e.style.display = 'inline'; }
       } catch { dlg('Erreur', 'Impossible de sauvegarder.'); }
       btn.disabled = false; btn.textContent = 'Enregistrer';
+    }
+
+    async function changerMotDePasse() {
+      const ancien_mot_de_passe = document.getElementById('cp-ancien').value;
+      const nouveau_mot_de_passe = document.getElementById('cp-nouveau').value;
+      const ok = document.getElementById('cp-ok');
+      if (!ancien_mot_de_passe || !nouveau_mot_de_passe) { dlg('Erreur', 'Les deux champs sont requis.'); return; }
+      try {
+        const d = await api('/auth/changer-mot-de-passe', {
+          method: 'PUT', body: JSON.stringify({ ancien_mot_de_passe, nouveau_mot_de_passe })
+        });
+        if (d.success) {
+          ok.textContent = '✅ Changé !'; ok.style.color = '#10B981'; ok.style.display = 'block';
+          setTimeout(() => ok.style.display = 'none', 3000);
+          document.getElementById('cp-ancien').value = '';
+          document.getElementById('cp-nouveau').value = '';
+        } else {
+          dlg('Erreur', d.message || 'Mot de passe non changé.');
+        }
+      } catch { dlg('Erreur', 'Impossible de changer le mot de passe.'); }
     }
 
     async function uploadPhoto(input) {
