@@ -4719,6 +4719,7 @@
                 </label>
               </div>
               <div id="scan-fichier-nom" style="font-size:.72rem;color:var(--muted);margin-bottom:9px;">Aucun fichier sélectionné</div>
+              <img id="scan-apercu" style="display:none;max-width:100%;max-height:160px;border-radius:8px;border:1.5px solid var(--border);margin-bottom:9px;object-fit:contain;">
               <div style="display:flex;gap:12px;margin-bottom:10px;font-size:.76rem;">
                 <label style="display:flex;align-items:center;gap:5px;cursor:pointer;">
                   <input type="radio" name="scan-visibilite" value="true" checked>Envoyer à l'élève
@@ -4727,8 +4728,15 @@
                   <input type="radio" name="scan-visibilite" value="false">Garder pour moi (preuve)
                 </label>
               </div>
-              <button class="btn-p" style="width:100%;justify-content:center;" onclick="envoyerCopieScan()">
-                📤 Envoyer la copie
+              <!-- ✅ Dernier repère visuel avant l'envoi : à qui cette copie
+                   va-t-elle être associée ? Évite qu'un scan parte sur le
+                   mauvais élève si le prof a changé de sélection sans s'en
+                   rendre compte. -->
+              <div style="font-size:.72rem;font-weight:700;color:var(--accent);background:#F0F7F3;border-radius:7px;padding:7px 10px;margin-bottom:9px;text-align:center;">
+                📤 Envoi pour : ${esc(selEleve.prenom)} ${esc(selEleve.nom)} <span style="font-weight:500;color:var(--muted);">(${esc(selEleve.code || '')})</span>
+              </div>
+              <button class="btn-p" id="scan-btn-envoyer" style="width:100%;justify-content:center;" onclick="envoyerCopieScan()">
+                📤 Envoyer la copie de ${esc(selEleve.prenom)} ${esc(selEleve.nom)}
               </button>
               <div id="scan-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
             </div>
@@ -4881,6 +4889,20 @@
         // Vide l'autre champ pour éviter toute confusion sur quel fichier sera envoyé
         const autre = input.id === 'scan-fichier-camera' ? $('scan-fichier-disque') : $('scan-fichier-camera');
         if (autre) autre.value = '';
+
+        // ✅ Aperçu immédiat : si le fichier ne s'affiche pas, c'est le
+        // signe le plus simple (sans IA) qu'il est corrompu ou illisible —
+        // permet aussi au prof de vérifier visuellement que c'est la bonne
+        // copie avant l'envoi.
+        const apercu = $('scan-apercu');
+        if (apercu) {
+          if (input.files[0].type.startsWith('image/')) {
+            apercu.src = URL.createObjectURL(input.files[0]);
+            apercu.style.display = 'block';
+          } else {
+            apercu.style.display = 'none';
+          }
+        }
       }
     }
 
@@ -4916,6 +4938,7 @@
           if ($('scan-fichier-nom')) $('scan-fichier-nom').textContent = 'Aucun fichier sélectionné';
           if ($('scan-fichier-camera')) $('scan-fichier-camera').value = '';
           if ($('scan-fichier-disque')) $('scan-fichier-disque').value = '';
+          if ($('scan-apercu')) $('scan-apercu').style.display = 'none';
         } else {
           showMsg(scanMsg, '❌ ' + (data.message || 'Erreur serveur'), 'err');
         }
@@ -5984,23 +6007,24 @@
           const dejaFait = e.note !== null && e.note !== undefined;
           const reponses = e.reponses_eleve || [];
           const selects = Array.from({ length: n }, (_, i) => `
-            <select class="inp qcm-rep-eleve" data-idx="${i}" style="padding:4px;font-size:.72rem;width:48px;">
+            <select class="inp qcm-rep-eleve" data-idx="${i}" style="padding:4px;font-size:.72rem;width:48px;" onchange="updateQcmLivePreview(this)">
               ${QCM_LETTRES.map(l => `<option value="${l}" ${reponses[i] === l ? 'selected' : ''}>${l}</option>`).join('')}
             </select>`).join('');
+          const nomComplet = `${e.prenom} ${e.nom}`;
           return `
-          <div class="card" style="padding:10px 12px;margin-bottom:8px;" data-eleve="${e.id_eleve}">
+          <div class="card" style="padding:10px 12px;margin-bottom:8px;" data-eleve="${e.id_eleve}" data-nom="${esc(nomComplet)}">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
               <div>
                 <div style="font-weight:700;font-size:.85rem;">${esc(e.prenom)} ${esc(e.nom)}</div>
                 <div style="font-size:.68rem;color:var(--muted);">${esc(e.code_unique)}</div>
               </div>
               <div class="qcm-note-badge" style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:.85rem;color:${dejaFait ? 'var(--accent)' : 'var(--muted)'};">
-                ${dejaFait ? e.note + '/' + qcmEnCours.bareme : 'Non corrigé'}
+                ${dejaFait ? e.note + '/' + qcmEnCours.bareme + ' (enregistré)' : 'Non corrigé'}
               </div>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">${selects}</div>
-            <button class="btn-p" style="font-size:.72rem;padding:6px 12px;" onclick="submitQcmNote('${idQcm}','${e.id_eleve}',this)">
-              ${dejaFait ? '🔁 Recorriger' : '✅ Corriger'}
+            <button class="btn-p qcm-btn-corriger" style="font-size:.72rem;padding:6px 12px;" onclick="submitQcmNote('${idQcm}','${e.id_eleve}',this)">
+              ${dejaFait ? `🔁 Recorriger ${esc(nomComplet)}` : `✅ Corriger ${esc(nomComplet)}`}
             </button>
           </div>`;
         }).join('');
@@ -6015,6 +6039,25 @@
       loadQcmList();
     }
 
+    // ✅ Recalcule le score dès qu'une réponse change, avant tout
+    // enregistrement — le prof voit le résultat s'afficher en direct et le
+    // nom de l'élève reste affiché dans le bouton, pour limiter le risque
+    // de valider la mauvaise ligne dans une longue liste de copies.
+    function updateQcmLivePreview(selectEl) {
+      const card = selectEl.closest('[data-eleve]');
+      if (!card || !qcmEnCours) return;
+      const reponses = [...card.querySelectorAll('.qcm-rep-eleve')].map(s => s.value);
+      let nbCorrectes = 0;
+      qcmEnCours.reponses_correctes.forEach((r, i) => { if (reponses[i] === r) nbCorrectes++; });
+      const note = Math.round((nbCorrectes / qcmEnCours.nb_questions) * parseFloat(qcmEnCours.bareme) * 100) / 100;
+      const badge = card.querySelector('.qcm-note-badge');
+      badge.textContent = `→ ${note}/${qcmEnCours.bareme} (${nbCorrectes}/${qcmEnCours.nb_questions}) — pas encore enregistré`;
+      badge.style.color = '#D97706';
+      const nom = card.dataset.nom;
+      const btn = card.querySelector('.qcm-btn-corriger');
+      if (btn) btn.textContent = `✅ Enregistrer ${note}/${qcmEnCours.bareme} pour ${nom}`;
+    }
+
     async function submitQcmNote(idQcm, idEleve, btn) {
       const card = btn.closest('[data-eleve]');
       const reponses_eleve = [...card.querySelectorAll('.qcm-rep-eleve')].map(s => s.value);
@@ -6027,10 +6070,10 @@
         const d = await r.json();
         if (d.success) {
           const badge = card.querySelector('.qcm-note-badge');
-          badge.textContent = `${d.note}/${qcmEnCours.bareme} (${d.nb_correctes}/${d.nb_questions})`;
+          badge.textContent = `${d.note}/${qcmEnCours.bareme} (${d.nb_correctes}/${d.nb_questions}) — enregistré`;
           badge.style.color = 'var(--accent)';
-          btn.textContent = '🔁 Recorriger';
-          toast(`Note calculée : ${d.note}/${qcmEnCours.bareme}`, 'ok');
+          btn.textContent = `🔁 Recorriger ${card.dataset.nom}`;
+          toast(`Note enregistrée pour ${card.dataset.nom} : ${d.note}/${qcmEnCours.bareme}`, 'ok');
         } else {
           toast('❌ ' + (d.message || 'Erreur'), 'err');
         }

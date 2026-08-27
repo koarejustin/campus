@@ -7,6 +7,24 @@ const fs = require('fs');
 // Utilisée pour faire correspondre profils_profs.matieres (texte libre)
 // avec les vrais id_matiere de pedagogie.matieres
 // ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// Vérifie que le contenu réel d'un fichier uploadé correspond bien à un
+// type connu et exploitable (signature/magic bytes) — pas d'IA, juste une
+// lecture des premiers octets. Un fichier vide, tronqué ou renommé de
+// force (mauvaise extension) est ainsi rejeté avant d'être associé à la
+// copie d'un élève.
+// ═══════════════════════════════════════════
+function _fichierEstValide(buffer) {
+    if (!buffer || buffer.length < 8) return false;
+    const b = buffer;
+    if (b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46) return true; // %PDF
+    if (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF) return true; // JPEG
+    if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47) return true; // PNG
+    if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return true; // WEBP
+    if (b.slice(4, 8).toString('ascii') === 'ftyp') return true; // HEIC/HEIF
+    return false;
+}
+
 function _normMat(s) {
     return String(s || '').toLowerCase()
         .replace(/[éèê]/g, 'e').replace(/[àâ]/g, 'a').replace(/[îï]/g, 'i')
@@ -1283,6 +1301,9 @@ exports.uploadCopieScannee = async (req, res) => {
         const { id_eleve, id_matiere, trimestre, type_evaluation, note, visible_eleve } = req.body;
         if (!profId) return res.status(401).json({ message: 'Non authentifié' });
         if (!req.file) return res.status(400).json({ message: 'Fichier requis (scan ou photo de la copie)' });
+        if (!_fichierEstValide(req.file.buffer)) {
+            return res.status(400).json({ message: 'Fichier illisible ou corrompu — reprenez la photo ou réessayez l\'envoi.' });
+        }
         if (!id_eleve || !id_matiere || !trimestre) {
             return res.status(400).json({ message: 'Élève, matière et trimestre requis' });
         }
