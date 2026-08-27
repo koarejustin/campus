@@ -3347,7 +3347,15 @@
     const authH = () => ({ 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' });
     const $ = id => document.getElementById(id);
     const esc = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const MY_USER_ID = SESS.id_user || SESS.id || null;
+    // ✅ La réponse de login ne renvoie jamais id_user/id dans user_session —
+    // MY_USER_ID était donc systématiquement null en production, ce qui
+    // cassait silencieusement le badge "non lu" et le clic "marquer comme
+    // lu" des messages privés de la direction. Le token JWT, lui, porte
+    // toujours le vrai id (décodé côté serveur via req.user.id) : on le
+    // relit directement depuis son payload en dernier recours.
+    const MY_USER_ID = SESS.id_user || SESS.id || (function () {
+      try { return JSON.parse(atob(TOK.split('.')[1])).id || null; } catch (e) { return null; }
+    })();
     // ========== VARIABLES MANQUANTES SALLE DES PROFS ==========
     const PROFS_LIST = [];
     const BG_OPTIONS = [
@@ -3448,6 +3456,13 @@
     let conversations = {};
     let profsOnline = [];
     let salleSocket = null;
+    // ✅ Identifiant de conversation privée : doit être IDENTIQUE des deux
+    // côtés (avant : chacun utilisait le code de l'AUTRE comme conv_id, donc
+    // deux identifiants différents pour la même conversation — le
+    // destinataire ne voyait jamais les messages qu'on lui envoyait, ni en
+    // direct ni dans l'historique). On trie les deux codes pour que A→B et
+    // B→A retombent toujours sur le même identifiant.
+    function privConvId(otherCode) { return [PROF.code, otherCode].sort().join('__'); }
     let smsMessagesData = [];
     PROF._photoFile = null;
 
@@ -3501,14 +3516,16 @@
           data.profs.forEach(p => {
             if (p.code_unique === PROF.code) return; // ne pas s'ajouter soi-même
             if (!PROFS_LIST.find(x => x.id === p.code_unique)) {
+              const cid = privConvId(p.code_unique);
               PROFS_LIST.push({
                 id: p.code_unique,
+                convId: cid,
                 nm: (p.prenom || '') + ' ' + (p.nom || ''),
                 sub: p.specialite || 'Professeur',
                 col: COLORS[PROFS_LIST.length % COLORS.length],
                 online: false
               });
-              if (!conversations[p.code_unique]) conversations[p.code_unique] = [];
+              if (!conversations[cid]) conversations[cid] = [];
             }
           });
           $('online-cnt').textContent = PROFS_LIST.filter(p => p.online).length + ' en ligne';
@@ -4777,7 +4794,7 @@
     // SALLE DES PROFS
     // ══════════════════════════════════════════
     function initSalle() {
-      PROFS_LIST.forEach(p => { if (!conversations[p.id]) conversations[p.id] = []; });
+      PROFS_LIST.forEach(p => { if (!conversations[p.convId]) conversations[p.convId] = []; });
       buildBgGrid();
       renderConvList();
       loadConv('general');
@@ -4831,10 +4848,10 @@
       </div>
     </div>`;
       $('conv-list').innerHTML = generalHtml + list.map(p => {
-        const msgs = conversations[p.id] || [];
+        const msgs = conversations[p.convId] || [];
         const last = msgs[msgs.length - 1];
         const unread = msgs.filter(m => !m.mine && !m.read).length;
-        return `<div class="conv-item ${currentConv === p.id ? 'sel' : ''}" onclick="loadConv('${p.id}')">
+        return `<div class="conv-item ${currentConv === p.convId ? 'sel' : ''}" onclick="loadConv('${p.convId}')">
       <div class="conv-av" style="background:${p.col};">
         ${p.nm.charAt(0)}
         <span class="conv-online-dot" style="background:${p.online ? '#4ADE80' : '#94A3B8'};"></span>
@@ -4846,7 +4863,7 @@
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div class="conv-preview">${last ? bubblePreview(last) : esc(p.sub)}</div>
-          ${unread && currentConv !== p.id ? `<span class="conv-unread">${unread}</span>` : ''}
+          ${unread && currentConv !== p.convId ? `<span class="conv-unread">${unread}</span>` : ''}
         </div>
       </div>
     </div>`;
@@ -4862,7 +4879,7 @@
 
     function loadConv(id) {
       currentConv = id;
-      const p = PROFS_LIST.find(x => x.id === id);
+      const p = PROFS_LIST.find(x => x.convId === id);
       if (!conversations[id]) conversations[id] = [];
       conversations[id].forEach(m => m.read = true);
       $('chat-hd-av').style.background = p?.col || 'var(--accent)';
@@ -4870,6 +4887,10 @@
       $('chat-hd-nm').textContent = p?.nm || 'Salle commune';
       $('chat-hd-sub').textContent = p?.online ? 'En ligne' : 'Hors ligne';
       cancelReply(); renderConvList(); renderMsgs();
+      // ✅ Recharge toujours l'historique réel depuis la BD — avant, seule la
+      // Salle commune le faisait ; une conversation privée démarrait vide à
+      // chaque ouverture de page, même si des messages existaient déjà.
+      loadMessages(id);
     }
 
     // ── Rendu messages ──
@@ -5922,7 +5943,7 @@
         const badgeColor = isDir ? '#4F46E5' : '#2D6A4F';
         const badgeBg = isDir ? '#EEF2FF' : '#ECFDF5';
         const unread = !m.lu && m.destinataire_id === profId;
-        return `<div onclick="markSmsRead('${msgId}')" style="display:flex;gap:12px;padding:14px;margin-bottom:10px;background:#F8FAFF;border-radius:12px;border-left:3px solid ${borderColor};cursor:pointer;" title="Cliquer pour marquer comme lu">
+        return `<div onclick="markSmsRead('${msgId}')" style="display:flex;gap:12px;padding:14px;margin-bottom:10px;background:#F8FAFF;border-radius:12px;border-left:3px solid ${borderColor};cursor:pointer;position:relative;" title="Cliquer pour marquer comme lu">
           <div style="width:40px;height:40px;border-radius:50%;background:${bgGrad};display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-weight:800;flex-shrink:0;">${initiales}</div>
           <div style="flex:1;min-width:0;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
@@ -5935,6 +5956,7 @@
               ${unread ? '<span style="font-size:.6rem;background:#FEF2F2;color:#DC2626;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:4px;">🔴 Non lu</span>' : ''}
             </div>
           </div>
+          ${m.destinataire_id === profId ? `<button onclick="event.stopPropagation();deleteSms('${msgId}')" title="Supprimer" style="background:none;border:none;color:#94A3B8;cursor:pointer;font-size:.9rem;padding:4px;align-self:flex-start;">🗑️</button>` : ''}
         </div>`;
       }).join('');
     }
@@ -5983,6 +6005,28 @@
         }
       } catch (e) {
         console.warn('markSmsRead:', e.message);
+      }
+    }
+
+    async function deleteSms(msgId) {
+      if (!msgId) return;
+      if (!confirm('Supprimer ce message ? Il ne sera plus visible ici (la direction garde son historique d\'envoi).')) return;
+      try {
+        const response = await fetch(`${API}/professeurs/messages-prives/${encodeURIComponent(msgId)}`, {
+          method: 'DELETE',
+          headers: authH()
+        });
+        const data = await response.json();
+        if (data.success) {
+          smsMessagesData = smsMessagesData.filter(m => String(m.id_message || m.id || '') !== String(msgId));
+          renderSmsDirection();
+          toast('Message supprimé', 'ok');
+        } else {
+          toast(data.message || 'Erreur lors de la suppression', 'err');
+        }
+      } catch (e) {
+        console.warn('deleteSms:', e.message);
+        toast('Erreur réseau', 'err');
       }
     }
 
@@ -6161,6 +6205,7 @@
         else if (n.type === 'RESSOURCE') typeIcon = '📄';
         else if (n.type === 'ORIENTATION') typeIcon = '🧭';
         else if (n.type === 'ANNONCE') typeIcon = '📢';
+        else if (n.type === 'MESSAGE_SALLE' || n.type === 'MESSAGE_PRIVE') typeIcon = '💬';
 
         let lien = n.lien || '#';
         let dateFormatted = 'Récemment';
@@ -6183,6 +6228,7 @@
         if (n.type === 'NOTE') targetPage = 'notes';
         else if (n.type === 'DEVOIR') targetPage = 'devoirs';
         else if (n.type === 'ANNONCE') targetPage = 'annonces';
+        else if (n.type === 'MESSAGE_SALLE' || n.type === 'MESSAGE_PRIVE') targetPage = 'salle';
 
         return `
             <div class="notif-item" onclick="handleNotifClick('${n.id}', '${targetPage}')" style="
@@ -6252,6 +6298,8 @@
         go('devoirs', document.getElementById('ni-devoirs'));
       } else if (targetPage === 'notes') {
         go('notes', document.getElementById('ni-notes'));
+      } else if (targetPage === 'salle') {
+        go('salle', document.getElementById('ni-salle'));
       } else {
         // Fallback vers l'URL si fournie
         const lien = targetPage || '#';

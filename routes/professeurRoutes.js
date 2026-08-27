@@ -205,18 +205,28 @@ router.get('/liste-salle', authMiddleware, async (req, res) => {
     }
 });
 // ========== MESSAGES PRIVÉS ==========
+// ✅ Permet à un prof de supprimer sa copie d'un message reçu sans effacer
+// l'enregistrement du côté expéditeur (comme "supprimer pour moi" — la
+// direction garde son historique d'envoi).
+(async () => {
+    try {
+        await db.query(`ALTER TABLE pedagogie.messages_prives ADD COLUMN IF NOT EXISTS supprime_par_dest BOOLEAN NOT NULL DEFAULT false`);
+    } catch (e) { console.warn('ensure messages_prives.supprime_par_dest:', e.message); }
+})();
+
 router.get('/messages-prives', authMiddleware, async (req, res) => {
     try {
         const profId = req.user.id;
 
         const messages = await db.query(`
-            SELECT mp.*, 
-                   c.nom as expediteur_nom, 
+            SELECT mp.*,
+                   c.nom as expediteur_nom,
                    c.prenom as expediteur_prenom,
                    c.role_actuel as expediteur_role
             FROM pedagogie.messages_prives mp
             JOIN authentification.comptes c ON c.id_user = mp.expediteur_id
-            WHERE mp.destinataire_id = $1 OR mp.expediteur_id = $1
+            WHERE (mp.destinataire_id = $1 OR mp.expediteur_id = $1)
+              AND NOT (mp.destinataire_id = $1 AND mp.supprime_par_dest = true)
             ORDER BY mp.created_at DESC
             LIMIT 100
         `, [profId]);
@@ -225,6 +235,29 @@ router.get('/messages-prives', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error('Erreur getMessagesPrives:', error);
         res.json({ success: true, messages: [] });
+    }
+});
+
+router.delete('/messages-prives/:id', authMiddleware, async (req, res) => {
+    try {
+        const profId = req.user.id;
+        const messageId = req.params.id;
+
+        const result = await db.query(`
+            UPDATE pedagogie.messages_prives
+            SET supprime_par_dest = true
+            WHERE id_message = $1 AND destinataire_id = $2
+            RETURNING id_message
+        `, [messageId, profId]);
+
+        if (!result.rows.length) {
+            return res.status(404).json({ success: false, message: 'Message introuvable ou accès refusé.' });
+        }
+
+        res.json({ success: true, message: 'Message supprimé.' });
+    } catch (error) {
+        console.error('Erreur deleteMessagePrive:', error);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 });
 

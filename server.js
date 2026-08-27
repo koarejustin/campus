@@ -50,6 +50,13 @@ try {
                     const decoded = jwt.verify(data.token, process.env.JWT_SECRET || 'ma_cle_secrete');
                     if (decoded.role === 'PROFESSEUR' || decoded.role === 'DIRECTION' || decoded.role === 'SURVEILLANT') {
                         socket.join('salle-profs');
+                        // ✅ Room personnelle par code — nécessaire pour router les
+                        // messages privés uniquement vers les deux personnes
+                        // concernées (avant : diffusés à TOUT le monde dans
+                        // salle-profs, avec un simple filtrage côté client —
+                        // n'importe quel collègue connecté pouvait donc lire en
+                        // clair les messages "privés" des autres via la console).
+                        if (data.code) socket.join('code_' + data.code);
                         socket.emit('joined', { room: 'salle-profs', code: data.code });
                         console.log(`✅ ${data.code || decoded.role} a rejoint salle-profs`);
                     }
@@ -59,6 +66,17 @@ try {
                 }
             } catch (e) { console.warn('Socket auth failed:', e.message); }
         });
+
+        // ── Rooms cibles d'une conversation : 'salle-profs' pour la Salle
+        // commune, ou uniquement les deux rooms personnelles des deux
+        // participants pour une conversation privée (conv_id au format
+        // "codeA__codeB", trié côté client pour être identique des deux côtés).
+        function _roomsForConv(conv_id, fromCode) {
+            if (!conv_id || conv_id === 'general') return ['salle-profs'];
+            const parts = String(conv_id).split('__');
+            const other = parts.find(c => c !== fromCode) || parts[0];
+            return ['code_' + fromCode, 'code_' + other];
+        }
 
         // ── Rebroadcast msg-salle (profs ↔ profs + direction) ──
         socket.on('msg-salle', async (msg) => {
@@ -81,8 +99,12 @@ try {
                     msgId = r.rows[0].id;
                 } catch (e2) { console.warn('BD msg-salle insert:', e2.message); }
 
-                // Diffuser à tout le room salle-profs
-                io.to('salle-profs').emit('msg-salle', {
+                // Diffuser uniquement aux personnes concernées (toute la salle
+                // pour la Salle commune, seulement les 2 participants sinon)
+                const rooms = _roomsForConv(conv_id, fromCode);
+                let emitter = io;
+                rooms.forEach(r => { emitter = emitter.to(r); });
+                emitter.emit('msg-salle', {
                     id: msgId,
                     from: fromCode,
                     nom: fromNom,
@@ -92,12 +114,52 @@ try {
                     time: time,
                     isDirection: socket.userRole === 'DIRECTION'
                 });
+
+                // Notification formelle (cloche + push) pour ceux qui n'ont pas
+                // la Salle des Profs ouverte en ce moment — le temps réel
+                // Socket.IO ci-dessus ne les touche pas s'ils sont ailleurs.
+                try {
+                    const notificationService = require('./services/notificationService');
+                    const preview = type === 'text' ? txt.slice(0, 100)
+                        : type === 'sticker' ? 'a envoyé un sticker'
+                        : type === 'poll' ? 'a lancé un sondage'
+                        : 'a envoyé un fichier';
+                    let destIds = [];
+                    let titre;
+                    if (conv_id === 'general') {
+                        const r = await db.query(`
+                            SELECT id_user FROM authentification.comptes
+                            WHERE role_actuel IN ('PROFESSEUR','DIRECTION','SURVEILLANT')
+                              AND est_actif = true AND code_unique != $1
+                        `, [fromCode]);
+                        destIds = r.rows.map(x => x.id_user);
+                        titre = '💬 ' + fromNom + ' — Salle commune';
+                    } else {
+                        const other = String(conv_id).split('__').find(c => c !== fromCode);
+                        if (other) {
+                            const r = await db.query(`SELECT id_user FROM authentification.comptes WHERE code_unique = $1`, [other]);
+                            destIds = r.rows.map(x => x.id_user);
+                        }
+                        titre = '💬 Message privé de ' + fromNom;
+                    }
+                    if (destIds.length) {
+                        await notificationService.sendNotification(
+                            destIds,
+                            conv_id === 'general' ? 'MESSAGE_SALLE' : 'MESSAGE_PRIVE',
+                            titre, preview, '/professeur.html?page=salle'
+                        );
+                    }
+                } catch (eNotif) { console.warn('notif msg-salle:', eNotif.message); }
             } catch (e) { console.warn('msg-salle handler:', e.message); }
         });
 
         // ── Poll vote ──
         socket.on('poll-vote', (data) => {
-            io.to('salle-profs').emit('poll-vote', data);
+            const fromCode = socket.userCode;
+            const rooms = _roomsForConv(data.conv_id, fromCode);
+            let emitter = io;
+            rooms.forEach(r => { emitter = emitter.to(r); });
+            emitter.emit('poll-vote', data);
         });
 
         socket.on('disconnect', () => {
