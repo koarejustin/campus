@@ -1324,24 +1324,41 @@ exports.uploadCopieScannee = async (req, res) => {
         `).catch(() => {});
 
         const url_fichier = await require('../services/fileStorage').saveUploadedFile(req.file, { prefix: 'copie' });
+        const typeEvalU = (type_evaluation || 'DEVOIR').toUpperCase();
+        const visibleBool = visible_eleve === 'true' || visible_eleve === true;
 
-        const r = await db.query(`
-            INSERT INTO pedagogie.copies_scannees
-                (id_eleve, id_matiere, id_professeur, trimestre, type_evaluation, url_fichier, note, visible_eleve)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            RETURNING id_copie, date_upload
-        `, [
-            id_eleve, parseInt(id_matiere), profId, parseInt(trimestre),
-            (type_evaluation || 'DEVOIR').toUpperCase(), url_fichier,
-            note ? parseFloat(note) : null,
-            visible_eleve === 'true' || visible_eleve === true
-        ]);
+        // ✅ Empêche de créer deux entrées pour la même copie (même élève,
+        // matière, trimestre, type d'évaluation) — remplace la précédente
+        // au lieu d'empiler des doublons. Un ré-envoi (photo floue, erreur)
+        // est un cas normal, contrairement à un devoir ou un QCM en double.
+        const existante = await db.query(`
+            SELECT id_copie FROM pedagogie.copies_scannees
+            WHERE id_eleve = $1 AND id_matiere = $2 AND id_professeur = $3
+            AND trimestre = $4 AND type_evaluation = $5
+        `, [id_eleve, parseInt(id_matiere), profId, parseInt(trimestre), typeEvalU]);
+
+        let r, remplacee = false;
+        if (existante.rows.length > 0) {
+            remplacee = true;
+            r = await db.query(`
+                UPDATE pedagogie.copies_scannees
+                SET url_fichier = $1, note = $2, visible_eleve = $3, date_upload = NOW()
+                WHERE id_copie = $4
+                RETURNING id_copie, date_upload
+            `, [url_fichier, note ? parseFloat(note) : null, visibleBool, existante.rows[0].id_copie]);
+        } else {
+            r = await db.query(`
+                INSERT INTO pedagogie.copies_scannees
+                    (id_eleve, id_matiere, id_professeur, trimestre, type_evaluation, url_fichier, note, visible_eleve)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                RETURNING id_copie, date_upload
+            `, [id_eleve, parseInt(id_matiere), profId, parseInt(trimestre), typeEvalU, url_fichier, note ? parseFloat(note) : null, visibleBool]);
+        }
 
         res.json({
             success: true,
-            message: visible_eleve === 'true' || visible_eleve === true
-                ? 'Copie envoyée à l\'élève'
-                : 'Copie enregistrée (gardée pour vous)',
+            message: (remplacee ? 'Copie précédente remplacée' : (visibleBool ? 'Copie envoyée à l\'élève' : 'Copie enregistrée (gardée pour vous)')),
+            remplacee,
             copie: r.rows[0]
         });
     } catch (e) {
