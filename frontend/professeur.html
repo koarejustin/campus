@@ -508,6 +508,24 @@
       margin-top: 2px;
     }
 
+    .qcm-mode-btn.on {
+      background: var(--accent) !important;
+      border-color: var(--accent) !important;
+      color: #fff !important;
+    }
+
+    .qcm-rep-rapide {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .85rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      box-sizing: border-box;
+    }
+
     /* ══ KPI ══ */
     .kpi-row {
       display: grid;
@@ -3193,6 +3211,11 @@
               </div>
               <button class="btn-g" onclick="closeQcmGrade()">← Retour à la liste</button>
             </div>
+            <div style="padding:10px 12px 0;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Saisie :</span>
+              <button class="qcm-mode-btn" id="qcm-mode-rapide" onclick="switchQcmSaisieMode('rapide')" style="font-size:.72rem;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;font-weight:700;">⌨️ Rapide (taper la suite)</button>
+              <button class="qcm-mode-btn" id="qcm-mode-menus" onclick="switchQcmSaisieMode('menus')" style="font-size:.72rem;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;font-weight:700;">🖱️ Menus déroulants</button>
+            </div>
             <div id="qcm-grade-list" style="padding:12px;"></div>
           </div>
         </div>
@@ -5483,7 +5506,17 @@
     }
 
     let qcmEnCours = null;
+    let qcmGradeIdCourant = null;
+    let qcmGradeElevesCourant = [];
+    // ✅ Deux façons de saisir les réponses d'une copie, au choix du prof :
+    // "rapide" (un seul champ, on tape la suite de lettres en regardant la
+    // copie — beaucoup plus rapide que cliquer 20 menus un par un) ou
+    // "menus" (un menu déroulant par question, zéro risque de faute de
+    // frappe). Le choix est mémorisé par navigateur.
+    let qcmSaisieMode = localStorage.getItem('qcm_saisie_mode') || 'rapide';
+
     async function openQcmGrade(idQcm) {
+      qcmGradeIdCourant = idQcm;
       $('qcm-list-view').style.display = 'none';
       $('qcm-grade-view').style.display = 'block';
       $('qcm-grade-list').innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);">⏳ Chargement…</div>';
@@ -5492,18 +5525,38 @@
         const d = await r.json();
         if (!d.success) { $('qcm-grade-list').innerHTML = '<div style="color:var(--red);padding:20px;">Erreur de chargement</div>'; return; }
         qcmEnCours = d.qcm;
+        qcmGradeElevesCourant = d.eleves;
         $('qcm-grade-title').textContent = d.qcm.titre;
         $('qcm-grade-sub').textContent = `${d.qcm.classe} · ${d.qcm.nom_matiere} · ${d.qcm.nb_questions} questions · Barème /${d.qcm.bareme}`;
-        const n = d.qcm.nb_questions;
-        $('qcm-grade-list').innerHTML = d.eleves.map(e => {
-          const dejaFait = e.note !== null && e.note !== undefined;
-          const reponses = e.reponses_eleve || [];
-          const selects = Array.from({ length: n }, (_, i) => `
-            <select class="inp qcm-rep-eleve" data-idx="${i}" style="padding:4px;font-size:.72rem;width:48px;" onchange="updateQcmLivePreview(this)">
-              ${QCM_LETTRES.map(l => `<option value="${l}" ${reponses[i] === l ? 'selected' : ''}>${l}</option>`).join('')}
-            </select>`).join('');
-          const nomComplet = `${e.prenom} ${e.nom}`;
-          return `
+        renderQcmGradeRows();
+      } catch (e) {
+        $('qcm-grade-list').innerHTML = '<div style="color:var(--red);padding:20px;">Erreur : ' + e.message + '</div>';
+      }
+    }
+
+    function switchQcmSaisieMode(mode) {
+      qcmSaisieMode = mode;
+      localStorage.setItem('qcm_saisie_mode', mode);
+      renderQcmGradeRows();
+    }
+
+    function renderQcmGradeRows() {
+      $('qcm-mode-rapide')?.classList.toggle('on', qcmSaisieMode === 'rapide');
+      $('qcm-mode-menus')?.classList.toggle('on', qcmSaisieMode === 'menus');
+      const n = qcmEnCours.nb_questions;
+      $('qcm-grade-list').innerHTML = qcmGradeElevesCourant.map(e => {
+        const dejaFait = e.note !== null && e.note !== undefined;
+        const reponses = e.reponses_eleve || [];
+        const nomComplet = `${e.prenom} ${e.nom}`;
+        const saisie = qcmSaisieMode === 'rapide'
+          ? `<input type="text" class="qcm-rep-rapide" maxlength="${n}"
+               placeholder="Ex : ${QCM_LETTRES.slice(0, Math.min(4, n)).join('')}… (${n} lettres, une par question)"
+               value="${reponses.join('')}" oninput="updateQcmLivePreviewRapide(this)">`
+          : `<div style="display:flex;flex-wrap:wrap;gap:5px;">${Array.from({ length: n }, (_, i) => `
+              <select class="inp qcm-rep-eleve" data-idx="${i}" style="padding:4px;font-size:.72rem;width:48px;" onchange="updateQcmLivePreview(this)">
+                ${QCM_LETTRES.map(l => `<option value="${l}" ${reponses[i] === l ? 'selected' : ''}>${l}</option>`).join('')}
+              </select>`).join('')}</div>`;
+        return `
           <div class="card" style="padding:10px 12px;margin-bottom:8px;" data-eleve="${e.id_eleve}" data-nom="${esc(nomComplet)}">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
               <div>
@@ -5514,21 +5567,25 @@
                 ${dejaFait ? e.note + '/' + qcmEnCours.bareme + ' (enregistré)' : 'Non corrigé'}
               </div>
             </div>
-            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;">${selects}</div>
-            <button class="btn-p qcm-btn-corriger" style="font-size:.72rem;padding:6px 12px;" onclick="submitQcmNote('${idQcm}','${e.id_eleve}',this)">
+            <div style="margin-bottom:8px;">${saisie}</div>
+            <button class="btn-p qcm-btn-corriger" style="font-size:.72rem;padding:6px 12px;" onclick="submitQcmNote('${qcmGradeIdCourant}','${e.id_eleve}',this)">
               ${dejaFait ? `🔁 Recorriger ${esc(nomComplet)}` : `✅ Corriger ${esc(nomComplet)}`}
             </button>
           </div>`;
-        }).join('');
-      } catch (e) {
-        $('qcm-grade-list').innerHTML = '<div style="color:var(--red);padding:20px;">Erreur : ' + e.message + '</div>';
-      }
+      }).join('');
     }
 
     function closeQcmGrade() {
       $('qcm-grade-view').style.display = 'none';
       $('qcm-list-view').style.display = 'block';
       loadQcmList();
+    }
+
+    function _qcmScorePreview(reponses) {
+      let nbCorrectes = 0;
+      qcmEnCours.reponses_correctes.forEach((r, i) => { if (reponses[i] === r) nbCorrectes++; });
+      const note = Math.round((nbCorrectes / qcmEnCours.nb_questions) * parseFloat(qcmEnCours.bareme) * 100) / 100;
+      return { nbCorrectes, note };
     }
 
     // ✅ Recalcule le score dès qu'une réponse change, avant tout
@@ -5539,20 +5596,47 @@
       const card = selectEl.closest('[data-eleve]');
       if (!card || !qcmEnCours) return;
       const reponses = [...card.querySelectorAll('.qcm-rep-eleve')].map(s => s.value);
-      let nbCorrectes = 0;
-      qcmEnCours.reponses_correctes.forEach((r, i) => { if (reponses[i] === r) nbCorrectes++; });
-      const note = Math.round((nbCorrectes / qcmEnCours.nb_questions) * parseFloat(qcmEnCours.bareme) * 100) / 100;
+      _qcmRefreshBadge(card, reponses);
+    }
+
+    // ✅ Mode rapide : le prof tape la suite de lettres d'un coup (au lieu
+    // de cliquer 20 menus déroulants) — on filtre à la volée pour ne
+    // garder que des lettres valides (A–E), en majuscule.
+    function updateQcmLivePreviewRapide(inputEl) {
+      const clean = inputEl.value.toUpperCase().replace(new RegExp(`[^${QCM_LETTRES.join('')}]`, 'g'), '');
+      if (clean !== inputEl.value) inputEl.value = clean;
+      const card = inputEl.closest('[data-eleve]');
+      if (!card || !qcmEnCours) return;
+      const reponses = clean.split('');
+      _qcmRefreshBadge(card, reponses, clean.length !== qcmEnCours.nb_questions);
+    }
+
+    function _qcmRefreshBadge(card, reponses, incomplet) {
+      const { nbCorrectes, note } = _qcmScorePreview(reponses);
       const badge = card.querySelector('.qcm-note-badge');
-      badge.textContent = `→ ${note}/${qcmEnCours.bareme} (${nbCorrectes}/${qcmEnCours.nb_questions}) — pas encore enregistré`;
-      badge.style.color = '#D97706';
       const nom = card.dataset.nom;
       const btn = card.querySelector('.qcm-btn-corriger');
+      if (incomplet) {
+        badge.textContent = `${reponses.length}/${qcmEnCours.nb_questions} réponses saisies…`;
+        badge.style.color = 'var(--muted)';
+        if (btn) btn.textContent = `✅ Corriger ${nom}`;
+        return;
+      }
+      badge.textContent = `→ ${note}/${qcmEnCours.bareme} (${nbCorrectes}/${qcmEnCours.nb_questions}) — pas encore enregistré`;
+      badge.style.color = '#D97706';
       if (btn) btn.textContent = `✅ Enregistrer ${note}/${qcmEnCours.bareme} pour ${nom}`;
     }
 
     async function submitQcmNote(idQcm, idEleve, btn) {
       const card = btn.closest('[data-eleve]');
-      const reponses_eleve = [...card.querySelectorAll('.qcm-rep-eleve')].map(s => s.value);
+      const rapideInp = card.querySelector('.qcm-rep-rapide');
+      const reponses_eleve = rapideInp
+        ? rapideInp.value.split('')
+        : [...card.querySelectorAll('.qcm-rep-eleve')].map(s => s.value);
+      if (reponses_eleve.length !== qcmEnCours.nb_questions) {
+        toast(`⚠️ ${reponses_eleve.length}/${qcmEnCours.nb_questions} réponses saisies — complète avant d'enregistrer`, 'err');
+        return;
+      }
       try {
         const r = await fetch(`${API}/professeurs/qcm/${idQcm}/notes`, {
           method: 'POST',
