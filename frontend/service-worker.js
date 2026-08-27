@@ -8,7 +8,7 @@
 // connexion au serveur, comme WhatsApp ou Gmail.
 // ================================================================
 
-const CACHE_NAME = 'campus-numerique-v2';
+const CACHE_NAME = 'campus-numerique-v3';
 const APP_SHELL = [
   '/eleve.html',
   '/manifest.json',
@@ -36,7 +36,26 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
 
-  // Ne jamais mettre en cache les appels API — les données doivent
+  // ✅ Exception délibérée et unique à la règle "jamais l'API en cache"
+  // ci-dessous : le nom et le logo de l'école (route publique, sans
+  // donnée sensible, qui ne change quasiment jamais) — sans ça, hors
+  // connexion, la page retombe sur un texte générique le temps que la
+  // vraie configuration soit rechargée. Réseau d'abord (toujours à jour
+  // dès qu'il y a une connexion), cache en secours sinon.
+  if (req.url.includes('/api/admin/config-public')) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const resClone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Ne jamais mettre en cache les autres appels API — les données doivent
   // toujours être fraîches ; en cas d'échec réseau, laisser l'erreur
   // remonter normalement (pas de fausses données affichées).
   if (req.url.includes('/api/')) return;
