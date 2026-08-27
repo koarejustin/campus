@@ -3510,7 +3510,6 @@
         </div>
       </div>
 
-      <!-- ══ ORIENTATION ══ -->
       <!-- ══ SALLE DES PROFS (WhatsApp) ══ -->
       <div id="s-salle" class="sec">
         <div class="salle-wrap">
@@ -4186,7 +4185,6 @@
       loadEleves();
       loadCT();
       loadRes();
-      loadOrient();
       initSalle();
       const triSelect = $('tri-sel');
       if (triSelect) triSelect.addEventListener('change', loadEleves);
@@ -5352,7 +5350,7 @@
     }
 
     // ══════════════════════════════════════════
-    // ORIENTATION — fonctions manquantes
+    // SALLE DES PROFS
     // ══════════════════════════════════════════
     function initSalle() {
       PROFS_LIST.forEach(p => { if (!conversations[p.id]) conversations[p.id] = []; });
