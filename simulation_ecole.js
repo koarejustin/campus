@@ -28,7 +28,7 @@ async function simulationMassive() {
         // On récupère l'id_user généré par le RETURNING id_user
         const resAdmin = await client.query(
             `INSERT INTO authentification.comptes (code_unique, nom, prenom, role_actuel, mot_de_passe, email, est_actif) 
-             VALUES ($1, $2, $3, 'DIRECTION', $4, $5, TRUE) RETURNING id_user`,
+                VALUES ($1, $2, $3, 'DIRECTION', $4, $5, TRUE) RETURNING id_user`,
             ['DIR-2026-001', 'KOARE', 'Justin', hashAdmin, 'direction@campus.bf']
         );
 
@@ -37,7 +37,7 @@ async function simulationMassive() {
         // Liaison avec le profil administratif (Script 10)
         await client.query(
             `INSERT INTO authentification.profils_administratifs (id_user, poste_occupe, signature_numerique_active) 
-             VALUES ($1, 'Directeur Général', TRUE)`,
+                VALUES ($1, 'Directeur Général', TRUE)`,
             [idAdminUser]
         );
 
@@ -50,7 +50,7 @@ async function simulationMassive() {
             // A. Insertion de l'Élève
             const resE = await client.query(
                 `INSERT INTO authentification.comptes (code_unique, nom, prenom, role_actuel, mot_de_passe, email, est_actif) 
-                 VALUES ($1, $2, $3, 'ELEVE', $4, $5, TRUE) RETURNING id_user`,
+                    VALUES ($1, $2, $3, 'ELEVE', $4, $5, TRUE) RETURNING id_user`,
                 [`CN-2026-${2000 + i}`, nomFamille, faker.person.firstName(), passwordPlaceholder, `eleve${i}@ecole.bf`]
             );
 
@@ -66,7 +66,7 @@ async function simulationMassive() {
             // B. Insertion du Parent
             const resP = await client.query(
                 `INSERT INTO authentification.comptes (code_unique, nom, prenom, role_actuel, mot_de_passe, email, est_actif) 
-                 VALUES ($1, $2, $3, 'PARENT', $4, $5, TRUE) RETURNING id_user`,
+                    VALUES ($1, $2, $3, 'PARENT', $4, $5, TRUE) RETURNING id_user`,
                 [`PAR-2026-${3000 + i}`, nomFamille, faker.person.firstName(), passwordPlaceholder, `parent${i}@mail.bf`]
             );
 
@@ -75,7 +75,7 @@ async function simulationMassive() {
             // Liaison avec le profil parent (Script 04)
             await client.query(
                 `INSERT INTO gestion_ape.profils_parents (id_user, profession) 
-                 VALUES ($1, $2)`,
+                    VALUES ($1, $2)`,
                 [idParentUser, faker.person.jobTitle()]
             );
 
@@ -95,7 +95,7 @@ async function simulationMassive() {
         for (const surv of surveillants_data) {
             const resSurv = await client.query(
                 `INSERT INTO authentification.comptes (code_unique, nom, prenom, role_actuel, mot_de_passe, email, est_actif) 
-                 VALUES ($1, $2, $3, 'SURVEILLANT', $4, $5, TRUE) RETURNING id_user`,
+                    VALUES ($1, $2, $3, 'SURVEILLANT', $4, $5, TRUE) RETURNING id_user`,
                 [surv.code, surv.nom, surv.prenom, passwordPlaceholder, `${surv.code.toLowerCase()}@campus.bf`]
             );
 

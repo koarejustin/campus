@@ -93,7 +93,7 @@ try {
                 try {
                     const r = await db.query(
                         `INSERT INTO pedagogie.messages_salle (conv_id, from_code, from_nom, contenu, type_msg)
-                         VALUES ($1,$2,$3,$4,$5) RETURNING id`,
+                            VALUES ($1,$2,$3,$4,$5) RETURNING id`,
                         [conv_id, fromCode, fromNom, txt, type]
                     );
                     msgId = r.rows[0].id;
@@ -130,7 +130,7 @@ try {
                         const r = await db.query(`
                             SELECT id_user FROM authentification.comptes
                             WHERE role_actuel IN ('PROFESSEUR','DIRECTION','SURVEILLANT')
-                              AND est_actif = true AND code_unique != $1
+                                AND est_actif = true AND code_unique != $1
                         `, [fromCode]);
                         destIds = r.rows.map(x => x.id_user);
                         titre = '💬 ' + fromNom + ' — Salle commune';
