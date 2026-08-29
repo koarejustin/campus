@@ -169,7 +169,7 @@ class MoteurMoyennesBF:
         elif compositions:
             return round(statistics.mean(compositions), 2)
         else:
-            return round(statistics.mean(notes_brutes), 2) if notes_brutes else 0.0
+            return round(statistics.mean(devoirs), 2) if devoirs else 0.0
 
     def calculer_moyenne_generale(
         self,
@@ -233,7 +233,7 @@ class MoteurMoyennesBF:
         return {
             'success': True,
             'moyenne_generale': moyenne_generale,
-            'appréciation': self._generer_appreciation(moyenne_generale),
+            'appreciation': self._generer_appreciation(moyenne_generale),
             'details': details,
             'somme_coefs': somme_coefs
         }

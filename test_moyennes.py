@@ -3,14 +3,20 @@
 """
 ═══════════════════════════════════════════════════════════════════════════════
   SCRIPT DE TEST - Calcul des Moyennes
-  
-  Utilisation :
+
   python3 test_moyennes.py
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
 import json
 import sys
+
+# Le terminal Windows utilise cp1252 par défaut, incapable d'afficher les
+# caractères de dessin de boîte (╔═══╗) et emojis utilisés ci-dessous —
+# ça faisait planter le script avant même le premier calcul.
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
+
 sys.path.insert(0, 'services')
 
 from moteur_moyennes_bf import calculer_donnees_courbe, MoteurMoyennesBF
@@ -177,19 +183,25 @@ def test_prédictions():
 
     moteur = MoteurMoyennesBF()
 
+    # Note : somme_coefs représente le poids des notes déjà obtenues dans UNE
+    # matière (pas le total de coefficients de toute une classe) — avec un
+    # poids trop élevé (ex: 18, celui d'un bulletin complet), même 2 devoirs
+    # à 20/20 ne peuvent quasiment jamais faire bouger la moyenne, donc tout
+    # scénario devenait "impossible" par construction, pas par bug.
+
     # Scénario 1 : Élève en difficulté
     print("\n📌 Scénario 1 : Élève avec moyenne 9/20")
-    note = moteur.note_minimale_pour_cible(9.0, 18, 2, 12)
+    note = moteur.note_minimale_pour_cible(9.0, 3, 2, 12)
     print(f"  Note minimale pour 12/20 : {note:.2f}/20")
 
     # Scénario 2 : Élève excellent
     print("\n📌 Scénario 2 : Élève avec moyenne 17/20")
-    note = moteur.note_minimale_pour_cible(17.0, 18, 2, 18)
+    note = moteur.note_minimale_pour_cible(17.0, 3, 2, 18)
     print(f"  Note minimale pour 18/20 : {note:.2f}/20")
 
     # Scénario 3 : Impossible
     print("\n📌 Scénario 3 : Impossible d'atteindre 20 avec moyenne 10")
-    note = moteur.note_minimale_pour_cible(10.0, 18, 1, 20)
+    note = moteur.note_minimale_pour_cible(10.0, 3, 1, 20)
     print(f"  Note nécessaire : {note:.2f}/20 ❌ (impossible)")
 
     print("\n" + "=" * 80)
