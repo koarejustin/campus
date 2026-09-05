@@ -1,6 +1,12 @@
 const jwt = require('jsonwebtoken');
+const db = require('../config/db');
 
-function authMiddleware(req, res, next) {
+// ✅ Session unique par compte : le token porte un identifiant de session
+// (sid) généré à chaque connexion et enregistré en base. Si quelqu'un se
+// reconnecte ailleurs avec le même matricule, la base reçoit un nouveau
+// sid — l'ancien token, lui, garde l'ancien sid pour toujours (les JWT
+// sont immuables) et se retrouve donc rejeté ici dès la requête suivante.
+async function authMiddleware(req, res, next) {
     const token = req.header('Authorization');
 
     if (!token) {
@@ -10,6 +16,20 @@ function authMiddleware(req, res, next) {
     try {
         const tokenPur = token.startsWith('Bearer ') ? token.slice(7) : token;
         const decoded = jwt.verify(tokenPur, process.env.JWT_SECRET);
+
+        if (decoded.sid) {
+            const r = await db.query(
+                'SELECT session_token FROM authentification.comptes WHERE id_user = $1',
+                [decoded.id]
+            );
+            if (!r.rows.length || r.rows[0].session_token !== decoded.sid) {
+                return res.status(401).json({
+                    message: "Session expirée : ce compte a été utilisé pour se connecter ailleurs.",
+                    code: 'SESSION_REMPLACEE'
+                });
+            }
+        }
+
         req.user = decoded;
         next();
     } catch (err) {

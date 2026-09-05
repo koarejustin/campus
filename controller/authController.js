@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const normalizeClasse = (s) => String(s || '').trim().toLowerCase()
     .replace(/è/g, 'e').replace(/é/g, 'e').replace(/ê/g, 'e').replace(/û/g, 'u')
@@ -27,11 +28,18 @@ exports.login = async (req, res) => {
         // --- MODIFICATION ICI : On gère 'NON_ACTIVE' en plus de null ---
         if (user.mot_de_passe === null || user.mot_de_passe === 'NON_ACTIVE') {
             const hashedPassword = await bcrypt.hash(mot_de_passe, 10);
-            await db.query('UPDATE authentification.comptes SET mot_de_passe = $1 WHERE id_user = $2', [hashedPassword, user.id_user]);
+            const sessionToken = crypto.randomUUID();
+            await db.query(
+                `ALTER TABLE authentification.comptes ADD COLUMN IF NOT EXISTS session_token UUID`
+            );
+            await db.query(
+                'UPDATE authentification.comptes SET mot_de_passe = $1, session_token = $2 WHERE id_user = $3',
+                [hashedPassword, sessionToken, user.id_user]
+            );
 
             // Générer le Token après activation
             const token = jwt.sign(
-                { id: user.id_user, role: user.role_actuel, classe: user.classe_actuelle },
+                { id: user.id_user, role: user.role_actuel, classe: user.classe_actuelle, sid: sessionToken },
                 process.env.JWT_SECRET,
                 { expiresIn: '24h' }
             );
@@ -71,31 +79,30 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
         if (!isMatch) return res.status(400).json({ success: false, message: "Mot de passe incorrect." });
 
-        // ── Vérifier si déjà connecté (même matricule) ──
-        const activeSessions = req.app?.locals?.activeSessions;
-        if (activeSessions && activeSessions.has(user.code_unique)) {
-            const existing = activeSessions.get(user.code_unique);
-            // Optionnel: refuser ou forcer déconnexion
-            // Pour l'instant: accepter mais invalider l'ancienne session
-            activeSessions.delete(user.code_unique);
-            console.log(`⚠️ Double connexion détectée pour ${user.code_unique} - ancienne session invalidée`);
-        }
+        // ── Session unique par compte ──
+        // ⚠️ L'ancien mécanisme utilisait un Map en mémoire
+        // (req.app.locals.activeSessions) qui n'était initialisé nulle part
+        // dans le projet — il n'a donc jamais réellement bloqué quoi que ce
+        // soit, et de toute façon un Map en mémoire ne survit pas à un
+        // redémarrage/redéploiement du serveur. Remplacé par un vrai jeton
+        // de session stocké en base : se reconnecter ailleurs invalide
+        // immédiatement l'ancien token, vérifié à chaque requête dans
+        // authMiddleware.js.
+        const sessionToken = crypto.randomUUID();
+        await db.query(
+            `ALTER TABLE authentification.comptes ADD COLUMN IF NOT EXISTS session_token UUID`
+        );
+        await db.query(
+            'UPDATE authentification.comptes SET session_token = $1 WHERE id_user = $2',
+            [sessionToken, user.id_user]
+        );
 
         // Génération du Token
         const token = jwt.sign(
-            { id: user.id_user, role: user.role_actuel, classe: user.classe_actuelle },
+            { id: user.id_user, role: user.role_actuel, classe: user.classe_actuelle, sid: sessionToken },
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
-
-        // Enregistrer la session active
-        if (activeSessions) {
-            activeSessions.set(user.code_unique, {
-                token,
-                id_user: user.id_user,
-                loginAt: new Date()
-            });
-        }
 
         // --- MODIFICATION ICI : Retourner les clés attendues par le Dashboard ---
         res.status(200).json({
