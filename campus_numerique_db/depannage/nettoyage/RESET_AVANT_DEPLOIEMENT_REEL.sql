@@ -109,15 +109,18 @@ CASCADE;
 
 -- ================================================================
 -- Recréer LE PREMIER vrai compte Direction pour pouvoir se
--- reconnecter juste après (mot_de_passe = NULL déclenche l'écran
--- "premier mot de passe" au premier login, comme pour tout compte
--- fraîchement importé — pas besoin de gérer le hachage ici).
--- Remplace le code_unique / nom / prénom / email avant de lancer.
+-- reconnecter juste après. mot_de_passe = 'NON_ACTIVE' (le texte,
+-- PAS NULL — la colonne est NOT NULL en base réelle) déclenche
+-- l'écran "premier mot de passe" au premier login, comme pour tout
+-- compte fraîchement importé.
+-- ⚠️ Déjà exécuté une première fois le 05/09/2026 avec ces valeurs —
+-- si tu relances un jour ce script pour une AUTRE école/déploiement,
+-- remplace le code_unique / nom / prénom / email ci-dessous.
 -- ================================================================
 INSERT INTO authentification.comptes
     (code_unique, nom, prenom, email, role_actuel, mot_de_passe, est_actif)
 VALUES
-    ('DIR-0001', 'NOM_A_REMPLACER', 'PRENOM_A_REMPLACER', 'direction@ecole.bf', 'DIRECTION', NULL, true);
+    ('DIR-2027-001', 'KOARE', 'Justin', 'Koarejustin3@gmail.com', 'DIRECTION', 'NON_ACTIVE', true);
 
 COMMIT;
 

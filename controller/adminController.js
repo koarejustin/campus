@@ -2036,3 +2036,106 @@ exports.importEmploiDuTempsExcel = async (req, res) => {
     }
 };
 
+// ═══════════════════════════════════════════
+// PARAMÈTRES DE L'ÉTABLISSEMENT (nom, logo, coordonnées)
+// ═══════════════════════════════════════════
+exports.updateConfig = async (req, res) => {
+    try {
+        const { nom_etablissement, slogan, adresse, telephone, email_contact } = req.body;
+
+        let logo_url = null;
+        if (req.file) {
+            const fileStorage = require('../services/fileStorage');
+            logo_url = await fileStorage.saveUploadedFile(req.file, { prefix: 'logo', keyed: 'ecole' });
+        }
+
+        const existe = await db.query('SELECT id_config FROM gestion.configuration LIMIT 1');
+        let r;
+        if (existe.rows.length) {
+            r = await db.query(`
+                UPDATE gestion.configuration SET
+                    nom_etablissement = COALESCE($1, nom_etablissement),
+                    slogan = COALESCE($2, slogan),
+                    adresse = COALESCE($3, adresse),
+                    telephone = COALESCE($4, telephone),
+                    email_contact = COALESCE($5, email_contact),
+                    logo_url = COALESCE($6, logo_url),
+                    updated_at = NOW()
+                WHERE id_config = $7
+                RETURNING *
+            `, [nom_etablissement || null, slogan || null, adresse || null, telephone || null, email_contact || null, logo_url, existe.rows[0].id_config]);
+        } else {
+            r = await db.query(`
+                INSERT INTO gestion.configuration (nom_etablissement, slogan, adresse, telephone, email_contact, logo_url)
+                VALUES ($1, $2, $3, $4, $5, $6)
+                RETURNING *
+            `, [nom_etablissement || 'Établissement', slogan || null, adresse || null, telephone || null, email_contact || null, logo_url]);
+        }
+
+        res.json({ success: true, config: r.rows[0] });
+    } catch (error) {
+        console.error('updateConfig:', error.message);
+        res.status(500).json({ success: false, message: 'Erreur: ' + error.message });
+    }
+};
+
+// ═══════════════════════════════════════════
+// IMAGES PAR ESPACE (cartes du portail d'accueil)
+// ═══════════════════════════════════════════
+const ESPACES_VALIDES = ['eleves', 'professeurs', 'parents', 'ape', 'alumni', 'direction', 'surveillant'];
+
+exports.getImagesEspaces = async (req, res) => {
+    try {
+        const r = await db.query(`
+            SELECT id_image, espace, url_image, titre, est_active
+            FROM gestion.images_espaces
+            ORDER BY espace, ordre
+        `);
+        res.json({ success: true, espaces: ESPACES_VALIDES, images: r.rows });
+    } catch (error) {
+        console.error('getImagesEspaces:', error.message);
+        res.status(500).json({ success: false, message: 'Erreur: ' + error.message });
+    }
+};
+
+exports.updateImageEspace = async (req, res) => {
+    try {
+        const { espace } = req.params;
+        if (!ESPACES_VALIDES.includes(espace)) {
+            return res.status(400).json({ success: false, message: `Espace inconnu. Valeurs acceptées : ${ESPACES_VALIDES.join(', ')}` });
+        }
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'Aucune image reçue' });
+        }
+
+        const fileStorage = require('../services/fileStorage');
+        const url_image = await fileStorage.saveUploadedFile(req.file, { prefix: 'espace', keyed: espace });
+
+        const existe = await db.query(
+            'SELECT id_image FROM gestion.images_espaces WHERE espace = $1 ORDER BY ordre LIMIT 1',
+            [espace]
+        );
+
+        let r;
+        if (existe.rows.length) {
+            r = await db.query(`
+                UPDATE gestion.images_espaces
+                SET url_image = $1, est_active = true, updated_by = $2, updated_at = NOW()
+                WHERE id_image = $3
+                RETURNING *
+            `, [url_image, req.user.id, existe.rows[0].id_image]);
+        } else {
+            r = await db.query(`
+                INSERT INTO gestion.images_espaces (espace, url_image, ordre, est_active, updated_by)
+                VALUES ($1, $2, 0, true, $3)
+                RETURNING *
+            `, [espace, url_image, req.user.id]);
+        }
+
+        res.json({ success: true, image: r.rows[0] });
+    } catch (error) {
+        console.error('updateImageEspace:', error.message);
+        res.status(500).json({ success: false, message: 'Erreur: ' + error.message });
+    }
+};
+

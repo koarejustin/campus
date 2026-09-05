@@ -2390,6 +2390,10 @@
           <i data-lucide="award" class="ni-icon"></i><span>Élections</span>
           <span class="dir-tag" id="dt-elections">DIR</span>
         </div>
+        <div class="ni ni-locked-vis" id="ni-params" data-page="params">
+          <i data-lucide="settings" class="ni-icon"></i><span>Paramètres</span>
+          <span class="dir-tag" id="dt-params">DIR</span>
+        </div>
       </nav>
     </div>
 
@@ -3818,6 +3822,44 @@
       </div>
     </div>
 
+    <!-- ══════════ PARAMÈTRES DE L'ÉTABLISSEMENT ══════════ -->
+    <div id="s-params" class="sec">
+      <div class="card" style="max-width:640px;">
+        <div style="font-size:.9rem;font-weight:800;color:#0F172A;margin-bottom:14px;">🏫 Identité de l'établissement</div>
+        <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;">
+          <img id="params-logo-preview" src="" class="hidden" style="width:64px;height:64px;object-fit:contain;border-radius:12px;border:1.5px solid #E2E8F0;background:#F8FAFC;">
+          <div id="params-logo-fallback" style="width:64px;height:64px;border-radius:12px;border:1.5px dashed #CBD5E1;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:.65rem;text-align:center;">Aucun<br>logo</div>
+          <div>
+            <input type="file" id="params-logo-input" accept="image/*" style="display:none;" onchange="previewParamsLogo(this)">
+            <button class="btn-p" style="padding:7px 12px;font-size:.75rem;" onclick="document.getElementById('params-logo-input').click()">Changer le logo</button>
+            <div style="font-size:.65rem;color:#94A3B8;margin-top:4px;">PNG/JPG, 5 Mo max</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Nom de l'établissement</label>
+            <input id="params-nom" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Slogan</label>
+            <input id="params-slogan" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Adresse</label>
+            <input id="params-adresse" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Téléphone</label>
+              <input id="params-tel" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
+            <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Email de contact</label>
+              <input id="params-email" type="email" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
+          </div>
+          <div id="params-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;"></div>
+          <button class="btn-p" style="padding:11px;font-size:.82rem;font-weight:800;" onclick="saveParametres()">💾 Enregistrer</button>
+        </div>
+      </div>
+
+      <div class="card" style="max-width:900px;margin-top:16px;">
+        <div style="font-size:.9rem;font-weight:800;color:#0F172A;margin-bottom:4px;">🖼️ Images du portail d'accueil</div>
+        <div style="font-size:.72rem;color:#94A3B8;margin-bottom:14px;">Photo affichée en fond de chaque carte d'espace sur la page de connexion.</div>
+        <div id="params-images-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
+      </div>
+    </div>
+
   </main>
 
   <!-- Toast -->
@@ -3865,6 +3907,115 @@
           }
         }
       } catch (error) { console.error('Erreur chargement config:', error); }
+    }
+
+    // ══════════════════════════════════════
+    // PARAMÈTRES (nom/logo/coordonnées + images du portail)
+    // ══════════════════════════════════════
+    const ESPACES_LABELS = {
+      eleves: '👤 Élèves', professeurs: '📖 Professeurs', parents: '❤️ Parents',
+      ape: '🤝 APE', alumni: '🎓 Anciens Élèves', direction: '⚙️ Direction', surveillant: '🛡️ Surveillant'
+    };
+    let paramsLogoFile = null;
+
+    async function loadParametres() {
+      try {
+        const d = await api('/admin/config');
+        if (d.success && d.config) {
+          $('params-nom').value = d.config.nom_etablissement || '';
+          $('params-slogan').value = d.config.slogan || '';
+          $('params-adresse').value = d.config.adresse || '';
+          $('params-tel').value = d.config.telephone || '';
+          $('params-email').value = d.config.email_contact || '';
+          if (d.config.logo_url) {
+            $('params-logo-preview').src = d.config.logo_url;
+            $('params-logo-preview').classList.remove('hidden');
+            $('params-logo-fallback').style.display = 'none';
+          }
+        }
+      } catch (e) { console.warn('loadParametres config:', e.message); }
+
+      try {
+        const d2 = await api('/admin/images-espaces');
+        const parEspace = {};
+        (d2.images || []).forEach(img => { if (!parEspace[img.espace]) parEspace[img.espace] = img; });
+        $('params-images-grid').innerHTML = Object.keys(ESPACES_LABELS).map(esp => {
+          const img = parEspace[esp];
+          return `<div style="border:1.5px solid #E2E8F0;border-radius:12px;padding:10px;text-align:center;">
+            <div style="font-size:.78rem;font-weight:700;margin-bottom:8px;">${ESPACES_LABELS[esp]}</div>
+            <div style="width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:#F1F5F9;display:flex;align-items:center;justify-content:center;margin-bottom:8px;">
+              ${img ? `<img src="${img.url_image}" style="width:100%;height:100%;object-fit:cover;">` : `<span style="color:#CBD5E1;font-size:.68rem;">Aucune image</span>`}
+            </div>
+            <input type="file" id="esp-input-${esp}" accept="image/*" style="display:none;" onchange="uploadImageEspace('${esp}', this)">
+            <button class="btn-p" style="padding:5px 10px;font-size:.68rem;" onclick="document.getElementById('esp-input-${esp}').click()">Changer</button>
+          </div>`;
+        }).join('');
+      } catch (e) { console.warn('loadParametres images:', e.message); }
+    }
+
+    function previewParamsLogo(input) {
+      const f = input.files[0]; if (!f) return;
+      paramsLogoFile = f;
+      const reader = new FileReader();
+      reader.onload = e => {
+        $('params-logo-preview').src = e.target.result;
+        $('params-logo-preview').classList.remove('hidden');
+        $('params-logo-fallback').style.display = 'none';
+      };
+      reader.readAsDataURL(f);
+    }
+
+    async function saveParametres() {
+      const msgEl = $('params-msg');
+      showMsg(msgEl, '⏳ Enregistrement...', 'ok');
+      try {
+        const fd = new FormData();
+        fd.append('nom_etablissement', $('params-nom').value.trim());
+        fd.append('slogan', $('params-slogan').value.trim());
+        fd.append('adresse', $('params-adresse').value.trim());
+        fd.append('telephone', $('params-tel').value.trim());
+        fd.append('email_contact', $('params-email').value.trim());
+        if (paramsLogoFile) fd.append('logo', paramsLogoFile);
+
+        const r = await fetch('/api/admin/config', {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + TOK },
+          body: fd
+        });
+        const data = await r.json();
+        if (data.success) {
+          showMsg(msgEl, '✅ Paramètres enregistrés', 'ok');
+          toast('Paramètres enregistrés ✓', 'ok');
+          paramsLogoFile = null;
+          chargerConfigEcole();
+        } else {
+          showMsg(msgEl, '❌ ' + (data.message || 'Erreur'), 'err');
+        }
+      } catch (e) {
+        showMsg(msgEl, '❌ Erreur réseau : ' + e.message, 'err');
+      }
+    }
+
+    async function uploadImageEspace(espace, input) {
+      const f = input.files[0]; if (!f) return;
+      try {
+        const fd = new FormData();
+        fd.append('image', f);
+        const r = await fetch('/api/admin/images-espaces/' + espace, {
+          method: 'PUT',
+          headers: { 'Authorization': 'Bearer ' + TOK },
+          body: fd
+        });
+        const data = await r.json();
+        if (data.success) {
+          toast('Image mise à jour ✓', 'ok');
+          loadParametres();
+        } else {
+          toast('❌ ' + (data.message || 'Erreur'), 'err');
+        }
+      } catch (e) {
+        toast('Erreur réseau : ' + e.message, 'err');
+      }
     }
 
     // ══════════════════════════════════════
@@ -3930,7 +4081,7 @@
       // garde Absences/Convocations/Emploi du temps/Élèves (déjà visibles par
       // défaut) mais pas ces responsabilités de direction.
       if (ROLE === 'DIRECTION') {
-        ['ni-flux', 'ni-corps', 'ni-parents', 'ni-alumni', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections'].forEach(id => {
+        ['ni-flux', 'ni-corps', 'ni-parents', 'ni-alumni', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections', 'ni-params'].forEach(id => {
           const el = $(id); const page = el?.dataset.page;
           if (el && page) {
             el.classList.remove('ni-locked-vis');
@@ -3938,7 +4089,7 @@
           }
         });
         // Supprimer les badges DIR
-        ['dt-flux', 'dt-corps', 'dt-parents', 'dt-alumni', 'dt-sign', 'dt-compta', 'dt-agenda', 'dt-compo', 'dt-elections'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
+        ['dt-flux', 'dt-corps', 'dt-parents', 'dt-alumni', 'dt-sign', 'dt-compta', 'dt-agenda', 'dt-compo', 'dt-elections', 'dt-params'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
       } else {
         // Surveillant : ces sections restent verrouillées (badge "DIR" visible,
         // grisées, clic désactivé via CSS — état par défaut, rien à faire ici)
@@ -3968,6 +4119,7 @@
       agenda: { sec: 's-agenda', title: 'Agenda Direction', sub: 'Calendrier des événements officiels' },
       compo: { sec: 's-compo', title: 'Compositions & Examens', sub: 'Planification des épreuves — Examens réservés aux classes terminales' },
       elections: { sec: 's-elections', title: 'Élections Scolaires', sub: 'Chef de Classe & Bureau des Élèves — Nomination officielle' },
+      params: { sec: 's-params', title: 'Paramètres de l\'établissement', sub: 'Nom, logo, coordonnées et images du portail d\'accueil' },
     };
     function go(page, navEl) {
       const cfg = PAGES[page]; if (!cfg) return;
@@ -3990,6 +4142,7 @@
       if (page === 'agenda') loadAgenda();
       if (page === 'compo') loadCompositions();
       if (page === 'elections') loadElections();
+      if (page === 'params') loadParametres();
     }
     // ══════════════════════════════════════
     // STATS

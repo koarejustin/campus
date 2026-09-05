@@ -6,6 +6,14 @@ const { ensureRoleIn } = require('../middleware/authMiddleware');
 const db = require('../config/db');
 const multer = require('multer');
 const uploadExcel = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+const uploadImage = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) cb(null, true);
+        else cb(new Error('Seules les images sont acceptées'), false);
+    }
+});
 
 // ✅ SÉCURITÉ : deux niveaux d'accès désormais appliqués côté serveur (pas
 // seulement caché côté interface) — le partage Direction/Surveillant ne
@@ -143,4 +151,12 @@ router.get('/config', auth, async (req, res) => {
         res.status(500).json({ success: false });
     }
 });
+
+// ── Modifier le nom/logo/coordonnées de l'établissement (Direction seule) ──
+router.put('/config', auth, dirSeule, uploadImage.single('logo'), ctrl.updateConfig);
+
+// ── Images des cartes du portail d'accueil (Direction seule) ──
+router.get('/images-espaces', auth, dirSeule, ctrl.getImagesEspaces);
+router.put('/images-espaces/:espace', auth, dirSeule, uploadImage.single('image'), ctrl.updateImageEspace);
+
 module.exports = router;
