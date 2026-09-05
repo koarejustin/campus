@@ -152,7 +152,7 @@ router.get('/mes-classes', authMiddleware, async (req, res) => {
 
         // Si vraiment aucune classe assignée en base, fallback générique (prof peut choisir)
         if (classes.length === 0) {
-            classes = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
+            classes = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère C', '1ère D', 'Tle A', 'Tle C', 'Tle D'];
         }
         if (matieres.length === 0) {
             matieres = ['Mathématiques', 'Français', 'Anglais'];
@@ -168,7 +168,7 @@ router.get('/mes-classes', authMiddleware, async (req, res) => {
         // Fallback
         res.json({
             success: true,
-            classes: ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'],
+            classes: ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère C', '1ère D', 'Tle A', 'Tle C', 'Tle D'],
             matieres: ['Mathématiques', 'Français', 'Anglais']
         });
     }

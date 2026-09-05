@@ -58,6 +58,7 @@ const PROGRAMMES = {
     { nom: 'Mathématiques',                     coef: 3, domaine: 'Sciences' },
     { nom: 'Histoire-Géographie',               coef: 3, domaine: 'Lettres' },
     { nom: 'Anglais',                           coef: 3, domaine: 'Langues' },
+    { nom: 'Philosophie',                       coef: 3, domaine: 'Lettres' },
     { nom: 'Sciences de la Vie et de la Terre', coef: 2, domaine: 'Sciences' },
     { nom: 'Physique-Chimie',                   coef: 2, domaine: 'Sciences' },
     { nom: 'Allemand',                          coef: 2, domaine: 'Langues', optionnel: true },
@@ -65,8 +66,10 @@ const PROGRAMMES = {
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
     { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
+  // ⚠️ Mathématiques : 5 (pas 4) — corrigé selon la grille officielle
+  // fournie par l'établissement, différente de la valeur qui était ici.
   '2nde C': [
-    { nom: 'Mathématiques',                     coef: 4, domaine: 'Sciences' },
+    { nom: 'Mathématiques',                     coef: 5, domaine: 'Sciences' },
     { nom: 'Physique-Chimie',                   coef: 4, domaine: 'Sciences' },
     { nom: 'Français',                          coef: 3, domaine: 'Lettres' },
     { nom: 'Sciences de la Vie et de la Terre', coef: 3, domaine: 'Sciences' },
@@ -89,6 +92,21 @@ const PROGRAMMES = {
     { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   '1ère D': [
+    { nom: 'Mathématiques',                     coef: 4, domaine: 'Sciences' },
+    { nom: 'Sciences de la Vie et de la Terre', coef: 4, domaine: 'Sciences' },
+    { nom: 'Physique-Chimie',                   coef: 4, domaine: 'Sciences' },
+    { nom: 'Français',                          coef: 3, domaine: 'Lettres' },
+    { nom: 'Histoire-Géographie',               coef: 2, domaine: 'Lettres' },
+    { nom: 'Anglais',                           coef: 2, domaine: 'Langues' },
+    { nom: 'Philosophie',                       coef: 2, domaine: 'Lettres' },
+    { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
+    { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
+    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
+  ],
+  // ✅ 1ère C partage la même grille de coefficients que 1ère D (confirmé
+  // par l'établissement — une seule colonne "1re D" couvrait les deux
+  // séries dans la grille fournie).
+  '1ère C': [
     { nom: 'Mathématiques',                     coef: 4, domaine: 'Sciences' },
     { nom: 'Sciences de la Vie et de la Terre', coef: 4, domaine: 'Sciences' },
     { nom: 'Physique-Chimie',                   coef: 4, domaine: 'Sciences' },
@@ -124,6 +142,22 @@ const PROGRAMMES = {
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
     { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
+  // ✅ Terminale C — n'existait pas du tout avant : un élève de cette
+  // classe aurait eu un bulletin vide/faux. Coefficients selon la grille
+  // fournie par l'établissement (série scientifique, Maths+PC dominants,
+  // contrairement à D où SVT est à égalité avec Maths).
+  'Tle C': [
+    { nom: 'Mathématiques',                     coef: 5, domaine: 'Sciences' },
+    { nom: 'Physique-Chimie',                   coef: 5, domaine: 'Sciences' },
+    { nom: 'Sciences de la Vie et de la Terre', coef: 3, domaine: 'Sciences' },
+    { nom: 'Français',                          coef: 3, domaine: 'Lettres' },
+    { nom: 'Philosophie',                       coef: 2, domaine: 'Lettres' },
+    { nom: 'Histoire-Géographie',               coef: 2, domaine: 'Lettres' },
+    { nom: 'Anglais',                           coef: 2, domaine: 'Langues' },
+    { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
+    { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
+    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
+  ],
 };
 
 const ALIAS_CLASSES = {
@@ -133,8 +167,10 @@ const ALIAS_CLASSES = {
   '2ndc':'2nde C','2ndec':'2nde C','seconde c':'2nde C',
   '1a':'1ère A','1ere a':'1ère A','premiere a':'1ère A',
   '1d':'1ère D','1ere d':'1ère D','premiere d':'1ère D',
+  '1c':'1ère C','1ere c':'1ère C','premiere c':'1ère C',
   'tle a':'Tle A','terminale a':'Tle A','ta':'Tle A',
   'tle d':'Tle D','terminale d':'Tle D','td':'Tle D',
+  'tle c':'Tle C','terminale c':'Tle C','tc':'Tle C',
 };
 
 function normaliserClasse(classe) {
