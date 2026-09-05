@@ -2648,10 +2648,16 @@
             onclick="filtCls('1ère A',this)">1ère A</button>
           <button class="b"
             style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('1ère C',this)">1ère C</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
             onclick="filtCls('1ère D',this)">1ère D</button>
           <button class="b"
             style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
             onclick="filtCls('Tle A',this)">Tle A</button>
+          <button class="b"
+            style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
+            onclick="filtCls('Tle C',this)">Tle C</button>
           <button class="b"
             style="padding:4px 12px; border-radius:20px; font-size:.7rem; font-weight:700; cursor:pointer; background:#F1F5F9;"
             onclick="filtCls('Tle D',this)">Tle D</button>
@@ -3135,8 +3141,10 @@
               <option selected>2nde A</option>
               <option>2nde C</option>
               <option>1ère A</option>
+              <option>1ère C</option>
               <option>1ère D</option>
               <option>Tle A</option>
+              <option>Tle C</option>
               <option>Tle D</option>
             </select>
             <button id="btn-add-edt" class="btn-p" style="font-size:.72rem;display:none;" onclick="openSeanceForm()">
@@ -3297,8 +3305,10 @@
                     <option>2nde A</option>
                     <option>2nde C</option>
                     <option>1ère A</option>
+                    <option>1ère C</option>
                     <option>1ère D</option>
                     <option>Tle A</option>
+                    <option>Tle C</option>
                     <option>Tle D</option>
                   </select>
                 </div>
@@ -3364,8 +3374,10 @@
                 <option>2nde A</option>
                 <option>2nde C</option>
                 <option>1ère A</option>
+                <option>1ère C</option>
                 <option>1ère D</option>
                 <option>Tle A</option>
+                <option>Tle C</option>
                 <option>Tle D</option>
               </select>
               <select id="sign-tri-filter" onchange="filtSignatures()"
@@ -3706,9 +3718,13 @@
                     C</span></label>
                 <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="1ère A"><span>1ère
                     A</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="1ère C"><span>1ère
+                    C</span></label>
                 <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="1ère D"><span>1ère
                     D</span></label>
                 <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="Tle A"><span>Tle A ⭐
+                    BAC</span></label>
+                <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="Tle C"><span>Tle C ⭐
                     BAC</span></label>
                 <label class="cls-chk-lbl"><input type="checkbox" class="cp-cls-cb" value="Tle D"><span>Tle D ⭐
                     BAC</span></label>
@@ -6681,7 +6697,7 @@
     // ══════════════════════════════════════
     let compoData = [];
     let compoFilter = 'all';
-    const EXAM_CLASSES = ['3ème', 'Tle A', 'Tle D'];
+    const EXAM_CLASSES = ['3ème', 'Tle A', 'Tle C', 'Tle D'];
 
     async function loadCompositions() {
       // Préremplit la date du jour dans le formulaire (toujours visible à
@@ -6754,7 +6770,7 @@
       document.querySelectorAll('.cp-cls-cb').forEach(cb => cb.checked = false);
       if (type === 'examen' || type === 'examen_blanc') {
         document.querySelectorAll('.cp-cls-cb').forEach(cb => {
-          cb.checked = ['3ème', 'Tle A', 'Tle D'].some(c => cb.value.startsWith(c));
+          cb.checked = EXAM_CLASSES.some(c => cb.value.startsWith(c));
         });
         toast('💡 Classes BEPC/BAC pré-sélectionnées', 'info');
       }
@@ -7835,8 +7851,10 @@
               <option>2nde A</option>
               <option>2nde C</option>
               <option>1ère A</option>
+              <option>1ère C</option>
               <option>1ère D</option>
               <option>Tle A</option>
+              <option>Tle C</option>
               <option>Tle D</option>
             </select>
           </div>

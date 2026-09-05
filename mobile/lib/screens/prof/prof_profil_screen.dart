@@ -7,7 +7,7 @@ import '../../theme.dart';
 import '../../utils.dart';
 import '../role_select_screen.dart';
 
-const _kClassesConnues = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
+const _kClassesConnues = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère C', '1ère D', 'Tle A', 'Tle C', 'Tle D'];
 
 class ProfProfilScreen extends StatefulWidget {
   const ProfProfilScreen({super.key});

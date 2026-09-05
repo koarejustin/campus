@@ -4,7 +4,7 @@ import '../../services/api_client.dart';
 import '../../theme.dart';
 import '../../download_helper.dart';
 
-const List<String> kClassesEdt = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
+const List<String> kClassesEdt = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère C', '1ère D', 'Tle A', 'Tle C', 'Tle D'];
 const List<String> kJoursEdt = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 
 class DirectionEdtScreen extends StatefulWidget {
