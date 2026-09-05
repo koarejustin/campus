@@ -1955,6 +1955,10 @@
     }
 
     function deco() {
+      try {
+        const sess = JSON.parse(localStorage.getItem('user_session') || '{}');
+        if (sess.token) fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + sess.token } }).catch(() => {});
+      } catch (e) {}
       localStorage.clear();
       window.location.replace('login.html?role=PARENT&context=Espace%20Parent');
     }
