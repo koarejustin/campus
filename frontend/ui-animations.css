@@ -23,11 +23,23 @@
 
   /* Apparition en fondu + léger glissement au chargement d'une section.
      Ajouté automatiquement par ui-animations.js à l'intérieur de toute
-     section qui devient active (classe .sec.on, .pg.on, etc.). */
+     section qui devient active (classe .sec.on, .pg.on, etc.).
+     ⚠️ Chaque page définit déjà sa propre animation sur .sec.on / .pg.on
+     (ex: "animation: fu .3s ease", sans forwards). Cette règle-là a une
+     spécificité plus forte (2 classes) que .ui-reveal (1 classe) et gagne
+     la cascade sur la propriété "animation" — sans !important ici, notre
+     animation ne se lance jamais, et comme "fu" n'a pas de forwards, une
+     fois finie l'élément retombe sur le opacity:0 statique ci-dessous :
+     le contenu apparaît une fraction de seconde puis redevient invisible
+     pour de bon. Le !important force notre animation (qui, elle, se
+     termine bien à opacity:1) à prendre le dessus partout.
+     Le opacity:0 est en dehors du shorthand "animation" et ne posait
+     pas problème en lui-même — c'est la course avec "fu" qui vidait le
+     forwards. */
   .ui-reveal {
     opacity: 0;
     transform: translateY(10px);
-    animation: uiFadeInUp .45s cubic-bezier(.16,.8,.3,1) forwards;
+    animation: uiFadeInUp .45s cubic-bezier(.16,.8,.3,1) forwards !important;
   }
   @keyframes uiFadeInUp {
     to { opacity: 1; transform: translateY(0); }
