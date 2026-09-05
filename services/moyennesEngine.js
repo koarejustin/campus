@@ -16,7 +16,6 @@ const PROGRAMMES = {
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
     { nom: 'Arts Plastiques',                   coef: 1, domaine: 'Arts' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   '5ème': [
     { nom: 'Français',                          coef: 3, domaine: 'Lettres' },
@@ -27,7 +26,6 @@ const PROGRAMMES = {
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
     { nom: 'Arts Plastiques',                   coef: 1, domaine: 'Arts' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   '4ème': [
     { nom: 'Français',                          coef: 3, domaine: 'Lettres' },
@@ -39,7 +37,6 @@ const PROGRAMMES = {
     { nom: 'Allemand',                          coef: 1, domaine: 'Langues', optionnel: true },
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   '3ème': [
     { nom: 'Français',                          coef: 3, domaine: 'Lettres' },
@@ -51,7 +48,6 @@ const PROGRAMMES = {
     { nom: 'Allemand',                          coef: 1, domaine: 'Langues', optionnel: true },
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   '2nde A': [
     { nom: 'Français',                          coef: 4, domaine: 'Lettres' },
@@ -64,7 +60,6 @@ const PROGRAMMES = {
     { nom: 'Allemand',                          coef: 2, domaine: 'Langues', optionnel: true },
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   // ⚠️ Mathématiques : 5 (pas 4) — corrigé selon la grille officielle
   // fournie par l'établissement, différente de la valeur qui était ici.
@@ -77,7 +72,6 @@ const PROGRAMMES = {
     { nom: 'Anglais',                           coef: 2, domaine: 'Langues' },
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   '1ère A': [
     { nom: 'Français / Littérature',            coef: 5, domaine: 'Lettres' },
@@ -89,7 +83,6 @@ const PROGRAMMES = {
     { nom: 'Sciences de la Vie et de la Terre', coef: 1, domaine: 'Sciences' },
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   '1ère D': [
     { nom: 'Mathématiques',                     coef: 4, domaine: 'Sciences' },
@@ -101,7 +94,6 @@ const PROGRAMMES = {
     { nom: 'Philosophie',                       coef: 2, domaine: 'Lettres' },
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   // ✅ 1ère C partage la même grille de coefficients que 1ère D (confirmé
   // par l'établissement — une seule colonne "1re D" couvrait les deux
@@ -116,7 +108,6 @@ const PROGRAMMES = {
     { nom: 'Philosophie',                       coef: 2, domaine: 'Lettres' },
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   'Tle A': [
     { nom: 'Français / Littérature',            coef: 5, domaine: 'Lettres' },
@@ -128,7 +119,6 @@ const PROGRAMMES = {
     { nom: 'Sciences de la Vie et de la Terre', coef: 1, domaine: 'Sciences' },
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   'Tle D': [
     { nom: 'Mathématiques',                     coef: 5, domaine: 'Sciences' },
@@ -140,7 +130,6 @@ const PROGRAMMES = {
     { nom: 'Anglais',                           coef: 2, domaine: 'Langues' },
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
   // ✅ Terminale C — n'existait pas du tout avant : un élève de cette
   // classe aurait eu un bulletin vide/faux. Coefficients selon la grille
@@ -156,7 +145,6 @@ const PROGRAMMES = {
     { nom: 'Anglais',                           coef: 2, domaine: 'Langues' },
     { nom: 'Éducation Civique et Morale',       coef: 1, domaine: 'Lettres' },
     { nom: 'Éducation Physique et Sportive',    coef: 1, domaine: 'EPS' },
-    { nom: 'Informatique / TIC',                coef: 1, domaine: 'Tech' },
   ],
 };
 
@@ -215,9 +203,6 @@ var ALIASES_MATIERES = {
   'eps':           'education physique et sportive',
   'education physique et sportive': 'education physique et sportive',
   'sport':         'education physique et sportive',
-  'informatique':  'informatique / tic',
-  'tic':           'informatique / tic',
-  'informatique / tic': 'informatique / tic',
   'ecm':           'education civique et morale',
   'education civique et morale': 'education civique et morale',
   'allemand':      'allemand',

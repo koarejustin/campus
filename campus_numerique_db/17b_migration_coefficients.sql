@@ -1,5 +1,18 @@
 -- =============================================================================
--- SCRIPT 16B : MIGRATION - Ajout des colonnes manquantes pour Coefficients
+-- SCRIPT 17B : MIGRATION - Ajout des colonnes manquantes pour Coefficients
+--
+-- ⚠️ OBSOLÈTE — NE PAS EXÉCUTER TEL QUEL. Vérifié le 2026-01 : ce script cible
+-- une structure qui ne correspond pas à la vraie base de production :
+--   - pedagogie.matieres a en réalité (id_matiere SERIAL, nom_matiere,
+--     coefficient) — pas de colonne "domaine" ni "specialites_concernees",
+--     et id_matiere n'est pas un UUID.
+--   - pedagogie.coefficients_par_classe et pedagogie.historique_moyennes
+--     n'existent dans aucune base réelle utilisée par l'appli.
+--   - La table historique_moyennes n'est référencée que par
+--     routes/eleveRouteMoyennes.js, un routeur JAMAIS monté dans server.js
+--     (vérifié par grep) — code mort, aucune page ne l'appelle.
+-- Conservé ici pour l'historique plutôt que supprimé, mais ce fichier ne
+-- doit plus être lancé dans la séquence d'installation d'un établissement.
 -- =============================================================================
 
 -- 1. Ajouter colonne domaine à pedagogie.matieres
