@@ -4654,7 +4654,7 @@
       professeurs: {
         titre: '📥 Importer des professeurs depuis Excel',
         endpoint: '/api/admin/professeurs/import-excel',
-        colonnesInfo: 'Nom, Prenom, Specialite, et en option Email, Telephone.',
+        colonnesInfo: "Nom, Prenom, Specialite, et en option Email, Telephone, Classes (ex: \"6ème, 5ème\"), Matieres (ex: \"Mathématiques, Physique-Chimie\"). Sans Classes/Matieres, le prof n'aura aucune classe assignée tant que tu ne l'auras pas fait depuis \"Gérer les profs\".",
         reloadFn: 'loadCorps',
       },
       parents: {
@@ -5292,6 +5292,12 @@
           + '<input id="pc-mat" type="text" placeholder="Ex: Mathématiques" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
           + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Email</label>'
           + '<input id="pc-email" type="email" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Matières enseignées <span style="font-weight:400;color:#94A3B8;">(optionnel, séparées par des virgules)</span></label>'
+          + '<input id="pc-matieres" type="text" placeholder="Ex: Mathématiques, Physique-Chimie" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:6px;">Classes assignées <span style="font-weight:400;color:#94A3B8;">(optionnel — modifiable plus tard)</span></label>'
+          + '<div id="pc-classes" style="display:flex;flex-wrap:wrap;gap:6px;">'
+          + CLASSES.map(c => `<label style="display:flex;align-items:center;gap:4px;font-size:.72rem;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:7px;padding:4px 8px;cursor:pointer;"><input type="checkbox" value="${c}" style="margin:0;">${c}</label>`).join('')
+          + '</div></div>'
           + '<div id="pc-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;"></div>'
           + '<button id="btn-sub-corps" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">✅ Créer le compte professeur</button>'
           + '</div></div>';
@@ -5308,13 +5314,15 @@
       const nom = document.getElementById('pc-nom')?.value?.trim();
       const mat = document.getElementById('pc-mat')?.value?.trim();
       const email = document.getElementById('pc-email')?.value?.trim();
+      const matieres = document.getElementById('pc-matieres')?.value?.trim();
+      const classes = Array.from(document.querySelectorAll('#pc-classes input:checked')).map(c => c.value);
       const msgEl = document.getElementById('pc-msg');
       if (!prenom || !nom || !mat) { toast('Prénom, nom et matière requis', 'err'); return; }
       if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = '⏳ Création...'; msgEl.style.color = '#64748B'; }
       try {
         const d = await api('/admin/professeurs', {
           method: 'POST',
-          body: JSON.stringify({ prenom, nom, specialite: mat, email })
+          body: JSON.stringify({ prenom, nom, specialite: mat, email, matieres, classes })
         });
         if (d.success) {
           const inner = document.getElementById('m-add-corps')?.querySelector('.dir-modal');
@@ -5580,7 +5588,9 @@
             id: p.id_user || p.code_unique,
             nom: (p.nom || '') + ' ' + (p.prenom || ''),
             mat: p.specialite || p.matiere || 'Non défini',
-            cls: p.classes || (p.nb_classes ? p.nb_classes + ' classe(s)' : '—'),
+            classesArr: Array.isArray(p.classes) ? p.classes : [],
+            matieresArr: Array.isArray(p.matieres) ? p.matieres : [],
+            cls: (Array.isArray(p.classes) && p.classes.length) ? p.classes.join(', ') : '⚠️ Aucune classe assignée',
             email: p.email || '',
             telephone: p.telephone || '',
             est_actif: p.est_actif !== false,
@@ -5787,12 +5797,15 @@
       <div class="prof-av" style="background:${p.col};flex-shrink:0;">${p.nom.charAt(0)}</div>
       <div class="prof-info">
         <div style="font-size:.82rem;font-weight:800;color:#0F172A;">${esc(p.nom)}</div>
-        <div style="font-size:.7rem;color:#64748B;margin-top:1px;">${esc(p.mat)} · <span style="color:#4F46E5;font-weight:700;">${esc(p.cls)}</span></div>
+        <div style="font-size:.7rem;color:#64748B;margin-top:1px;">${esc(p.mat)} · <span style="color:${p.classesArr.length ? '#4F46E5' : '#DC2626'};font-weight:700;">${esc(p.cls)}</span></div>
         <div style="font-size:.68rem;color:#94A3B8;margin-top:2px;">${esc(p.email || 'Pas d\'email')} · ${esc(p.telephone || 'Pas de téléphone')}</div>
         <div style="font-size:.62rem;color:#94A3B8;margin-top:1px;">${esc(p.code)}</div>
       </div>
       <div class="prof-actions">
         <span class="b ${p.est_actif ? 'b-grn' : 'b-org'}">${p.est_actif ? 'Actif' : 'Inactif'}</span>
+        <button class="btn-p" style="padding:5px 10px;font-size:.68rem;background:${p.classesArr.length ? '#0369A1' : '#DC2626'};" onclick='openAssignClasses(${JSON.stringify(p.id)}, ${JSON.stringify(p.nom)}, ${JSON.stringify(p.classesArr)}, ${JSON.stringify(p.matieresArr)})'>
+          <i data-lucide="graduation-cap" style="width:12px;height:12px;"></i>Classes
+        </button>
         <button class="btn-p" style="padding:5px 10px;font-size:.68rem;" onclick="voirCahier('${p.id}')">
           <i data-lucide="book-open" style="width:12px;height:12px;"></i>Cahier
         </button>
@@ -5805,6 +5818,60 @@
     }
 
     function filtCorps() { if (corpsData.length) renderCorps(); }
+
+    // ══════════════════════════════════════
+    // ASSIGNER CLASSES / MATIÈRES À UN PROF EXISTANT
+    // (affectation administrative — le prof ne peut plus se
+    // l'attribuer lui-même depuis son propre profil)
+    // ══════════════════════════════════════
+    function openAssignClasses(profId, nom, classesActuelles, matieresActuelles) {
+      let m = document.getElementById('m-assign-classes');
+      if (m) m.remove();
+      m = document.createElement('div');
+      m.id = 'm-assign-classes';
+      m.className = 'dir-modal-overlay';
+      m.onclick = e => { if (e.target === m) m.remove(); };
+      m.innerHTML = '<div class="dir-modal" style="max-width:480px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+        + '<div style="font-size:.95rem;font-weight:800;">🎓 Classes de ' + esc(nom) + '</div>'
+        + '<button onclick="document.getElementById(\'m-assign-classes\').remove()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94A3B8;">✕</button>'
+        + '</div>'
+        + '<div style="display:flex;flex-direction:column;gap:10px;">'
+        + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Matières enseignées <span style="font-weight:400;color:#94A3B8;">(séparées par des virgules)</span></label>'
+        + '<input id="ac-matieres" type="text" value="' + esc((matieresActuelles || []).join(', ')) + '" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+        + '<div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:6px;">Classes assignées</label>'
+        + '<div id="ac-classes" style="display:flex;flex-wrap:wrap;gap:6px;">'
+        + CLASSES.map(c => `<label style="display:flex;align-items:center;gap:4px;font-size:.72rem;background:#F8FAFC;border:1px solid #E2E8F0;border-radius:7px;padding:4px 8px;cursor:pointer;"><input type="checkbox" value="${c}" ${(classesActuelles || []).includes(c) ? 'checked' : ''} style="margin:0;">${c}</label>`).join('')
+        + '</div></div>'
+        + '<div id="ac-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;"></div>'
+        + '<button onclick="submitAssignClasses(\'' + profId + '\')" style="background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">✅ Enregistrer</button>'
+        + '</div></div>';
+      document.body.appendChild(m);
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+    }
+
+    async function submitAssignClasses(profId) {
+      const matieres = document.getElementById('ac-matieres')?.value?.trim();
+      const classes = Array.from(document.querySelectorAll('#ac-classes input:checked')).map(c => c.value);
+      const msgEl = document.getElementById('ac-msg');
+      if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = '⏳ Enregistrement...'; msgEl.style.color = '#64748B'; }
+      try {
+        const d = await api(`/admin/professeurs/${profId}/classes-matieres`, {
+          method: 'PUT',
+          body: JSON.stringify({ classes, matieres })
+        });
+        if (d.success) {
+          toast('Classes mises à jour', 'ok');
+          document.getElementById('m-assign-classes')?.remove();
+          loadCorps();
+        } else if (msgEl) {
+          msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = '#EF4444';
+        }
+      } catch (e) {
+        if (msgEl) { msgEl.textContent = '❌ ' + e.message; msgEl.style.color = '#EF4444'; }
+      }
+    }
     async function demanderNotes() {
       const profSaisi = ($('req-prof')?.value || '').trim();
       const msgSaisi = ($('req-msg')?.value || '').trim();

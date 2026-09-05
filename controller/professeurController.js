@@ -96,7 +96,7 @@ exports.updateProfil = async (req, res) => {
         const {
             nom, prenom, email,
             telephone, specialite, biographie,
-            annees_exp, matieres, classes, diplome
+            annees_exp, diplome
         } = req.body;
 
         await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS matieres TEXT[]`);
@@ -141,49 +141,28 @@ exports.updateProfil = async (req, res) => {
             }
         }
 
-        let matieresArray = [];
-        if (matieres) {
-            if (typeof matieres === 'string') {
-                try {
-                    matieresArray = JSON.parse(matieres);
-                } catch (e) {
-                    matieresArray = matieres.split(',').map(m => m.trim()).filter(Boolean);
-                }
-            } else if (Array.isArray(matieres)) {
-                matieresArray = matieres;
-            }
-            matieresArray = matieresArray.filter(v => v && typeof v === 'string');
-        }
-
-        let classesArray = [];
-        if (classes) {
-            if (typeof classes === 'string') {
-                try {
-                    classesArray = JSON.parse(classes);
-                } catch (e) {
-                    classesArray = classes.split(',').map(c => c.trim()).filter(Boolean);
-                }
-            } else if (Array.isArray(classes)) {
-                classesArray = classes;
-            }
-            classesArray = classesArray.filter(v => v && typeof v === 'string');
-        }
+        // ✅ "classes" et "matieres" ne sont PLUS modifiables par le prof
+        // lui-même : c'est une affectation administrative (qui enseigne
+        // quoi), décidée par la Direction (voir adminController.js —
+        // createProfesseur / updateClassesMatieresProf / import Excel).
+        // Un prof qui pourrait se les attribuer librement pourrait accéder
+        // aux notes d'une classe qui n'est pas la sienne. On ignore
+        // silencieusement ces deux champs s'ils sont envoyés (au cas où
+        // une ancienne page mise en cache les enverrait encore).
 
         const validYears = parseInt(annees_exp, 10);
         const anneesExpValue = Number.isInteger(validYears) && validYears >= 0 ? validYears : null;
 
         await db.query(
-            `INSERT INTO pedagogie.profils_profs (id_user, specialite, biographie, telephone, matieres, classes, diplome, annees_exp)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+            `INSERT INTO pedagogie.profils_profs (id_user, specialite, biographie, telephone, diplome, annees_exp)
+             VALUES ($1, $2, $3, $4, $5, $6)
              ON CONFLICT (id_user) DO UPDATE SET
-                specialite = EXCLUDED.specialite,
+                specialite = COALESCE(EXCLUDED.specialite, pedagogie.profils_profs.specialite),
                 biographie = EXCLUDED.biographie,
                 telephone = COALESCE(EXCLUDED.telephone, pedagogie.profils_profs.telephone),
-                matieres = COALESCE(EXCLUDED.matieres, pedagogie.profils_profs.matieres),
-                classes = COALESCE(EXCLUDED.classes, pedagogie.profils_profs.classes),
                 diplome = COALESCE(EXCLUDED.diplome, pedagogie.profils_profs.diplome),
                 annees_exp = COALESCE(EXCLUDED.annees_exp, pedagogie.profils_profs.annees_exp)`,
-            [profId, specialite || '', biographie || '', telClean, matieresArray.length ? matieresArray : null, classesArray.length ? classesArray : null, diplome || null, anneesExpValue]
+            [profId, specialite || null, biographie || '', telClean, diplome || null, anneesExpValue]
         );
 
         let photo_url = null;
@@ -220,7 +199,7 @@ exports.updateProfil = async (req, res) => {
         res.json({
             success: true,
             message: 'Profil mis à jour',
-            profil: updatedProfil.rows[0] || { nom, prenom, email, telephone: telClean, specialite, biographie, photo_url, matieres: matieresArray, classes: classesArray, diplome: diplome || null, annees_exp: anneesExpValue },
+            profil: updatedProfil.rows[0] || { nom, prenom, email, telephone: telClean, specialite, biographie, photo_url, diplome: diplome || null, annees_exp: anneesExpValue },
             photo_url
         });
     } catch (e) {

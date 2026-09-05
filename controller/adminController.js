@@ -134,7 +134,7 @@ exports.getProfesseurs = async (req, res) => {
             SELECT c.id_user, c.code_unique, c.nom, c.prenom,
                    c.email, c.telephone, c.est_actif,
                    p.specialite, p.biographie, p.photo_url,
-                   p.date_arrivee,
+                   p.date_arrivee, p.classes, p.matieres,
                    COUNT(DISTINCT ct.classe) AS nb_classes,
                    COUNT(DISTINCT ct.id)     AS nb_seances
             FROM authentification.comptes c
@@ -143,7 +143,8 @@ exports.getProfesseurs = async (req, res) => {
             WHERE c.role_actuel = 'PROFESSEUR' AND c.est_actif = true
             GROUP BY c.id_user, c.code_unique, c.nom, c.prenom,
                      c.email, c.telephone, c.est_actif,
-                     p.specialite, p.biographie, p.photo_url, p.date_arrivee
+                     p.specialite, p.biographie, p.photo_url, p.date_arrivee,
+                     p.classes, p.matieres
             ORDER BY c.nom, c.prenom
         `);
         res.json({
@@ -161,6 +162,8 @@ exports.getProfesseurs = async (req, res) => {
                 matiere: p.specialite || '',
                 biographie: p.biographie || '',
                 photo_url: p.photo_url || null,
+                classes: p.classes || [],
+                matieres: p.matieres || [],
                 nb_classes: parseInt(p.nb_classes) || 0,
                 nb_seances: parseInt(p.nb_seances) || 0,
                 est_actif: p.est_actif
@@ -804,9 +807,20 @@ exports.createEleve = async (req, res) => {
 // ═══════════════════════════════════════════
 // CRÉER UN PROFESSEUR
 // ═══════════════════════════════════════════
+// ✅ Les classes/matières d'un prof sont une donnée administrative
+// (qui enseigne quoi), pas une préférence personnelle — c'est la
+// Direction qui les fixe ici, le prof ne peut plus se les
+// auto-attribuer depuis son propre profil (voir professeurController.js).
+function _parseListeAdmin(valeur) {
+    if (!valeur) return null;
+    if (Array.isArray(valeur)) return valeur.map(v => String(v).trim()).filter(Boolean);
+    const arr = String(valeur).split(',').map(v => v.trim()).filter(Boolean);
+    return arr.length ? arr : null;
+}
+
 exports.createProfesseur = async (req, res) => {
     try {
-        const { prenom, nom, specialite, email, telephone } = req.body;
+        const { prenom, nom, specialite, email, telephone, classes, matieres } = req.body;
         if (!prenom || !nom || !specialite) {
             return res.status(400).json({ message: 'Prenom, nom et specialite requis' });
         }
@@ -827,15 +841,42 @@ exports.createProfesseur = async (req, res) => {
         `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
 
         const profId = r.rows[0].id_user;
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS classes TEXT[]`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS matieres TEXT[]`);
         await db.query(
-            `INSERT INTO pedagogie.profils_profs (id_user, specialite) VALUES ($1,$2)
-             ON CONFLICT (id_user) DO UPDATE SET specialite=$2`,
-            [profId, specialite]
+            `INSERT INTO pedagogie.profils_profs (id_user, specialite, classes, matieres) VALUES ($1,$2,$3,$4)
+             ON CONFLICT (id_user) DO UPDATE SET specialite=$2, classes=$3, matieres=$4`,
+            [profId, specialite, _parseListeAdmin(classes), _parseListeAdmin(matieres)]
         );
 
         res.json({ success: true, message: 'Professeur cree', code_unique: code, mot_de_passe_temporaire: motDePasseTemp });
     } catch (e) {
         console.error('createProfesseur:', e.message);
+        res.status(500).json({ message: 'Erreur: ' + e.message });
+    }
+};
+
+// ═══════════════════════════════════════════
+// ASSIGNER/MODIFIER LES CLASSES ET MATIÈRES D'UN PROF EXISTANT
+// (fait à part de createProfesseur pour pouvoir corriger une
+// affectation après coup, sans repasser par un ré-import Excel)
+// ═══════════════════════════════════════════
+exports.updateClassesMatieresProf = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { classes, matieres } = req.body;
+
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS classes TEXT[]`);
+        await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS matieres TEXT[]`);
+        const r = await db.query(
+            `INSERT INTO pedagogie.profils_profs (id_user, classes, matieres) VALUES ($1,$2,$3)
+             ON CONFLICT (id_user) DO UPDATE SET classes=$2, matieres=$3
+             RETURNING classes, matieres`,
+            [id, _parseListeAdmin(classes), _parseListeAdmin(matieres)]
+        );
+        res.json({ success: true, classes: r.rows[0].classes || [], matieres: r.rows[0].matieres || [] });
+    } catch (e) {
+        console.error('updateClassesMatieresProf:', e.message);
         res.status(500).json({ message: 'Erreur: ' + e.message });
     }
 };
@@ -1583,6 +1624,12 @@ exports.importProfesseursExcel = async (req, res) => {
             const specialite = getColExcel(ligne, ['specialite', 'spécialité', 'matiere', 'matière']);
             const email = getColExcel(ligne, ['email', 'e-mail']) || null;
             const telephone = getColExcel(ligne, ['telephone', 'téléphone', 'tel']) || null;
+            // ✅ Optionnelles : "Classes" et "Matieres" (plusieurs valeurs
+            // séparées par une virgule dans la même cellule, ex: "6ème, 5ème").
+            // Si absentes, le prof n'a encore aucune classe assignée — à
+            // corriger ensuite depuis "Gérer les profs", pas par le prof lui-même.
+            const classesTxt = getColExcel(ligne, ['classes', 'classe']);
+            const matieresTxt = getColExcel(ligne, ['matieres', 'matières']);
 
             if (!nom || !prenom || !specialite) {
                 resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: 'Nom, prénom et spécialité sont obligatoires' });
@@ -1593,7 +1640,7 @@ exports.importProfesseursExcel = async (req, res) => {
             const code = 'PROF-2026-' + String(compteur + 10).padStart(3, '0');
 
             if (dryRun) {
-                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, specialite, email, telephone, code_previsionnel: code, statut: 'OK' });
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, specialite, email, telephone, classes: classesTxt || '', matieres: matieresTxt || '', code_previsionnel: code, statut: 'OK' });
                 continue;
             }
 
@@ -1606,10 +1653,12 @@ exports.importProfesseursExcel = async (req, res) => {
                     VALUES ($1,$2,$3,$4,$5,$6,'PROFESSEUR',true)
                     RETURNING id_user, code_unique
                 `, [code, nom.toUpperCase(), prenom, email, telephone, hash]);
+                await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS classes TEXT[]`);
+                await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS matieres TEXT[]`);
                 await db.query(
-                    `INSERT INTO pedagogie.profils_profs (id_user, specialite) VALUES ($1,$2)
-                     ON CONFLICT (id_user) DO UPDATE SET specialite=$2`,
-                    [r.rows[0].id_user, specialite]
+                    `INSERT INTO pedagogie.profils_profs (id_user, specialite, classes, matieres) VALUES ($1,$2,$3,$4)
+                     ON CONFLICT (id_user) DO UPDATE SET specialite=$2, classes=$3, matieres=$4`,
+                    [r.rows[0].id_user, specialite, _parseListeAdmin(classesTxt), _parseListeAdmin(matieresTxt)]
                 );
                 resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, specialite, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE' });
             } catch (err) {
