@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <script src="session-guard.js"></script>
+  <link rel="stylesheet" href="ui-animations.css">
+  <script src="ui-animations.js"></script>
   <script src="config.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Espace Élève | Campus Numérique FASO</title>
@@ -2048,21 +2050,25 @@
 
         const stats = statsR.status === 'fulfilled' ? statsR.value : {};
         const moy = stats.statistiques?.academique?.moyenne;
-        document.getElementById('kpi-moy').textContent = moy ? parseFloat(moy).toFixed(2) : '--';
+        if (moy && window.animateNumber) animateNumber(document.getElementById('kpi-moy'), parseFloat(moy), { decimals: 2 });
+        else document.getElementById('kpi-moy').textContent = moy ? parseFloat(moy).toFixed(2) : '--';
 
         const absData = absR.status === 'fulfilled' ? absR.value : {};
         const absTotal = absData.absences?.length || 0;
-        document.getElementById('kpi-abs').textContent = absTotal;
+        if (window.animateNumber) animateNumber(document.getElementById('kpi-abs'), absTotal);
+        else document.getElementById('kpi-abs').textContent = absTotal;
         // Badge de notification retiré sur demande (ne plus afficher le chiffre sur l'onglet Absences)
 
         const convData = convR.status === 'fulfilled' ? convR.value : {};
         const nbConv = convData.convocations?.length || 0;
-        document.getElementById('kpi-conv').textContent = nbConv;
+        if (window.animateNumber) animateNumber(document.getElementById('kpi-conv'), nbConv);
+        else document.getElementById('kpi-conv').textContent = nbConv;
         if (nbConv > 0) showBadge('badge-conv', nbConv);
 
         const resData = resR.status === 'fulfilled' ? resR.value : {};
         const nbRes = resData.count || (resData.ressources?.length) || 0;
-        document.getElementById('kpi-res').textContent = nbRes;
+        if (window.animateNumber) animateNumber(document.getElementById('kpi-res'), nbRes);
+        else document.getElementById('kpi-res').textContent = nbRes;
         if (nbRes > 0) showBadge('badge-res', nbRes);
 
         const notesData = notesR.status === 'fulfilled' ? notesR.value : {};
@@ -3728,7 +3734,8 @@
         var mg = moyData.moyenne_generale;
         var kpiMoy = document.getElementById('kpi-moy');
         if (kpiMoy) {
-          kpiMoy.textContent = (mg !== null && mg !== undefined) ? parseFloat(mg).toFixed(2) : '--';
+          if (mg !== null && mg !== undefined && window.animateNumber) animateNumber(kpiMoy, parseFloat(mg), { decimals: 2 });
+          else kpiMoy.textContent = (mg !== null && mg !== undefined) ? parseFloat(mg).toFixed(2) : '--';
           var mcolor = mg >= 14 ? '#10B981' : mg >= 10 ? '#3B49DF' : '#EF4444';
           kpiMoy.style.color = mcolor;
           var kpiFoot = kpiMoy.closest('.kpi') ? kpiMoy.closest('.kpi').querySelector('.kpi-foot') : null;
@@ -3738,7 +3745,7 @@
         var absData = absR.status === 'fulfilled' ? absR.value : {};
         var absNJ = absData.absences_non_justifiees || 0;
         var kpiAbs = document.getElementById('kpi-abs');
-        if (kpiAbs) kpiAbs.textContent = absNJ;
+        if (kpiAbs) { if (window.animateNumber) animateNumber(kpiAbs, absNJ); else kpiAbs.textContent = absNJ; }
         // Badge de notification retiré sur demande
 
         var convData = convR.status === 'fulfilled' ? convR.value : {};
@@ -3746,13 +3753,13 @@
           return c.statut === 'ENVOYEE' || c.statut === 'EN_ATTENTE';
         }).length;
         var kpiConv = document.getElementById('kpi-conv');
-        if (kpiConv) kpiConv.textContent = convEnAttente;
+        if (kpiConv) { if (window.animateNumber) animateNumber(kpiConv, convEnAttente); else kpiConv.textContent = convEnAttente; }
         if (convEnAttente > 0) showBadge('badge-conv', convEnAttente);
 
         var resData = resR.status === 'fulfilled' ? resR.value : {};
         var nbRes = resData.count || (resData.ressources ? resData.ressources.length : 0) || 0;
         var kpiRes = document.getElementById('kpi-res');
-        if (kpiRes) kpiRes.textContent = nbRes;
+        if (kpiRes) { if (window.animateNumber) animateNumber(kpiRes, nbRes); else kpiRes.textContent = nbRes; }
 
         loadDashNotesAvancees(moyData);
         loadEvoChartWithRealData();

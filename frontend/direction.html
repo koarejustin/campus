@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <script src="session-guard.js"></script>
+  <link rel="stylesheet" href="ui-animations.css">
+  <script src="ui-animations.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cockpit | Saint Joseph</title>
   <link rel="icon"
@@ -2549,7 +2551,7 @@
             <i data-lucide="layers" style="width:14px;height:14px;color:#4F46E5;"></i>
             <span style="font-size:.88rem;font-weight:800;color:#0F172A;">Répartition des classes</span>
           </div>
-          <div style="display:flex;flex-direction:column;gap:6px;" id="cls-rept">
+          <div class="ui-reveal-stagger" style="display:flex;flex-direction:column;gap:6px;" id="cls-rept">
             <div
               style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:#F5F3FF;border-radius:8px;border:1px solid #DDD6FE;">
               <span style="font-size:.78rem;font-weight:700;">🔵 Collège (6ème – 4ème)</span>
@@ -4172,10 +4174,14 @@
           // ✅ "??" au lieu de "||" — un vrai zéro (0 professeur, 0 surveillant
           // réellement en base) est une valeur légitime, pas une absence de
           // valeur. "0 || 4" affichait 4 alors que la vraie base était vide.
-          if ($('kpi-el')) $('kpi-el').textContent = s.users ?? 0;
-          if ($('kpi-pr')) $('kpi-pr').textContent = s.professors ?? 0;
-          if ($('kpi-su')) $('kpi-su').textContent = s.surveillants ?? 0;
-          if ($('kpi-pres')) $('kpi-pres').textContent = (s.presence === null || s.presence === undefined) ? '—' : s.presence + '%';
+          if ($('kpi-el')) window.animateNumber ? animateNumber($('kpi-el'), s.users ?? 0) : ($('kpi-el').textContent = s.users ?? 0);
+          if ($('kpi-pr')) window.animateNumber ? animateNumber($('kpi-pr'), s.professors ?? 0) : ($('kpi-pr').textContent = s.professors ?? 0);
+          if ($('kpi-su')) window.animateNumber ? animateNumber($('kpi-su'), s.surveillants ?? 0) : ($('kpi-su').textContent = s.surveillants ?? 0);
+          if ($('kpi-pres')) {
+            if (s.presence === null || s.presence === undefined) $('kpi-pres').textContent = '—';
+            else if (window.animateNumber) animateNumber($('kpi-pres'), s.presence, { suffix: '%' });
+            else $('kpi-pres').textContent = s.presence + '%';
+          }
           if ($('eff-total')) $('eff-total').textContent = s.users ?? 0;
           const absMonth = s.absences ?? 0;
           const convEnAtt = s.convocations_en_attente ?? 0;
