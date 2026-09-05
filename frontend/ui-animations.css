@@ -4,6 +4,22 @@
    apparition au chargement, formulaires. Discret, pas d'effet criard.
    ================================================================ */
 
+/* Valeur des champs de formulaire centrée (demande explicite : le texte
+   collé contre la bordure gauche donnait une impression de mise en page
+   bâclée sur toutes les pages). Les zones de texte multi-lignes restent
+   alignées à gauche — centrer plusieurs lignes de texte est illisible.
+   Hors media query motion : ça n'a rien à voir avec les animations. */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+input[type="date"],
+select {
+  text-align: center;
+  text-align-last: center;
+}
+
 @media (prefers-reduced-motion: no-preference) {
 
   /* Cartes — légère élévation au survol, partout où .card est utilisé */
