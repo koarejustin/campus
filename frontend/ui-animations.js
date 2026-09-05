@@ -49,26 +49,31 @@
   // observe ces changements de classe et on rejoue une animation
   // d'apparition à chaque fois, sans que chaque page ait à le coder.
   if (!reduceMotion && "MutationObserver" in window) {
-    var SEEN_CLASS = 'ui-reveal-played';
     function playReveal(el) {
       el.classList.remove('ui-reveal');
       // force reflow pour pouvoir rejouer l'animation une 2e fois
       void el.offsetWidth;
       el.classList.add('ui-reveal');
     }
+    // ⚠️ playReveal() modifie lui-même la classe de l'élément observé : sans
+    // garde, ça redéclenche l'observateur en boucle infinie (page qui se fige
+    // complètement, plus aucun clic ne répond). On ne réagit donc qu'à une
+    // vraie transition "devient actif" (absent → présent dans oldValue),
+    // jamais aux allers-retours de la classe ui-reveal elle-même.
     var observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (m) {
-        if (m.attributeName !== 'class') return;
         var el = m.target;
-        var isActive = el.classList.contains('on') || el.classList.contains('active');
-        if (isActive && (el.classList.contains('sec') || el.classList.contains('pg'))) {
+        var isActiveNow = el.classList.contains('on') || el.classList.contains('active');
+        var oldClasses = (m.oldValue || '').split(/\s+/);
+        var wasActive = oldClasses.indexOf('on') !== -1 || oldClasses.indexOf('active') !== -1;
+        if (isActiveNow && !wasActive && (el.classList.contains('sec') || el.classList.contains('pg'))) {
           playReveal(el);
         }
       });
     });
     document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('.sec, .pg').forEach(function (el) {
-        observer.observe(el, { attributes: true });
+        observer.observe(el, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
       });
     });
   }
