@@ -1,11 +1,13 @@
 const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 
-// ✅ Session unique par compte : le token porte un identifiant de session
-// (sid) généré à chaque connexion et enregistré en base. Si quelqu'un se
-// reconnecte ailleurs avec le même matricule, la base reçoit un nouveau
-// sid — l'ancien token, lui, garde l'ancien sid pour toujours (les JWT
-// sont immuables) et se retrouve donc rejeté ici dès la requête suivante.
+// ✅ Sessions plafonnées à 2 appareils par compte (voir authController.js —
+// _creerSession/MAX_SESSIONS_PAR_COMPTE) : le token porte un identifiant de
+// session (sid) enregistré dans authentification.sessions_actives à la
+// connexion. Si un 3e appareil se connecte, la session la plus ancienne est
+// fermée (sa ligne supprimée) — son token, lui, reste valide en apparence
+// (JWT immuable) mais ne correspond plus à aucune ligne ici, donc rejeté
+// dès la requête suivante.
 async function authMiddleware(req, res, next) {
     const token = req.header('Authorization');
 
@@ -19,12 +21,12 @@ async function authMiddleware(req, res, next) {
 
         if (decoded.sid) {
             const r = await db.query(
-                'SELECT session_token FROM authentification.comptes WHERE id_user = $1',
-                [decoded.id]
+                'SELECT 1 FROM authentification.sessions_actives WHERE id_user = $1 AND session_token = $2',
+                [decoded.id, decoded.sid]
             );
-            if (!r.rows.length || r.rows[0].session_token !== decoded.sid) {
+            if (!r.rows.length) {
                 return res.status(401).json({
-                    message: "Session expirée : ce compte a été utilisé pour se connecter ailleurs.",
+                    message: "Session fermée : trop d'appareils connectés sur ce compte, ou déconnexion depuis un autre appareil.",
                     code: 'SESSION_REMPLACEE'
                 });
             }

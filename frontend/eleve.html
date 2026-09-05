@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <script src="session-guard.js"></script>
   <script src="config.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Espace Élève | Campus Numérique FASO</title>
@@ -2002,7 +2003,13 @@
       return "'" + String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
     }
     function showBadge(id, val) { const b = document.getElementById(id); if (b) { b.textContent = val; b.style.display = ''; } }
-    function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+    function logout() {
+      try {
+        const sess = JSON.parse(localStorage.getItem('user_session') || '{}');
+        if (sess.token) fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + sess.token } }).catch(() => {});
+      } catch (e) {}
+      localStorage.clear(); window.location.href = 'login.html';
+    }
 
     function goPage(id) {
       document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));

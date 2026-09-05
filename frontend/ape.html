@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <script src="session-guard.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bureau APE | Campus Numérique FASO</title>
     <script src="config.js"></script>
@@ -1023,7 +1024,13 @@
             return false;
         }
 
-        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+        function logout() {
+            try {
+                const sess = JSON.parse(localStorage.getItem('user_session') || '{}');
+                if (sess.token) fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + sess.token } }).catch(() => {});
+            } catch (e) {}
+            localStorage.clear(); window.location.href = 'login.html';
+        }
 
         // ============================================================
         // INIT

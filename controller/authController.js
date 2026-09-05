@@ -7,6 +7,50 @@ const normalizeClasse = (s) => String(s || '').trim().toLowerCase()
     .replace(/è/g, 'e').replace(/é/g, 'e').replace(/ê/g, 'e').replace(/û/g, 'u')
     .replace(/\s+/g, '').replace(/eme$/g, 'e').replace(/ème$/g, 'e');
 
+// ✅ Sessions multi-appareils plafonnées : une même personne doit pouvoir
+// être connectée depuis son ordinateur ET son téléphone en même temps
+// (usage réel : import Excel sur PC, consultation sur mobile), mais un
+// compte ne doit pas pouvoir servir à un nombre illimité de connexions
+// simultanées (partage/vol d'identifiants). MAX_SESSIONS appareils actifs
+// par compte ; au-delà, la session la plus ancienne est fermée pour faire
+// de la place à la nouvelle.
+const MAX_SESSIONS_PAR_COMPTE = 2;
+
+async function _creerSession(idUser, userAgent) {
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS authentification.sessions_actives (
+            id_session UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            id_user UUID NOT NULL,
+            session_token UUID NOT NULL,
+            user_agent TEXT,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `);
+    // Nettoie les sessions de plus de 24h (durée de vie du JWT) pour ce
+    // compte avant de recompter — évite d'accumuler des lignes mortes.
+    await db.query(
+        `DELETE FROM authentification.sessions_actives WHERE id_user = $1 AND created_at < NOW() - INTERVAL '24 hours'`,
+        [idUser]
+    );
+    const sessionToken = crypto.randomUUID();
+    await db.query(
+        `INSERT INTO authentification.sessions_actives (id_user, session_token, user_agent) VALUES ($1, $2, $3)`,
+        [idUser, sessionToken, userAgent || null]
+    );
+    // Garde seulement les MAX_SESSIONS_PAR_COMPTE plus récentes — ferme les
+    // plus anciennes en trop (la nouvelle vient d'être insérée, donc jamais
+    // elle-même supprimée ici).
+    await db.query(
+        `DELETE FROM authentification.sessions_actives
+         WHERE id_user = $1 AND id_session NOT IN (
+             SELECT id_session FROM authentification.sessions_actives
+             WHERE id_user = $1 ORDER BY created_at DESC LIMIT $2
+         )`,
+        [idUser, MAX_SESSIONS_PAR_COMPTE]
+    );
+    return sessionToken;
+}
+
 // --- LOGIN & ACTIVATION ---
 exports.login = async (req, res) => {
     const { code_unique, mot_de_passe, role, context } = req.body;
@@ -28,14 +72,11 @@ exports.login = async (req, res) => {
         // --- MODIFICATION ICI : On gère 'NON_ACTIVE' en plus de null ---
         if (user.mot_de_passe === null || user.mot_de_passe === 'NON_ACTIVE') {
             const hashedPassword = await bcrypt.hash(mot_de_passe, 10);
-            const sessionToken = crypto.randomUUID();
             await db.query(
-                `ALTER TABLE authentification.comptes ADD COLUMN IF NOT EXISTS session_token UUID`
+                'UPDATE authentification.comptes SET mot_de_passe = $1 WHERE id_user = $2',
+                [hashedPassword, user.id_user]
             );
-            await db.query(
-                'UPDATE authentification.comptes SET mot_de_passe = $1, session_token = $2 WHERE id_user = $3',
-                [hashedPassword, sessionToken, user.id_user]
-            );
+            const sessionToken = await _creerSession(user.id_user, req.headers['user-agent']);
 
             // Générer le Token après activation
             const token = jwt.sign(
@@ -79,23 +120,17 @@ exports.login = async (req, res) => {
         const isMatch = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
         if (!isMatch) return res.status(400).json({ success: false, message: "Mot de passe incorrect." });
 
-        // ── Session unique par compte ──
+        // ── Sessions plafonnées à 2 appareils par compte ──
         // ⚠️ L'ancien mécanisme utilisait un Map en mémoire
         // (req.app.locals.activeSessions) qui n'était initialisé nulle part
         // dans le projet — il n'a donc jamais réellement bloqué quoi que ce
         // soit, et de toute façon un Map en mémoire ne survit pas à un
-        // redémarrage/redéploiement du serveur. Remplacé par un vrai jeton
-        // de session stocké en base : se reconnecter ailleurs invalide
-        // immédiatement l'ancien token, vérifié à chaque requête dans
-        // authMiddleware.js.
-        const sessionToken = crypto.randomUUID();
-        await db.query(
-            `ALTER TABLE authentification.comptes ADD COLUMN IF NOT EXISTS session_token UUID`
-        );
-        await db.query(
-            'UPDATE authentification.comptes SET session_token = $1 WHERE id_user = $2',
-            [sessionToken, user.id_user]
-        );
+        // redémarrage/redéploiement du serveur. Puis remplacé par un jeton
+        // unique en base (1 seul appareil à la fois) — mais une même
+        // personne doit pouvoir utiliser son PC ET son téléphone. Désormais :
+        // jusqu'à MAX_SESSIONS_PAR_COMPTE appareils actifs, vérifiés à
+        // chaque requête dans authMiddleware.js.
+        const sessionToken = await _creerSession(user.id_user, req.headers['user-agent']);
 
         // Génération du Token
         const token = jwt.sign(
@@ -125,6 +160,24 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
     res.status(501).json({ message: "Utilisez la simulation pour créer des comptes." });
+};
+
+// ── Déconnexion explicite : ferme cette session précise (libère tout de
+// suite une des MAX_SESSIONS_PAR_COMPTE places, plutôt que d'attendre les
+// 24h d'expiration du token). ──
+exports.logout = async (req, res) => {
+    try {
+        if (req.user?.id && req.user?.sid) {
+            await db.query(
+                `DELETE FROM authentification.sessions_actives WHERE id_user = $1 AND session_token = $2`,
+                [req.user.id, req.user.sid]
+            );
+        }
+        res.json({ success: true });
+    } catch (err) {
+        console.error('logout:', err.message);
+        res.json({ success: true }); // la déconnexion côté client ne doit jamais échouer
+    }
 };
 
 // ── Changer son propre mot de passe (tous rôles) ──

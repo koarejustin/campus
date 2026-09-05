@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <script src="session-guard.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Espace Professeur | Campus Numérique FASO</title>
   <link
@@ -5350,7 +5351,10 @@
       setTimeout(() => t.classList.remove('show'), 2800);
     }
 
-    function logout() { localStorage.removeItem('user_session'); location.href = 'login.html'; }
+    function logout() {
+      try { if (TOK) fetch(API + '/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + TOK } }).catch(() => {}); } catch (e) {}
+      localStorage.removeItem('user_session'); location.href = 'login.html';
+    }
 
     // ══════════════════════════════════════════
     // LECTEUR UNIVERSEL (vidéo / PDF / image / doc)

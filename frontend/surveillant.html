@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <script src="session-guard.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Surveillant | Tableau de bord</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -124,7 +125,13 @@
         const initials = encodeURIComponent((session.prenom || '')[0] + (session.nom || '')[0]);
         document.getElementById('profilePhoto').src = `https://ui-avatars.com/api/?background=5b21b6&color=fff&size=256&name=${initials}`;
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { localStorage.clear(); window.location.href = 'index.html'; });
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            try {
+                const sess = JSON.parse(localStorage.getItem('user_session') || '{}');
+                if (sess.token) fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + sess.token } }).catch(() => {});
+            } catch (e) {}
+            localStorage.clear(); window.location.href = 'index.html';
+        });
 
         const headers = { 'Authorization': 'Bearer ' + session.token, 'Content-Type': 'application/json' };
 
