@@ -130,14 +130,25 @@ exports.getStats = async (req, res) => {
         } catch (e) { }
 
         // Taux présence (100 - taux absence)
+        // ✅ Avec 0 élève réel, "100% de présence" est vrai au sens strict
+        // (0 absent sur 0 élève) mais trompeur à l'affichage — ça ressemble
+        // à une vraie mesure alors qu'il n'y a personne à mesurer. On
+        // renvoie null (affiché "—" côté frontend) tant qu'il n'y a pas de
+        // vrais élèves. Le fallback catch était aussi un chiffre inventé
+        // (95) — remplacé par null également.
         try {
-            const rp = await db.query(`
-                SELECT COUNT(DISTINCT id_eleve)::float / NULLIF((SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ELEVE'),0) * 100 AS taux_abs
-                FROM gestion.absences WHERE date_absence >= NOW() - INTERVAL '30 days'
-            `);
-            const taux_abs = parseFloat(rp.rows[0]?.taux_abs) || 0;
-            stats.presence = Math.round(100 - taux_abs);
-        } catch (e) { stats.presence = 95; }
+            const nbEleves = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ELEVE' AND est_actif=true");
+            if (parseInt(nbEleves.rows[0].count) === 0) {
+                stats.presence = null;
+            } else {
+                const rp = await db.query(`
+                    SELECT COUNT(DISTINCT id_eleve)::float / NULLIF((SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ELEVE'),0) * 100 AS taux_abs
+                    FROM gestion.absences WHERE date_absence >= NOW() - INTERVAL '30 days'
+                `);
+                const taux_abs = parseFloat(rp.rows[0]?.taux_abs) || 0;
+                stats.presence = Math.round(100 - taux_abs);
+            }
+        } catch (e) { stats.presence = null; }
 
         res.json({ success: true, stats });
     } catch (err) {

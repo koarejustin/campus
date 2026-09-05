@@ -2425,7 +2425,7 @@
           <div class="kpi-ico bg-indigo-100"><i data-lucide="users-2" style="width:17px;height:17px;color:#4F46E5;"></i>
           </div>
           <div class="kpi-lbl">Effectif total</div>
-          <div class="kpi-val" style="color:#4F46E5;" id="kpi-el">500</div>
+          <div class="kpi-val" style="color:#4F46E5;" id="kpi-el">—</div>
           <div class="kpi-sub pos"><i data-lucide="trending-up" style="width:11px;height:11px;"></i>+12% vs 2025</div>
           <div class="kpi-spark"><canvas id="sp1"></canvas></div>
         </div>
@@ -2433,7 +2433,7 @@
           <div class="kpi-ico bg-emerald-100"><i data-lucide="check-circle-2"
               style="width:17px;height:17px;color:#10B981;"></i></div>
           <div class="kpi-lbl">Présence</div>
-          <div class="kpi-val" style="color:#10B981;" id="kpi-pres">92%</div>
+          <div class="kpi-val" style="color:#10B981;" id="kpi-pres">—</div>
           <div class="kpi-sub pos"><i data-lucide="arrow-up" style="width:11px;height:11px;"></i>Excellent</div>
           <div class="kpi-spark"><canvas id="sp2"></canvas></div>
         </div>
@@ -2441,7 +2441,7 @@
           <div class="kpi-ico bg-blue-100"><i data-lucide="book-open" style="width:17px;height:17px;color:#2563EB;"></i>
           </div>
           <div class="kpi-lbl">Professeurs</div>
-          <div class="kpi-val" style="color:#2563EB;" id="kpi-pr">42</div>
+          <div class="kpi-val" style="color:#2563EB;" id="kpi-pr">—</div>
           <div class="kpi-sub neu"><i data-lucide="check-circle" style="width:11px;height:11px;"></i>Tous présents</div>
           <div class="kpi-spark"><canvas id="sp3"></canvas></div>
         </div>
@@ -2449,7 +2449,7 @@
           <div class="kpi-ico" style="background:#F3E8FF;"><i data-lucide="shield-alert"
               style="width:17px;height:17px;color:#7C3AED;"></i></div>
           <div class="kpi-lbl">Surveillants</div>
-          <div class="kpi-val" style="color:#7C3AED;" id="kpi-su">4</div>
+          <div class="kpi-val" style="color:#7C3AED;" id="kpi-su">—</div>
           <div class="kpi-sub neu"><i data-lucide="check-circle" style="width:11px;height:11px;"></i>Cadre de vie</div>
           <div class="kpi-spark"><canvas id="sp4"></canvas></div>
         </div>
@@ -2538,7 +2538,11 @@
       </div>
 
       <!-- Classes + Mini agenda -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <!-- ✅ "Agenda — Cette semaine" (2e colonne) est en display:none — la
+           grille reste sur 1 seule colonne pour que "Répartition des
+           classes" prenne toute la largeur au lieu de laisser la moitié
+           droite vide. Repasser à "1fr 1fr" le jour où l'agenda revient. -->
+      <div style="display:grid;grid-template-columns:1fr;gap:14px;">
         <div class="card" style="padding:18px;">
           <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;">
             <i data-lucide="layers" style="width:14px;height:14px;color:#4F46E5;"></i>
@@ -4133,6 +4137,12 @@
       if (navEl) navEl.classList.add('on');
       $('pg-title').textContent = cfg.title;
       $('pg-sub').textContent = cfg.sub;
+      // ✅ Centré uniquement pour Paramètres, sur demande — les autres
+      // pages gardent leur titre aligné à gauche comme avant.
+      const topbarLeft = $('pg-title')?.parentElement;
+      if (topbarLeft) topbarLeft.style.textAlign = (page === 'params') ? 'center' : '';
+      const topbarRow = topbarLeft?.parentElement;
+      if (topbarRow) topbarRow.style.justifyContent = (page === 'params') ? 'center' : '';
       if (page === 'eleves' && !eleveData.length) loadEleves();
       if (page === 'abs') loadAbsences();
       if (page === 'conv') loadConvList();
@@ -4164,7 +4174,7 @@
           if ($('kpi-el')) $('kpi-el').textContent = s.users ?? 0;
           if ($('kpi-pr')) $('kpi-pr').textContent = s.professors ?? 0;
           if ($('kpi-su')) $('kpi-su').textContent = s.surveillants ?? 0;
-          if ($('kpi-pres')) $('kpi-pres').textContent = (s.presence ?? 0) + '%';
+          if ($('kpi-pres')) $('kpi-pres').textContent = (s.presence === null || s.presence === undefined) ? '—' : s.presence + '%';
           if ($('eff-total')) $('eff-total').textContent = s.users ?? 0;
           const absMonth = s.absences ?? 0;
           const convEnAtt = s.convocations_en_attente ?? 0;
