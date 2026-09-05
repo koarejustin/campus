@@ -10,7 +10,7 @@ ORDER BY nb_messages DESC;
 -- Derniers messages d'une classe précise (remplace la valeur)
 SELECT fc.*, c.nom, c.prenom
 FROM vie_scolaire.forum_classe fc
-JOIN authentification.comptes c ON c.id_user = fc.id_user
+JOIN authentification.comptes c ON c.id_user = fc.id_auteur
 WHERE fc.classe = '3ème'
 ORDER BY fc.created_at DESC
 LIMIT 30;

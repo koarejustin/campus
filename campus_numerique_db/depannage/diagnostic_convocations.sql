@@ -2,16 +2,19 @@
 -- DIAGNOSTIC - CONVOCATIONS
 -- ============================================================
 
--- 1. Compter les convocations par statut
-SELECT 
-    CASE 
+-- 1. Compter les convocations par échéance (calculée sur la date)
+-- ⚠️ La table a DÉJÀ une vraie colonne "statut" (workflow : en attente/traitée...) —
+-- l'alias devait s'appeler autrement, sinon Postgres regroupe sur la
+-- vraie colonne "statut" et non sur le résultat du CASE ci-dessous.
+SELECT
+    CASE
         WHEN date_convocation < NOW() THEN 'PASSÉES'
         WHEN date_convocation <= NOW() + INTERVAL '7 days' THEN 'URGENTES (7j)'
         ELSE 'À VENIR'
-    END AS statut,
+    END AS echeance,
     COUNT(*) AS total
 FROM gestion.convocations
-GROUP BY statut
+GROUP BY echeance
 ORDER BY total DESC;
 
 -- 2. Convocation par élève (top)

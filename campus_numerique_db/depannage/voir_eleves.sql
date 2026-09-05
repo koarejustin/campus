@@ -29,7 +29,7 @@ FROM authentification.comptes c
 JOIN vie_scolaire.profils_eleves pe ON c.id_user = pe.id_user
 LEFT JOIN pedagogie.notes_evaluations n ON c.id_user = n.id_eleve
 WHERE c.role_actuel = 'ELEVE'
-GROUP BY c.code_unique, c.nom, c.prenom, c.email, c.telephone, pe.classe_actuelle, pe.date_naissance, c.mot_de_passe, c.est_actif, c.date_creation, c.derniere_connexion
+GROUP BY c.id_user, c.code_unique, c.nom, c.prenom, c.email, c.telephone, pe.classe_actuelle, pe.date_naissance, c.mot_de_passe, c.est_actif, c.date_creation, c.derniere_connexion
 ORDER BY pe.classe_actuelle, c.nom, c.prenom;
 
 -- 2. Élèves par classe
