@@ -79,19 +79,41 @@ exports.getStats = async (req, res) => {
             );
             stats.convocations_en_attente = parseInt(r9.rows[0].count) || 0;
         } catch (e) { stats.convocations_en_attente = 0; }
-        // Moyennes par classe pour graphique performances
+        // Moyennes par classe pour graphique performances — trimestre demandé
+        // par l'onglet cliqué (T1/T2/T3), ou moyenne toutes évaluations
+        // confondues pour "Annuel" (pas de filtre trimestre).
         try {
-            const r7 = await db.query(`
-                SELECT pe.classe_actuelle AS classe,
-                       ROUND(AVG(n.note)::numeric,2) AS moyenne
-                FROM pedagogie.notes_evaluations n
-                JOIN vie_scolaire.profils_eleves pe ON pe.id_user = n.id_eleve
-                WHERE n.trimestre = 1
-                GROUP BY pe.classe_actuelle
-            `);
+            const trimestreDemande = ['1', '2', '3'].includes(String(req.query.trimestre)) ? parseInt(req.query.trimestre) : null;
+            const r7 = await db.query(
+                trimestreDemande
+                    ? `SELECT pe.classe_actuelle AS classe, ROUND(AVG(n.note)::numeric,2) AS moyenne
+                       FROM pedagogie.notes_evaluations n
+                       JOIN vie_scolaire.profils_eleves pe ON pe.id_user = n.id_eleve
+                       WHERE n.trimestre = $1
+                       GROUP BY pe.classe_actuelle`
+                    : `SELECT pe.classe_actuelle AS classe, ROUND(AVG(n.note)::numeric,2) AS moyenne
+                       FROM pedagogie.notes_evaluations n
+                       JOIN vie_scolaire.profils_eleves pe ON pe.id_user = n.id_eleve
+                       GROUP BY pe.classe_actuelle`,
+                trimestreDemande ? [trimestreDemande] : []
+            );
             stats.moyennes_classes = {};
             r7.rows.forEach(r => { stats.moyennes_classes[r.classe] = parseFloat(r.moyenne); });
         } catch (e) { }
+
+        // Répartition réelle des effectifs par classe (remplace les 5 lignes
+        // qui étaient écrites en dur dans le HTML avec des chiffres fictifs)
+        try {
+            const rr = await db.query(`
+                SELECT pe.classe_actuelle AS classe, COUNT(*) AS effectif
+                FROM authentification.comptes c
+                JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
+                WHERE c.role_actuel = 'ELEVE' AND c.est_actif = true
+                GROUP BY pe.classe_actuelle
+                ORDER BY pe.classe_actuelle
+            `);
+            stats.repartition_classes = rr.rows.map(r => ({ classe: r.classe, effectif: parseInt(r.effectif) }));
+        } catch (e) { stats.repartition_classes = []; }
 
         // Nombre de surveillants
         try {
@@ -2082,7 +2104,9 @@ exports.updateConfig = async (req, res) => {
 // ═══════════════════════════════════════════
 // IMAGES PAR ESPACE (cartes du portail d'accueil)
 // ═══════════════════════════════════════════
-const ESPACES_VALIDES = ['eleves', 'professeurs', 'parents', 'ape', 'alumni', 'direction', 'surveillant'];
+// ⚠️ Pas de "surveillant" : le portail d'accueil n'a qu'une seule carte
+// "direction", partagée par direction et surveillant — pas de carte séparée.
+const ESPACES_VALIDES = ['eleves', 'professeurs', 'parents', 'ape', 'alumni', 'direction'];
 
 exports.getImagesEspaces = async (req, res) => {
     try {

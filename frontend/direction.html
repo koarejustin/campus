@@ -2461,7 +2461,7 @@
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
             <div>
               <div style="font-size:.92rem;font-weight:800;color:#0F172A;">Performances Académiques</div>
-              <div style="font-size:.72rem;color:#64748B;margin-top:2px;">Moyennes par classe · Évolution 2025 → 2026
+              <div style="font-size:.72rem;color:#64748B;margin-top:2px;">Moyenne réelle par classe, pour la période sélectionnée
               </div>
             </div>
             <div style="display:flex;gap:5px;" id="ctabs">
@@ -2492,7 +2492,10 @@
               <div class="ql">Taux réussite</div>
             </div>
           </div>
-          <div class="chart-h"><canvas id="perfChart"></canvas></div>
+          <div class="chart-h">
+            <canvas id="perfChart"></canvas>
+            <div id="perf-empty" class="hidden" style="text-align:center;padding:40px 0;color:#94A3B8;font-size:.8rem;">📊 Pas encore de notes enregistrées pour cette période</div>
+          </div>
         </div>
 
         <!-- Panel droit selon rôle -->
@@ -3824,9 +3827,9 @@
 
     <!-- ══════════ PARAMÈTRES DE L'ÉTABLISSEMENT ══════════ -->
     <div id="s-params" class="sec">
-      <div class="card" style="max-width:640px;">
-        <div style="font-size:.9rem;font-weight:800;color:#0F172A;margin-bottom:14px;">🏫 Identité de l'établissement</div>
-        <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;">
+      <div class="card" style="width:100%;box-sizing:border-box;">
+        <div style="font-size:.95rem;font-weight:800;color:#0F172A;margin-bottom:16px;text-align:center;">Identité de l'établissement</div>
+        <div style="display:flex;gap:16px;align-items:center;margin-bottom:20px;justify-content:center;">
           <img id="params-logo-preview" src="" class="hidden" style="width:64px;height:64px;object-fit:contain;border-radius:12px;border:1.5px solid #E2E8F0;background:#F8FAFC;">
           <div id="params-logo-fallback" style="width:64px;height:64px;border-radius:12px;border:1.5px dashed #CBD5E1;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-size:.65rem;text-align:center;">Aucun<br>logo</div>
           <div>
@@ -3835,25 +3838,23 @@
             <div style="font-size:.65rem;color:#94A3B8;margin-top:4px;">PNG/JPG, 5 Mo max</div>
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 16px;">
           <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Nom de l'établissement</label>
             <input id="params-nom" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
           <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Slogan</label>
             <input id="params-slogan" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
-          <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Adresse</label>
+          <div style="grid-column:1 / -1;"><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Adresse</label>
             <input id="params-adresse" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Téléphone</label>
-              <input id="params-tel" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
-            <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Email de contact</label>
-              <input id="params-email" type="email" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
-          </div>
-          <div id="params-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;"></div>
-          <button class="btn-p" style="padding:11px;font-size:.82rem;font-weight:800;" onclick="saveParametres()">💾 Enregistrer</button>
+          <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Téléphone</label>
+            <input id="params-tel" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#64748B;display:block;margin-bottom:3px;">Email de contact</label>
+            <input id="params-email" type="email" style="width:100%;padding:9px 12px;border:1.5px solid #E2E8F0;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
+          <div id="params-msg" style="display:none;grid-column:1 / -1;font-size:.75rem;padding:8px;border-radius:7px;"></div>
+          <button class="btn-p" style="grid-column:1 / -1;padding:11px;font-size:.82rem;font-weight:800;" onclick="saveParametres()">💾 Enregistrer</button>
         </div>
       </div>
 
-      <div class="card" style="max-width:900px;margin-top:16px;">
+      <div class="card" style="width:100%;box-sizing:border-box;margin-top:16px;">
         <div style="font-size:.9rem;font-weight:800;color:#0F172A;margin-bottom:4px;">🖼️ Images du portail d'accueil</div>
         <div style="font-size:.72rem;color:#94A3B8;margin-bottom:14px;">Photo affichée en fond de chaque carte d'espace sur la page de connexion.</div>
         <div id="params-images-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
@@ -3912,9 +3913,12 @@
     // ══════════════════════════════════════
     // PARAMÈTRES (nom/logo/coordonnées + images du portail)
     // ══════════════════════════════════════
+    // ⚠️ Pas de "surveillant" ici : le portail d'accueil (index.html) n'a
+    // qu'une seule carte "Direction" partagée par les deux rôles — il n'y a
+    // pas de carte séparée à illustrer pour les surveillants.
     const ESPACES_LABELS = {
       eleves: '👤 Élèves', professeurs: '📖 Professeurs', parents: '❤️ Parents',
-      ape: '🤝 APE', alumni: '🎓 Anciens Élèves', direction: '⚙️ Direction', surveillant: '🛡️ Surveillant'
+      ape: '🤝 APE', alumni: '🎓 Anciens Élèves', direction: '⚙️ Direction'
     };
     let paramsLogoFile = null;
 
@@ -4154,18 +4158,50 @@
         console.log('Réponse stats:', d);
         if (d.stats) {
           const s = d.stats;
-          if ($('kpi-el')) $('kpi-el').textContent = s.users || 500;
-          if ($('kpi-pr')) $('kpi-pr').textContent = s.professors || 10;
-          if ($('kpi-su')) $('kpi-su').textContent = s.surveillants || 4;
-          if ($('kpi-pres')) $('kpi-pres').textContent = (s.presence || 92) + '%';
-          if ($('eff-total')) $('eff-total').textContent = s.users || 500;
-          // Mettre à jour la répartition si disponible
-          const total = s.users || 500;
-          const cls = s.classes || 10;
-          const absMonth = s.absences || 0;
-          const convEnAtt = s.convocations_en_attente || 0;
+          // ✅ "??" au lieu de "||" — un vrai zéro (0 professeur, 0 surveillant
+          // réellement en base) est une valeur légitime, pas une absence de
+          // valeur. "0 || 4" affichait 4 alors que la vraie base était vide.
+          if ($('kpi-el')) $('kpi-el').textContent = s.users ?? 0;
+          if ($('kpi-pr')) $('kpi-pr').textContent = s.professors ?? 0;
+          if ($('kpi-su')) $('kpi-su').textContent = s.surveillants ?? 0;
+          if ($('kpi-pres')) $('kpi-pres').textContent = (s.presence ?? 0) + '%';
+          if ($('eff-total')) $('eff-total').textContent = s.users ?? 0;
+          const absMonth = s.absences ?? 0;
+          const convEnAtt = s.convocations_en_attente ?? 0;
           ['abs-stat-total'].forEach(id => { const el = $(id); if (el) el.textContent = absMonth; });
           ['conv-stat-total'].forEach(id => { const el = $(id); if (el) el.textContent = convEnAtt; });
+
+          // ✅ Répartition par classe — remplace les 5 lignes qui étaient
+          // écrites en dur dans le HTML (150/50/100/100/100 élèves, des
+          // chiffres de la simulation de test, jamais reliés à la vraie base).
+          const clsRept = $('cls-rept');
+          if (clsRept) {
+            const rep = s.repartition_classes || [];
+            if (!rep.length) {
+              clsRept.innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:.78rem;">Aucun élève enregistré pour l\'instant</div>';
+            } else {
+              const couleurs = [
+                ['#F5F3FF', '#DDD6FE', '#4F46E5'], ['#FDF4FF', '#F0ABFC', '#9333EA'],
+                ['#F0F9FF', '#BAE6FD', '#0284C7'], ['#FFF1F2', '#FECDD3', '#BE123C'],
+                ['#FFF7ED', '#FED7AA', '#C2410C']
+              ];
+              clsRept.innerHTML = rep.map((r, i) => {
+                const [bg, border, fg] = couleurs[i % couleurs.length];
+                return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:${bg};border-radius:8px;border:1px solid ${border};">
+                  <span style="font-size:.78rem;font-weight:700;">${esc(r.classe)}</span>
+                  <span style="font-size:.75rem;font-weight:900;color:${fg};">${r.effectif} élève${r.effectif > 1 ? 's' : ''}</span>
+                </div>`;
+              }).join('') + (() => {
+                // ⚠️ s.users compte TOUS les comptes (direction, profs, parents...),
+                // pas seulement les élèves — le vrai total élèves est la somme
+                // de la répartition par classe ci-dessus.
+                const totalEleves = rep.reduce((sum, r) => sum + r.effectif, 0);
+                return `<div style="padding:9px 12px;background:#EFF6FF;border-radius:8px;font-size:.8rem;font-weight:900;color:#1D4ED8;margin-top:2px;">
+                Total : ${totalEleves} élève${totalEleves > 1 ? 's' : ''} · ${rep.length} classe${rep.length > 1 ? 's' : ''}
+              </div>`;
+              })();
+            }
+          }
 
           // Moyennes par classe pour performances académiques
           if (s.moyennes_classes && Object.keys(s.moyennes_classes).length) {
@@ -4196,76 +4232,67 @@
       });
     }
     async function buildSparks() {
-      // Tenter de récupérer les vraies stats
+      // ✅ Ligne plate à la vraie valeur actuelle — pas d'historique de
+      // tendance stocké nulle part dans ce projet, donc pas de moyen honnête
+      // de tracer une VRAIE évolution. Avant : des tendances "réalistes"
+      // fabriquées autour de la valeur (ou carrément une valeur fixe 500/92/10
+      // si l'appel échouait), ce qui laissait croire à un historique inventé.
       try {
         const d = await api('/admin/stats');
-        if (d.stats) {
-          const s = d.stats;
-          const u = parseInt(s.users) || 500;
-          const pr = parseInt(s.presence) || 92;
-          const prof = parseInt(s.professors) || 10;
-          const abs = parseInt(s.absences) || 0;
-          // Générer des tendances réalistes autour des vraies valeurs
-          mkSpark('sp1', [u - 40, u - 30, u - 20, u - 10, u - 5, u], '#4F46E5');
-          mkSpark('sp2', [pr - 6, pr - 4, pr - 3, pr - 1, pr, pr + 1].map(v => Math.min(100, Math.max(0, v))), '#10B981');
-          mkSpark('sp3', [prof - 2, prof - 1, prof, prof, prof, prof], '#2563EB');
-          mkSpark('sp4', [abs - 4, abs - 2, abs, abs + 1, abs, abs], '#7C3AED');
-          return;
-        }
-      } catch (e) { /* fallback */ }
-      // Fallback statique
-      mkSpark('sp1', [460, 475, 480, 490, 495, 500], '#4F46E5');
-      mkSpark('sp2', [86, 88, 90, 89, 91, 92], '#10B981');
-      mkSpark('sp3', [40, 41, 41, 42, 42, 42], '#2563EB');
-      mkSpark('sp4', [4, 4, 4, 4, 4, 4], '#7C3AED');
+        const s = d.stats || {};
+        const u = parseInt(s.users) ?? 0;
+        const pr = parseInt(s.presence) ?? 0;
+        const prof = parseInt(s.professors) ?? 0;
+        const abs = parseInt(s.absences) ?? 0;
+        mkSpark('sp1', [u, u, u, u, u, u], '#4F46E5');
+        mkSpark('sp2', [pr, pr, pr, pr, pr, pr], '#10B981');
+        mkSpark('sp3', [prof, prof, prof, prof, prof, prof], '#2563EB');
+        mkSpark('sp4', [abs, abs, abs, abs, abs, abs], '#7C3AED');
+      } catch (e) {
+        mkSpark('sp1', [0, 0, 0, 0, 0, 0], '#4F46E5');
+        mkSpark('sp2', [0, 0, 0, 0, 0, 0], '#10B981');
+        mkSpark('sp3', [0, 0, 0, 0, 0, 0], '#2563EB');
+        mkSpark('sp4', [0, 0, 0, 0, 0, 0], '#7C3AED');
+      }
     }
 
     // ══════════════════════════════════════
-    // PERF CHART — courbe animée réelle
+    // PERF CHART — vraies moyennes par classe
     // ══════════════════════════════════════
-    const PD = {
-      t1: {
-        l: ['6ème', '5ème', '4ème', '3ème', '2A', '2C', '1A', '1D', 'TleA', 'TleD'],
-        a: [10.8, 11.2, 10.5, 11.8, 12.2, 13.1, 12.8, 13.5, 12.1, 11.9],
-        b: [11.4, 12.0, 11.2, 12.6, 13.5, 14.8, 13.9, 14.2, 12.8, 13.1],
-        moy: '12.4', best: '14.8', low: '11.2', taux: '72%'
-      },
-      t2: {
-        l: ['6ème', '5ème', '4ème', '3ème', '2A', '2C', '1A', '1D', 'TleA', 'TleD'],
-        a: [11.0, 11.5, 10.8, 12.0, 12.5, 13.4, 13.1, 13.8, 12.4, 12.2],
-        b: [11.8, 12.4, 11.6, 13.0, 13.9, 14.2, 14.3, 14.8, 13.2, 13.6],
-        moy: '13.1', best: '14.8', low: '11.6', taux: '78%'
-      },
-      t3: {
-        l: ['6ème', '5ème', '4ème', '3ème', '2A', '2C', '1A', '1D', 'TleA', 'TleD'],
-        a: [11.3, 11.8, 11.1, 12.3, 12.8, 13.7, 13.4, 14.1, 12.7, 12.5],
-        b: [12.2, 12.9, 11.9, 13.4, 14.1, 15.2, 14.7, 15.1, 13.8, 14.0],
-        moy: '13.7', best: '15.2', low: '11.9', taux: '82%'
-      },
-      an: {
-        l: ['6ème', '5ème', '4ème', '3ème', '2A', '2C', '1A', '1D', 'TleA', 'TleD'],
-        a: [11.0, 11.5, 10.8, 12.0, 12.5, 13.4, 13.1, 13.8, 12.4, 12.2],
-        b: [11.8, 12.4, 11.5, 13.0, 13.8, 14.7, 14.3, 14.7, 13.3, 13.6],
-        moy: '13.1', best: '14.7', low: '11.5', taux: '77%'
-      }
-    };
+    // ✅ Avant : un objet PD entièrement inventé (4 périodes × 10 classes ×
+    // 2 séries de chiffres fictifs), affiché TOUJOURS, même quand la vraie
+    // base ne contenait aucune note. Remplacé par les vraies moyennes issues
+    // de pedagogie.notes_evaluations, avec un état honnête quand il n'y en a
+    // pas encore. Plus de comparaison "année précédente" : ce projet ne
+    // conserve aucun historique d'année scolaire, donc rien de réel à tracer.
     async function buildPerf(k) {
-      // Toujours utiliser PD[k] pour le graphique + enrichir avec vraies stats
-      const d = PD[k] || PD['t1'];
+      const trimestreParam = k === 'an' ? '' : ('?trimestre=' + k.replace('t', ''));
       try {
-        const d2 = await api('/admin/stats');
-        if (d2.stats) {
-          const s = d2.stats;
-          if ($('q-moy')) $('q-moy').textContent = s.moyenne_generale ? parseFloat(s.moyenne_generale).toFixed(1) + '/20' : (d.moy || '—');
-          if ($('q-best')) $('q-best').textContent = d.best || '—';
-          if ($('q-low')) $('q-low').textContent = d.low || '—';
-          if ($('q-taux')) $('q-taux').textContent = (s.presence ? s.presence + '%' : d.taux || '—');
-        } else {
-          ['q-moy', 'q-best', 'q-low', 'q-taux'].forEach((id, i) => { if ($(id)) $(id).textContent = [d.moy, d.best, d.low, d.taux][i]; });
+        const d2 = await api('/admin/stats' + trimestreParam);
+        const s = d2.stats || {};
+        const mc = s.moyennes_classes || {};
+        const classes = Object.keys(mc);
+
+        if ($('q-moy')) $('q-moy').textContent = s.moyenne_generale ? parseFloat(s.moyenne_generale).toFixed(1) + '/20' : '—';
+
+        if (!classes.length) {
+          if (perfChart) { perfChart.destroy(); perfChart = null; }
+          $('perfChart').classList.add('hidden');
+          $('perf-empty').classList.remove('hidden');
+          ['q-best', 'q-low', 'q-taux'].forEach(id => { if ($(id)) $(id).textContent = '—'; });
+          return;
         }
-      } catch (e) {
-        ['q-moy', 'q-best', 'q-low', 'q-taux'].forEach((id, i) => { if ($(id)) $(id).textContent = [d.moy, d.best, d.low, d.taux][i]; });
-      }
+        $('perfChart').classList.remove('hidden');
+        $('perf-empty').classList.add('hidden');
+
+        const vals = classes.map(c => mc[c]);
+        const best = Math.max(...vals), low = Math.min(...vals);
+        if ($('q-best')) $('q-best').textContent = best.toFixed(1) + '/20';
+        if ($('q-low')) $('q-low').textContent = low.toFixed(1) + '/20';
+        if ($('q-taux')) $('q-taux').textContent = Math.round(vals.filter(v => v >= 10).length / vals.length * 100) + '%';
+
+        const d = { l: classes, b: vals };
+
       if (perfChart) perfChart.destroy();
       const ctx = $('perfChart'); if (!ctx) return;
       perfChart = new Chart(ctx, {
@@ -4273,12 +4300,8 @@
         data: {
           labels: d.l, datasets: [
             {
-              label: '2026 (actuel)', data: d.b, borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,.08)', borderWidth: 2.5,
+              label: 'Moyenne', data: d.b, borderColor: '#4F46E5', backgroundColor: 'rgba(79,70,229,.08)', borderWidth: 2.5,
               fill: true, tension: .42, pointRadius: 5, pointBackgroundColor: '#4F46E5', pointBorderColor: '#fff', pointBorderWidth: 2, pointHoverRadius: 7
-            },
-            {
-              label: '2025', data: d.a, borderColor: '#CBD5E1', borderDash: [5, 3], backgroundColor: 'transparent', borderWidth: 1.8,
-              fill: false, tension: .42, pointRadius: 3, pointBackgroundColor: '#CBD5E1', pointBorderColor: '#fff', pointBorderWidth: 1
             }
           ]
         },
@@ -4299,6 +4322,12 @@
           }
         }
       });
+      } catch (e) {
+        console.warn('buildPerf:', e.message);
+        if (perfChart) { perfChart.destroy(); perfChart = null; }
+        if ($('perfChart')) $('perfChart').classList.add('hidden');
+        if ($('perf-empty')) $('perf-empty').classList.remove('hidden');
+      }
     }
     function chgPerf(k, el) {
       document.querySelectorAll('.ctab').forEach(t => { t.className = 'ctab off'; });
@@ -4314,7 +4343,6 @@
       try {
         const d = await api('/admin/eleves');
         const raw = d.eleves || d.data || [];
-        if (!raw.length) { eleveData = genElMock(); renderEleves(); return; }
         eleveData = raw.map(e => ({
           id: e.id_user || e.id,
           code: e.code_unique || e.code,
@@ -4330,14 +4358,8 @@
         debugClasses(); // debug classes
       } catch (err) {
         console.warn('loadEleves:', err.message);
-        eleveData = genElMock(); renderEleves();
+        eleveData = []; renderEleves();
       }
-    }
-    function genElMock() {
-      const cls = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère D', 'Tle A', 'Tle D'];
-      const noms = ['SAWADOGO', 'OUEDRAOGO', 'TRAORE', 'KABORÉ', 'NANA', 'ZONGO', 'COMPAORE', 'TAPSOBA', 'DIALLO', 'SOME'];
-      const prs = ['Moussa', 'Aïcha', 'Yasmine', 'Idrissa', 'Fatimata', 'Adama', 'Sylvie', 'Abdoul', 'Mariam', 'Seydou'];
-      return Array.from({ length: 50 }, (_, i) => ({ code: `CN-2026-${2000 + i}`, nom: noms[i % 10], prenom: prs[i % 10], classe: cls[Math.floor(i / 5) % 10], moy: (8 + Math.random() * 10).toFixed(1), absences: Math.floor(Math.random() * 10) }));
     }
     function normCls(c) {
       if (!c) return '';
@@ -4953,21 +4975,10 @@
     async function loadConvList() {
       try {
         const d = await api('/surveillants/convocations');
-        convData = d.convocations || d.data || genConvMock();
-      } catch { convData = genConvMock(); }
+        convData = d.convocations || d.data || [];
+      } catch { convData = []; }
       updateConvStats(); renderConvList();
       if (window.lucide) lucide.createIcons();
-    }
-
-    function genConvMock() {
-      const eleves = [['CN-2026-2001', 'SAWADOGO Moussa', 'Tle D'], ['CN-2026-2015', 'KABORE Aicha', '2nde A'],
-      ['CN-2026-2030', 'TRAORE Yasmine', '3ème'], ['CN-2026-2008', 'OUEDRAOGO Idrissa', '1ère A']];
-      const motifs = ['Absences répétées', 'Comportement perturbateur', 'Résultats insuffisants', 'Incident signalé'];
-      return eleves.map((e, i) => ({
-        id_convocation: i + 1, code_unique: e[0], nom_eleve: e[1], classe: e[2],
-        motif: motifs[i], date_convocation: new Date(Date.now() + (i + 1) * 2 * 86400000).toISOString().split('T')[0],
-        heure_convocation: '09:00', statut_accusé_reception: i < 2
-      }));
     }
 
     function updateConvStats() {
