@@ -808,11 +808,15 @@ exports.createEleve = async (req, res) => {
         const motDePasseTemp = genTempPassword();
         const hash = await bcrypt.hash(motDePasseTemp, 10);
 
-        // Créer le compte
+        // ⚠️ Un déclencheur BD (trg_prevent_eleve_activation) refuse tout
+        // élève est_actif=true sans parent lié — symétrique à la règle déjà
+        // en place côté parent (trg_prevent_parent_activation). Le compte
+        // est donc créé inactif ; il s'active automatiquement dès qu'un
+        // parent lui est lié (voir createParent / importParentsExcel).
         const r = await db.query(`
             INSERT INTO authentification.comptes
             (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-            VALUES ($1,$2,$3,$4,$5,$6,'ELEVE',true)
+            VALUES ($1,$2,$3,$4,$5,$6,'ELEVE',false)
             RETURNING id_user, code_unique
         `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
 
@@ -826,7 +830,7 @@ exports.createEleve = async (req, res) => {
 
         res.json({
             success: true,
-            message: 'Élève créé avec succès',
+            message: 'Élève créé — en attente d\'un parent à lier pour être activé',
             code_unique: code,
             mot_de_passe_temporaire: motDePasseTemp,
             id_user: eleveId
@@ -1060,6 +1064,10 @@ exports.createParent = async (req, res) => {
         );
 
         await db.query(`UPDATE authentification.comptes SET est_actif = true WHERE id_user = $1`, [parentId]);
+        // ⚠️ Symétrique : un élève créé sans parent était resté inactif
+        // (trg_prevent_eleve_activation) — maintenant qu'un parent est lié,
+        // on l'active. Sans effet si l'élève était déjà actif (autre parent).
+        await db.query(`UPDATE authentification.comptes SET est_actif = true WHERE id_user = $1`, [idEleve]);
 
         res.json({ success: true, message: 'Parent créé', code_unique: code, mot_de_passe_temporaire: motDePasseTemp, lie_a_eleve: true });
     } catch (e) {
@@ -1581,17 +1589,20 @@ exports.importElevesExcel = async (req, res) => {
             try {
                 const motDePasseTemp = genTempPassword();
                 const hash = await bcrypt.hash(motDePasseTemp, 10);
+                // ⚠️ Créé inactif — trg_prevent_eleve_activation refuse un élève
+                // actif sans parent lié. S'active automatiquement dès qu'un
+                // import de parents (voir importParentsExcel) le lie à un parent.
                 const r = await db.query(`
                     INSERT INTO authentification.comptes
                     (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-                    VALUES ($1,$2,$3,$4,$5,$6,'ELEVE',true)
+                    VALUES ($1,$2,$3,$4,$5,$6,'ELEVE',false)
                     RETURNING id_user, code_unique
                 `, [code, nom.toUpperCase(), prenom, email, telephone, hash]);
                 await db.query(
                     `INSERT INTO vie_scolaire.profils_eleves (id_user, classe_actuelle) VALUES ($1, $2)`,
                     [r.rows[0].id_user, classe]
                 );
-                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, classe, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE' });
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, classe, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE', note: '🔒 En attente d\'un parent lié pour être activé' });
             } catch (err) {
                 resultats.push({ ligne: i + 2, nom, prenom, classe, statut: 'ERREUR', message: err.message });
             }
@@ -1871,6 +1882,8 @@ exports.importParentsExcel = async (req, res) => {
                     [parentId, idEleve, lienParente]
                 );
                 await db.query(`UPDATE authentification.comptes SET est_actif = true WHERE id_user = $1`, [parentId]);
+                // ⚠️ Active l'élève lié — voir la note dans createParent.
+                await db.query(`UPDATE authentification.comptes SET est_actif = true WHERE id_user = $1`, [idEleve]);
 
                 resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE' });
             } catch (err) {
