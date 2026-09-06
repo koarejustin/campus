@@ -14,6 +14,30 @@ function genTempPassword() {
     return out;
 }
 
+// ✅ Génération sûre d'un code_unique : deux requêtes qui arrivent en même
+// temps (ex: deux imports Excel lancés à quelques secondes d'écart, ou un
+// double-clic sur "Confirmer") lisent la même valeur de COUNT(*) et
+// calculent donc le MÊME code — l'une des deux échoue alors sur la
+// contrainte unique "comptes_code_unique_key". Découvert en conditions
+// réelles : un import de 3 élèves donnait "0 créés, 3 erreurs" alors que
+// les 3 comptes existaient bel et bien (créés par une requête concurrente
+// qui avait gagné la course). Cette fonction retente avec le numéro
+// suivant uniquement sur CE conflit précis — jamais sur une autre erreur.
+async function insererAvecCodeUnique(genererCode, executerInsertion, maxTentatives = 5) {
+    let derniereErreur;
+    for (let tentative = 0; tentative < maxTentatives; tentative++) {
+        const code = genererCode();
+        try {
+            return { code, resultat: await executerInsertion(code) };
+        } catch (err) {
+            const conflitCode = err.code === '23505' && /code_unique/.test(err.constraint || err.message || '');
+            if (!conflitCode) throw err;
+            derniereErreur = err;
+        }
+    }
+    throw derniereErreur;
+}
+
 // Retourne des statistiques pour le dashboard d'administration
 exports.getStats = async (req, res) => {
     // Contrôle simple de rôle (attendre que le token fournisse 'role')
@@ -797,12 +821,10 @@ exports.createEleve = async (req, res) => {
 
         const bcrypt = require('bcryptjs');
 
-        // Générer un code unique
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ELEVE'"
         );
-        const nb = parseInt(countR.rows[0].count) || 0;
-        const code = 'CN-2026-' + String(2000 + nb + 1).padStart(4, '0');
+        let nb = parseInt(countR.rows[0].count) || 0;
 
         // Mot de passe temporaire aléatoire (jamais égal à l'identifiant)
         const motDePasseTemp = genTempPassword();
@@ -813,12 +835,15 @@ exports.createEleve = async (req, res) => {
         // en place côté parent (trg_prevent_parent_activation). Le compte
         // est donc créé inactif ; il s'active automatiquement dès qu'un
         // parent lui est lié (voir createParent / importParentsExcel).
-        const r = await db.query(`
-            INSERT INTO authentification.comptes
-            (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-            VALUES ($1,$2,$3,$4,$5,$6,'ELEVE',false)
-            RETURNING id_user, code_unique
-        `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
+        const { code, resultat: r } = await insererAvecCodeUnique(
+            () => 'CN-2026-' + String(2000 + (++nb)).padStart(4, '0'),
+            (code) => db.query(`
+                INSERT INTO authentification.comptes
+                (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                VALUES ($1,$2,$3,$4,$5,$6,'ELEVE',false)
+                RETURNING id_user, code_unique
+            `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash])
+        );
 
         const eleveId = r.rows[0].id_user;
 
@@ -865,17 +890,19 @@ exports.createProfesseur = async (req, res) => {
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='PROFESSEUR'"
         );
-        const nb = parseInt(countR.rows[0].count) || 0;
-        const code = 'PROF-2026-' + String(nb + 11).padStart(3, '0');
+        let nb = parseInt(countR.rows[0].count) || 0;
         const motDePasseTemp = genTempPassword();
         const hash = await bcrypt.hash(motDePasseTemp, 10);
 
-        const r = await db.query(`
-            INSERT INTO authentification.comptes
-            (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-            VALUES ($1,$2,$3,$4,$5,$6,'PROFESSEUR',true)
-            RETURNING id_user, code_unique
-        `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
+        const { code, resultat: r } = await insererAvecCodeUnique(
+            () => 'PROF-2026-' + String((++nb) + 10).padStart(3, '0'),
+            (code) => db.query(`
+                INSERT INTO authentification.comptes
+                (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                VALUES ($1,$2,$3,$4,$5,$6,'PROFESSEUR',true)
+                RETURNING id_user, code_unique
+            `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash])
+        );
 
         const profId = r.rows[0].id_user;
         await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS classes TEXT[]`);
@@ -931,17 +958,19 @@ exports.createSurveillant = async (req, res) => {
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='SURVEILLANT'"
         );
-        const nb = parseInt(countR.rows[0].count) || 0;
-        const code = 'SURV-2026-' + String(nb + 1).padStart(3, '0');
+        let nb = parseInt(countR.rows[0].count) || 0;
         const motDePasseTemp = genTempPassword();
         const hash = await bcrypt.hash(motDePasseTemp, 10);
 
-        const r = await db.query(`
-            INSERT INTO authentification.comptes
-            (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-            VALUES ($1,$2,$3,$4,$5,$6,'SURVEILLANT',true)
-            RETURNING id_user, code_unique
-        `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
+        const { code, resultat: r } = await insererAvecCodeUnique(
+            () => 'SURV-2026-' + String(++nb).padStart(3, '0'),
+            (code) => db.query(`
+                INSERT INTO authentification.comptes
+                (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                VALUES ($1,$2,$3,$4,$5,$6,'SURVEILLANT',true)
+                RETURNING id_user, code_unique
+            `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash])
+        );
 
         const survId = r.rows[0].id_user;
         // ⚠️ Pas de ON CONFLICT ici : authentification.profils_administratifs
@@ -972,17 +1001,19 @@ exports.createAlumni = async (req, res) => {
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ALUMNI'"
         );
-        const nb = parseInt(countR.rows[0].count) || 0;
-        const code = 'ALUM-2026-' + String(nb + 1).padStart(3, '0');
+        let nb = parseInt(countR.rows[0].count) || 0;
         const motDePasseTemp = genTempPassword();
         const hash = await bcrypt.hash(motDePasseTemp, 10);
 
-        const r = await db.query(`
-            INSERT INTO authentification.comptes
-            (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-            VALUES ($1,$2,$3,$4,$5,$6,'ALUMNI',true)
-            RETURNING id_user, code_unique
-        `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
+        const { code, resultat: r } = await insererAvecCodeUnique(
+            () => 'ALUM-2026-' + String(++nb).padStart(3, '0'),
+            (code) => db.query(`
+                INSERT INTO authentification.comptes
+                (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                VALUES ($1,$2,$3,$4,$5,$6,'ALUMNI',true)
+                RETURNING id_user, code_unique
+            `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash])
+        );
 
         const alumniId = r.rows[0].id_user;
         await db.query(
@@ -1031,8 +1062,7 @@ exports.createParent = async (req, res) => {
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='PARENT'"
         );
-        const nb = parseInt(countR.rows[0].count) || 0;
-        const code = 'PAR-2026-' + String(nb + 1).padStart(4, '0');
+        let nb = parseInt(countR.rows[0].count) || 0;
         const motDePasseTemp = genTempPassword();
         const hash = await bcrypt.hash(motDePasseTemp, 10);
 
@@ -1042,12 +1072,15 @@ exports.createParent = async (req, res) => {
         // (contrainte de clé étrangère). On crée donc le compte inactif
         // d'abord, on lie l'enfant, puis on active — le déclencheur retrouve
         // alors bien la relation et laisse passer l'activation.
-        const r = await db.query(`
-            INSERT INTO authentification.comptes
-            (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-            VALUES ($1,$2,$3,$4,$5,$6,'PARENT',false)
-            RETURNING id_user, code_unique
-        `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash]);
+        const { code, resultat: r } = await insererAvecCodeUnique(
+            () => 'PAR-2026-' + String(++nb).padStart(4, '0'),
+            (code) => db.query(`
+                INSERT INTO authentification.comptes
+                (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                VALUES ($1,$2,$3,$4,$5,$6,'PARENT',false)
+                RETURNING id_user, code_unique
+            `, [code, nom.toUpperCase(), prenom, email || null, telephone || null, hash])
+        );
 
         const parentId = r.rows[0].id_user;
         // ⚠️ Pas de ON CONFLICT ici : gestion_ape.profils_parents n'a pas de
@@ -1578,11 +1611,10 @@ exports.importElevesExcel = async (req, res) => {
                 continue;
             }
 
-            compteur++;
-            const code = 'CN-2026-' + String(2000 + compteur).padStart(4, '0');
-
             if (dryRun) {
-                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, classe, email, telephone, code_previsionnel: code, statut: 'OK' });
+                compteur++;
+                const codePrevisionnel = 'CN-2026-' + String(2000 + compteur).padStart(4, '0');
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, classe, email, telephone, code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
 
@@ -1592,12 +1624,15 @@ exports.importElevesExcel = async (req, res) => {
                 // ⚠️ Créé inactif — trg_prevent_eleve_activation refuse un élève
                 // actif sans parent lié. S'active automatiquement dès qu'un
                 // import de parents (voir importParentsExcel) le lie à un parent.
-                const r = await db.query(`
-                    INSERT INTO authentification.comptes
-                    (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-                    VALUES ($1,$2,$3,$4,$5,$6,'ELEVE',false)
-                    RETURNING id_user, code_unique
-                `, [code, nom.toUpperCase(), prenom, email, telephone, hash]);
+                const { code, resultat: r } = await insererAvecCodeUnique(
+                    () => { compteur++; return 'CN-2026-' + String(2000 + compteur).padStart(4, '0'); },
+                    (code) => db.query(`
+                        INSERT INTO authentification.comptes
+                        (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                        VALUES ($1,$2,$3,$4,$5,$6,'ELEVE',false)
+                        RETURNING id_user, code_unique
+                    `, [code, nom.toUpperCase(), prenom, email, telephone, hash])
+                );
                 await db.query(
                     `INSERT INTO vie_scolaire.profils_eleves (id_user, classe_actuelle) VALUES ($1, $2)`,
                     [r.rows[0].id_user, classe]
@@ -1680,23 +1715,25 @@ exports.importProfesseursExcel = async (req, res) => {
                 continue;
             }
 
-            compteur++;
-            const code = 'PROF-2026-' + String(compteur + 10).padStart(3, '0');
-
             if (dryRun) {
-                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, specialite, email, telephone, classes: classesTxt || '', matieres: matieresTxt || '', code_previsionnel: code, statut: 'OK' });
+                compteur++;
+                const codePrevisionnel = 'PROF-2026-' + String(compteur + 10).padStart(3, '0');
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, specialite, email, telephone, classes: classesTxt || '', matieres: matieresTxt || '', code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
 
             try {
                 const motDePasseTemp = genTempPassword();
                 const hash = await bcrypt.hash(motDePasseTemp, 10);
-                const r = await db.query(`
-                    INSERT INTO authentification.comptes
-                    (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-                    VALUES ($1,$2,$3,$4,$5,$6,'PROFESSEUR',true)
-                    RETURNING id_user, code_unique
-                `, [code, nom.toUpperCase(), prenom, email, telephone, hash]);
+                const { code, resultat: r } = await insererAvecCodeUnique(
+                    () => { compteur++; return 'PROF-2026-' + String(compteur + 10).padStart(3, '0'); },
+                    (code) => db.query(`
+                        INSERT INTO authentification.comptes
+                        (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                        VALUES ($1,$2,$3,$4,$5,$6,'PROFESSEUR',true)
+                        RETURNING id_user, code_unique
+                    `, [code, nom.toUpperCase(), prenom, email, telephone, hash])
+                );
                 await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS classes TEXT[]`);
                 await db.query(`ALTER TABLE pedagogie.profils_profs ADD COLUMN IF NOT EXISTS matieres TEXT[]`);
                 await db.query(
@@ -1760,23 +1797,25 @@ exports.importAlumniExcel = async (req, res) => {
                 continue;
             }
 
-            compteur++;
-            const code = 'ALUM-2026-' + String(compteur).padStart(3, '0');
-
             if (dryRun) {
-                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, code_previsionnel: code, statut: 'OK' });
+                compteur++;
+                const codePrevisionnel = 'ALUM-2026-' + String(compteur).padStart(3, '0');
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
 
             try {
                 const motDePasseTemp = genTempPassword();
                 const hash = await bcrypt.hash(motDePasseTemp, 10);
-                const r = await db.query(`
-                    INSERT INTO authentification.comptes
-                    (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-                    VALUES ($1,$2,$3,$4,$5,$6,'ALUMNI',true)
-                    RETURNING id_user, code_unique
-                `, [code, nom.toUpperCase(), prenom, email, telephone, hash]);
+                const { code, resultat: r } = await insererAvecCodeUnique(
+                    () => { compteur++; return 'ALUM-2026-' + String(compteur).padStart(3, '0'); },
+                    (code) => db.query(`
+                        INSERT INTO authentification.comptes
+                        (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                        VALUES ($1,$2,$3,$4,$5,$6,'ALUMNI',true)
+                        RETURNING id_user, code_unique
+                    `, [code, nom.toUpperCase(), prenom, email, telephone, hash])
+                );
                 await db.query(
                     `INSERT INTO gestion_ape.profils_alumni (id_user, derniere_classe, annee_diplome) VALUES ($1,$2,$3)
                      ON CONFLICT (id_user) DO UPDATE SET derniere_classe=$2, annee_diplome=$3`,
@@ -1851,11 +1890,10 @@ exports.importParentsExcel = async (req, res) => {
             }
             const idEleve = eleve.rows[0].id_user;
 
-            compteur++;
-            const code = 'PAR-2026-' + String(compteur).padStart(4, '0');
-
             if (dryRun) {
-                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, matricule_enfant: matriculeEnfant, code_previsionnel: code, statut: 'OK' });
+                compteur++;
+                const codePrevisionnel = 'PAR-2026-' + String(compteur).padStart(4, '0');
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, matricule_enfant: matriculeEnfant, code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
 
@@ -1865,12 +1903,15 @@ exports.importParentsExcel = async (req, res) => {
                 // Voir createParent ci-dessus : compte créé inactif puis activé
                 // après la liaison, à cause du déclencheur BD qui refuse tout
                 // parent actif sans enfant lié.
-                const r = await db.query(`
-                    INSERT INTO authentification.comptes
-                    (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
-                    VALUES ($1,$2,$3,$4,$5,$6,'PARENT',false)
-                    RETURNING id_user, code_unique
-                `, [code, nom.toUpperCase(), prenom, email, telephone, hash]);
+                const { code, resultat: r } = await insererAvecCodeUnique(
+                    () => { compteur++; return 'PAR-2026-' + String(compteur).padStart(4, '0'); },
+                    (code) => db.query(`
+                        INSERT INTO authentification.comptes
+                        (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                        VALUES ($1,$2,$3,$4,$5,$6,'PARENT',false)
+                        RETURNING id_user, code_unique
+                    `, [code, nom.toUpperCase(), prenom, email, telephone, hash])
+                );
                 const parentId = r.rows[0].id_user;
 
                 await db.query(
