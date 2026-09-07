@@ -38,6 +38,44 @@ async function insererAvecCodeUnique(genererCode, executerInsertion, maxTentativ
     throw derniereErreur;
 }
 
+// ═══════════════════════════════════════════
+// RÉINITIALISER LE MOT DE PASSE D'UN COMPTE (tous rôles)
+// ═══════════════════════════════════════════
+// ✅ Le mot de passe est haché (bcrypt) — irréversible par nature, comme
+// partout ailleurs (banques, Google...). Impossible de "revoir" l'original,
+// même en base. La seule vraie solution quand quelqu'un l'a perdu est de
+// lui en générer un nouveau, affiché une seule fois ici, exactement comme
+// à la création du compte.
+exports.resetMotDePasse = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const bcrypt = require('bcryptjs');
+        const compte = await db.query(
+            `SELECT id_user, nom, prenom, code_unique, role_actuel FROM authentification.comptes WHERE id_user = $1`,
+            [id]
+        );
+        if (!compte.rows.length) return res.status(404).json({ success: false, message: 'Compte introuvable' });
+
+        const motDePasseTemp = genTempPassword();
+        const hash = await bcrypt.hash(motDePasseTemp, 10);
+        await db.query(`UPDATE authentification.comptes SET mot_de_passe = $1 WHERE id_user = $2`, [hash, id]);
+
+        const c = compte.rows[0];
+        res.json({
+            success: true,
+            message: 'Mot de passe réinitialisé',
+            code_unique: c.code_unique,
+            nom: c.nom,
+            prenom: c.prenom,
+            role_actuel: c.role_actuel,
+            mot_de_passe_temporaire: motDePasseTemp
+        });
+    } catch (e) {
+        console.error('resetMotDePasse:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur: ' + e.message });
+    }
+};
+
 // Retourne des statistiques pour le dashboard d'administration
 exports.getStats = async (req, res) => {
     // Contrôle simple de rôle (attendre que le token fournisse 'role')
@@ -519,8 +557,14 @@ exports.getElevesDir = async (req, res) => {
             JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
             LEFT JOIN pedagogie.notes_evaluations n ON n.id_eleve = c.id_user
             LEFT JOIN gestion.absences a ON a.id_eleve = c.id_user
-            WHERE c.role_actuel = 'ELEVE' AND c.est_actif = true
+            WHERE c.role_actuel = 'ELEVE'
         `;
+        // ⚠️ Pas de filtre sur est_actif ici : un élève sans parent lié est
+        // inactif (trg_prevent_eleve_activation) mais doit quand même être
+        // VISIBLE dans cette liste — sinon la Direction croit que l'import a
+        // échoué alors que les comptes existent bien, juste en attente d'un
+        // parent. Le frontend affiche un badge "en attente de parent" grâce
+        // au champ est_actif renvoyé ci-dessous.
         const params = [];
         if (classe) {
             // Utiliser ILIKE pour être insensible aux variantes d'encodage
@@ -549,7 +593,8 @@ exports.getElevesDir = async (req, res) => {
                 telephone: e.telephone,
                 classe: e.classe,
                 moyenne: e.moyenne,
-                nb_absences: parseInt(e.nb_absences) || 0
+                nb_absences: parseInt(e.nb_absences) || 0,
+                est_actif: e.est_actif
             }))
         });
     } catch (e) {
@@ -1959,7 +2004,10 @@ exports.importParentsExcel = async (req, res) => {
             }
 
             const eleve = await db.query(
-                `SELECT id_user FROM authentification.comptes WHERE code_unique = $1 AND role_actuel = 'ELEVE'`,
+                `SELECT c.id_user, c.nom AS nom_enfant, c.prenom AS prenom_enfant, pe.classe_actuelle AS classe_enfant
+                 FROM authentification.comptes c
+                 LEFT JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
+                 WHERE c.code_unique = $1 AND c.role_actuel = 'ELEVE'`,
                 [matriculeEnfant]
             );
             if (!eleve.rows.length) {
@@ -1967,11 +2015,17 @@ exports.importParentsExcel = async (req, res) => {
                 continue;
             }
             const idEleve = eleve.rows[0].id_user;
+            const infoEnfant = {
+                matricule_enfant: matriculeEnfant,
+                nom_enfant: eleve.rows[0].nom_enfant,
+                prenom_enfant: eleve.rows[0].prenom_enfant,
+                classe_enfant: eleve.rows[0].classe_enfant,
+            };
 
             if (dryRun) {
                 compteur++;
                 const codePrevisionnel = 'PAR-2026-' + String(compteur).padStart(4, '0');
-                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, matricule_enfant: matriculeEnfant, code_previsionnel: codePrevisionnel, statut: 'OK' });
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, ...infoEnfant, code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
 
@@ -2004,7 +2058,7 @@ exports.importParentsExcel = async (req, res) => {
                 // ⚠️ Active l'élève lié — voir la note dans createParent.
                 await db.query(`UPDATE authentification.comptes SET est_actif = true WHERE id_user = $1`, [idEleve]);
 
-                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE' });
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, ...infoEnfant, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE' });
             } catch (err) {
                 resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: err.message });
             }

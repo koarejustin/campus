@@ -4388,7 +4388,8 @@
           moy: e.moyenne !== undefined ? (e.moyenne !== null ? parseFloat(e.moyenne).toFixed(1) : '—') : '—',
           absences: parseInt(e.nb_absences || e.absences || 0),
           email: e.email || '',
-          telephone: e.telephone || ''
+          telephone: e.telephone || '',
+          actif: e.est_actif !== false
         }));
         renderEleves();
         debugClasses(); // debug classes
@@ -4452,6 +4453,7 @@
             </td>
             <td style="padding:12px 16px;">
               <span style="font-size:.8rem; font-weight:800; color:#0F172A;">${esc(e.prenom)} ${esc(e.nom)}</span>
+              ${!e.actif ? '<div style="margin-top:3px;"><span style="padding:2px 8px;background:#FEF3C7;color:#92400E;border-radius:20px;font-size:.62rem;font-weight:800;">🔒 En attente d\'un parent</span></div>' : ''}
             </td>
             <td style="padding:12px 16px;">
               <span style="padding:3px 10px; background:#EEF2FF; color:#4F46E5; border-radius:20px; font-size:.68rem; font-weight:700;">${esc(e.classe)}</span>
@@ -4498,7 +4500,8 @@
           moy: e.moyenne !== undefined ? (e.moyenne !== null ? parseFloat(e.moyenne).toFixed(1) : '—') : '—',
           absences: parseInt(e.nb_absences || e.absences || 0),
           email: e.email || '',
-          telephone: e.telephone || ''
+          telephone: e.telephone || '',
+          actif: e.est_actif !== false
         }));
         renderEleves();
       } catch (err) {
@@ -4554,7 +4557,10 @@
             </div>
             <div style="margin-left:auto;text-align:right;">
               <div style="font-size:1.6rem;font-weight:900;color:${parseFloat(moy) >= 10 ? '#059669' : '#EF4444'};">${moy}</div>
-              <div style="font-size:.62rem;color:#94A3B8;">Moyenne générale</div>
+              <div style="font-size:.62rem;color:#94A3B8;margin-bottom:8px;">Moyenne générale</div>
+              <button class="btn-p" style="padding:5px 10px;font-size:.65rem;background:#64748B;" onclick="reinitialiserMotDePasse('${e.id_user || id}', '${esc(e.nom || '')}')">
+                <i data-lucide="key" style="width:11px;height:11px;"></i>Mot de passe
+              </button>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
@@ -4771,7 +4777,11 @@
         });
         const d = await r.json();
         if (d.success) {
-          const crees = (d.resultats || []).filter(r => r.statut === 'CREE');
+          // Triés par classe puis nom — plus facile à distribuer les fiches
+          // dans l'ordre plutôt qu'au hasard quand plusieurs classes sont
+          // importées en même temps.
+          const crees = (d.resultats || []).filter(r => r.statut === 'CREE')
+            .sort((a, b) => (a.classe || '').localeCompare(b.classe || '') || (a.nom || '').localeCompare(b.nom || ''));
           window._dernierImportComptes = crees;
           document.getElementById('ie-apercu').style.display = 'none';
           msgEl.style.display = 'block'; msgEl.style.color = '';
@@ -4780,8 +4790,8 @@
             + '<div style="font-size:.72rem;color:#94A3B8;margin-bottom:10px;">⚠️ Note ces identifiants maintenant — ils ne seront plus affichés. Communique-les à chaque élève (ou imprime les fiches ci-dessous).</div>'
             + '<div style="max-height:280px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;">'
             + '<table style="width:100%;border-collapse:collapse;font-size:.74rem;font-family:monospace;">'
-            + '<thead><tr style="background:#F8FAFF;font-family:inherit;"><th style="padding:6px 8px;text-align:left;">Identifiant</th><th style="padding:6px 8px;text-align:left;">Mot de passe</th></tr></thead>'
-            + '<tbody>' + crees.map(r => `<tr style="border-top:1px solid #F1F5F9;"><td style="padding:6px 8px;">${r.code_unique}</td><td style="padding:6px 8px;">${r.mot_de_passe_temporaire}</td></tr>`).join('')
+            + '<thead><tr style="background:#F8FAFF;font-family:inherit;"><th style="padding:6px 8px;text-align:left;">Nom complet</th><th style="padding:6px 8px;text-align:left;">Classe</th><th style="padding:6px 8px;text-align:left;">Identifiant</th><th style="padding:6px 8px;text-align:left;">Mot de passe</th></tr></thead>'
+            + '<tbody>' + crees.map(r => `<tr style="border-top:1px solid #F1F5F9;"><td style="padding:6px 8px;font-family:inherit;">${esc(r.prenom)} ${esc(r.nom)}</td><td style="padding:6px 8px;font-family:inherit;">${esc(r.classe || '—')}</td><td style="padding:6px 8px;">${r.code_unique}</td><td style="padding:6px 8px;">${r.mot_de_passe_temporaire}</td></tr>`).join('')
             + '</tbody></table></div>'
             + '<button onclick="imprimerFichesIdentifiants(window._dernierImportComptes)" style="margin-top:14px;background:#fff;color:#4F46E5;border:1.5px solid #4F46E5;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">🖨️ Imprimer les fiches</button>'
             + '<button onclick="closeImportExcel(); loadEleves();" style="margin-top:8px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Fermer</button>';
@@ -4815,7 +4825,7 @@
             <div class="fiche-ecole">${esc(ecole)}</div>
           </div>
           <div class="fiche-nom">${esc(c.prenom || '')} ${esc((c.nom || '').toUpperCase())}</div>
-          <div class="fiche-classe">${esc(c.classe || '')}</div>
+          <div class="fiche-classe">${esc(c.classe || '') || (c.nom_enfant ? 'Parent de ' + esc(c.prenom_enfant || '') + ' ' + esc(c.nom_enfant || '') + ' (' + esc(c.classe_enfant || '') + ')' : '')}</div>
           <div class="fiche-champ">
             <span class="fiche-label">Matricule</span>
             <span class="fiche-val">${esc(c.code_unique || '')}</span>
@@ -4853,6 +4863,55 @@
       if (!w) { alert('Autorise les pop-ups pour imprimer les fiches.'); return; }
       w.document.write(html);
       w.document.close();
+    }
+
+    // ═══════════════════════════════════════════
+    // RÉINITIALISER LE MOT DE PASSE (tous rôles — élèves, parents,
+    // profs, surveillants, alumni) — le mot de passe original est haché,
+    // donc irrécupérable par nature ; c'est la seule vraie solution quand
+    // quelqu'un l'a perdu (comme partout ailleurs : Gmail, banques...).
+    // ═══════════════════════════════════════════
+    async function reinitialiserMotDePasse(id, nomComplet) {
+      if (!confirm(`Réinitialiser le mot de passe de ${nomComplet} ?\n\nL'ancien mot de passe ne fonctionnera plus dès la confirmation.`)) return;
+      try {
+        const d = await api(`/admin/comptes/${id}/reset-password`, { method: 'PUT' });
+        if (d.success) {
+          afficherNouveauMotDePasse(d);
+        } else {
+          toast('❌ ' + (d.message || 'Erreur'), 'err');
+        }
+      } catch (e) {
+        toast('❌ Erreur réseau', 'err');
+      }
+    }
+
+    function afficherNouveauMotDePasse(d) {
+      let m = document.getElementById('m-nouveau-mdp');
+      if (m) m.remove();
+      m = document.createElement('div');
+      m.id = 'm-nouveau-mdp';
+      m.className = 'dir-modal-overlay';
+      m.onclick = e => { if (e.target === m) m.remove(); };
+      m.innerHTML = '<div class="dir-modal" style="max-width:420px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">'
+        + '<div style="font-size:.95rem;font-weight:800;color:#0F172A;">🔑 Nouveau mot de passe</div>'
+        + '<button onclick="document.getElementById(\'m-nouveau-mdp\').remove()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94A3B8;">✕</button>'
+        + '</div>'
+        + '<div style="font-size:.8rem;font-weight:700;color:#0F172A;margin-bottom:2px;">' + esc(d.prenom) + ' ' + esc(d.nom) + '</div>'
+        + '<div style="font-size:.7rem;color:#94A3B8;margin-bottom:14px;">' + esc(d.role_actuel || '') + '</div>'
+        + '<div style="background:#F8FAFF;border:1px solid #E2E8F0;border-radius:10px;padding:12px;margin-bottom:14px;">'
+        + '<div style="font-size:.68rem;color:#64748B;font-weight:700;margin-bottom:3px;">Identifiant</div>'
+        + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.85rem;font-weight:800;color:#0F172A;margin-bottom:10px;">' + esc(d.code_unique) + '</div>'
+        + '<div style="font-size:.68rem;color:#64748B;font-weight:700;margin-bottom:3px;">Nouveau mot de passe</div>'
+        + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.95rem;font-weight:900;color:#4F46E5;">' + esc(d.mot_de_passe_temporaire) + '</div>'
+        + '</div>'
+        + '<div style="font-size:.7rem;color:#94A3B8;margin-bottom:14px;">⚠️ Note-le maintenant — il ne sera plus jamais affiché. Communique-le à la personne concernée.</div>'
+        + '<button onclick="imprimerFichesIdentifiants([{prenom:' + JSON.stringify(d.prenom) + ',nom:' + JSON.stringify(d.nom) + ',classe:' + JSON.stringify(d.classe || '') + ',code_unique:' + JSON.stringify(d.code_unique) + ',mot_de_passe_temporaire:' + JSON.stringify(d.mot_de_passe_temporaire) + '}])" style="width:100%;background:#fff;color:#4F46E5;border:1.5px solid #4F46E5;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;">🖨️ Imprimer la fiche</button>'
+        + '<button onclick="document.getElementById(\'m-nouveau-mdp\').remove()" style="width:100%;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">Fermer</button>'
+        + '</div>';
+      document.body.appendChild(m);
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
     }
 
     // ═══════════════════════════════════════════
@@ -4976,17 +5035,21 @@
         const r = await fetch(cfg.endpoint, { method: 'POST', headers: { 'Authorization': 'Bearer ' + TOK }, body: fd });
         const d = await r.json();
         if (d.success) {
-          const crees = (d.resultats || []).filter(r => r.statut === 'CREE');
+          // Triés par nom — et pour les parents, par classe de l'enfant
+          // (plus facile à distribuer dans l'ordre plutôt qu'au hasard).
+          const crees = (d.resultats || []).filter(r => r.statut === 'CREE')
+            .sort((a, b) => (a.classe_enfant || '').localeCompare(b.classe_enfant || '') || (a.nom || '').localeCompare(b.nom || ''));
           window._dernierImportComptes = crees;
           document.getElementById('ig-apercu').style.display = 'none';
           msgEl.style.display = 'block'; msgEl.style.color = '';
+          const estParents = _roleImportGenerique === 'parents';
           msgEl.innerHTML = '<div style="font-size:.82rem;font-weight:800;color:#0F172A;margin-bottom:10px;">✅ '
             + `${d.nb_ok} compte(s) créé(s)` + (d.nb_erreurs ? `, ${d.nb_erreurs} erreur(s)` : '') + '</div>'
             + '<div style="font-size:.72rem;color:#94A3B8;margin-bottom:10px;">⚠️ Note ces identifiants maintenant — ils ne seront plus affichés. Communique-les (ou imprime les fiches ci-dessous).</div>'
             + '<div style="max-height:280px;overflow-y:auto;border:1px solid #E2E8F0;border-radius:10px;">'
             + '<table style="width:100%;border-collapse:collapse;font-size:.74rem;font-family:monospace;">'
-            + '<thead><tr style="background:#F8FAFF;font-family:inherit;"><th style="padding:6px 8px;text-align:left;">Identifiant</th><th style="padding:6px 8px;text-align:left;">Mot de passe</th></tr></thead>'
-            + '<tbody>' + crees.map(r => `<tr style="border-top:1px solid #F1F5F9;"><td style="padding:6px 8px;">${r.code_unique}</td><td style="padding:6px 8px;">${r.mot_de_passe_temporaire}</td></tr>`).join('')
+            + '<thead><tr style="background:#F8FAFF;font-family:inherit;"><th style="padding:6px 8px;text-align:left;">Nom complet</th>' + (estParents ? '<th style="padding:6px 8px;text-align:left;">Enfant lié</th>' : '') + '<th style="padding:6px 8px;text-align:left;">Identifiant</th><th style="padding:6px 8px;text-align:left;">Mot de passe</th></tr></thead>'
+            + '<tbody>' + crees.map(r => `<tr style="border-top:1px solid #F1F5F9;"><td style="padding:6px 8px;font-family:inherit;">${esc(r.prenom)} ${esc(r.nom)}</td>${estParents ? `<td style="padding:6px 8px;font-family:inherit;">${esc(r.prenom_enfant || '')} ${esc(r.nom_enfant || '')} <span style="color:#94A3B8;">(${esc(r.classe_enfant || '—')})</span></td>` : ''}<td style="padding:6px 8px;">${r.code_unique}</td><td style="padding:6px 8px;">${r.mot_de_passe_temporaire}</td></tr>`).join('')
             + '</tbody></table></div>'
             + '<button onclick="imprimerFichesIdentifiants(window._dernierImportComptes)" style="margin-top:14px;background:#fff;color:#4F46E5;border:1.5px solid #4F46E5;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">🖨️ Imprimer les fiches</button>'
             + '<button onclick="closeImportGenerique(); ' + cfg.reloadFn + '();" style="margin-top:8px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Fermer</button>';
@@ -5933,7 +5996,12 @@
             <div style="font-size:.7rem;color:#64748B;margin-top:2px;">${esc(p.profession || 'Profession non renseignée')} · ${esc(p.email || 'Pas d\'email')} · ${esc(p.telephone || 'Pas de téléphone')}</div>
             <div style="font-size:.68rem;color:#7C3AED;margin-top:2px;">${p.nb_enfants > 0 ? '👨‍👩‍👧 ' + esc(p.enfants || '') : 'Aucun enfant rattaché'}</div>
           </div>
-          <span style="font-size:.65rem;font-weight:800;padding:3px 9px;border-radius:20px;background:${p.est_actif ? '#DCFCE7' : '#FEE2E2'};color:${p.est_actif ? '#15803D' : '#DC2626'};">${p.est_actif ? 'Actif' : 'Inactif'}</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span style="font-size:.65rem;font-weight:800;padding:3px 9px;border-radius:20px;background:${p.est_actif ? '#DCFCE7' : '#FEE2E2'};color:${p.est_actif ? '#15803D' : '#DC2626'};">${p.est_actif ? 'Actif' : 'Inactif'}</span>
+            <button class="btn-p" style="padding:5px 10px;font-size:.65rem;background:#64748B;" onclick="reinitialiserMotDePasse('${p.id_user || p.id}', '${esc(p.nom)}')">
+              <i data-lucide="key" style="width:11px;height:11px;"></i>Mot de passe
+            </button>
+          </div>
         </div>`).join('');
     }
     function filtParents() { if (parentsData.length) renderParents(); }
@@ -5967,7 +6035,12 @@
             <div style="font-size:.7rem;color:#64748B;margin-top:2px;">${esc(a.derniere_classe || 'Classe non renseignée')}${a.annee_diplome ? ' · Promotion ' + esc(a.annee_diplome) : ''}</div>
             <div style="font-size:.68rem;color:#7C3AED;margin-top:2px;">${esc(a.profession || a.situation_actuelle || 'Situation non renseignée')}</div>
           </div>
-          <span style="font-size:.65rem;font-weight:800;padding:3px 9px;border-radius:20px;background:${a.est_actif ? '#DCFCE7' : '#FEE2E2'};color:${a.est_actif ? '#15803D' : '#DC2626'};">${a.est_actif ? 'Actif' : 'Inactif'}</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span style="font-size:.65rem;font-weight:800;padding:3px 9px;border-radius:20px;background:${a.est_actif ? '#DCFCE7' : '#FEE2E2'};color:${a.est_actif ? '#15803D' : '#DC2626'};">${a.est_actif ? 'Actif' : 'Inactif'}</span>
+            <button class="btn-p" style="padding:5px 10px;font-size:.65rem;background:#64748B;" onclick="reinitialiserMotDePasse('${a.id_user || a.id}', '${esc(a.nom)}')">
+              <i data-lucide="key" style="width:11px;height:11px;"></i>Mot de passe
+            </button>
+          </div>
         </div>`).join('');
     }
     function filtAlumniDir() { if (alumniDirData.length) renderAlumniDir(); }
@@ -6017,6 +6090,9 @@
         </button>
         <button class="btn-p" style="padding:5px 10px;font-size:.68rem;background:#7C3AED;" onclick="msgPrive('${p.id}', '${esc(p.nom)}', '${esc(p.mat)}')">
           <i data-lucide="lock" style="width:12px;height:12px;"></i>Msg privé
+        </button>
+        <button class="btn-p" style="padding:5px 10px;font-size:.68rem;background:#64748B;" onclick="reinitialiserMotDePasse('${p.id}', '${esc(p.nom)}')">
+          <i data-lucide="key" style="width:12px;height:12px;"></i>Mot de passe
         </button>
       </div>
     </div>`).join('');

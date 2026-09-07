@@ -27,6 +27,9 @@ const dirSeule = ensureRoleIn(['DIRECTION']);
 // ── Stats dashboard ──
 router.get('/stats', auth, dirOuSurv, ctrl.getStats);
 
+// ── Réinitialiser le mot de passe d'un compte (tous rôles) ──
+router.put('/comptes/:id/reset-password', auth, dirSeule, ctrl.resetMotDePasse);
+
 // ── Élèves ──
 router.get('/eleves', auth, dirOuSurv, ctrl.getElevesDir);
 router.get('/eleve/:id', auth, dirOuSurv, ctrl.getEleveDetail);
