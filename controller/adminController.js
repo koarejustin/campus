@@ -242,6 +242,20 @@ exports.getProfesseurs = async (req, res) => {
                      p.classes, p.matieres
             ORDER BY c.nom, c.prenom
         `);
+        // ✅ Les surveillants importés/créés n'apparaissaient NULLE PART dans
+        // l'interface — aucune liste dédiée n'a jamais existé pour eux
+        // (découvert en vérifiant pourquoi un import "réussi" restait
+        // invisible). Ajoutés ici, dans le même panneau "Corps Enseignant"
+        // où se trouvent déjà leurs boutons "Ajouter"/"Importer".
+        const rs = await db.query(`
+            SELECT c.id_user, c.code_unique, c.nom, c.prenom,
+                   c.email, c.telephone, c.est_actif, pa.poste_occupe
+            FROM authentification.comptes c
+            LEFT JOIN authentification.profils_administratifs pa ON pa.id_user = c.id_user
+            WHERE c.role_actuel = 'SURVEILLANT' AND c.est_actif = true
+            ORDER BY c.nom, c.prenom
+        `);
+
         res.json({
             success: true,
             professeurs: r.rows.map(p => ({
@@ -261,7 +275,21 @@ exports.getProfesseurs = async (req, res) => {
                 matieres: p.matieres || [],
                 nb_classes: parseInt(p.nb_classes) || 0,
                 nb_seances: parseInt(p.nb_seances) || 0,
-                est_actif: p.est_actif
+                est_actif: p.est_actif,
+                role: 'PROFESSEUR'
+            })),
+            surveillants: rs.rows.map(s => ({
+                id: s.id_user,
+                id_user: s.id_user,
+                code: s.code_unique,
+                code_unique: s.code_unique,
+                nom: s.nom,
+                prenom: s.prenom,
+                email: s.email,
+                telephone: s.telephone,
+                poste: s.poste_occupe || 'Surveillant',
+                est_actif: s.est_actif,
+                role: 'SURVEILLANT'
             }))
         });
     } catch (e) {
