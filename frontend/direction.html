@@ -4464,9 +4464,12 @@
             <td style="padding:12px 16px;">
               <span class="b ${e.absences > 5 ? 'b-red' : 'b-grn'}" style="padding:3px 8px; border-radius:20px;">${e.absences}</span>
             </td>
-            <td style="padding:12px 16px; text-align:center;">
+            <td style="padding:12px 16px; text-align:center; white-space:nowrap;">
               <button class="btn-p" style="padding:4px 10px; font-size:.68rem; background:#3B82F6;" onclick="voirEleve('${esc(e.code)}')">
                 <i data-lucide="eye" style="width:12px;height:12px;"></i> Voir
+              </button>
+              <button class="btn-p" style="padding:4px 10px; font-size:.68rem; background:#64748B; margin-left:6px;" onclick="reinitialiserMotDePasse('${e.id}', '${esc(e.nom)}')">
+                <i data-lucide="key" style="width:12px;height:12px;"></i>
               </button>
             </td>
           </tr>
@@ -4820,40 +4823,53 @@
 
       const cartes = comptes.map(c => `
         <div class="fiche">
+          <div class="fiche-motif">
+            <svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="34" fill="none" stroke="#fff" stroke-width="2" opacity=".35"/><circle cx="35" cy="35" r="20" fill="none" stroke="#fff" stroke-width="2" opacity=".35"/></svg>
+          </div>
           <div class="fiche-hd">
-            ${logo ? `<img src="${logo}" class="fiche-logo">` : ''}
+            ${logo ? `<img src="${logo}" class="fiche-logo">` : '<div class="fiche-logo fiche-logo-vide">🎓</div>'}
             <div class="fiche-ecole">${esc(ecole)}</div>
           </div>
-          <div class="fiche-nom">${esc(c.prenom || '')} ${esc((c.nom || '').toUpperCase())}</div>
-          <div class="fiche-classe">${esc(c.classe || '') || (c.nom_enfant ? 'Parent de ' + esc(c.prenom_enfant || '') + ' ' + esc(c.nom_enfant || '') + ' (' + esc(c.classe_enfant || '') + ')' : '')}</div>
-          <div class="fiche-champ">
-            <span class="fiche-label">Matricule</span>
-            <span class="fiche-val">${esc(c.code_unique || '')}</span>
+          <div class="fiche-corps">
+            <div class="fiche-nom">${esc(c.prenom || '')} ${esc((c.nom || '').toUpperCase())}</div>
+            <div class="fiche-classe">${esc(c.classe || '') || (c.nom_enfant ? 'Parent de ' + esc(c.prenom_enfant || '') + ' ' + esc(c.nom_enfant || '') + ' (' + esc(c.classe_enfant || '') + ')' : '')}</div>
+            <div class="fiche-champ">
+              <span class="fiche-label">Matricule</span>
+              <span class="fiche-val">${esc(c.code_unique || '')}</span>
+            </div>
+            <div class="fiche-champ">
+              <span class="fiche-label">Mot de passe</span>
+              <span class="fiche-val fiche-val-mdp">${esc(c.mot_de_passe_temporaire || '')}</span>
+            </div>
+            <div class="fiche-url">🔗 ${esc(url)}</div>
           </div>
-          <div class="fiche-champ">
-            <span class="fiche-label">Mot de passe</span>
-            <span class="fiche-val">${esc(c.mot_de_passe_temporaire || '')}</span>
-          </div>
-          <div class="fiche-url">${esc(url)}</div>
         </div>
       `).join('');
 
       const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fiches identifiants — ${esc(ecole)}</title>
       <style>
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 12mm; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 12mm; background: #F1F5F9; }
         .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
-        .fiche { border: 1.5px dashed #94A3B8; border-radius: 10px; padding: 10px 12px; break-inside: avoid; }
-        .fiche-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .fiche-logo { width: 26px; height: 26px; object-fit: contain; border-radius: 4px; }
-        .fiche-ecole { font-size: 11px; font-weight: 800; color: #4F46E5; text-transform: uppercase; }
+        .fiche { border-radius: 14px; overflow: hidden; break-inside: avoid; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); border: 1px solid #E2E8F0; }
+        .fiche-hd { position: relative; display: flex; align-items: center; gap: 9px; padding: 12px 14px; background: linear-gradient(135deg, #4F46E5, #7C3AED); overflow: hidden; }
+        .fiche-motif { position: absolute; top: -14px; right: -14px; pointer-events: none; }
+        .fiche-logo { width: 28px; height: 28px; object-fit: contain; border-radius: 7px; background: #fff; padding: 2px; position: relative; z-index: 1; }
+        .fiche-logo-vide { display: flex; align-items: center; justify-content: center; font-size: 15px; }
+        .fiche-ecole { font-size: 11px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: .03em; position: relative; z-index: 1; }
+        .fiche-corps { padding: 12px 14px 10px; }
         .fiche-nom { font-size: 15px; font-weight: 800; color: #0F172A; }
-        .fiche-classe { font-size: 11px; color: #64748B; margin-bottom: 8px; }
-        .fiche-champ { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; border-top: 1px solid #F1F5F9; }
+        .fiche-classe { font-size: 11px; color: #7C3AED; font-weight: 700; margin-bottom: 8px; }
+        .fiche-champ { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-top: 1px dashed #E2E8F0; }
         .fiche-label { font-size: 10px; color: #94A3B8; }
         .fiche-val { font-size: 13px; font-weight: 800; font-family: 'Courier New', monospace; color: #0F172A; }
-        .fiche-url { margin-top: 8px; font-size: 9.5px; color: #94A3B8; text-align: center; }
-        @media print { body { padding: 6mm; } .fiche { border-color: #999; } }
+        .fiche-val-mdp { color: #4F46E5; }
+        .fiche-url { margin-top: 9px; font-size: 9.5px; color: #94A3B8; text-align: center; }
+        @media print {
+          body { padding: 6mm; background: #fff; }
+          .fiche { box-shadow: none; border-color: #CBD5E1; }
+          .fiche-hd { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
       </style></head>
       <body><div class="grille">${cartes}</div>
       <script>window.onload = () => setTimeout(() => window.print(), 300);<\/script>
@@ -4871,8 +4887,31 @@
     // donc irrécupérable par nature ; c'est la seule vraie solution quand
     // quelqu'un l'a perdu (comme partout ailleurs : Gmail, banques...).
     // ═══════════════════════════════════════════
-    async function reinitialiserMotDePasse(id, nomComplet) {
-      if (!confirm(`Réinitialiser le mot de passe de ${nomComplet} ?\n\nL'ancien mot de passe ne fonctionnera plus dès la confirmation.`)) return;
+    function reinitialiserMotDePasse(id, nomComplet) {
+      let m = document.getElementById('m-confirm-reset');
+      if (m) m.remove();
+      m = document.createElement('div');
+      m.id = 'm-confirm-reset';
+      m.className = 'dir-modal-overlay';
+      m.onclick = e => { if (e.target === m) m.remove(); };
+      m.innerHTML = '<div class="dir-modal" style="max-width:400px;">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+        + '<div style="width:38px;height:38px;border-radius:10px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="key-round" style="width:18px;height:18px;color:#92400E;"></i></div>'
+        + '<div style="font-size:.92rem;font-weight:800;color:#0F172A;">Réinitialiser le mot de passe ?</div>'
+        + '</div>'
+        + '<div style="font-size:.8rem;color:#475569;margin-bottom:18px;">Un nouveau mot de passe sera généré pour <strong>' + esc(nomComplet) + '</strong>. L\'ancien ne fonctionnera plus dès la confirmation.</div>'
+        + '<div style="display:flex;gap:8px;">'
+        + '<button onclick="document.getElementById(\'m-confirm-reset\').remove()" style="flex:1;padding:10px;background:#F1F5F9;border:none;border-radius:9px;font-size:.8rem;font-weight:700;color:#475569;cursor:pointer;font-family:inherit;">Annuler</button>'
+        + '<button onclick="_confirmerResetMotDePasse(' + JSON.stringify(id) + ')" style="flex:1;padding:10px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:9px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:inherit;">Réinitialiser</button>'
+        + '</div></div>';
+      document.body.appendChild(m);
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function _confirmerResetMotDePasse(id) {
+      document.getElementById('m-confirm-reset')?.remove();
       try {
         const d = await api(`/admin/comptes/${id}/reset-password`, { method: 'PUT' });
         if (d.success) {
