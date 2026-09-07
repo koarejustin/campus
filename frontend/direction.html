@@ -3267,6 +3267,9 @@
               <button class="btn-p" style="font-size:.72rem;background:#0369A1;white-space:nowrap;" onclick="openAddSurveillant()">
                 <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un surveillant
               </button>
+              <button class="btn-p" style="font-size:.72rem;background:#0EA5E9;white-space:nowrap;" onclick="openImportGenerique('surveillants')">
+                <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer surveillants (Excel)
+              </button>
             </div>
           </div>
           <div id="corps-list">
@@ -4876,6 +4879,12 @@
         endpoint: '/api/admin/alumni/import-excel',
         colonnesInfo: 'Nom, Prenom, et en option Email, Telephone, DerniereClasse, AnneeDiplome.',
         reloadFn: 'loadAlumniDir',
+      },
+      surveillants: {
+        titre: '📥 Importer des surveillants depuis Excel',
+        endpoint: '/api/admin/surveillants/import-excel',
+        colonnesInfo: 'Nom, Prenom, et en option Email, Telephone, Poste.',
+        reloadFn: 'loadCorps',
       },
     };
     let _fichierImportGenerique = null;

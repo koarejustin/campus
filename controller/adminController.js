@@ -989,6 +989,84 @@ exports.createSurveillant = async (req, res) => {
 };
 
 // ═══════════════════════════════════════════
+// IMPORT EXCEL — SURVEILLANTS
+// Colonnes attendues : Nom, Prenom (obligatoires), Email, Telephone,
+// Poste (optionnelles).
+// ═══════════════════════════════════════════
+exports.importSurveillantsExcel = async (req, res) => {
+    let XLSX;
+    try { XLSX = require('xlsx'); } catch (e) {
+        return res.status(500).json({ message: "La librairie 'xlsx' n'est pas installée." });
+    }
+    try {
+        if (!req.file) return res.status(400).json({ message: 'Aucun fichier reçu' });
+        const dryRun = req.body.dryRun !== 'false';
+
+        const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+        if (!rows.length) return res.status(400).json({ message: 'Le fichier est vide ou illisible.' });
+
+        const bcrypt = require('bcryptjs');
+        const countR = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='SURVEILLANT'");
+        let compteur = parseInt(countR.rows[0].count) || 0;
+
+        const resultats = [];
+        for (let i = 0; i < rows.length; i++) {
+            const ligne = rows[i];
+            const nom = getColExcel(ligne, ['nom']);
+            const prenom = getColExcel(ligne, ['prenom', 'prénom']);
+            const email = getColExcel(ligne, ['email', 'e-mail']) || null;
+            const telephone = getColExcel(ligne, ['telephone', 'téléphone', 'tel']) || null;
+            const poste = getColExcel(ligne, ['poste', 'poste_occupe', 'poste occupé']) || 'Surveillant';
+
+            if (!nom || !prenom) {
+                resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: 'Nom et prénom sont obligatoires' });
+                continue;
+            }
+
+            if (dryRun) {
+                compteur++;
+                const codePrevisionnel = 'SURV-2026-' + String(compteur).padStart(3, '0');
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, poste, code_previsionnel: codePrevisionnel, statut: 'OK' });
+                continue;
+            }
+
+            try {
+                const motDePasseTemp = genTempPassword();
+                const hash = await bcrypt.hash(motDePasseTemp, 10);
+                const { code, resultat: r } = await insererAvecCodeUnique(
+                    () => { compteur++; return 'SURV-2026-' + String(compteur).padStart(3, '0'); },
+                    (code) => db.query(`
+                        INSERT INTO authentification.comptes
+                        (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
+                        VALUES ($1,$2,$3,$4,$5,$6,'SURVEILLANT',true)
+                        RETURNING id_user, code_unique
+                    `, [code, nom.toUpperCase(), prenom, email, telephone, hash])
+                );
+                await db.query(
+                    `INSERT INTO authentification.profils_administratifs (id_user, poste_occupe) VALUES ($1,$2)`,
+                    [r.rows[0].id_user, poste]
+                );
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE' });
+            } catch (err) {
+                resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: err.message });
+            }
+        }
+
+        res.json({
+            success: true, dryRun, total: rows.length,
+            nb_ok: resultats.filter(r => r.statut === 'OK' || r.statut === 'CREE').length,
+            nb_erreurs: resultats.filter(r => r.statut === 'ERREUR').length,
+            resultats
+        });
+    } catch (error) {
+        console.error('importSurveillantsExcel:', error.message);
+        res.status(500).json({ message: 'Erreur import: ' + error.message });
+    }
+};
+
+// ═══════════════════════════════════════════
 // CRÉER UN ALUMNI
 // ═══════════════════════════════════════════
 exports.createAlumni = async (req, res) => {

@@ -40,6 +40,7 @@ router.post('/professeurs', auth, dirSeule, ctrl.createProfesseur);
 router.post('/professeurs/import-excel', auth, dirSeule, uploadExcel.single('fichier'), ctrl.importProfesseursExcel);
 router.put('/professeurs/:id/classes-matieres', auth, dirSeule, ctrl.updateClassesMatieresProf);
 router.post('/surveillants', auth, dirSeule, ctrl.createSurveillant);
+router.post('/surveillants/import-excel', auth, dirSeule, uploadExcel.single('fichier'), ctrl.importSurveillantsExcel);
 router.post('/alumni', auth, dirSeule, ctrl.createAlumni);
 router.post('/alumni/import-excel', auth, dirSeule, uploadExcel.single('fichier'), ctrl.importAlumniExcel);
 router.post('/parents', auth, dirSeule, ctrl.createParent);
