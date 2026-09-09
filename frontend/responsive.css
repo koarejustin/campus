@@ -472,25 +472,21 @@
     font-size: .72rem !important;
   }
 
-  /* Absences : les pastilles de filtre passaient mal à la ligne sur
-     mobile → une seule ligne qui défile horizontalement, comme les
-     onglets ailleurs dans l'appli (.cls-tabs, .res-tabs-scroll). */
+  /* Absences : grille 2x2 fixe pour les 4 pastilles de filtre — tout
+     reste visible d'un coup, sans défilement ni retour à la ligne. */
   #s-abs .card>div>div.abs-filter-btns {
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    scrollbar-width: none !important;
-    padding-bottom: 2px !important;
-    flex-shrink: 0 !important;
-  }
-
-  #s-abs .abs-filter-btns::-webkit-scrollbar {
-    display: none !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    width: 100% !important;
   }
 
   #s-abs .abs-filter-btns .filter-btn {
-    flex-shrink: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
     white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 
   /* Pagination absences → colonne */

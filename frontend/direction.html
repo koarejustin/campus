@@ -2059,24 +2059,23 @@
         gap: 6px !important;
       }
 
-      /* Pastilles de filtre absences : une seule ligne qui défile
-         horizontalement au lieu de passer à la ligne (comme les
-         onglets ailleurs dans l'appli). Doit rester apres la regle
-         ci-dessus pour la primer (meme specificite, ordre plus tardif). */
+      /* Pastilles de filtre absences : grille 2x2 fixe, tout visible
+         d'un coup, sans défilement ni retour à la ligne imprévisible.
+         Doit rester apres la regle ci-dessus pour la primer (meme
+         specificite, ordre plus tardif). */
       #s-abs .card>div[style*="justify-content:space-between"]>div.abs-filter-btns {
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
-        scrollbar-width: none !important;
-      }
-
-      #s-abs .abs-filter-btns::-webkit-scrollbar {
-        display: none !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        width: 100% !important;
       }
 
       #s-abs .abs-filter-btns .filter-btn {
-        flex-shrink: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        text-align: center !important;
         white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
       }
 
       /* Champ recherche absences pleine largeur */
