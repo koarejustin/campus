@@ -472,6 +472,25 @@
     font-size: .72rem !important;
   }
 
+  /* Absences : les pastilles de filtre passent mal à plusieurs lignes
+     sur mobile → remplacées par un menu déroulant. */
+  .abs-filter-btns {
+    display: none !important;
+  }
+
+  .abs-filter-select {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 10px 14px !important;
+    border: 1.5px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    font-size: .8rem !important;
+    font-weight: 700 !important;
+    color: #374151 !important;
+    background: #fff !important;
+  }
+
   /* Pagination absences → colonne */
   #s-abs [style*="padding:16px 20px"] {
     flex-direction: column !important;

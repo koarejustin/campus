@@ -2763,7 +2763,7 @@
       <!-- FILTRES ET RECHERCHE -->
       <div class="card" style="padding:16px 20px; margin-bottom:20px;">
         <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between;">
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <div class="abs-filter-btns" style="display:flex; gap:8px; flex-wrap:wrap;">
             <button onclick="filtAbs('all',this)" class="filter-btn active"
               style="padding:8px 16px; border-radius:30px; font-size:.75rem; font-weight:700;">Toutes</button>
             <button onclick="filtAbs('nj',this)" class="filter-btn"
@@ -2773,6 +2773,12 @@
             <button onclick="filtAbs('retard',this)" class="filter-btn"
               style="padding:8px 16px; border-radius:30px; font-size:.75rem; font-weight:700;">⏰ Retards</button>
           </div>
+          <select class="abs-filter-select" onchange="filtAbs(this.value,null)" style="display:none;">
+            <option value="all">📋 Toutes les absences</option>
+            <option value="nj">❌ Non justifiées</option>
+            <option value="j">✅ Justifiées</option>
+            <option value="retard">⏰ Retards</option>
+          </select>
           <div style="position:relative;">
             <i data-lucide="search"
               style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:#94A3B8;"></i>
@@ -7637,8 +7643,10 @@
       currentFilter = type;
       currentPage = 1;
 
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('#s-abs .filter-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
+      const sel = document.querySelector('.abs-filter-select');
+      if (sel) sel.value = type;
 
       renderAbsTable();
     }
