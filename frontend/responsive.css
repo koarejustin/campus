@@ -472,23 +472,25 @@
     font-size: .72rem !important;
   }
 
-  /* Absences : les pastilles de filtre passent mal à plusieurs lignes
-     sur mobile → remplacées par un menu déroulant. */
-  .abs-filter-btns {
+  /* Absences : les pastilles de filtre passaient mal à la ligne sur
+     mobile → une seule ligne qui défile horizontalement, comme les
+     onglets ailleurs dans l'appli (.cls-tabs, .res-tabs-scroll). */
+  #s-abs .card>div>div.abs-filter-btns {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    padding-bottom: 2px !important;
+    flex-shrink: 0 !important;
+  }
+
+  #s-abs .abs-filter-btns::-webkit-scrollbar {
     display: none !important;
   }
 
-  .abs-filter-select {
-    display: block !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    padding: 10px 14px !important;
-    border: 1.5px solid #E2E8F0 !important;
-    border-radius: 12px !important;
-    font-size: .8rem !important;
-    font-weight: 700 !important;
-    color: #374151 !important;
-    background: #fff !important;
+  #s-abs .abs-filter-btns .filter-btn {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
   }
 
   /* Pagination absences → colonne */

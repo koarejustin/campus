@@ -2059,6 +2059,26 @@
         gap: 6px !important;
       }
 
+      /* Pastilles de filtre absences : une seule ligne qui défile
+         horizontalement au lieu de passer à la ligne (comme les
+         onglets ailleurs dans l'appli). Doit rester apres la regle
+         ci-dessus pour la primer (meme specificite, ordre plus tardif). */
+      #s-abs .card>div[style*="justify-content:space-between"]>div.abs-filter-btns {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+      }
+
+      #s-abs .abs-filter-btns::-webkit-scrollbar {
+        display: none !important;
+      }
+
+      #s-abs .abs-filter-btns .filter-btn {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+      }
+
       /* Champ recherche absences pleine largeur */
       #abs-search {
         width: 100% !important;
@@ -2773,12 +2793,6 @@
             <button onclick="filtAbs('retard',this)" class="filter-btn"
               style="padding:8px 16px; border-radius:30px; font-size:.75rem; font-weight:700;">⏰ Retards</button>
           </div>
-          <select class="abs-filter-select" onchange="filtAbs(this.value,null)" style="display:none;">
-            <option value="all">📋 Toutes les absences</option>
-            <option value="nj">❌ Non justifiées</option>
-            <option value="j">✅ Justifiées</option>
-            <option value="retard">⏰ Retards</option>
-          </select>
           <div style="position:relative;">
             <i data-lucide="search"
               style="position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:#94A3B8;"></i>
@@ -7645,8 +7659,6 @@
 
       document.querySelectorAll('#s-abs .filter-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
-      const sel = document.querySelector('.abs-filter-select');
-      if (sel) sel.value = type;
 
       renderAbsTable();
     }
