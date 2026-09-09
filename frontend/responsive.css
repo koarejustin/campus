@@ -1430,7 +1430,10 @@
   /* ════════════════════════════════════════
      FORMULAIRES
   ════════════════════════════════════════ */
-  input,
+  /* :not(checkbox/radio) — sinon les cases à cocher (ex: sélection de
+     classes dans Compositions) sont étirées à 100% de largeur et
+     deviennent des rectangles vides au lieu de petites cases. */
+  input:not([type="checkbox"]):not([type="radio"]),
   select,
   textarea {
     font-size: .84rem !important;

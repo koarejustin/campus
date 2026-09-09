@@ -4902,7 +4902,7 @@
         + '<div style="font-size:.8rem;color:#475569;margin-bottom:18px;">Un nouveau mot de passe sera généré pour <strong>' + esc(nomComplet) + '</strong>. L\'ancien ne fonctionnera plus dès la confirmation.</div>'
         + '<div style="display:flex;gap:8px;">'
         + '<button onclick="document.getElementById(\'m-confirm-reset\').remove()" style="flex:1;padding:10px;background:#F1F5F9;border:none;border-radius:9px;font-size:.8rem;font-weight:700;color:#475569;cursor:pointer;font-family:inherit;">Annuler</button>'
-        + '<button onclick="_confirmerResetMotDePasse(' + JSON.stringify(id) + ')" style="flex:1;padding:10px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:9px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:inherit;">Réinitialiser</button>'
+        + '<button onclick="_confirmerResetMotDePasse(' + JSON.stringify(String(id)).replace(/"/g, '&quot;') + ')" style="flex:1;padding:10px;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;border:none;border-radius:9px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:inherit;">Réinitialiser</button>'
         + '</div></div>';
       document.body.appendChild(m);
       m.style.display = 'flex';
@@ -6143,7 +6143,7 @@
         ${p.role === 'SURVEILLANT' ? `
         <span class="b" style="background:#CFFAFE;color:#0891B2;">🛡️ Surveillant</span>
         ` : `
-        <button class="btn-p" style="padding:5px 10px;font-size:.68rem;background:${p.classesArr.length ? '#0369A1' : '#DC2626'};" onclick='openAssignClasses(${JSON.stringify(p.id)}, ${JSON.stringify(p.nom)}, ${JSON.stringify(p.classesArr)}, ${JSON.stringify(p.matieresArr)})'>
+        <button class="btn-p" style="padding:5px 10px;font-size:.68rem;background:${p.classesArr.length ? '#0369A1' : '#DC2626'};" onclick='openAssignClasses(${JSON.stringify(p.id).replace(/'/g, "&#39;")}, ${JSON.stringify(p.nom).replace(/'/g, "&#39;")}, ${JSON.stringify(p.classesArr).replace(/'/g, "&#39;")}, ${JSON.stringify(p.matieresArr).replace(/'/g, "&#39;")})'>
           <i data-lucide="graduation-cap" style="width:12px;height:12px;"></i>Classes
         </button>
         <button class="btn-p" style="padding:5px 10px;font-size:.68rem;" onclick="voirCahier('${p.id}')">
