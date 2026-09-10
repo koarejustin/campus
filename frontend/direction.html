@@ -2059,23 +2059,20 @@
         gap: 6px !important;
       }
 
-      /* Pastilles de filtre absences : grille 2x2 fixe, tout visible
-         d'un coup, sans défilement ni retour à la ligne imprévisible.
-         Doit rester apres la regle ci-dessus pour la primer (meme
-         specificite, ordre plus tardif). */
+      /* Pastilles de filtre absences : flexbox qui passe à la ligne
+         naturellement (aucun conteneur à défilement). Doit rester
+         apres la regle ci-dessus pour la primer (meme specificite,
+         ordre plus tardif). */
       #s-abs .card>div[style*="justify-content:space-between"]>div.abs-filter-btns {
-        display: grid !important;
-        grid-template-columns: 1fr 1fr !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        overflow: visible !important;
         width: 100% !important;
       }
 
       #s-abs .abs-filter-btns .filter-btn {
-        width: 100% !important;
-        box-sizing: border-box !important;
-        text-align: center !important;
+        flex: 0 1 auto !important;
         white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
       }
 
       /* Champ recherche absences pleine largeur */
@@ -2264,6 +2261,18 @@
         flex-direction: column !important;
         gap: 10px !important;
         padding: 14px !important;
+      }
+
+      /* La page imbriquait deux conteneurs à défilement (main, qui
+         scroll toute l'appli, ET .sec.on qui refaisait un scroll
+         interne dessus) — d'où l'effet de boîte coincée avec sa
+         propre scrollbar. Sur Absences, un seul suffit : celui de
+         <main>. Le contenu s'étend simplement en hauteur naturelle. */
+      #s-abs.sec.on {
+        overflow-y: visible !important;
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
       }
     }
 
