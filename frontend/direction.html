@@ -2236,6 +2236,43 @@
       }
     }
   </style>
+  <style>
+    /* ═══════════════════════════════════════════════════════════
+       REFONTE MOBILE — GESTION DES ABSENCES
+       Placé volontairement en dernier (juste avant </head>) pour
+       prévaloir sur les anciens blocs responsive plus haut dans ce
+       fichier, qui se chevauchent et se contredisent par endroits.
+       ═══════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      /* Un seul bouton d'action visible dans l'en-tête */
+      #s-abs .abs-secondary-action {
+        display: none !important;
+      }
+
+      /* Cartes stats empilées en 1 colonne pleine largeur */
+      #s-abs > div.abs-stats-grid {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Le tableau cède la place à une liste de cartes verticales */
+      #s-abs .abs-table-wrap {
+        display: none !important;
+      }
+
+      #s-abs .abs-cards-mobile {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        padding: 14px !important;
+      }
+    }
+
+    @media (min-width: 769px) {
+      #s-abs .abs-cards-mobile {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -2710,17 +2747,18 @@
             style="background:linear-gradient(135deg,#4F46E5,#7C3AED);">
             <i data-lucide="plus" style="width:14px;height:14px;"></i> Nouvelle absence
           </button>
-          <button onclick="exportAbsencesToExcel()" class="btn-g no-print" style="background:#F1F5F9;">
+          <button onclick="exportAbsencesToExcel()" class="btn-g no-print abs-secondary-action"
+            style="background:#F1F5F9;">
             <i data-lucide="download" style="width:14px;height:14px;"></i> Exporter
           </button>
-          <button onclick="printAbsences()" class="btn-g no-print" style="background:#F1F5F9;">
+          <button onclick="printAbsences()" class="btn-g no-print abs-secondary-action" style="background:#F1F5F9;">
             <i data-lucide="printer" style="width:14px;height:14px;"></i> Imprimer
           </button>
         </div>
       </div>
 
       <!-- STATS CARDS STYLE MODERNE -->
-      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;">
+      <div class="abs-stats-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;">
         <div class="stat-card"
           style="background:linear-gradient(135deg,#EFF6FF,#DBEAFE); border-radius:20px; padding:20px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -2818,7 +2856,7 @@
           </div>
         </div>
 
-        <div style="overflow-x:auto;">
+        <div class="abs-table-wrap" style="overflow-x:auto;">
           <table style="width:100%; border-collapse:collapse;">
             <thead>
               <tr style="background:#F8FAFF; border-bottom:2px solid #E2E8F0;">
@@ -2855,6 +2893,9 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Liste cartes (mobile) — remplace le tableau sur petit écran -->
+        <div id="abs-cards-mobile" class="abs-cards-mobile" style="display:none;"></div>
 
         <!-- Pagination -->
         <div
@@ -7585,6 +7626,7 @@
       if (nextBtn) nextBtn.disabled = currentPage === totalPages || totalPages === 0;
 
       const tbody = document.getElementById('abs-table-body');
+      const cardsWrap = document.getElementById('abs-cards-mobile');
       if (!tbody) return;
 
       if (pageData.length === 0) {
@@ -7597,28 +7639,30 @@
           </div>
         </td>
       </tr>`;
+        if (cardsWrap) cardsWrap.innerHTML = `
+      <div style="text-align:center; padding:40px 20px;">
+        <i data-lucide="inbox" style="width:36px; height:36px; color:#CBD5E1;"></i>
+        <div style="font-size:.82rem; color:#94A3B8; margin-top:10px;">Aucune absence trouvée</div>
+      </div>`;
         if (window.lucide) lucide.createIcons();
         return;
       }
 
-      tbody.innerHTML = pageData.map(a => {
-        const isNJ = !a.justifiee && !a.retard;
-        const isJ = a.justifiee;
-        const isRet = a.retard;
+      function formatDateAbs(dateStr) {
+        if (!dateStr) return '—';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
 
-        let badgeHtml = '';
-        if (isNJ) badgeHtml = '<span class="badge-status badge-nj"><i data-lucide="x-circle" style="width:12px;height:12px;"></i> Non justifiée</span>';
-        else if (isJ) badgeHtml = '<span class="badge-status badge-j"><i data-lucide="check-circle-2" style="width:12px;height:12px;"></i> Justifiée</span>';
-        else if (isRet) badgeHtml = '<span class="badge-status badge-retard"><i data-lucide="clock" style="width:12px;height:12px;"></i> Retard</span>';
+      function badgeFor(a) {
+        if (!a.justifiee && !a.retard) return '<span class="badge-status badge-nj"><i data-lucide="x-circle" style="width:12px;height:12px;"></i> Non justifiée</span>';
+        if (a.justifiee) return '<span class="badge-status badge-j"><i data-lucide="check-circle-2" style="width:12px;height:12px;"></i> Justifiée</span>';
+        if (a.retard) return '<span class="badge-status badge-retard"><i data-lucide="clock" style="width:12px;height:12px;"></i> Retard</span>';
+        return '';
+      }
 
-        function formatDateAbs(dateStr) {
-          if (!dateStr) return '—';
-          const date = new Date(dateStr);
-          if (isNaN(date.getTime())) return dateStr;
-          return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        }
-
-        return `
+      tbody.innerHTML = pageData.map(a => `
       <tr>
         <td style="padding:14px 16px;">
           <span style="font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:700; color:#4F46E5;">${escapeHtmlAbs(a.code_unique || '—')}</span>
@@ -7632,12 +7676,29 @@
         <td style="padding:14px 16px;">
           <span style="font-size:.78rem; color:#475569;">${formatDateAbs(a.date_absence)}</span>
         </td>
-        <td style="padding:14px 16px;">${badgeHtml}</td>
+        <td style="padding:14px 16px;">${badgeFor(a)}</td>
         <td style="padding:14px 16px;">
           <span style="font-size:.72rem; color:#64748B;">${escapeHtmlAbs(a.raison_absence || '—')}</span>
         </td>
-      </tr>`;
-      }).join('');
+      </tr>`).join('');
+
+      if (cardsWrap) {
+        cardsWrap.innerHTML = pageData.map(a => `
+      <div style="background:#fff; border:1px solid #F1F5F9; border-radius:14px; padding:14px 16px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px;">
+          <div>
+            <div style="font-weight:800; color:#0F172A; font-size:.88rem;">${escapeHtmlAbs(a.prenom || '')} ${escapeHtmlAbs(a.nom || '')}</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:700; color:#4F46E5; margin-top:2px;">${escapeHtmlAbs(a.code_unique || '—')}</div>
+          </div>
+          ${badgeFor(a)}
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:${a.raison_absence ? '8px' : '0'};">
+          <span style="padding:3px 10px; background:#EEF2FF; color:#4F46E5; border-radius:20px; font-size:.68rem; font-weight:700;">${escapeHtmlAbs(a.classe_actuelle || a.classe || '—')}</span>
+          <span style="font-size:.75rem; color:#64748B;">📅 ${formatDateAbs(a.date_absence)}</span>
+        </div>
+        ${a.raison_absence ? `<div style="font-size:.72rem; color:#64748B; padding-top:8px; border-top:1px solid #F1F5F9;">${escapeHtmlAbs(a.raison_absence)}</div>` : ''}
+      </div>`).join('');
+      }
 
       if (window.lucide) lucide.createIcons();
     }
