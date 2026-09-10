@@ -80,6 +80,12 @@ class RoleSelectScreen extends StatelessWidget {
                     delay: 650,
                     onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LoginScreen(role: 'DIRECTION'))),
                   ),
+                  const SizedBox(height: 28),
+                  const Text(
+                    'Photo : Desijwo · CC BY-SA 4.0 · Wikimedia Commons',
+                    style: TextStyle(fontSize: 9, color: kTextGray),
+                    textAlign: TextAlign.center,
+                  ).animate().fadeIn(delay: 750.ms, duration: 300.ms),
                 ],
               ),
             ),

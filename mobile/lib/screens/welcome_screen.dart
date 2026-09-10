@@ -128,14 +128,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 18),
-                child: const Text(
-                  'Photo : Desijwo · CC BY-SA 4.0 · Wikimedia Commons',
-                  style: TextStyle(fontSize: 10, color: kTextGray),
-                  textAlign: TextAlign.center,
-                ).animate(delay: 1300.ms).fadeIn(duration: 500.ms),
-              ),
+              const SizedBox(height: 18),
             ],
           ),
         ),
