@@ -23,7 +23,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #0A0C1A;
+      background: #1A130D;
       position: relative;
       overflow: hidden;
     }
@@ -93,7 +93,7 @@
       width: 64px;
       height: 64px;
       border-radius: 20px;
-      background: linear-gradient(135deg, #6366F1, #8B5CF6);
+      background: linear-gradient(135deg, #C86A42, #A8532E);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -120,7 +120,7 @@
     }
 
     .logo-title span {
-      color: #818CF8;
+      color: #CC8656;
     }
 
     .logo-sub {
@@ -148,7 +148,7 @@
       left: 0;
       right: 0;
       height: 3px;
-      background: linear-gradient(90deg, #6366F1, #8B5CF6);
+      background: linear-gradient(90deg, #C86A42, #A8532E);
       border-radius: 24px 24px 0 0;
       transition: background .4s;
     }
@@ -164,7 +164,7 @@
       margin-bottom: 18px;
       font-size: .72rem;
       font-weight: 700;
-      color: #A5B4FC;
+      color: #D9A67E;
     }
 
     .role-badge.on {
@@ -176,7 +176,7 @@
       height: 7px;
       min-width: 7px;
       border-radius: 50%;
-      background: #818CF8;
+      background: #CC8656;
       animation: pulseD 1.5s infinite;
     }
 
@@ -201,7 +201,7 @@
       margin-bottom: 16px;
       font-size: .73rem;
       font-weight: 700;
-      color: #A5B4FC;
+      color: #D9A67E;
       text-align: center;
     }
 
@@ -294,7 +294,7 @@
     .btn-login {
       width: 100%;
       padding: 15px;
-      background: linear-gradient(135deg, #6366F1, #7C3AED);
+      background: linear-gradient(135deg, #C86A42, #8B3220);
       border: none;
       border-radius: 14px;
       font-size: .9rem;
@@ -345,7 +345,7 @@
       padding: 10px 14px;
       font-size: .76rem;
       font-weight: 700;
-      color: #FCA5A5;
+      color: #D98A75;
       margin-top: 14px;
       text-align: center;
     }
@@ -520,16 +520,16 @@
       if (state === 'loading') {
         btn.disabled = true;
         btn.innerHTML = '<div class="spinner"></div>' + (text || 'Vérification...');
-        bar.style.background = 'linear-gradient(90deg,#6366F1,#8B5CF6)';
+        bar.style.background = 'linear-gradient(90deg,#C86A42,#A8532E)';
       } else if (state === 'success') {
-        btn.style.background = 'linear-gradient(135deg,#10B981,#059669)';
+        btn.style.background = 'linear-gradient(135deg,#6B8E3D,#587530)';
         btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg> ' + (text || 'Connexion réussie !');
-        bar.style.background = 'linear-gradient(90deg,#10B981,#059669)';
+        bar.style.background = 'linear-gradient(90deg,#6B8E3D,#587530)';
       } else {
         btn.disabled = false;
         btn.style.background = '';
         btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Se connecter';
-        bar.style.background = 'linear-gradient(90deg,#EF4444,#DC2626)';
+        bar.style.background = 'linear-gradient(90deg,#C0392B,#A93226)';
       }
     }
 

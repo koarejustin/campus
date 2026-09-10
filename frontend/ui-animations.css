@@ -77,7 +77,7 @@ select {
   }
   input:focus, select:focus, textarea:focus {
     outline: none;
-    border-color: #4F46E5 !important;
+    border-color: #B5502F !important;
     box-shadow: 0 0 0 3px rgba(79, 70, 229, .12);
   }
 

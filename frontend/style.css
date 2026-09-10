@@ -1,18 +1,18 @@
 /* 1. VARIABLES & BASE */
 :root {
-    --primary: #4F46E5;
-    --primary-deep: #3730A3;
-    --primary-light: #EEF2FF;
+    --primary: #B5502F;
+    --primary-deep: #6B2A17;
+    --primary-light: #FBF0E6;
     --amber: #D97706;
-    --amber-light: #FFFBEB;
-    --bg: #F8FAFC;
+    --amber-light: #F5EAD2;
+    --bg: #FAF6EE;
     --glass: rgba(255, 255, 255, 0.9);
 }
 
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background-color: var(--bg);
-    color: #1E293B;
+    color: #2E2013;
     overflow-x: hidden;
 }
 
@@ -24,7 +24,7 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 14px;
-    background: #F1F5F9;
+    background: #F0EAE0;
     color: var(--primary) !important;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
@@ -43,7 +43,7 @@ body {
     background: white;
     padding: 3rem 2rem;
     border-radius: 2.5rem;
-    border: 1px solid #E2E8F0;
+    border: 1px solid #E5DDCC;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     text-align: center;
@@ -62,7 +62,7 @@ body {
     background: white;
     padding: 2.5rem 1.5rem;
     border-radius: 2rem;
-    border: 2px solid #F1F5F9;
+    border: 2px solid #F0EAE0;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -122,6 +122,6 @@ aside::-webkit-scrollbar {
 }
 
 aside::-webkit-scrollbar-thumb {
-    background: #E2E8F0;
+    background: #E5DDCC;
     border-radius: 10px;
 }

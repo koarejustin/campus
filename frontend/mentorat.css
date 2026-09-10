@@ -4,15 +4,15 @@
 
 :root {
     --accent: #D97706;
-    --accent2: #F59E0B;
-    --ink: #0D1135;
+    --accent2: #C08A28;
+    --ink: #201509;
     --card: #FFFFFF;
-    --bg: #F0F2F8;
-    --border: #DDE0F0;
-    --muted: #5B6494;
-    --success: #10B981;
-    --warning: #F59E0B;
-    --danger: #EF4444;
+    --bg: #F5EFE0;
+    --border: #EDE0C8;
+    --muted: #8A6B4A;
+    --success: #6B8E3D;
+    --warning: #C08A28;
+    --danger: #C0392B;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -47,8 +47,8 @@
    ───────────────────────────────────────────────────────────── */
 
 .card-eleve {
-    background: linear-gradient(135deg, #EEF2FF 0%, #F0E7FF 100%);
-    border: 1.5px solid #E0E7FF;
+    background: linear-gradient(135deg, #FBF0E6 0%, #F0E7FF 100%);
+    border: 1.5px solid #F5E4D3;
     border-radius: 10px;
     padding: 14px;
     margin-bottom: 12px;
@@ -59,7 +59,7 @@
 .card-eleve:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
-    border-color: #4F46E5;
+    border-color: #B5502F;
 }
 
 .eleve-header {
@@ -122,7 +122,7 @@
 }
 
 .entree-journal {
-    background: linear-gradient(135deg, #FAFBFF 0%, #FFFFFF 100%);
+    background: linear-gradient(135deg, #FBF8F1 0%, #FFFFFF 100%);
     border-left: 4px solid var(--accent);
     border-radius: 10px;
     padding: 14px 16px;
@@ -136,7 +136,7 @@
 }
 
 .entree-journal.prive {
-    border-left-color: #9333EA;
+    border-left-color: #9C4A22;
     background: linear-gradient(135deg, #FAF5FF 0%, #FFFFFF 100%);
 }
 
@@ -170,8 +170,8 @@
 }
 
 .role-badge {
-    background: #E0E7FF;
-    color: #4F46E5;
+    background: #F5E4D3;
+    color: #B5502F;
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.6rem;
@@ -202,28 +202,28 @@
 
 .badge-note {
     background: #DDF4FF;
-    color: #0369A1;
+    color: #6B5030;
 }
 
 .badge-objectif {
-    background: #DBEAFE;
-    color: #0284C7;
+    background: #EDE0C8;
+    color: #7A5E3A;
 }
 
 .badge-reflexion {
-    background: #FED7AA;
-    color: #92400E;
+    background: #E8C79A;
+    color: #7A5218;
 }
 
 .badge-feedback {
-    background: #C7D2FE;
-    color: #4338CA;
+    background: #E8C7A8;
+    color: #7A3320;
 }
 
 .badge-prive {
     display: inline-block;
-    background: #F3E8FF;
-    color: #7C3AED;
+    background: #F7EADA;
+    color: #8B3220;
     padding: 4px 8px;
     border-radius: 6px;
     font-size: 0.65rem;
@@ -234,7 +234,7 @@
 .entree-content {
     font-size: 0.8rem;
     line-height: 1.5;
-    color: #1F2937;
+    color: #2E2013;
     margin: 10px 0;
     white-space: pre-wrap;
     word-wrap: break-word;
@@ -271,11 +271,11 @@
 }
 
 .btn-small:hover {
-    background: #E2E8F0;
+    background: #E5DDCC;
 }
 
 .btn-small.btn-danger:hover {
-    background: #FECACA;
+    background: #E8B8A8;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -284,8 +284,8 @@
 
 .mentor-profile {
     padding: 20px;
-    background: linear-gradient(135deg, #EEF2FF 0%, #F0E7FF 100%);
-    border: 1.5px solid #E0E7FF;
+    background: linear-gradient(135deg, #FBF0E6 0%, #F0E7FF 100%);
+    border: 1.5px solid #F5E4D3;
 }
 
 .mentor-header {
@@ -333,7 +333,7 @@
 
 .mentor-details {
     font-size: 0.8rem;
-    color: #374151;
+    color: #3D3323;
     margin-bottom: 12px;
 }
 
@@ -521,7 +521,7 @@
 .moyenne-generale {
     font-size: 0.9rem;
     padding: 10px;
-    background: #FFF7ED;
+    background: #F5EAD2;
     border-left: 3px solid var(--accent);
     border-radius: 6px;
     margin-bottom: 12px;
@@ -639,8 +639,8 @@
 }
 
 .orientation-card {
-    background: linear-gradient(135deg, #EEF2FF 0%, #FAF5FF 100%);
-    border: 1.5px solid #E0E7FF;
+    background: linear-gradient(135deg, #FBF0E6 0%, #FAF5FF 100%);
+    border: 1.5px solid #F5E4D3;
     border-radius: 12px;
     padding: 16px;
     cursor: pointer;
@@ -650,7 +650,7 @@
 .orientation-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 16px rgba(79, 70, 229, 0.15);
-    border-color: #4F46E5;
+    border-color: #B5502F;
 }
 
 .orientation-header {
@@ -682,7 +682,7 @@
 
 .orientation-set strong {
     display: block;
-    color: #15803D;
+    color: #4A6329;
     font-size: 0.85rem;
     font-weight: 700;
     margin-bottom: 6px;
@@ -690,19 +690,19 @@
 
 .justification {
     font-size: 0.7rem;
-    color: #4B5563;
+    color: #4A3F30;
     font-style: italic;
     margin: 0;
     line-height: 1.4;
 }
 
 .no-orientation {
-    color: #F59E0B;
+    color: #C08A28;
     font-size: 0.8rem;
     font-weight: 600;
     padding: 8px;
-    background: #FFFBEB;
-    border-left: 3px solid #F59E0B;
+    background: #F5EAD2;
+    border-left: 3px solid #C08A28;
     border-radius: 4px;
 }
 
@@ -717,14 +717,14 @@
 .orientation-card .btn-small {
     width: 100%;
     margin-top: 10px;
-    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    background: linear-gradient(135deg, #B5502F 0%, #8B3220 100%);
     color: white;
     border: none;
     font-weight: 600;
 }
 
 .orientation-card .btn-small:hover {
-    background: linear-gradient(135deg, #4338CA 0%, #6D28D9 100%);
+    background: linear-gradient(135deg, #7A3320 0%, #7A2C18 100%);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -767,7 +767,7 @@
 
 .modal-orientation-eleve {
     font-size: 0.9rem;
-    color: #7C3AED;
+    color: #8B3220;
     margin-bottom: 16px;
 }
 
@@ -790,8 +790,8 @@
 }
 
 .orientation-option:hover {
-    border-color: #7C3AED;
-    background: #F3E8FF;
+    border-color: #8B3220;
+    background: #F7EADA;
 }
 
 .orientation-option input[type="radio"] {
@@ -843,7 +843,7 @@
 }
 
 .orientation-justification-group textarea:focus {
-    border-color: #7C3AED;
+    border-color: #8B3220;
     outline: none;
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
@@ -866,7 +866,7 @@
 
 .btn-confirm {
     padding: 10px 20px;
-    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    background: linear-gradient(135deg, #B5502F 0%, #8B3220 100%);
     color: white;
     border: none;
     border-radius: 8px;
@@ -876,5 +876,5 @@
 }
 
 .btn-confirm:hover {
-    background: linear-gradient(135deg, #4338CA 0%, #6D28D9 100%);
+    background: linear-gradient(135deg, #7A3320 0%, #7A2C18 100%);
 }

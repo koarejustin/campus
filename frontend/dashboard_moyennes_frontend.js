@@ -18,8 +18,8 @@ async function loadMoyennesAvancees(trimestre = '') {
 
   // Skeleton loader
   container.innerHTML = `
-    <div class="sk-block" style="height:120px;border-radius:16px;margin-bottom:16px;background:linear-gradient(90deg,#e8eaf0 25%,#f4f5f8 50%,#e8eaf0 75%);background-size:200% 100%;animation:sk-shine 1.4s infinite"></div>
-    <div class="sk-block" style="height:300px;border-radius:16px;background:linear-gradient(90deg,#e8eaf0 25%,#f4f5f8 50%,#e8eaf0 75%);background-size:200% 100%;animation:sk-shine 1.4s infinite"></div>
+    <div class="sk-block" style="height:120px;border-radius:16px;margin-bottom:16px;background:linear-gradient(90deg,#EDE0C8 25%,#FAF5EA 50%,#EDE0C8 75%);background-size:200% 100%;animation:sk-shine 1.4s infinite"></div>
+    <div class="sk-block" style="height:300px;border-radius:16px;background:linear-gradient(90deg,#EDE0C8 25%,#FAF5EA 50%,#EDE0C8 75%);background-size:200% 100%;animation:sk-shine 1.4s infinite"></div>
   `;
 
   try {
@@ -32,7 +32,7 @@ async function loadMoyennesAvancees(trimestre = '') {
     renderMoyennesDashboard(data);
   } catch (e) {
     container.innerHTML = `
-      <div style="padding:24px;background:#fff;border-radius:16px;border:1px solid #fee2e2;color:#c0392b;font-size:.82rem">
+      <div style="padding:24px;background:#fff;border-radius:16px;border:1px solid #F7E3DC;color:#c0392b;font-size:.82rem">
         ⚠️ Impossible de charger les moyennes : ${e.message}
       </div>`;
   }
@@ -45,7 +45,7 @@ function renderMoyennesDashboard(data) {
 
   const mg      = data.moyenne_generale;
   const mention = data.mention || '—';
-  const couleur = mg >= 14 ? '#10B981' : mg >= 10 ? '#3B49DF' : '#C0392B';
+  const couleur = mg >= 14 ? '#6B8E3D' : mg >= 10 ? '#B5502F' : '#C0392B';
   const evolution = data.evolution_trimestrielle || [];
   const alertes   = data.alertes_baisses || [];
   const predictif = data.predictif || {};
@@ -63,7 +63,7 @@ function renderMoyennesDashboard(data) {
           ${mg !== null ? mg.toFixed(2) : '—'}
         </div>
         <div style="font-size:.72rem;font-weight:700;color:${couleur};margin-top:6px">${mention}</div>
-        <div style="width:100%;height:6px;background:#f0f2f8;border-radius:3px;margin-top:12px;overflow:hidden">
+        <div style="width:100%;height:6px;background:#F5EFE0;border-radius:3px;margin-top:12px;overflow:hidden">
           <div style="height:100%;width:${mg !== null ? (mg/20*100) : 0}%;background:${couleur};border-radius:3px;transition:width .8s ease"></div>
         </div>
       </div>
@@ -72,7 +72,7 @@ function renderMoyennesDashboard(data) {
         <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px">Meilleure Matière</div>
         ${stats.meilleure_matiere ? `
           <div style="font-size:.88rem;font-weight:700;color:var(--ink)">${stats.meilleure_matiere.nom}</div>
-          <div style="font-size:1.6rem;font-weight:900;color:#10B981">${stats.meilleure_matiere.moyenne}</div>
+          <div style="font-size:1.6rem;font-weight:900;color:#6B8E3D">${stats.meilleure_matiere.moyenne}</div>
           <div style="font-size:.65rem;color:var(--muted)">Coef. ${stats.meilleure_matiere.coefficient}</div>
         ` : '<div style="color:var(--muted);font-size:.8rem">Aucune note</div>'}
       </div>
@@ -83,7 +83,7 @@ function renderMoyennesDashboard(data) {
           <div style="font-size:.88rem;font-weight:700;color:var(--ink)">${stats.matiere_en_difficulte.nom}</div>
           <div style="font-size:1.6rem;font-weight:900;color:#C0392B">${stats.matiere_en_difficulte.moyenne}</div>
           <div style="font-size:.65rem;color:#C0392B">En dessous de 10</div>
-        ` : '<div style="color:#10B981;font-size:.8rem;font-weight:700">✓ Tout va bien</div>'}
+        ` : '<div style="color:#6B8E3D;font-size:.8rem;font-weight:700">✓ Tout va bien</div>'}
       </div>
     </div>
 
@@ -119,8 +119,8 @@ function renderMoyennesDashboard(data) {
         ${[
           { label: 'Obtenir 10/20', val: predictif.pour_avoir_10,  color: '#C0392B' },
           { label: 'Atteindre 12', val: predictif.pour_avoir_12,  color: '#E67E22' },
-          { label: 'Viser 14',     val: predictif.pour_avoir_14,  color: '#10B981' },
-          { label: 'Maintenir',    val: predictif.pour_maintenir, color: '#3B49DF' },
+          { label: 'Viser 14',     val: predictif.pour_avoir_14,  color: '#6B8E3D' },
+          { label: 'Maintenir',    val: predictif.pour_maintenir, color: '#B5502F' },
         ].map(p => `
           <div style="margin-bottom:10px">
             <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -160,9 +160,9 @@ function renderMoyennesDashboard(data) {
           </thead>
           <tbody>
             ${(data.detail_matieres || []).map(m => {
-              const c = m.moyenne >= 14 ? '#10B981' : m.moyenne >= 10 ? '#3B49DF' : m.moyenne !== null ? '#C0392B' : '#94a3b8';
+              const c = m.moyenne >= 14 ? '#6B8E3D' : m.moyenne >= 10 ? '#B5502F' : m.moyenne !== null ? '#C0392B' : '#8A7D68';
               return `
-              <tr style="border-bottom:1px solid #f0f2f8">
+              <tr style="border-bottom:1px solid #F5EFE0">
                 <td style="padding:10px 12px;font-weight:600;color:var(--ink)">${m.nom}${m.optionnel ? ' <span style="font-size:.6rem;color:var(--muted)">(opt.)</span>' : ''}</td>
                 <td style="padding:10px 12px;text-align:center;font-weight:800;color:var(--muted)">${m.coefficient}</td>
                 <td style="padding:10px 12px;text-align:center;font-weight:900;color:${c};font-size:.95rem">
@@ -174,7 +174,7 @@ function renderMoyennesDashboard(data) {
                   </span>
                 </td>
                 <td style="padding:10px 12px">
-                  <div style="height:6px;background:#f0f2f8;border-radius:3px;width:100%;overflow:hidden">
+                  <div style="height:6px;background:#F5EFE0;border-radius:3px;width:100%;overflow:hidden">
                     <div style="height:100%;width:${m.moyenne !== null ? (m.moyenne/20*100) : 0}%;background:${c};border-radius:3px"></div>
                   </div>
                 </td>
@@ -187,12 +187,12 @@ function renderMoyennesDashboard(data) {
 
     <!-- Alertes baisses -->
     ${alertes.length > 0 ? `
-    <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #fee2e2;margin-bottom:16px">
+    <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #F7E3DC;margin-bottom:16px">
       <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#C0392B;margin-bottom:12px">
         ⚠️ Alertes · Baisses Détectées
       </div>
       ${alertes.map(a => `
-        <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:${a.alerte==='CRITIQUE'?'#fef2f2':'#fffbeb'};margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:${a.alerte==='CRITIQUE'?'#F9E8E1':'#F5EAD2'};margin-bottom:8px">
           <span style="font-size:1.2rem">${a.alerte === 'CRITIQUE' ? '🔴' : '🟡'}</span>
           <div>
             <div style="font-weight:700;font-size:.8rem;color:var(--ink)">${a.matiere}</div>
@@ -224,10 +224,10 @@ function renderMoyennesDashboard(data) {
           datasets: [{
             label: 'Moyenne Générale',
             data: evolution.map(e => e.moyenne),
-            borderColor: '#3B49DF',
+            borderColor: '#B5502F',
             backgroundColor: 'rgba(59,73,223,.08)',
             borderWidth: 3,
-            pointBackgroundColor: '#3B49DF',
+            pointBackgroundColor: '#B5502F',
             pointRadius: 6,
             pointHoverRadius: 8,
             tension: 0.4,
@@ -253,7 +253,7 @@ function renderMoyennesDashboard(data) {
             }
           },
           scales: {
-            y: { min: 0, max: 20, ticks: { font: { size: 10 } }, grid: { color: '#f0f2f8' } },
+            y: { min: 0, max: 20, ticks: { font: { size: 10 } }, grid: { color: '#F5EFE0' } },
             x: { ticks: { font: { size: 10 } }, grid: { display: false } }
           }
         }
@@ -291,7 +291,7 @@ function renderMoyennesDashboard(data) {
             }
           },
           scales: {
-            y: { min: 0, max: 20, ticks: { font: { size: 10 } }, grid: { color: '#f0f2f8' } },
+            y: { min: 0, max: 20, ticks: { font: { size: 10 } }, grid: { color: '#F5EFE0' } },
             x: { ticks: { font: { size: 9 }, maxRotation: 30 }, grid: { display: false } }
           }
         }
@@ -351,18 +351,18 @@ async function loadConvocationsRealtime() {
 
     container.innerHTML = data.convocations.map(c => {
       const statutColor = {
-        'ENVOYEE':   { bg: '#fef9c3', color: '#92400e', icon: '🕐', label: 'En attente' },
-        'EN_ATTENTE':{ bg: '#fef9c3', color: '#92400e', icon: '🕐', label: 'En attente' },
-        'LU':        { bg: '#dcfce7', color: '#166534', icon: '✅', label: 'Lu par parent' },
-        'VALIDE':    { bg: '#dcfce7', color: '#166534', icon: '✅', label: 'Validé' },
-        'PASSEE':    { bg: '#f1f5f9', color: '#64748b', icon: '📁', label: 'Passée' },
+        'ENVOYEE':   { bg: '#F2E6C5', color: '#7A5218', icon: '🕐', label: 'En attente' },
+        'EN_ATTENTE':{ bg: '#F2E6C5', color: '#7A5218', icon: '🕐', label: 'En attente' },
+        'LU':        { bg: '#EDF1DE', color: '#3D5322', icon: '✅', label: 'Lu par parent' },
+        'VALIDE':    { bg: '#EDF1DE', color: '#3D5322', icon: '✅', label: 'Validé' },
+        'PASSEE':    { bg: '#F0EAE0', color: '#6B5D4A', icon: '📁', label: 'Passée' },
       };
       const s = statutColor[c.statut] || statutColor['ENVOYEE'];
       const urgent = c.periode === 'URGENTE';
 
       return `
         <div style="background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;
-                    border:1px solid ${urgent ? '#fecaca' : 'var(--border)'};
+                    border:1px solid ${urgent ? '#E8B8A8' : 'var(--border)'};
                     border-left:4px solid ${urgent ? '#C0392B' : 'var(--accent)'}">
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px">
             <div style="font-weight:700;font-size:.85rem;color:var(--ink)">${c.sujet || 'Convocation'}</div>
@@ -378,7 +378,7 @@ async function loadConvocationsRealtime() {
               ${urgent ? ' <span style="color:#C0392B;font-weight:700">— URGENT</span>' : ''}
             </div>
             ${c.date_accuse ? `
-              <div style="font-size:.65rem;color:#10B981">
+              <div style="font-size:.65rem;color:#6B8E3D">
                 ✓ Accusé reçu le ${new Date(c.date_accuse).toLocaleDateString('fr-FR')}
               </div>` : ''}
           </div>

@@ -142,16 +142,16 @@
     btn.id = 'notif-btn';
     btn.style.cssText = `
       position: relative; cursor: pointer; width: 40px; height: 40px;
-      background: var(--bg2, #F1F5F9); border-radius: 50%;
+      background: var(--bg2, #F0EAE0); border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.1rem; flex-shrink: 0; transition: background 0.2s;
-      border: 1px solid var(--border, #E2E8F0);
+      border: 1px solid var(--border, #E5DDCC);
     `;
     btn.innerHTML = `
       🔔
       <span id="notif-badge" style="
         display: none; position: absolute; top: -3px; right: -3px;
-        background: #EF4444; color: white; font-size: 0.55rem;
+        background: #C0392B; color: white; font-size: 0.55rem;
         font-weight: 800; border-radius: 50%; min-width: 17px; height: 17px;
         display: none; align-items: center; justify-content: center;
         padding: 0 3px; border: 2px solid white; line-height: 1;
@@ -168,18 +168,18 @@
       width: min(360px, calc(100vw - 32px));
       background: var(--card-bg, white); border-radius: 16px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 9999;
-      border: 1px solid var(--border, #E2E8F0); overflow: hidden;
+      border: 1px solid var(--border, #E5DDCC); overflow: hidden;
       max-height: 80vh;
     `;
     panel.innerHTML = `
       <div style="
         padding: 14px 16px; font-weight: 800; font-size: 0.85rem;
-        border-bottom: 1px solid var(--border, #E2E8F0);
+        border-bottom: 1px solid var(--border, #E5DDCC);
         display: flex; justify-content: space-between; align-items: center;
       ">
         🔔 Notifications
         <button id="notif-mark-all" style="
-          font-size: 0.65rem; font-weight: 700; color: #6366F1;
+          font-size: 0.65rem; font-weight: 700; color: #C86A42;
           background: none; border: none; cursor: pointer; padding: 0;
         ">Tout marquer lu</button>
       </div>
@@ -211,7 +211,7 @@
     const list = document.getElementById('notif-list');
     if (!list) return;
 
-    list.innerHTML = '<div style="padding:20px;text-align:center;color:#94A3B8;font-size:0.8rem;">Chargement...</div>';
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:#8A7D68;font-size:0.8rem;">Chargement...</div>';
 
     try {
       const session = JSON.parse(localStorage.getItem('user_session') || '{}');
@@ -225,7 +225,7 @@
       const notifs = data.notifications || [];
 
       if (!notifs.length) {
-        list.innerHTML = '<div style="padding:30px;text-align:center;"><div style="font-size:2rem;margin-bottom:8px;">🔕</div><div style="color:#94A3B8;font-size:0.8rem;">Aucune notification</div></div>';
+        list.innerHTML = '<div style="padding:30px;text-align:center;"><div style="font-size:2rem;margin-bottom:8px;">🔕</div><div style="color:#8A7D68;font-size:0.8rem;">Aucune notification</div></div>';
         return;
       }
 
@@ -237,7 +237,7 @@
           <div data-id="${n.id_notification || n.id}" data-type="${n.type || ''}" data-lien="${n.lien || ''}"
             onclick="window._notifClick(this)"
             style="
-              padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border-light, #F1F5F9);
+              padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border-light, #F0EAE0);
               display: flex; gap: 12px; align-items: flex-start;
               background: ${lue ? 'transparent' : 'rgba(99,102,241,0.04)'};
               transition: background 0.15s;
@@ -247,19 +247,19 @@
           >
             <div style="font-size:1.2rem;flex-shrink:0;margin-top:2px;">${icone}</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-weight:${lue ? '500' : '700'};font-size:0.8rem;color:var(--text,#1E293B);line-height:1.3;margin-bottom:3px;">
+              <div style="font-weight:${lue ? '500' : '700'};font-size:0.8rem;color:var(--text,#2E2013);line-height:1.3;margin-bottom:3px;">
                 ${escH(n.titre || '')}
               </div>
-              <div style="font-size:0.72rem;color:#64748B;line-height:1.4;">${escH(n.contenu || '')}</div>
-              <div style="font-size:0.65rem;color:#94A3B8;margin-top:4px;">${date}</div>
+              <div style="font-size:0.72rem;color:#6B5D4A;line-height:1.4;">${escH(n.contenu || '')}</div>
+              <div style="font-size:0.65rem;color:#8A7D68;margin-top:4px;">${date}</div>
             </div>
-            ${!lue ? '<div style="width:8px;height:8px;background:#6366F1;border-radius:50%;flex-shrink:0;margin-top:6px;"></div>' : ''}
+            ${!lue ? '<div style="width:8px;height:8px;background:#C86A42;border-radius:50%;flex-shrink:0;margin-top:6px;"></div>' : ''}
           </div>
         `;
       }).join('');
 
     } catch (e) {
-      list.innerHTML = '<div style="padding:20px;text-align:center;color:#EF4444;font-size:0.75rem;">Erreur de chargement</div>';
+      list.innerHTML = '<div style="padding:20px;text-align:center;color:#C0392B;font-size:0.75rem;">Erreur de chargement</div>';
     }
   }
 
