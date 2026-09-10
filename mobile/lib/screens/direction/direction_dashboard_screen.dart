@@ -85,7 +85,7 @@ class _DirectionDashboardScreenState extends State<DirectionDashboardScreen> {
                       const SizedBox(height: 12),
                       Text('${_greeting()}, ${user?['prenom'] ?? ''} ${_greetingEmoji()}', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800)),
                       const SizedBox(height: 4),
-                      const Text('Espace Direction', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                      Text(_isDirection ? 'Espace Direction' : 'Espace Surveillant', style: const TextStyle(color: Colors.white70, fontSize: 13)),
                     ],
                   ),
                 ],
