@@ -1065,7 +1065,7 @@
     padding-bottom: 4px !important;
     scrollbar-width: none !important;
     gap: 4px !important;
-    /* ✅ overflow-x:auto retire la taille minimale automatique de cet
+    /* overflow-x:auto retire la taille minimale automatique de cet
        élément dans son parent flex-column (#s-notes) — sans protection,
        flexbox l'écrase à quelques pixels de haut quand la page manque
        de place verticale (onglets "choisir la classe" invisibles). */
@@ -1119,7 +1119,7 @@
     scrollbar-width: none !important;
     -ms-overflow-style: none !important;
     padding-bottom: 2px !important;
-    /* ✅ Même bug que .cls-tabs : overflow-x:auto sans flex-shrink:0
+    /* Même bug que .cls-tabs : overflow-x:auto sans flex-shrink:0
        se fait écraser à quelques pixels de haut dans un parent
        flex-column manquant de place verticale. */
     flex-shrink: 0 !important;
@@ -1162,7 +1162,7 @@
     scrollbar-width: none !important;
     -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
-    /* ✅ Même bug que .cls-tabs : sans flex-shrink:0, cette barre peut
+    /* Même bug que .cls-tabs : sans flex-shrink:0, cette barre peut
        être écrasée à quelques pixels de haut par son parent flex-column. */
     flex-shrink: 0 !important;
   }
@@ -1899,7 +1899,7 @@
     gap: 5px !important;
     padding-bottom: 4px !important;
     scrollbar-width: none !important;
-    /* ✅ Même bug que .cls-tabs (professeur) : overflow-x:auto sans
+    /* Même bug que .cls-tabs (professeur) : overflow-x:auto sans
        flex-shrink:0 se fait écraser à quelques pixels de haut dans un
        parent flex-column (.pg/.sec) manquant de place verticale. */
     flex-shrink: 0 !important;

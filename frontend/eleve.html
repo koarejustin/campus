@@ -16,7 +16,7 @@
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap"
     rel="stylesheet">
   <script>
-    // ✅ Chart.js servi localement (/vendor/) plutôt que depuis un CDN
+    // Chart.js servi localement (/vendor/) plutôt que depuis un CDN
     // externe (jsdelivr) — le CDN était injoignable/lent depuis certains
     // réseaux (Burkina Faso), ce qui affichait "Graphique indisponible"
     // même avec une connexion internet par ailleurs normale.
@@ -990,7 +990,7 @@
     }
 
     .annonce-card::after {
-      content: '📢';
+      content: '';
       position: absolute;
       right: 12px;
       top: 50%;
@@ -1181,14 +1181,14 @@
           <div class="sb-user-mat" id="sb-mat">--</div>
         </div>
         <button onclick="openChangePassword()" title="Changer mon mot de passe"
-          style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px;cursor:pointer;color:#fff;flex-shrink:0;">🔒</button>
+          style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px;cursor:pointer;color:#fff;flex-shrink:0;"></button>
       </div>
     </div>
 
     <div id="m-chg-pwd" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none';">
       <div style="background:#fff;border-radius:14px;padding:20px;max-width:380px;width:92%;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <div style="font-size:.9rem;font-weight:800;color:#1E2818;">🔒 Changer mon mot de passe</div>
+          <div style="font-size:.9rem;font-weight:800;color:#1E2818;">Changer mon mot de passe</div>
           <button onclick="document.getElementById('m-chg-pwd').style.display='none';" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:#6B5D42;">✕</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:9px;">
@@ -1241,7 +1241,7 @@
         Convocations<span class="badge" id="badge-conv" style="display:none">0</span>
       </div>
       <div class="ni" onclick="goPage('annonces')" id="ni-annonces">
-        📢
+       
         Annonces<span class="badge-blue" id="badge-ann" style="display:none">0</span>
       </div>
       <div class="ni" onclick="goPage('ressources')" id="ni-ressources">
@@ -1324,7 +1324,7 @@
 
       <div class="pg-hd">
         <div>
-          <div class="pg-title">Bonjour, <span id="dash-prenom" style="color:var(--accent)">--</span> 👋</div>
+          <div class="pg-title">Bonjour, <span id="dash-prenom" style="color:var(--accent)">--</span></div>
           <div class="pg-sub" id="dash-classe-sub">Chargement de vos informations...</div>
         </div>
         <select class="tri-sel" id="dash-tri" onchange="loadBulletinTri()">
@@ -1338,31 +1338,31 @@
           <div class="kpi-label">Moyenne Générale</div>
           <div class="kpi-val" id="kpi-moy" style="color:var(--accent)">--</div>
           <div class="kpi-foot">sur 20</div>
-          <div class="kpi-icon" style="background:#E4EEDD;">📊</div>
+          <div class="kpi-icon" style="background:#E4EEDD;"></div>
         </div>
         <div class="kpi">
           <div class="kpi-label">Absences NJ</div>
           <div class="kpi-val" id="kpi-abs" style="color:var(--red)">--</div>
           <div class="kpi-foot">non justifiées</div>
-          <div class="kpi-icon" style="background:#F7E3DC;">⚠️</div>
+          <div class="kpi-icon" style="background:#F7E3DC;"></div>
         </div>
         <div class="kpi">
           <div class="kpi-label">Convocations</div>
           <div class="kpi-val" id="kpi-conv" style="color:var(--amber)">--</div>
           <div class="kpi-foot">en attente</div>
-          <div class="kpi-icon" style="background:#F2E6C5;">🔔</div>
+          <div class="kpi-icon" style="background:#F2E6C5;"></div>
         </div>
         <div class="kpi">
           <div class="kpi-label">Ressources</div>
           <div class="kpi-val" id="kpi-res" style="color:var(--green)">--</div>
           <div class="kpi-foot">disponibles</div>
-          <div class="kpi-icon" style="background:#EDF1DE;">📚</div>
+          <div class="kpi-icon" style="background:#EDF1DE;"></div>
         </div>
       </div>
       <div class="grid-2" style="gap:14px;margin-bottom:14px;">
         <div class="card">
           <div class="card-hd">
-            <div class="card-hd-title">📋 Mes Notes (Trimestre actuel)</div><button class="btn-sm"
+            <div class="card-hd-title">Mes Notes (Trimestre actuel)</div><button class="btn-sm"
               onclick="goPage('bulletin')">Voir tout</button>
           </div>
           <div id="dash-notes-list">
@@ -1374,7 +1374,7 @@
 
         <div class="card">
           <div class="card-hd">
-            <div class="card-hd-title">�📈 Évolution des Moyennes</div>
+            <div class="card-hd-title">�Évolution des Moyennes</div>
           </div>
           <div class="chart-wrap"><canvas id="chart-evo"></canvas></div>
         </div>
@@ -1382,24 +1382,24 @@
       <div class="annonce-card" style="margin-bottom:14px;" id="dash-annonce" onclick="goPage('annonces')">
         <div
           style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;opacity:.7;margin-bottom:4px;">
-          📢 Annonce Officielle</div>
+          Annonce Officielle</div>
         <div style="font-size:.88rem;font-weight:700;" id="dash-annonce-txt">Chargement des annonces...</div>
       </div>
       <div class="card">
         <div class="card-hd">
-          <div class="card-hd-title">⚡ Accès Rapide</div>
+          <div class="card-hd-title">Accès Rapide</div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;"><button onclick="goPage('forum-classe')"
             style="padding:14px 10px;background:#E4EEDD;border:none;border-radius:10px;cursor:pointer;">
-            <div style="font-size:1.4rem;margin-bottom:4px;">💬</div>
+            <div style="font-size:1.4rem;margin-bottom:4px;"></div>
             <div style="font-size:.68rem;font-weight:700;">Forum Classe</div>
           </button><button onclick="goPage('grand-eleves')"
             style="padding:14px 10px;background:#F2F0E2;border:none;border-radius:10px;cursor:pointer;">
-            <div style="font-size:1.4rem;margin-bottom:4px;">🌍</div>
+            <div style="font-size:1.4rem;margin-bottom:4px;"></div>
             <div style="font-size:.68rem;font-weight:700;">Grand Élèves</div>
           </button><button onclick="goPage('ressources')"
             style="padding:14px 10px;background:#F5EAD2;border:none;border-radius:10px;cursor:pointer;">
-            <div style="font-size:1.4rem;margin-bottom:4px;">📖</div>
+            <div style="font-size:1.4rem;margin-bottom:4px;"></div>
             <div style="font-size:.68rem;font-weight:700;">Ressources</div>
           </button></div>
       </div>
@@ -1409,14 +1409,14 @@
     <div class="pg" id="pg-bulletin">
       <div class="pg-hd">
         <div>
-          <div class="pg-title">📚 Mon Bulletin</div>
+          <div class="pg-title">Mon Bulletin</div>
           <div class="pg-sub">Notes par matière — Année scolaire 2025-2026</div>
         </div>
         <div style="display:flex;gap:8px;"><select class="tri-sel" id="bul-tri" onchange="loadBulletinPage()">
             <option value="1">Trimestre 1</option>
             <option value="2">Trimestre 2</option>
             <option value="3">Trimestre 3</option>
-          </select><button class="btn-ghost" onclick="window.print()">🖨️ Imprimer</button></div>
+          </select><button class="btn-ghost" onclick="window.print()">Imprimer</button></div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;" id="bul-resume"></div>
       <div class="card" id="bul-table-card">
@@ -1427,7 +1427,7 @@
         </div>
       </div>
       <div class="card" id="copies-scan-card" style="display:none;margin-top:14px;">
-        <div style="font-weight:800;font-size:.85rem;margin-bottom:10px;">📎 Copies corrigées</div>
+        <div style="font-weight:800;font-size:.85rem;margin-bottom:10px;">Copies corrigées</div>
         <div id="copies-scan-list"></div>
       </div>
     </div>
@@ -1439,7 +1439,7 @@
     <div class="pg" id="pg-absences">
       <div class="pg-hd">
         <div>
-          <div class="pg-title">📅 Mes Absences</div>
+          <div class="pg-title">Mes Absences</div>
           <div class="pg-sub">Suivi de vos présences — Justification et statut</div>
         </div>
       </div>
@@ -1447,7 +1447,7 @@
       <div class="card">
         <div id="abs-content">
           <div class="empty">
-            <div class="empty-icon">📅</div>
+            <div class="empty-icon"></div>
             <div class="empty-txt">Chargement...</div>
           </div>
         </div>
@@ -1458,13 +1458,13 @@
     <div class="pg" id="pg-convocations">
       <div class="pg-hd">
         <div>
-          <div class="pg-title">⚠️ Convocations</div>
+          <div class="pg-title">Convocations</div>
           <div class="pg-sub">Uniquement visible par vous et votre parent</div>
         </div>
       </div>
       <div id="conv-content" style="display:flex;flex-direction:column;gap:10px;">
         <div class="empty">
-          <div class="empty-icon">⏳</div>
+          <div class="empty-icon"></div>
           <div class="empty-txt">Chargement...</div>
         </div>
       </div>
@@ -1474,13 +1474,13 @@
     <div class="pg" id="pg-annonces">
       <div class="pg-hd">
         <div>
-          <div class="pg-title">📢 Annonces Officielles</div>
+          <div class="pg-title">Annonces Officielles</div>
           <div class="pg-sub">Informations importantes de la direction</div>
         </div>
       </div>
       <div id="ann-content" style="display:flex;flex-direction:column;gap:10px;">
         <div class="empty">
-          <div class="empty-icon">⏳</div>
+          <div class="empty-icon"></div>
           <div class="empty-txt">Chargement...</div>
         </div>
       </div>
@@ -1490,20 +1490,20 @@
     <div class="pg" id="pg-ressources">
       <div class="pg-hd">
         <div>
-          <div class="pg-title">📖 Ressources & Cours</div>
+          <div class="pg-title">Ressources & Cours</div>
           <div class="pg-sub">Documents et vidéos partagés par vos professeurs</div>
         </div>
       </div>
       <div class="tabs" id="res-tabs">
-        <div class="tab on" onclick="filterRes('tous',this)">📚 Tous</div>
-        <div class="tab" onclick="filterRes('cours',this)">📄 Cours</div>
-        <div class="tab" onclick="filterRes('td',this)">📝 TD</div>
-        <div class="tab" onclick="filterRes('video',this)">🎬 Vidéos</div>
-        <div class="tab" onclick="afficherMesProfs(this)">👤 Mes Professeurs</div>
+        <div class="tab on" onclick="filterRes('tous',this)">Tous</div>
+        <div class="tab" onclick="filterRes('cours',this)">Cours</div>
+        <div class="tab" onclick="filterRes('td',this)">TD</div>
+        <div class="tab" onclick="filterRes('video',this)">Vidéos</div>
+        <div class="tab" onclick="afficherMesProfs(this)">Mes Professeurs</div>
       </div>
       <div id="res-content" style="display:flex;flex-direction:column;gap:10px;">
         <div class="empty">
-          <div class="empty-icon">📚</div>
+          <div class="empty-icon"></div>
           <div class="empty-txt">Chargement...</div>
         </div>
       </div>
@@ -1514,13 +1514,13 @@
     <div class="pg" id="pg-forum-classe">
       <div class="pg-hd">
         <div>
-          <div class="pg-title">💬 Forum de Classe</div>
+          <div class="pg-title">Forum de Classe</div>
           <div class="pg-sub" id="fc-sub">Discussions internes à votre classe — Privé, visible uniquement entre élèves
           </div>
         </div>
         <div
           style="background:#F2E6C5;border:1px solid #FDE68A;border-radius:8px;padding:6px 12px;font-size:.66rem;font-weight:700;color:#7A5218;">
-          🔒 Invisible aux professeurs & direction</div>
+          Invisible aux professeurs & direction</div>
       </div>
       <div class="card"
         style="padding:0;overflow:hidden;display:flex;flex-direction:column;height:calc(100vh - 180px);">
@@ -1550,7 +1550,7 @@
     <div class="pg" id="pg-inter-classes">
       <div class="pg-hd">
         <div>
-          <div class="pg-title">🏫 Inter-Classes</div>
+          <div class="pg-title">Inter-Classes</div>
           <div class="pg-sub">Échanges entre promotions — Projets communs et entraide pédagogique</div>
         </div>
       </div>
@@ -1566,7 +1566,7 @@
           id="inter-channel-title">Sélectionnez une classe pour démarrer la discussion</div>
         <div id="inter-thread" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
           <div class="empty">
-            <div class="empty-icon">👆</div>
+            <div class="empty-icon"></div>
             <div class="empty-txt">Sélectionnez une classe ci-dessus</div>
           </div>
         </div>
@@ -1592,15 +1592,15 @@
     <div class="pg" id="pg-programme">
       <div class="pg-hd">
         <div>
-          <div class="pg-title">📅 Programme & Devoirs</div>
+          <div class="pg-title">Programme & Devoirs</div>
           <div class="pg-sub" id="prog-sub">Emploi du temps · Devoirs · Compositions · Examens</div>
         </div>
       </div>
       <div class="tabs" style="margin-bottom:16px;">
-        <div class="tab on" onclick="progTab('emploi',this)">🗓️ Emploi du Temps</div>
-        <div class="tab" onclick="progTab('devoirs',this)">📝 Devoirs</div>
-        <div class="tab" onclick="progTab('compos',this)">📋 Compositions</div>
-        <div class="tab" onclick="progTab('examens',this)" id="tab-examens" style="display:none">🎓 Examens</div>
+        <div class="tab on" onclick="progTab('emploi',this)">Emploi du Temps</div>
+        <div class="tab" onclick="progTab('devoirs',this)">Devoirs</div>
+        <div class="tab" onclick="progTab('compos',this)">Compositions</div>
+        <div class="tab" onclick="progTab('examens',this)" id="tab-examens" style="display:none">Examens</div>
       </div>
       <div id="prog-emploi" class="prog-panel">
         <div id="prog-edt-content"></div>
@@ -1608,7 +1608,7 @@
       <div id="prog-devoirs" class="prog-panel" style="display:none">
         <div id="prog-dev-content">
           <div class="empty-prog">
-            <div class="empty-prog-icon">📝</div>
+            <div class="empty-prog-icon"></div>
             <div class="empty-prog-text">Chargement des devoirs...</div>
           </div>
         </div>
@@ -1616,7 +1616,7 @@
       <div id="prog-compos" class="prog-panel" style="display:none">
         <div id="prog-comp-content">
           <div class="empty-prog">
-            <div class="empty-prog-icon">📋</div>
+            <div class="empty-prog-icon"></div>
             <div class="empty-prog-text">Chargement...</div>
           </div>
         </div>
@@ -1630,23 +1630,23 @@
     <div class="pg" id="pg-grand-eleves">
       <div class="pg-hd">
         <div>
-          <div class="pg-title">🌍 Grand Élèves</div>
+          <div class="pg-title">Grand Élèves</div>
           <div class="pg-sub">Tous les élèves de l'école — Soutien mutuel, concours, événements</div>
         </div>
         <div style="display:flex;gap:6px;">
           <div class="tabs" style="margin-bottom:0;">
             <div class="tab on" onclick="filterPosts('tous',this)">Tous</div>
-            <div class="tab" onclick="filterPosts('SPORT',this)">🏅 Sport</div>
-            <div class="tab" onclick="filterPosts('CONCOURS',this)">📝 Concours</div>
-            <div class="tab" onclick="filterPosts('CULTURE',this)">🎭 Culture</div>
-            <div class="tab" onclick="filterPosts('ENTRAIDE',this)">🤝 Entraide</div>
+            <div class="tab" onclick="filterPosts('SPORT',this)">Sport</div>
+            <div class="tab" onclick="filterPosts('CONCOURS',this)">Concours</div>
+            <div class="tab" onclick="filterPosts('CULTURE',this)">Culture</div>
+            <div class="tab" onclick="filterPosts('ENTRAIDE',this)">Entraide</div>
           </div>
         </div>
       </div>
       <div id="ge-compose-zone"></div>
       <div id="ge-lecture-seule"
         style="display:none;font-size:.65rem;background:rgba(123,143,245,.1);color:var(--accent2);padding:6px 12px;border-radius:20px;font-weight:700;margin-bottom:10px;text-align:center;">
-        👁️ Lecture seule · Tu peux liker &amp; commenter · Seuls le Chef de Classe et le Bureau des Élèves publient ici
+        Lecture seule · Tu peux liker &amp; commenter · Seuls le Chef de Classe et le Bureau des Élèves publient ici
       </div>
       <div id="ge-posts" style="display:flex;flex-direction:column;gap:10px;"></div>
     </div>
@@ -1656,7 +1656,7 @@
     <div class="pg" id="pg-mentorat-eleve">
       <div class="pg-hd">
         <div>
-          <div class="pg-title">🎓 Mon Mentor</div>
+          <div class="pg-title">Mon Mentor</div>
           <div class="pg-sub">Échangez avec votre mentor alumni et suivez votre progression.</div>
         </div>
       </div>
@@ -1664,7 +1664,7 @@
       <!-- ── CONTENEUR PRINCIPAL ── -->
       <div id="mentor-container" style="min-height:200px;">
         <div style="text-align:center;padding:40px;color:#6B5D42;">
-          <div style="font-size:2rem;margin-bottom:12px;">⏳</div>
+          <div style="font-size:2rem;margin-bottom:12px;"></div>
           <p>Chargement...</p>
         </div>
       </div>
@@ -1674,7 +1674,7 @@
 
         <!-- Bannière invitation -->
         <div id="alumni-banniere" style="background:linear-gradient(135deg,#4C8C5C 0%,#1F4A2C 100%);border-radius:16px;padding:20px;color:#fff;text-align:center;">
-          <div style="font-size:2rem;margin-bottom:8px;">🤝</div>
+          <div style="font-size:2rem;margin-bottom:8px;"></div>
           <div id="alumni-banniere-titre" style="font-size:1.05rem;font-weight:700;margin-bottom:4px;">Trouvez votre mentor</div>
           <div id="alumni-banniere-sous-titre" style="font-size:0.82rem;opacity:0.85;">Un ancien élève de votre école, prêt à vous guider vers votre avenir.</div>
         </div>
@@ -1682,22 +1682,22 @@
         <!-- Liste des alumni disponibles -->
         <div class="card">
           <div class="card-hd" style="gap:8px;flex-wrap:wrap;">
-            <div class="card-hd-title" id="alumni-list-titre">👥 Alumni disponibles</div>
+            <div class="card-hd-title" id="alumni-list-titre">Alumni disponibles</div>
             <div id="alumni-count" style="font-size:0.75rem;color:var(--muted);"></div>
           </div>
           <div style="font-size:0.82rem;color:var(--muted);margin-bottom:12px;line-height:1.4;">
             Cliquez sur "Demander" pour envoyer votre demande à un alumni précis, ou "Envoyer une demande ouverte" si vous n'avez pas de préférence.
           </div>
-          <input type="text" id="alumni-search" placeholder="🔍 Rechercher par nom, profession ou domaine..."
+          <input type="text" id="alumni-search" placeholder="Rechercher par nom, profession ou domaine..."
             oninput="filtrerListeAlumni(this.value)"
             style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;margin-bottom:14px;outline:none;">
           <div id="alumni-list-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
-            <div class="empty"><div class="empty-icon">⏳</div><div class="empty-txt">Chargement des alumni...</div></div>
+            <div class="empty"><div class="empty-icon"></div><div class="empty-txt">Chargement des alumni...</div></div>
           </div>
           <div id="alumni-load-more-wrap" style="display:none;text-align:center;margin-top:14px;">
             <button class="btn-p" onclick="afficherPlusAlumni()" style="background:none;border:1.5px solid var(--border);color:var(--text);">Afficher plus</button>
           </div>
-          <button onclick="ouvrirModalConseil()" style="width:100%;margin-top:14px;padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;background:none;cursor:pointer;font-weight:600;">📢 Envoyer une demande ouverte (n'importe quel alumni)</button>
+          <button onclick="ouvrirModalConseil()" style="width:100%;margin-top:14px;padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.82rem;background:none;cursor:pointer;font-weight:600;">Envoyer une demande ouverte (n'importe quel alumni)</button>
         </div>
       </div>
 
@@ -1718,9 +1718,9 @@
           <div id="mentor-domaine" style="display:none;background:#E4EEDD;border-radius:10px;padding:10px 12px;font-size:0.82rem;color:#2F6B3F;margin-bottom:12px;font-weight:600;"></div>
           <div id="mentor-description" style="font-size:0.83rem;color:var(--muted);margin-bottom:14px;display:none;"></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button onclick="voirProfilMentor(currentMentorAlumniId)" style="padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;background:none;cursor:pointer;font-weight:600;">👤 Profil</button>
-            <button class="btn-p" onclick="ouvrirModalConseil()" style="flex:1;min-width:140px;">✉️ Demander un conseil</button>
-            <button onclick="toggleJournalBord()" style="flex:1;min-width:140px;padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;background:none;cursor:pointer;font-weight:600;">📖 Journal de bord</button>
+            <button onclick="voirProfilMentor(currentMentorAlumniId)" style="padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;background:none;cursor:pointer;font-weight:600;">Profil</button>
+            <button class="btn-p" onclick="ouvrirModalConseil()" style="flex:1;min-width:140px;">Demander un conseil</button>
+            <button onclick="toggleJournalBord()" style="flex:1;min-width:140px;padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;background:none;cursor:pointer;font-weight:600;">Journal de bord</button>
           </div>
         </div>
 
@@ -1728,24 +1728,24 @@
         <div class="card" id="objectifs-section" style="display:none;">
           <div class="card-hd" style="align-items:center;justify-content:space-between;">
             <div>
-              <div class="card-hd-title">🎯 Mes objectifs</div>
+              <div class="card-hd-title">Mes objectifs</div>
               <div style="font-size:0.78rem;color:var(--muted);margin-top:4px;max-width:72%;">Définissez vos objectifs comme une entrée de journal et suivez-les ici.</div>
             </div>
             <button class="btn-sm" onclick="ouvrirAjoutObjectif()">+ Objectif</button>
           </div>
           <div id="objectifs-list">
-            <div class="empty"><div class="empty-icon">🎯</div><div class="empty-txt">Aucun objectif défini pour l'instant.</div></div>
+            <div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucun objectif défini pour l'instant.</div></div>
           </div>
         </div>
 
         <!-- Journal de bord -->
         <div class="card" id="journal-section" style="display:none;">
           <div class="card-hd">
-            <div class="card-hd-title">📖 Journal de bord partagé</div>
+            <div class="card-hd-title">Journal de bord partagé</div>
             <button class="btn-sm" onclick="ouvrirAjoutEntree(document.currentRelationId||0)">+ Entrée</button>
           </div>
           <div id="journal-entrees-eleve">
-            <div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Aucune entrée pour le moment.</div></div>
+            <div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune entrée pour le moment.</div></div>
           </div>
         </div>
       </div>
@@ -1756,11 +1756,11 @@
     <div id="modal-conseil" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:16px;">
       <div style="background:#fff;border-radius:18px;padding:22px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;">
         <div id="conseil-succes" style="display:none;text-align:center;padding:20px 0;">
-          <div style="font-size:2.4rem;margin-bottom:10px;">✅</div>
+          <div style="font-size:2.4rem;margin-bottom:10px;"></div>
           <div style="font-weight:800;font-size:1rem;color:#3D5322;">Demande envoyée !</div>
         </div>
         <div id="conseil-form-body">
-        <div style="font-size:1rem;font-weight:800;margin-bottom:4px;">✉️ Demander un conseil</div>
+        <div style="font-size:1rem;font-weight:800;margin-bottom:4px;">Demander un conseil</div>
         <div style="margin-bottom:12px;">
           <label style="font-size:0.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Destinataire</label>
           <select id="conseil-destinataire" onchange="_majApercuDestinataireConseil()"
@@ -1770,18 +1770,18 @@
         <div style="margin-bottom:12px;">
           <label style="font-size:0.8rem;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Domaines concernés</label>
           <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            <label class="domaine-chip"><input type="checkbox" value="Orientation" name="conseil-domaine"> 🎯 Orientation</label>
-            <label class="domaine-chip"><input type="checkbox" value="Révisions" name="conseil-domaine"> 📚 Révisions</label>
-            <label class="domaine-chip"><input type="checkbox" value="Motivation" name="conseil-domaine"> 💪 Motivation</label>
-            <label class="domaine-chip"><input type="checkbox" value="Méthodologie" name="conseil-domaine"> 🧠 Méthodologie</label>
-            <label class="domaine-chip"><input type="checkbox" value="Carrière" name="conseil-domaine"> 🚀 Carrière</label>
+            <label class="domaine-chip"><input type="checkbox" value="Orientation" name="conseil-domaine"> Orientation</label>
+            <label class="domaine-chip"><input type="checkbox" value="Révisions" name="conseil-domaine"> Révisions</label>
+            <label class="domaine-chip"><input type="checkbox" value="Motivation" name="conseil-domaine"> Motivation</label>
+            <label class="domaine-chip"><input type="checkbox" value="Méthodologie" name="conseil-domaine"> Méthodologie</label>
+            <label class="domaine-chip"><input type="checkbox" value="Carrière" name="conseil-domaine"> Carrière</label>
           </div>
         </div>
         <textarea id="conseil-message" rows="4" placeholder="Décrivez votre question ou situation…"
           style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;resize:none;box-sizing:border-box;outline:none;margin-bottom:6px;"></textarea>
         <div id="conseil-erreur" style="display:none;color:#A93226;font-size:0.78rem;margin-bottom:8px;"></div>
         <div style="display:flex;gap:10px;">
-          <button class="btn-p" onclick="envoyerConseil()" style="flex:1;">📤 Envoyer</button>
+          <button class="btn-p" onclick="envoyerConseil()" style="flex:1;">Envoyer</button>
           <button onclick="document.getElementById('modal-conseil').style.display='none'"
             style="padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;background:none;cursor:pointer;font-weight:600;">Annuler</button>
         </div>
@@ -1799,23 +1799,23 @@
 
     <div id="modal-entree" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:16px;">
       <div style="background:#fff;border-radius:18px;padding:22px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
-        <div style="font-size:1rem;font-weight:800;margin-bottom:16px;">📝 Nouvelle entrée</div>
+        <div style="font-size:1rem;font-weight:800;margin-bottom:16px;">Nouvelle entrée</div>
         <input type="hidden" id="entree-relation-id">
         <input type="hidden" id="entree-id-edit">
         <input id="entree-titre" placeholder="Titre de l'entrée" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;box-sizing:border-box;outline:none;margin-bottom:10px;">
         <select id="entree-type" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;box-sizing:border-box;outline:none;margin-bottom:10px;background:#fff;">
-          <option value="note">📝 Note</option>
-          <option value="reflexion">💭 Réflexion</option>
-          <option value="feedback">💬 Feedback</option>
-          <option value="objectif">🎯 Objectif</option>
+          <option value="note">Note</option>
+          <option value="reflexion">Réflexion</option>
+          <option value="feedback">Feedback</option>
+          <option value="objectif">Objectif</option>
         </select>
         <textarea id="entree-contenu" rows="4" placeholder="Votre message…"
           style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;resize:none;box-sizing:border-box;outline:none;margin-bottom:10px;"></textarea>
         <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--muted);margin-bottom:14px;cursor:pointer;">
-          <input type="checkbox" id="entree-prive"> 🔒 Entrée privée (visible uniquement par moi)
+          <input type="checkbox" id="entree-prive"> Entrée privée (visible uniquement par moi)
         </label>
         <div style="display:flex;gap:10px;">
-          <button class="btn-p" onclick="submitEntree()" style="flex:1;">💾 Enregistrer</button>
+          <button class="btn-p" onclick="submitEntree()" style="flex:1;">Enregistrer</button>
           <button onclick="document.getElementById('modal-entree').style.display='none'"
             style="padding:10px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;background:none;cursor:pointer;font-weight:600;">Annuler</button>
         </div>
@@ -1859,7 +1859,7 @@
       return status === 'ACCUSE_RECU' || String(c?.statut || '').toUpperCase() === 'ACCUSERECU' || c?.accuse_recu === true;
     };
 
-    // ✅ atob() seul décode le base64 en octets bruts, sans reconstituer les
+    // atob() seul décode le base64 en octets bruts, sans reconstituer les
     // caractères accentués (UTF-8 multi-octets) — "6ème" redevenait "6Ã¨me"
     // après décodage, ce qui cassait la comparaison de classe juste après et
     // provoquait un faux "Session invalide" pour les classes avec un accent
@@ -1919,7 +1919,7 @@
       document.getElementById('sb-classe').textContent = classe;
       document.getElementById('dash-prenom').textContent = currentUser.prenom || 'Élève';
       document.getElementById('dash-classe-sub').textContent = `Classe : ${classe} · Année scolaire 2025-2026`;
-      // ✅ Mentorat réservé aux Terminale (Tle A / Tle D) — l'onglet
+      // Mentorat réservé aux Terminale (Tle A / Tle D) — l'onglet
       // n'apparaît que si c'est vraiment le cas, pour ne pas montrer une
       // fonctionnalité que le serveur refusera de toute façon à la fin.
       if (classe.toUpperCase().startsWith('TLE')) {
@@ -1977,7 +1977,7 @@
         if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Les deux champs sont requis'; msgEl.style.background = '#F9E8E1'; msgEl.style.color = '#C0392B'; }
         return;
       }
-      if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = '⏳ Modification...'; msgEl.style.background = '#FDFAF2'; msgEl.style.color = '#5A4D36'; }
+      if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Modification...'; msgEl.style.background = '#FDFAF2'; msgEl.style.color = '#5A4D36'; }
       try {
         const r = await fetch(`${API}/auth/changer-mot-de-passe`, {
           method: 'PUT',
@@ -1986,15 +1986,15 @@
         });
         const d = await r.json();
         if (d.success) {
-          if (msgEl) { msgEl.textContent = '✅ Mot de passe changé'; msgEl.style.background = '#F2F0E2'; msgEl.style.color = '#587530'; }
+          if (msgEl) { msgEl.textContent = 'Mot de passe changé'; msgEl.style.background = '#F2F0E2'; msgEl.style.color = '#587530'; }
           document.getElementById('cp-ancien').value = '';
           document.getElementById('cp-nouveau').value = '';
           setTimeout(() => { document.getElementById('m-chg-pwd').style.display = 'none'; }, 1200);
         } else {
-          if (msgEl) { msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.background = '#F9E8E1'; msgEl.style.color = '#C0392B'; }
+          if (msgEl) { msgEl.textContent = '' + (d.message || 'Erreur'); msgEl.style.background = '#F9E8E1'; msgEl.style.color = '#C0392B'; }
         }
       } catch (e) {
-        if (msgEl) { msgEl.textContent = '❌ Erreur réseau'; msgEl.style.background = '#F9E8E1'; msgEl.style.color = '#C0392B'; }
+        if (msgEl) { msgEl.textContent = 'Erreur réseau'; msgEl.style.background = '#F9E8E1'; msgEl.style.color = '#C0392B'; }
       }
     }
     function escHtml(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -2092,7 +2092,7 @@
         .filter(n => n.moyenne !== null && n.moyenne !== undefined);
 
       if (!notes.length) {
-        el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Aucune note pour ce trimestre</div></div>';
+        el.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune note pour ce trimestre</div></div>';
         return;
       }
 
@@ -2134,11 +2134,11 @@
         const r = await fetch(`${API}/eleves/absences`, { headers: authH() });
         const data = await r.json();
         const tot = data.count_total || 0, just = data.absences_justifiees || 0, nj = data.absences_non_justifiees || 0;
-        document.getElementById('abs-resume').innerHTML = `<div class="kpi" style="padding:14px;"><div class="kpi-label">Total Absences</div><div style="font-size:1.4rem;font-weight:900;">${tot}</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Justifiées ✅</div><div style="font-size:1.4rem;font-weight:900;color:var(--green)">${just}</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Non Justifiées ⚠️</div><div style="font-size:1.4rem;font-weight:900;color:var(--red)">${nj}</div></div>`;
+        document.getElementById('abs-resume').innerHTML = `<div class="kpi" style="padding:14px;"><div class="kpi-label">Total Absences</div><div style="font-size:1.4rem;font-weight:900;">${tot}</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Justifiées</div><div style="font-size:1.4rem;font-weight:900;color:var(--green)">${just}</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Non Justifiées</div><div style="font-size:1.4rem;font-weight:900;color:var(--red)">${nj}</div></div>`;
         const abs = data.absences || [];
-        if (!abs.length) { document.getElementById('abs-content').innerHTML = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-txt">Aucune absence enregistrée</div></div>'; return; }
+        if (!abs.length) { document.getElementById('abs-content').innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune absence enregistrée</div></div>'; return; }
         document.getElementById('abs-content').innerHTML = `<table class="tbl"><thead><tr><th>Date</th><th>Raison</th><th>Statut</th></tr></thead><tbody>${abs.map(a => `<tr><td><strong>${new Date(a.date_absence).toLocaleDateString('fr-FR')}</strong></td><td>${a.raison_absence || '—'}</td><td><span class="${a.justifiee ? 'badge-ok' : 'badge-red'}">${a.statut || (a.justifiee ? 'Justifiée' : 'Non justifiée')}</span></td></tr>`).join('')}</tbody></table>`;
-      } catch (e) { document.getElementById('abs-content').innerHTML = `<div style="background:#F7E3DC;border:1px solid #E8B8A8;border-radius:10px;padding:14px;">⚠️ Erreur : ${e.message}</div>`; }
+      } catch (e) { document.getElementById('abs-content').innerHTML = `<div style="background:#F7E3DC;border:1px solid #E8B8A8;border-radius:10px;padding:14px;">Erreur : ${e.message}</div>`; }
     }
 
     // ==================== CONVOCATIONS ====================
@@ -2149,7 +2149,7 @@
         const convs = data.convocations || [];
 
         if (!convs.length) {
-          document.getElementById('conv-content').innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-txt">Aucune convocation en attente</div></div>`;
+          document.getElementById('conv-content').innerHTML = `<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune convocation en attente</div></div>`;
           return;
         }
 
@@ -2184,7 +2184,7 @@
           <div class="card" style="padding: 0; overflow: hidden;">
             <div style="padding: 16px 20px; background: #FDFAF2; border-bottom: 1px solid var(--border);">
               <div style="display: flex; align-items: center; gap: 8px;">
-                <span>⚠️</span>
+                <span></span>
                 <span style="font-weight: 800; font-size: 0.85rem;">Mes convocations</span>
                 <span class="badge-blue" style="margin-left: auto;">${convs.length} élément(s)</span>
               </div>
@@ -2210,11 +2210,11 @@
                   <div style="font-weight: 800; margin-bottom: 4px;">${escHtml(c.sujet || 'Convocation')}</div>
                   <div style="font-size: 0.75rem; color: #2E2718;">${escHtml(c.description || '')}</div>
                   <div style="display: flex; gap: 12px; margin-top: 6px;">
-                    <span style="font-size: 0.7rem;">📅 ${formattedDate}</span>
-                    ${c.lieu ? `<span style="font-size: 0.7rem;">📍 ${escHtml(c.lieu)}</span>` : ''}
+                    <span style="font-size: 0.7rem;">${formattedDate}</span>
+                    ${c.lieu ? `<span style="font-size: 0.7rem;">${escHtml(c.lieu)}</span>` : ''}
                   </div>
                 </div>
-                <span style="font-size:0.8rem;font-weight:700;color:${isReceived ? '#6B8E3D' : '#7A5218'};">${isReceived ? '✓ Accusé reçu' : '⏳ En attente de confirmation par le parent'}</span>
+                <span style="font-size:0.8rem;font-weight:700;color:${isReceived ? '#6B8E3D' : '#7A5218'};">${isReceived ? '✓ Accusé reçu' : 'En attente de confirmation par le parent'}</span>
               </div>
             </div>
           `;
@@ -2222,11 +2222,11 @@
             </div>
           </div>
           <div style="margin-top: 16px; padding: 10px; background: #E4EEDD; border-radius: 12px; text-align: center;">
-            <span style="font-size: 0.7rem;">🔒 Visible uniquement par vous et votre parent</span>
+            <span style="font-size: 0.7rem;">Visible uniquement par vous et votre parent</span>
           </div>
         `;
       } catch (e) {
-        document.getElementById('conv-content').innerHTML = `<div style="background:#F7E3DC;border:1px solid #E8B8A8;border-radius:10px;padding:14px;">⚠️ Erreur : ${e.message}</div>`;
+        document.getElementById('conv-content').innerHTML = `<div style="background:#F7E3DC;border:1px solid #E8B8A8;border-radius:10px;padding:14px;">Erreur : ${e.message}</div>`;
       }
     }
 
@@ -2238,13 +2238,13 @@
         });
         const data = await response.json();
         if (data.success) {
-          alert('✅ Accusé de réception envoyé');
+          alert('Accusé de réception envoyé');
           loadConvocations();
         } else {
-          alert('❌ Erreur');
+          alert('Erreur');
         }
       } catch (e) {
-        alert('❌ Erreur réseau');
+        alert('Erreur réseau');
       }
     }
 
@@ -2255,7 +2255,7 @@
         const data = await r.json();
         allRessources = data.ressources || [];
         renderRessources(allRessources);
-      } catch (e) { document.getElementById('res-content').innerHTML = `<div style="background:#F7E3DC;border:1px solid #E8B8A8;border-radius:10px;padding:14px;">⚠️ Erreur : ${e.message}</div>`; }
+      } catch (e) { document.getElementById('res-content').innerHTML = `<div style="background:#F7E3DC;border:1px solid #E8B8A8;border-radius:10px;padding:14px;">Erreur : ${e.message}</div>`; }
     }
 
     function filterRes(type, el) {
@@ -2280,7 +2280,7 @@
     function renderRessources(list) {
       const box = document.getElementById('res-content');
       if (!list.length) {
-        box.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune ressource publiée pour votre classe</div></div>';
+        box.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune ressource publiée pour votre classe</div></div>';
         return;
       }
 
@@ -2296,7 +2296,7 @@
       let html = '';
 
       if (videos.length) {
-        html += `<div style="margin-bottom: 20px;"><h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 12px;">🎬 Vidéos (${videos.length})</h3><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">${videos.map(v => {
+        html += `<div style="margin-bottom: 20px;"><h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 12px;">Vidéos (${videos.length})</h3><div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">${videos.map(v => {
             const url = (v.url||'').replace(/'/g, "\\'");
             const title = escHtml(v.titre || 'Vidéo');
             const meta = escHtml((v.prof_prenom || '') + ' ' + (v.prof_nom || ''));
@@ -2305,26 +2305,26 @@
             if (ytMatch) {
               const ytId = ytMatch[1];
               const thumb = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
-              return `<div class="res-card" onclick="openRessource('${v.id}','${url}')" style="cursor:pointer;padding:8px;flex-direction:column;"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;position:relative;background:#000"><img src="${thumb}" alt="${title}" style="width:100%;height:100%;object-fit:cover;display:block;"/><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:28px;opacity:0.95;">▶️</div></div><div style="margin-top:8px;"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
+              return `<div class="res-card" onclick="openRessource('${v.id}','${url}')" style="cursor:pointer;padding:8px;flex-direction:column;"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;position:relative;background:#000"><img src="${thumb}" alt="${title}" style="width:100%;height:100%;object-fit:cover;display:block;"/><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:28px;opacity:0.95;"></div></div><div style="margin-top:8px;"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
             }
-            // Direct video file — bouton ▶️ visible et cliquable (avant : juste un
+            // Direct video file — bouton visible et cliquable (avant : juste un
             // survol de souris pour prévisualiser, invisible et inutilisable au tactile/mobile).
             if (/\.(mp4|webm|mov)$/i.test(v.url||'')) {
-              return `<div class="res-card" style="padding:8px;flex-direction:column;cursor:pointer;" onclick="openRessource('${v.id}','${url}')"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;position:relative;background:#000"><video muted loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"><source src="${url}" type="video/mp4">${title}</video><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-size:20px;">▶️</div></div><div style="margin-top:8px;"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
+              return `<div class="res-card" style="padding:8px;flex-direction:column;cursor:pointer;" onclick="openRessource('${v.id}','${url}')"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;position:relative;background:#000"><video muted loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"><source src="${url}" type="video/mp4">${title}</video><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-size:20px;"></div></div><div style="margin-top:8px;"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
             }
             // fallback link
-            return `<div class="res-card" onclick="openRessource('${v.id}','${url}')"><div class="res-icon" style="background:#E4EEDD;">🎬</div><div><div class="res-title">${title}</div><div class="res-meta">${meta}</div></div></div>`;
+            return `<div class="res-card" onclick="openRessource('${v.id}','${url}')"><div class="res-icon" style="background:#E4EEDD;"></div><div><div class="res-title">${title}</div><div class="res-meta">${meta}</div></div></div>`;
           }).join('')}</div></div>`;
       }
 
       if (courses.length) {
-        html += `<div><h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 12px;">📚 Cours & TD (${courses.length})</h3><div style="display: flex; flex-direction: column; gap: 8px;">${courses.map(doc => `<div class="res-card" onclick="openRessource('${doc.id}','${doc.url || ''}')"><div class="res-icon" style="background:#E8F5EE;">📄</div><div><div class="res-title">${escHtml(doc.titre || 'Cours')}</div><div class="res-meta">${doc.prof_prenom || ''} ${doc.prof_nom || ''} · ${doc.classe || ''}</div></div></div>`).join('')}</div></div>`;
+        html += `<div><h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 12px;">Cours & TD (${courses.length})</h3><div style="display: flex; flex-direction: column; gap: 8px;">${courses.map(doc => `<div class="res-card" onclick="openRessource('${doc.id}','${doc.url || ''}')"><div class="res-icon" style="background:#E8F5EE;"></div><div><div class="res-title">${escHtml(doc.titre || 'Cours')}</div><div class="res-meta">${doc.prof_prenom || ''} ${doc.prof_nom || ''} · ${doc.classe || ''}</div></div></div>`).join('')}</div></div>`;
       }
 
       box.innerHTML = html;
     }
 
-    // ✅ Les vidéos s'ouvraient dans un nouvel onglet (window.open), ce qui
+    // Les vidéos s'ouvraient dans un nouvel onglet (window.open), ce qui
     // déclenche la page d'avertissement de ngrok (version gratuite) sur
     // chaque nouvelle navigation directe — bloquant la lecture sur mobile.
     // Un lecteur intégré à la page contourne complètement ce problème.
@@ -2425,7 +2425,7 @@
     function renderThread(containerId, msgs, type) {
       const el = document.getElementById(containerId);
       if (!msgs.length) {
-        el.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><div class="empty-txt">Soyez le premier à écrire</div></div>';
+        el.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Soyez le premier à écrire</div></div>';
         return;
       }
       // Construire un index id → message pour afficher les citations
@@ -2442,7 +2442,7 @@
 
         const msgDataAttrs = `data-msgtype="${type || 'classe'}" data-msgid="${m.id}" data-auteur="${escHtml(m.auteur || 'Vous').replace(/"/g, '&quot;')}" data-texte="${escHtml(m.texte).replace(/"/g, '&quot;')}" data-moi="${m.moi ? '1' : '0'}"`;
 
-        const reacts = [['like', '👍'], ['love', '❤️'], ['dislike', '👎'], ['angry', '😠']];
+        const reacts = [['like', ''], ['love', ''], ['dislike', ''], ['angry', '']];
         const reactionsHtml = reacts.map(([t, emoji]) => {
           const n = (m.reactions || {})[t] || 0;
           const active = m.ma_reaction === t;
@@ -2502,12 +2502,12 @@
       menu.style.left = left + 'px';
 
       const itemStyle = 'padding:10px 16px;font-size:0.82rem;cursor:pointer;display:flex;align-items:center;gap:8px;';
-      let html = `<div style="${itemStyle}" onclick="setReply('${type}',${msgId},'${auteur.replace(/'/g, "\\'")}','${texte.replace(/'/g, "\\'")}');fermerMenuMessage();">↩️ Répondre</div>`;
+      let html = `<div style="${itemStyle}" onclick="setReply('${type}',${msgId},'${auteur.replace(/'/g, "\\'")}','${texte.replace(/'/g, "\\'")}');fermerMenuMessage();">Répondre</div>`;
       if (moi) {
-        html += `<div style="${itemStyle}" onclick="supprimerMessage('${type}',${msgId},false);fermerMenuMessage();">🗑️ Supprimer pour moi</div>`;
-        html += `<div style="${itemStyle}color:#A93226;" onclick="supprimerMessage('${type}',${msgId},true);fermerMenuMessage();">🗑️ Supprimer pour tout le monde</div>`;
+        html += `<div style="${itemStyle}" onclick="supprimerMessage('${type}',${msgId},false);fermerMenuMessage();">Supprimer pour moi</div>`;
+        html += `<div style="${itemStyle}color:#A93226;" onclick="supprimerMessage('${type}',${msgId},true);fermerMenuMessage();">Supprimer pour tout le monde</div>`;
       } else {
-        html += `<div style="${itemStyle}" onclick="supprimerMessage('${type}',${msgId},false);fermerMenuMessage();">🗑️ Supprimer pour moi</div>`;
+        html += `<div style="${itemStyle}" onclick="supprimerMessage('${type}',${msgId},false);fermerMenuMessage();">Supprimer pour moi</div>`;
       }
       menu.innerHTML = html;
       document.body.appendChild(menu);
@@ -2538,7 +2538,7 @@
       const txt = input.value.trim();
       if (!txt) return;
 
-      // ✅ SÉCURITÉ : Vérifier que l'élève envoie bien dans SA propre classe
+      // SÉCURITÉ : Vérifier que l'élève envoie bien dans SA propre classe
       const maClasse = currentUser.classe || '';
       let classeToken = '';
       try {
@@ -2586,7 +2586,7 @@
 
       const container = document.getElementById('inter-classes-list');
       if (!container) return;
-      container.innerHTML = '<div style="text-align:center;padding:12px;color:var(--muted);">⏳ Chargement des classes…</div>';
+      container.innerHTML = '<div style="text-align:center;padding:12px;color:var(--muted);">Chargement des classes…</div>';
 
       try {
         const r = await fetch(`${API}/eleves/classes`, { headers: authH() });
@@ -2595,13 +2595,13 @@
 
         if (!classes.length) {
           // Fallback: afficher la classe de l'élève si aucune liste disponible
-          container.innerHTML = `<div id="btn-ma-classe" style="padding:10px 16px;background:#E4EEDD;border:1.5px solid #2F6B3F;border-radius:8px;font-size:.74rem;font-weight:800;color:#2F6B3F;cursor:pointer;">📚 ${maClasse}</div><p style="font-size:.72rem;color:var(--muted,#6B5D42);margin-top:6px;width:100%;">Liste des classes indisponible.</p>`;
-          if (maClasse) { currentInterClasse = maClasse; document.getElementById('inter-channel-title').textContent = `💬 Ma classe — ${maClasse}`; reloadInterThread(maClasse); }
+          container.innerHTML = `<div id="btn-ma-classe" style="padding:10px 16px;background:#E4EEDD;border:1.5px solid #2F6B3F;border-radius:8px;font-size:.74rem;font-weight:800;color:#2F6B3F;cursor:pointer;">${maClasse}</div><p style="font-size:.72rem;color:var(--muted,#6B5D42);margin-top:6px;width:100%;">Liste des classes indisponible.</p>`;
+          if (maClasse) { currentInterClasse = maClasse; document.getElementById('inter-channel-title').textContent = `Ma classe — ${maClasse}`; reloadInterThread(maClasse); }
           return;
         }
 
         // Construire la liste de boutons pour sélectionner une classe
-        container.innerHTML = classes.map(c => `<button class="btn-class" onclick="selectInterClasse('${escHtml(c)}', this)" style="padding:8px 12px;margin:6px;border-radius:8px;border:1px solid var(--border);background:white;cursor:pointer;">📚 ${escHtml(c)}</button>`).join('');
+        container.innerHTML = classes.map(c => `<button class="btn-class" onclick="selectInterClasse('${escHtml(c)}', this)" style="padding:8px 12px;margin:6px;border-radius:8px;border:1px solid var(--border);background:white;cursor:pointer;">${escHtml(c)}</button>`).join('');
 
         // Sélectionner par défaut la classe de l'élève si présente, sinon la première
         const buttons = Array.from(container.querySelectorAll('button'));
@@ -2612,7 +2612,7 @@
 
       } catch (e) {
         container.innerHTML = `<div style="padding:10px;color:var(--muted);">Erreur chargement des classes</div>`;
-        if (maClasse) { currentInterClasse = maClasse; document.getElementById('inter-channel-title').textContent = `💬 Ma classe — ${maClasse}`; reloadInterThread(maClasse); }
+        if (maClasse) { currentInterClasse = maClasse; document.getElementById('inter-channel-title').textContent = `Ma classe — ${maClasse}`; reloadInterThread(maClasse); }
       }
     }
 
@@ -2622,7 +2622,7 @@
       btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)'; btn.style.background = '#E4EEDD';
       btn.classList.add('actif');
       currentInterClasse = cls;
-      document.getElementById('inter-channel-title').textContent = `💬 Discussion avec ${cls}`;
+      document.getElementById('inter-channel-title').textContent = `Discussion avec ${cls}`;
       if (_interPollInterval) clearInterval(_interPollInterval);
       _interPollInterval = setInterval(() => reloadInterThread(cls), 5000);
       await reloadInterThread(cls);
@@ -2654,7 +2654,7 @@
       const lectureSeule = document.getElementById('ge-lecture-seule');
       const peutPublier = !!posteElu;
       if (peutPublier && composeZone) {
-        composeZone.innerHTML = `<div class="compose-bar" style="margin-bottom:10px;"><input type="text" class="compose-input" id="compose-input" placeholder="Publier une annonce pour toute l'école..."><select class="tri-sel" id="compose-tag"><option value="ENTRAIDE">🤝 Entraide</option><option value="SPORT">🏅 Sport</option><option value="CONCOURS">📝 Concours</option><option value="CULTURE">🎭 Culture</option><option value="INFO">ℹ️ Info</option></select><button class="btn-sm" onclick="publishPost()">Publier</button></div><div style="font-size:.65rem;color:var(--accent);font-weight:700;margin-bottom:8px;">🏛️ ${escHtml(posteElu)} — vous pouvez publier ici</div>`;
+        composeZone.innerHTML = `<div class="compose-bar" style="margin-bottom:10px;"><input type="text" class="compose-input" id="compose-input" placeholder="Publier une annonce pour toute l'école..."><select class="tri-sel" id="compose-tag"><option value="ENTRAIDE">Entraide</option><option value="SPORT">Sport</option><option value="CONCOURS">Concours</option><option value="CULTURE">Culture</option><option value="INFO">Info</option></select><button class="btn-sm" onclick="publishPost()">Publier</button></div><div style="font-size:.65rem;color:var(--accent);font-weight:700;margin-bottom:8px;">${escHtml(posteElu)} — vous pouvez publier ici</div>`;
         if (lectureSeule) lectureSeule.style.display = 'none';
       } else {
         if (composeZone) composeZone.innerHTML = '';
@@ -2667,7 +2667,7 @@
 
     async function loadGrandEleves(tag) {
       const container = document.getElementById('ge-posts');
-      if (container) container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">⏳ Chargement…</div>';
+      if (container) container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Chargement…</div>';
       try {
         const url = tag && tag !== 'TOUT' ? `${API}/eleves/grand-eleves?tag=${encodeURIComponent(tag)}` : `${API}/eleves/grand-eleves`;
         const r = await fetch(url, { headers: authH() });
@@ -2706,7 +2706,7 @@
     function renderPosts(posts) {
       const container = document.getElementById('ge-posts');
       if (!container) return;
-      if (!posts.length) { container.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune publication</div></div>'; return; }
+      if (!posts.length) { container.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune publication</div></div>'; return; }
       container.innerHTML = posts.map(p => {
         const author = escHtml(p.nom_auteur || '');
         const time = escHtml(p.time || '');
@@ -2714,7 +2714,7 @@
         const content = renderPostContent(p.texte || '');
         const likes = Number(p.likes || 0);
         const nbComments = Number(p.nb_commentaires || 0);
-        return `<div class="post-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><strong>${author}</strong> <span style="font-size:0.7rem;">${time}</span></div><span class="badge-blue">${tag}</span></div><div style="margin:8px 0;line-height:1.45;color:var(--muted);">${content}</div><div class="post-actions"><button class="post-action-btn" onclick="toggleLike(${p.id})"><span>❤️</span> ${likes}</button><button class="post-action-btn" onclick="toggleCommentsSection(${p.id})"><span>💬</span> <span id="ge-cmt-count-${p.id}">${nbComments}</span></button></div><div id="ge-comments-${p.id}" style="display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px;"></div></div>`;
+        return `<div class="post-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><strong>${author}</strong> <span style="font-size:0.7rem;">${time}</span></div><span class="badge-blue">${tag}</span></div><div style="margin:8px 0;line-height:1.45;color:var(--muted);">${content}</div><div class="post-actions"><button class="post-action-btn" onclick="toggleLike(${p.id})"><span></span> ${likes}</button><button class="post-action-btn" onclick="toggleCommentsSection(${p.id})"><span></span> <span id="ge-cmt-count-${p.id}">${nbComments}</span></button></div><div id="ge-comments-${p.id}" style="display:none;margin-top:10px;border-top:1px solid var(--border);padding-top:10px;"></div></div>`;
       }).join('');
     }
 
@@ -2804,30 +2804,30 @@
     async function vsLoadAnnonces() {
       const box = document.getElementById('vs-annonces');
       if (!box) return;
-      box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">⏳ Chargement…</div>';
+      box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Chargement…</div>';
       try {
         const r = await fetch(`${API}/eleves/annonces`, { headers: authH() });
         const data = await r.json();
         const anns = data.annonces || [];
         if (!anns.length) {
-          box.innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce officielle pour le moment</div></div>';
+          box.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune annonce officielle pour le moment</div></div>';
           return;
         }
         const typeStyle = {
-          'URGENT': { bg: '#F7E3DC', color: '#7A2418', label: '🔴 URGENT' },
-          'Urgente': { bg: '#F7E3DC', color: '#7A2418', label: '🔴 URGENT' },
-          'INFO': { bg: '#E4EEDD', color: '#163A20', label: '🔵 INFO' },
-          'Info': { bg: '#E4EEDD', color: '#163A20', label: '🔵 INFO' },
+          'URGENT': { bg: '#F7E3DC', color: '#7A2418', label: 'URGENT' },
+          'Urgente': { bg: '#F7E3DC', color: '#7A2418', label: 'URGENT' },
+          'INFO': { bg: '#E4EEDD', color: '#163A20', label: 'INFO' },
+          'Info': { bg: '#E4EEDD', color: '#163A20', label: 'INFO' },
         };
         box.innerHTML = anns.map(a => {
-          const s = typeStyle[a.priorite] || typeStyle[a.type] || { bg: '#F2ECDE', color: '#3D3524', label: 'ℹ️ INFO' };
+          const s = typeStyle[a.priorite] || typeStyle[a.type] || { bg: '#F2ECDE', color: '#3D3524', label: 'INFO' };
           const date = new Date(a.date_publication || a.created_at);
           const dateFr = isNaN(date) ? '' : date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
           return `<div class="card" style="border-left:4px solid ${s.color};">
             <div class="card-hd" style="margin-bottom:8px;">
               <div>
                 <strong style="font-size:0.85rem;">${escHtml(a.titre || 'Annonce')}</strong>
-                <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">📅 ${dateFr}</div>
+                <div style="font-size:0.65rem;color:var(--muted);margin-top:2px;">${dateFr}</div>
               </div>
               <span style="background:${s.bg};color:${s.color};padding:3px 10px;border-radius:20px;font-size:0.65rem;font-weight:800;">${s.label}</span>
             </div>
@@ -2835,20 +2835,20 @@
           </div>`;
         }).join('');
       } catch (e) {
-        box.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger les annonces</div></div>';
+        box.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Impossible de charger les annonces</div></div>';
       }
     }
 
     async function vsLoadActivites() {
       const box = document.getElementById('vs-activites');
       if (!box) return;
-      box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">⏳ Chargement…</div>';
+      box.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);">Chargement…</div>';
       try {
         const r = await fetch(`${API}/eleves/activites`, { headers: authH() });
         const data = await r.json();
         const acts = data.activites || [];
         if (!acts.length) {
-          box.innerHTML = '<div class="empty"><div class="empty-icon">🎭</div><div class="empty-txt">Aucune activité programmée</div></div>';
+          box.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune activité programmée</div></div>';
           return;
         }
         box.innerHTML = acts.map(a => {
@@ -2860,13 +2860,13 @@
             </div>
             <div style="font-size:0.75rem;margin-top:6px;color:var(--muted);">${escHtml(a.description || '')}</div>
             <div style="font-size:0.7rem;color:var(--muted);margin-top:6px;">
-              📅 ${a.date_debut ? new Date(a.date_debut).toLocaleDateString('fr-FR') : '—'}
-              ${a.lieu ? ` · 📍 ${escHtml(a.lieu)}` : ''}
+              ${a.date_debut ? new Date(a.date_debut).toLocaleDateString('fr-FR') : '—'}
+              ${a.lieu ? ` · ${escHtml(a.lieu)}` : ''}
             </div>
           </div>`;
         }).join('');
       } catch (e) {
-        box.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger les activités</div></div>';
+        box.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Impossible de charger les activités</div></div>';
       }
     }
 
@@ -2881,9 +2881,9 @@
         const r = await fetch(`${API}/eleves/annonces`, { headers: authH() });
         const data = await r.json();
         const anns = data.annonces || [];
-        if (!anns.length) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce</div></div>'; return; }
-        document.getElementById('ann-content').innerHTML = anns.map(a => `<div class="card"><div class="card-hd"><div><strong>${escHtml(a.titre)}</strong><div style="font-size:0.65rem;">📅 ${new Date(a.date_publication || a.created_at).toLocaleDateString('fr-FR')}</div></div><span class="badge-blue">${a.type || 'INFO'}</span></div><div>${escHtml(a.contenu || '')}</div></div>`).join('');
-      } catch (e) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce disponible</div></div>'; }
+        if (!anns.length) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune annonce</div></div>'; return; }
+        document.getElementById('ann-content').innerHTML = anns.map(a => `<div class="card"><div class="card-hd"><div><strong>${escHtml(a.titre)}</strong><div style="font-size:0.65rem;">${new Date(a.date_publication || a.created_at).toLocaleDateString('fr-FR')}</div></div><span class="badge-blue">${a.type || 'INFO'}</span></div><div>${escHtml(a.contenu || '')}</div></div>`).join('');
+      } catch (e) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune annonce disponible</div></div>'; }
     }
 
     // ==================== PROGRAMME & DEVOIRS ====================
@@ -2902,7 +2902,7 @@
       if (estClasseExamen) await renderExamensBlancs();
     }
 
-    // ✅ Avant : emploi du temps entièrement inventé (objet EMPLOIS_DU_TEMPS
+    // Avant : emploi du temps entièrement inventé (objet EMPLOIS_DU_TEMPS
     // codé en dur, mêmes matières génériques pour toutes les classes, jamais
     // connecté à la base). Corrigé pour interroger la vraie route
     // /api/eleves/horaire (table pedagogie.emploi_du_temps) — tant que la
@@ -2911,7 +2911,7 @@
     async function renderEmploiDuTemps() {
       const container = document.getElementById('prog-edt-content');
       if (!container) return;
-      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement de l\'emploi du temps...</div></div>';
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Chargement de l\'emploi du temps...</div></div>';
 
       try {
         const response = await fetch(`${API}/eleves/horaire`, { headers: authH() });
@@ -2919,7 +2919,7 @@
         const semaine = data.horaire?.semaine || [];
 
         if (!semaine.length) {
-          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">🗓️</div><div class="empty-prog-text">L\'emploi du temps de ta classe n\'a pas encore été saisi par la Direction.</div></div>';
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">L\'emploi du temps de ta classe n\'a pas encore été saisi par la Direction.</div></div>';
           return;
         }
 
@@ -2932,7 +2932,7 @@
                   const pause = (c.matiere || '').toUpperCase().includes('PAUSE');
                   return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #F2ECDE;${pause ? 'color:#D97706;' : ''}">
                     <div>
-                      <div style="font-weight:700;font-size:.82rem;">${pause ? '☕ ' : ''}${escHtml(c.matiere || '')}</div>
+                      <div style="font-weight:700;font-size:.82rem;">${pause ? '' : ''}${escHtml(c.matiere || '')}</div>
                       ${!pause ? `<div style="font-size:.72rem;color:var(--muted);">${escHtml(c.prof || '')}${c.salle ? ' · Salle ' + escHtml(c.salle) : ''}</div>` : ''}
                     </div>
                     <div style="font-size:.74rem;font-weight:700;white-space:nowrap;">${escHtml(c.heure || '')}</div>
@@ -2944,7 +2944,7 @@
         `;
       } catch (e) {
         console.warn('Erreur chargement emploi du temps:', e);
-        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Erreur de chargement de l\'emploi du temps</div></div>';
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Erreur de chargement de l\'emploi du temps</div></div>';
       }
     }
 
@@ -2960,7 +2960,7 @@
       const container = document.getElementById('prog-dev-content');
       if (!container) return;
 
-      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement des devoirs...</div></div>';
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Chargement des devoirs...</div></div>';
 
       try {
         const response = await fetch(`${API}/eleves/devoirs`, { headers: authH() });
@@ -2968,7 +2968,7 @@
         const devoirs = data.devoirs || [];
 
         if (!devoirs.length) {
-          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">📝</div><div class="empty-prog-text">Aucun devoir programmé pour le moment</div></div>';
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Aucun devoir programmé pour le moment</div></div>';
           return;
         }
 
@@ -2987,7 +2987,7 @@
                         <tr>
                             <td><span class="badge-devoir">${escHtml(d.matiere || '—')}</span></td>
                             <td><strong>${escHtml(d.titre || d.description || 'Devoir')}</strong><br><small style="color: var(--muted);">${escHtml(d.description || '')}</small></td>
-                            <td style="white-space: nowrap;">📅 ${formatDate(d.date_limite || d.date_devoir)}</td>
+                            <td style="white-space: nowrap;">${formatDate(d.date_limite || d.date_devoir)}</td>
                             <td>${escHtml(d.prof_prenom || '')} ${escHtml(d.prof_nom || '')}</td>
                         </tr>
                     `).join('')}
@@ -2996,14 +2996,14 @@
         `;
       } catch (e) {
         console.warn('Erreur chargement devoirs:', e);
-        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Impossible de charger les devoirs</div></div>';
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Impossible de charger les devoirs</div></div>';
       }
     }
     async function renderCompositions() {
       const container = document.getElementById('prog-comp-content');
       if (!container) return;
 
-      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement des compositions...</div></div>';
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Chargement des compositions...</div></div>';
 
       try {
         const response = await fetch(`${API}/eleves/compositions`, { headers: authH() });
@@ -3011,7 +3011,7 @@
         const compositions = data.compositions || [];
 
         if (!compositions.length) {
-          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">📋</div><div class="empty-prog-text">Aucune composition programmée pour le moment</div></div>';
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Aucune composition programmée pour le moment</div></div>';
           return;
         }
 
@@ -3028,7 +3028,7 @@
                     ${compositions.map(c => `
                         <tr>
                             <td><span class="badge-composition">${escHtml(c.titre || 'Composition')}</span></td>
-                            <td style="white-space: nowrap;">📅 ${c.date_debut_fr}${c.date_fin_fr ? ' → ' + c.date_fin_fr : ''}</td>
+                            <td style="white-space: nowrap;">${c.date_debut_fr}${c.date_fin_fr ? ' → ' + c.date_fin_fr : ''}</td>
                             <td>${escHtml(c.description || '')}</td>
                         </tr>
                     `).join('')}
@@ -3037,7 +3037,7 @@
         `;
       } catch (e) {
         console.warn('Erreur chargement compositions:', e);
-        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Impossible de charger les compositions</div></div>';
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Impossible de charger les compositions</div></div>';
       }
     }
 
@@ -3045,7 +3045,7 @@
       const container = document.getElementById('prog-exam-content');
       if (!container) return;
 
-      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement des examens blancs...</div></div>';
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Chargement des examens blancs...</div></div>';
 
       try {
         const response = await fetch(`${API}/eleves/compositions`, { headers: authH() });
@@ -3053,7 +3053,7 @@
         const examens = data.examensBlancs || [];
 
         if (!examens.length) {
-          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">🎓</div><div class="empty-prog-text">Aucun examen blanc programmé</div></div>';
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Aucun examen blanc programmé</div></div>';
           return;
         }
 
@@ -3070,7 +3070,7 @@
                     ${examens.map(e => `
                         <tr>
                             <td><span class="badge-examen">${escHtml(e.titre || 'Examen Blanc')}</span></td>
-                            <td style="white-space: nowrap;">📅 ${e.date_debut_fr}${e.date_fin_fr ? ' → ' + e.date_fin_fr : ''}</td>
+                            <td style="white-space: nowrap;">${e.date_debut_fr}${e.date_fin_fr ? ' → ' + e.date_fin_fr : ''}</td>
                             <td>${escHtml(e.description || '')}</td>
                         </tr>
                     `).join('')}
@@ -3079,7 +3079,7 @@
         `;
       } catch (e) {
         console.warn('Erreur chargement examens blancs:', e);
-        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Impossible de charger les examens blancs</div></div>';
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Impossible de charger les examens blancs</div></div>';
       }
     }
 
@@ -3144,7 +3144,7 @@
       if (!classeActuelle.startsWith('TLE')) {
         document.getElementById('mentor-container').innerHTML = `
           <div class="card" style="padding:24px;text-align:center;">
-            <div style="font-size:2rem;margin-bottom:8px;">🎓</div>
+            <div style="font-size:2rem;margin-bottom:8px;"></div>
             <div style="color:var(--muted);font-size:0.85rem;">Le mentorat par les anciens élèves est réservé aux classes de Terminale.</div>
           </div>`;
         return;
@@ -3166,12 +3166,12 @@
           afficherObjectifs(objData.objectifs || [], journalData.entrees || []);
           afficherEntreesJournalEleve(journalData.entrees || [], data.alumni.id_relation);
 
-          // ✅ En plus du mentor déjà assigné, l'élève peut consulter/solliciter
+          // En plus du mentor déjà assigné, l'élève peut consulter/solliciter
           // n'importe quel autre alumni (libre choix, pas de relation exclusive)
           document.getElementById('view-no-mentor').style.display = 'flex';
           document.getElementById('alumni-banniere-titre').textContent = 'Consultez d\'autres mentors';
           document.getElementById('alumni-banniere-sous-titre').textContent = 'En plus de votre mentor actuel, vous pouvez solliciter n\'importe quel autre alumni pour une question précise.';
-          document.getElementById('alumni-list-titre').textContent = '👥 Autres alumni disponibles';
+          document.getElementById('alumni-list-titre').textContent = 'Autres alumni disponibles';
           chargerListeAlumni(data.alumni.id_alumni);
 
         } else {
@@ -3183,7 +3183,7 @@
         console.error('Erreur chargement mentor:', error);
         document.getElementById('mentor-container').innerHTML = `
           <div class="card" style="padding:24px;text-align:center;">
-            <div style="font-size:2rem;margin-bottom:8px;">⚠️</div>
+            <div style="font-size:2rem;margin-bottom:8px;"></div>
             <div style="color:var(--muted);font-size:0.85rem;">Impossible de charger le mentorat.</div>
             <button class="btn-p" onclick="loadMentoratEleve()" style="margin-top:12px;">Réessayer</button>
           </div>`;
@@ -3213,11 +3213,11 @@
       }
       document.getElementById('mentor-nom').textContent = `${alumni.prenom || ''} ${alumni.nom || ''}`.trim();
       document.getElementById('mentor-profession').textContent = alumni.profession || alumni.domaine_expertise || 'Mentor alumni';
-      document.getElementById('mentor-entreprise').textContent = alumni.entreprise_actuelle ? `📍 ${alumni.entreprise_actuelle}` : '';
+      document.getElementById('mentor-entreprise').textContent = alumni.entreprise_actuelle ? `${alumni.entreprise_actuelle}` : '';
 
       const domaineEl = document.getElementById('mentor-domaine');
       if (alumni.domaine_expertise) {
-        domaineEl.textContent = `🔬 Domaine : ${alumni.domaine_expertise}`;
+        domaineEl.textContent = `Domaine : ${alumni.domaine_expertise}`;
         domaineEl.style.display = 'block';
       }
 
@@ -3246,20 +3246,20 @@
         ...journalObjectifs
       ];
       if (!combined.length) {
-        el.innerHTML = '<div class="empty"><div class="empty-icon">🎯</div><div class="empty-txt">Aucun objectif défini pour l\'instant.</div></div>';
+        el.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucun objectif défini pour l\'instant.</div></div>';
         return;
       }
       el.innerHTML = combined.map(obj => {
         const couleur = obj.statut === 'atteint' ? '#EDF1DE' : obj.priorite === 'haute' ? '#F2E6C5' : '#E4EEDD';
         const txtCouleur = obj.statut === 'atteint' ? '#3D5322' : obj.priorite === 'haute' ? '#7A5218' : '#2F6B3F';
-        const icone = obj.statut === 'atteint' ? '✅' : obj.priorite === 'haute' ? '🔥' : '🎯';
+        const icone = obj.statut === 'atteint' ? '' : obj.priorite === 'haute' ? '' : '';
         return `<div style="padding:12px;border-radius:10px;background:${couleur};margin-bottom:8px;">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span>${icone}</span>
             <span style="font-weight:700;font-size:0.85rem;color:${txtCouleur};flex:1;min-width:0;">${escHtml(obj.description || 'Objectif')}</span>
             ${obj.source === 'eleve' ? '<span style="font-size:0.7rem;color:#5A4D36;padding:2px 8px;border-radius:12px;background:#F2ECDE;">Mon objectif</span>' : ''}
           </div>
-          ${obj.date_limite ? `<div style="font-size:0.72rem;color:var(--muted);margin-top:4px;">📅 Avant le ${new Date(obj.date_limite).toLocaleDateString('fr-FR')}</div>` : ''}
+          ${obj.date_limite ? `<div style="font-size:0.72rem;color:var(--muted);margin-top:4px;">Avant le ${new Date(obj.date_limite).toLocaleDateString('fr-FR')}</div>` : ''}
           ${obj.notes_eleve ? `<div style="font-size:0.78rem;color:var(--muted);margin-top:6px;font-style:italic;">${escHtml(obj.notes_eleve)}</div>` : ''}
         </div>`;
       }).join('');
@@ -3307,7 +3307,7 @@
         rendreListeAlumni(alumni);
 
       } catch (e) {
-        container.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger la liste.</div></div>`;
+        container.innerHTML = `<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Impossible de charger la liste.</div></div>`;
         console.warn('Erreur liste alumni:', e);
       }
     }
@@ -3336,13 +3336,13 @@
               <div style="font-size:0.72rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(a.profession || a.domaine_expertise || 'Alumni')}</div>
             </div>
           </div>
-          ${a.entreprise_actuelle ? `<div style="font-size:0.72rem;color:var(--muted);">📍 ${escHtml(a.entreprise_actuelle)}</div>` : ''}
+          ${a.entreprise_actuelle ? `<div style="font-size:0.72rem;color:var(--muted);">${escHtml(a.entreprise_actuelle)}</div>` : ''}
           ${a.contenu_conseil || a.titre ? `<div style="font-size:0.74rem;color:var(--muted);line-height:1.35;">${escHtml((a.contenu_conseil || a.titre || '').substring(0, 70))}…</div>` : ''}
           <div style="display:flex;gap:8px;">
             <button onclick="voirProfilMentor(${alumnIdText})"
-              style="flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:0.72rem;font-weight:700;background:#fff;cursor:pointer;">👤 Profil</button>
+              style="flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:0.72rem;font-weight:700;background:#fff;cursor:pointer;">Profil</button>
             <button class="btn-p" onclick="ouvrirModalConseil(${alumnIdText}, ${alumnNameText})"
-              style="flex:1;padding:8px 10px;font-size:0.72rem;">✉️ Demander</button>
+              style="flex:1;padding:8px 10px;font-size:0.72rem;">Demander</button>
           </div>
         </div>`;
     }
@@ -3355,9 +3355,9 @@
         container.style.display = 'block';
         container.innerHTML = `
           <div style="padding:20px;text-align:center;grid-column:1/-1;">
-            <div style="font-size:2rem;margin-bottom:8px;">🔍</div>
+            <div style="font-size:2rem;margin-bottom:8px;"></div>
             <div style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">Aucun mentor ne correspond à votre recherche.</div>
-            <button class="btn-p" onclick="ouvrirModalConseil()">📤 Envoyer une demande ouverte</button>
+            <button class="btn-p" onclick="ouvrirModalConseil()">Envoyer une demande ouverte</button>
           </div>`;
         loadMoreWrap.style.display = 'none';
         return;
@@ -3400,7 +3400,7 @@
       const modal = document.getElementById('modal-profil-mentor');
       const content = document.getElementById('pm-content');
       modal.style.display = 'flex';
-      content.innerHTML = '<div style="padding:20px;">⏳ Chargement…</div>';
+      content.innerHTML = '<div style="padding:20px;">Chargement…</div>';
       if (!id || id === 'undefined' || id === 'null') {
         content.innerHTML = '<div style="color:var(--red);padding:12px;">Identifiant du mentor manquant (donnée incomplète). Contactez l\'administration.</div>';
         return;
@@ -3425,16 +3425,16 @@
           </div>
           ${p.biographie ? `<div style="font-size:0.82rem;color:#2E2718;line-height:1.5;margin-bottom:12px;padding:12px;background:#FDFAF2;border-radius:10px;">${escHtml(p.biographie)}</div>` : ''}
           <div style="display:flex;flex-direction:column;gap:8px;font-size:0.78rem;">
-            ${p.universite ? `<div>🎓 <strong>${escHtml(p.universite)}</strong>${p.annee_graduation ? ' · ' + escHtml(p.annee_graduation) : ''}</div>` : ''}
-            ${p.secteur_activite ? `<div>💼 ${escHtml(p.secteur_activite)}</div>` : ''}
-            ${p.ville_residence ? `<div>📍 ${escHtml(p.ville_residence)}${p.pays_residence ? ', ' + escHtml(p.pays_residence) : ''}</div>` : ''}
-            ${p.linkedin_url ? `<div>🔗 <a href="${escHtml(p.linkedin_url)}" target="_blank" rel="noopener" style="color:#2F6B3F;text-decoration:none;font-weight:600;">Profil LinkedIn</a></div>` : ''}
-            ${p.site_web ? `<div>🌐 <a href="${escHtml(p.site_web)}" target="_blank" rel="noopener" style="color:#2F6B3F;text-decoration:none;font-weight:600;">Site personnel</a></div>` : ''}
-            ${(p.langues_parlees && p.langues_parlees.length) ? `<div>🗣️ ${p.langues_parlees.map(escHtml).join(', ')}</div>` : ''}
+            ${p.universite ? `<div><strong>${escHtml(p.universite)}</strong>${p.annee_graduation ? ' · ' + escHtml(p.annee_graduation) : ''}</div>` : ''}
+            ${p.secteur_activite ? `<div>${escHtml(p.secteur_activite)}</div>` : ''}
+            ${p.ville_residence ? `<div>${escHtml(p.ville_residence)}${p.pays_residence ? ', ' + escHtml(p.pays_residence) : ''}</div>` : ''}
+            ${p.linkedin_url ? `<div><a href="${escHtml(p.linkedin_url)}" target="_blank" rel="noopener" style="color:#2F6B3F;text-decoration:none;font-weight:600;">Profil LinkedIn</a></div>` : ''}
+            ${p.site_web ? `<div><a href="${escHtml(p.site_web)}" target="_blank" rel="noopener" style="color:#2F6B3F;text-decoration:none;font-weight:600;">Site personnel</a></div>` : ''}
+            ${(p.langues_parlees && p.langues_parlees.length) ? `<div>${p.langues_parlees.map(escHtml).join(', ')}</div>` : ''}
             ${(p.competences && p.competences.length) ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">${p.competences.map(c => `<span style="background:#E4EEDD;color:#2F6B3F;padding:3px 9px;border-radius:6px;font-size:0.7rem;font-weight:700;">${escHtml(c)}</span>`).join('')}</div>` : ''}
           </div>
           <div style="margin-top:12px;padding:10px;border-radius:10px;background:#EFF5EA;color:#1A3F24;font-size:0.78rem;line-height:1.5;">
-            💡 Ce mentor peut vous aider concrètement sur l’orientation, les méthodes de travail, la motivation et la préparation de votre avenir.
+            Ce mentor peut vous aider concrètement sur l’orientation, les méthodes de travail, la motivation et la préparation de votre avenir.
           </div>
           ${p.disponible_mentorat === false ? '<div style="margin-top:12px;font-size:0.72rem;color:var(--red);text-align:center;">Ce mentor n\'est pas disponible actuellement.</div>' : ''}
         `;
@@ -3450,14 +3450,14 @@
       document.getElementById('res-content').style.display = 'none';
       const container = document.getElementById('profs-content');
       container.style.display = 'flex';
-      container.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-txt">Chargement...</div></div>';
+      container.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Chargement...</div></div>';
 
       try {
         const r = await fetch(`${API}/eleves/professeurs`, { headers: authH() });
         const d = await r.json();
         const profs = d.professeurs || d.profs || [];
         if (!profs.length) {
-          container.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-txt">Aucun professeur trouvé pour votre classe.</div></div>';
+          container.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucun professeur trouvé pour votre classe.</div></div>';
           return;
         }
         container.innerHTML = profs.map(p => `
@@ -3470,11 +3470,11 @@
               <div style="font-weight:700;font-size:0.9rem;">${escHtml(p.prenom)} ${escHtml(p.nom)}</div>
               <div style="font-size:0.75rem;color:var(--accent);font-weight:600;">${escHtml((p.matieres || []).join(', ') || 'Matière non renseignée')}</div>
             </div>
-            <span style="font-size:0.7rem;color:var(--muted);">👤 Voir</span>
+            <span style="font-size:0.7rem;color:var(--muted);">Voir</span>
           </div>
         `).join('');
       } catch (e) {
-        container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger la liste.</div></div>';
+        container.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Impossible de charger la liste.</div></div>';
       }
     }
 
@@ -3482,7 +3482,7 @@
       const modal = document.getElementById('modal-profil-mentor');
       const content = document.getElementById('pm-content');
       modal.style.display = 'flex';
-      content.innerHTML = '<div style="padding:20px;">⏳ Chargement…</div>';
+      content.innerHTML = '<div style="padding:20px;">Chargement…</div>';
       try {
         const r = await fetch(`${API}/eleves/professeur/${id}`, { headers: authH() });
         const d = await r.json();
@@ -3498,8 +3498,8 @@
           </div>
           ${p.biographie ? `<div style="font-size:0.82rem;color:#2E2718;line-height:1.5;margin-bottom:12px;padding:12px;background:#FDFAF2;border-radius:10px;">${escHtml(p.biographie)}</div>` : ''}
           <div style="display:flex;flex-direction:column;gap:8px;font-size:0.78rem;">
-            ${p.diplome ? `<div>🎓 ${escHtml(p.diplome)}</div>` : ''}
-            ${p.annees_exp ? `<div>📅 ${p.annees_exp} an${p.annees_exp > 1 ? 's' : ''} d'expérience</div>` : ''}
+            ${p.diplome ? `<div>${escHtml(p.diplome)}</div>` : ''}
+            ${p.annees_exp ? `<div>${p.annees_exp} an${p.annees_exp > 1 ? 's' : ''} d'expérience</div>` : ''}
             ${(p.matieres && p.matieres.length) ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">${p.matieres.map(m => `<span style="background:#ECFDF5;color:#587530;padding:3px 9px;border-radius:6px;font-size:0.7rem;font-weight:700;">${escHtml(m)}</span>`).join('')}</div>` : ''}
           </div>
         `;
@@ -3514,7 +3514,7 @@
     function _optionsDestinatairesConseil() {
       const options = [];
       if (currentMentorAlumniId && currentMentorNom) {
-        options.push({ id: currentMentorAlumniId, label: `⭐ ${currentMentorNom} (mon mentor)` });
+        options.push({ id: currentMentorAlumniId, label: `${currentMentorNom} (mon mentor)` });
       }
       (_tousLesAlumni || []).forEach(a => {
         const id = a.id_alumni || a.auteur_id;
@@ -3522,7 +3522,7 @@
         const nom = a.auteur || `${a.prenom || ''} ${a.nom || ''}`.trim();
         options.push({ id, label: nom });
       });
-      options.push({ id: '', label: '📢 Demande ouverte (n\'importe quel alumni disponible)' });
+      options.push({ id: '', label: 'Demande ouverte (n\'importe quel alumni disponible)' });
       return options;
     }
 
@@ -3570,7 +3570,7 @@
 
       const btn = document.querySelector('#modal-conseil .btn-p');
       btn.disabled = true;
-      btn.textContent = '⏳ Envoi…';
+      btn.textContent = 'Envoi…';
 
       try {
         const r = await fetch(`${API}/mentorat/demandes`, {
@@ -3593,7 +3593,7 @@
         erreurEl.style.display = 'block';
       } finally {
         btn.disabled = false;
-        btn.textContent = '📤 Envoyer';
+        btn.textContent = 'Envoyer';
       }
     }
 
@@ -3602,28 +3602,28 @@
       if (!container) return;
 
       if (!entrees || !entrees.length) {
-        container.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Aucune entrée pour le moment. Ajoutez votre première réflexion !</div></div>';
+        container.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune entrée pour le moment. Ajoutez votre première réflexion !</div></div>';
         return;
       }
 
-      const typeIcon = { note: '📝', objectif: '🎯', reflexion: '💭', feedback: '💬' };
+      const typeIcon = { note: '', objectif: '', reflexion: '', feedback: '' };
       const userId = currentUser.id;
 
       container.innerHTML = entrees.map(e => `
         <div class="entree-journal-item ${e.is_prive ? 'prive' : ''}" data-id="${e.id_journal}">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
             <div style="display:flex;align-items:center;gap:8px;">
-              <span style="font-size:1rem;">${typeIcon[e.type_entree] || '📄'}</span>
+              <span style="font-size:1rem;">${typeIcon[e.type_entree] || ''}</span>
               <span style="font-weight:700;font-size:0.87rem;">${escHtml(e.titre)}</span>
             </div>
             <span style="font-size:0.7rem;color:var(--muted);">${new Date(e.date_creation).toLocaleDateString('fr-FR')}</span>
           </div>
           <div style="font-size:0.82rem;color:var(--muted);margin-bottom:2px;">${escHtml(e.prenom)} ${escHtml(e.nom)} · <em style="opacity:0.7;">${e.role_auteur}</em></div>
           <div style="font-size:0.84rem;line-height:1.5;margin-top:6px;">${escHtml(e.contenu).replace(/\n/g, '<br>')}</div>
-          ${e.is_prive ? '<div style="font-size:0.7rem;color:#1F4A2C;margin-top:6px;">🔒 Privée</div>' : ''}
+          ${e.is_prive ? '<div style="font-size:0.7rem;color:#1F4A2C;margin-top:6px;">Privée</div>' : ''}
           ${e.id_auteur === userId ? `
             <div style="display:flex;gap:8px;margin-top:8px;">
-              <button class="btn-sm" onclick="supprimerEntreeEleve(${e.id_journal}, ${idRelation})" style="background:#C0392B;">🗑️ Supprimer</button>
+              <button class="btn-sm" onclick="supprimerEntreeEleve(${e.id_journal}, ${idRelation})" style="background:#C0392B;">Supprimer</button>
             </div>` : ''}
         </div>
       `).join('');
@@ -3677,7 +3677,7 @@
       }
 
       const btn = document.querySelector('#modal-entree .btn-p');
-      btn.disabled = true; btn.textContent = '⏳…';
+      btn.disabled = true; btn.textContent = '…';
 
       try {
         let result;
@@ -3702,7 +3702,7 @@
       } catch (e) {
         alert('Erreur réseau.');
       } finally {
-        btn.disabled = false; btn.textContent = '💾 Enregistrer';
+        btn.disabled = false; btn.textContent = 'Enregistrer';
       }
     }
 
@@ -3812,7 +3812,7 @@
       var chartEl = document.getElementById('chart-evo');
       if (!chartEl) return;
 
-      // ✅ Chart.js se charge depuis internet en parallèle de la page — si
+      // Chart.js se charge depuis internet en parallèle de la page — si
       // ça n'est pas encore arrivé (connexion lente ce jour-là), le
       // graphique échouait une seule fois, silencieusement, sans jamais
       // réessayer. On attend maintenant que la librairie soit vraiment
@@ -3828,7 +3828,7 @@
           }, 200);
         });
         if (!pret) {
-          chartEl.parentElement.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:.8rem;">📉 Graphique indisponible — vérifiez votre connexion internet</div>';
+          chartEl.parentElement.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:.8rem;">Graphique indisponible — vérifiez votre connexion internet</div>';
           return;
         }
       }
@@ -3927,7 +3927,7 @@
             + '<div style="font-size:.8rem;font-weight:700;">' + escHtml(c.nom_matiere || 'Matière') + ' · T' + c.trimestre + '</div>'
             + '<div style="font-size:.68rem;color:var(--muted);">' + escHtml(c.prof_prenom || '') + ' ' + escHtml(c.prof_nom || '') + (c.note ? ' · ' + c.note + '/20' : '') + '</div>'
             + '</div>'
-            + '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="btn-ghost" style="text-decoration:none;">📄 Voir</a>'
+            + '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="btn-ghost" style="text-decoration:none;">Voir</a>'
             + '</div>';
         }).join('');
       } catch (e) { console.warn('loadCopiesScannees:', e.message); card.style.display = 'none'; }

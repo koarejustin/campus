@@ -253,7 +253,7 @@
             transition: all .15s;
         }
 
-        /* ✅ Les SVG n'héritaient d'aucune couleur — remplissage noir par
+        /* Les SVG n'héritaient d'aucune couleur — remplissage noir par
            défaut du navigateur, invisible sur le fond sombre de la barre
            latérale. On force le style "icône trait fin" et on suit la
            couleur du texte parent (currentColor). */
@@ -560,18 +560,18 @@
             </div>
             <div class="kpi-grid" id="dashboard-stats"></div>
             <div class="card">
-                <h3 style="margin-bottom:12px;">👥 Le bureau</h3>
+                <h3 style="margin-bottom:12px;">Le bureau</h3>
                 <div id="bureau-list"></div>
             </div>
             <div class="card">
-                <h3 style="margin-bottom:12px;">📢 Derniers messages du forum</h3>
+                <h3 style="margin-bottom:12px;">Derniers messages du forum</h3>
                 <div id="last-forum-posts"></div>
             </div>
         </div>
         <div id="pg-cotisations" class="pg">
             <div class="pg-hd">
                 <div>
-                    <div class="pg-title">💰 Cotisations APE</div>
+                    <div class="pg-title">Cotisations APE</div>
                     <div class="pg-sub">Suivi des paiements</div>
                 </div>
             </div>
@@ -598,7 +598,7 @@
         <div id="pg-forum" class="pg">
             <div class="pg-hd">
                 <div>
-                    <div class="pg-title">💬 Forum APE</div>
+                    <div class="pg-title">Forum APE</div>
                     <div class="pg-sub">Discussions entre membres</div>
                 </div>
             </div>
@@ -613,7 +613,7 @@
         <div id="pg-projets" class="pg">
             <div class="pg-hd">
                 <div>
-                    <div class="pg-title">📋 Projets en cours</div>
+                    <div class="pg-title">Projets en cours</div>
                     <div class="pg-sub">Suivi des initiatives de l'APE</div>
                 </div>
             </div>
@@ -633,7 +633,7 @@
 
     <div id="notif-panel" class="notif-panel">
         <div class="notif-header">
-            <span>🔔 Notifications</span>
+            <span>Notifications</span>
             <div style="display:flex;gap:8px;align-items:center;">
                 <button id="mark-all-notif" type="button">Tout marquer lu</button>
                 <button id="close-notif-modal"
@@ -704,8 +704,8 @@
                 return;
             }
             container.innerHTML = notifData.map(n => {
-                const icon = n.type === 'COTISATION_APE' ? '💰'
-                    : n.type === 'ANNONCE' ? '📢' : '🔔';
+                const icon = n.type === 'COTISATION_APE' ? ''
+                    : n.type === 'ANNONCE' ? '' : '';
                 return `
           <div class="notif-item ${!n.lu ? 'unread' : ''}" data-id="${n.id}" data-link="${n.lien || ''}">
             <div class="notif-item-icon">${icon}</div>
@@ -930,7 +930,7 @@
                 });
                 const d = await r.json();
                 if (!r.ok) { msgEl.textContent = d.message || 'Erreur'; return false; }
-                msgEl.textContent = 'Cotisation enregistrée ✅';
+                msgEl.textContent = 'Cotisation enregistrée';
                 document.getElementById('form-cotisation').reset();
                 loadCotisations();
             } catch (e) {
@@ -962,7 +962,7 @@
                             <strong>${esc(m.prenom)} ${esc(m.nom)}</strong>
                             <div>${esc(m.contenu)}</div>
                             <small style="color:var(--muted);">${fmtDate(m.created_at)}</small>
-                            <button onclick="likeForum('${m.id_post}')" style="background:none;border:none;color:var(--accent);cursor:pointer;">❤️ ${m.nb_likes || 0}</button>
+                            <button onclick="likeForum('${m.id_post}')" style="background:none;border:none;color:var(--accent);cursor:pointer;">${m.nb_likes || 0}</button>
                         </div>
                     </div>
                 `).join('') || '<div class="empty-msg">Aucun message pour le moment — soyez le premier à écrire !</div>';
@@ -998,8 +998,8 @@
                     <div class="card" style="margin-bottom:10px;">
                         <h4>${esc(p.titre)} <span class="tag-statut tag-EN_ATTENTE">${esc(p.statut)}</span></h4>
                         <p style="color:var(--muted);font-size:.78rem;margin:6px 0;">${esc(p.description || '')}</p>
-                        <div style="font-size:.76rem;">💰 Budget : ${p.budget ? fmtFCFA(p.budget) : 'non défini'}</div>
-                        <div style="font-size:.76rem;">📅 ${fmtDate(p.date_debut)} → ${p.date_fin ? fmtDate(p.date_fin) : 'en cours'}</div>
+                        <div style="font-size:.76rem;">Budget : ${p.budget ? fmtFCFA(p.budget) : 'non défini'}</div>
+                        <div style="font-size:.76rem;">${fmtDate(p.date_debut)} → ${p.date_fin ? fmtDate(p.date_fin) : 'en cours'}</div>
                     </div>
                 `).join('') || '<div class="empty-msg">Aucun projet en cours</div>';
             } catch (e) {

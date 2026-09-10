@@ -36,7 +36,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
 
-  // ✅ Exception délibérée et unique à la règle "jamais l'API en cache"
+  // Exception délibérée et unique à la règle "jamais l'API en cache"
   // ci-dessous : le nom et le logo de l'école (route publique, sans
   // donnée sensible, qui ne change quasiment jamais) — sans ça, hors
   // connexion, la page retombe sur un texte générique le temps que la
@@ -63,7 +63,7 @@ self.addEventListener('fetch', (event) => {
   // Uniquement les requêtes GET peuvent être mises en cache.
   if (req.method !== 'GET') return;
 
-  // ✅ Chart.js (/vendor/) est un fichier statique versionné qui ne
+  // Chart.js (/vendor/) est un fichier statique versionné qui ne
   // change jamais entre deux déploiements identiques — le stratégie
   // "réseau d'abord" ci-dessous le retéléchargeait entièrement (~200 Ko)
   // à chaque chargement de page, ce qui dépassait le délai d'attente

@@ -287,7 +287,7 @@
                         // Changer la couleur de fond par défaut
                         card.style.backgroundColor = 'transparent';
 
-                        console.log(`✅ Image de fond chargée pour ${espace}: ${data.image.url_image}`);
+                        console.log(`Image de fond chargée pour ${espace}: ${data.image.url_image}`);
                     } else {
                         // Fallback : couleur de fond avec dégradé
                         const colors = {
@@ -321,10 +321,10 @@
                             lucide.createIcons();
                         }
 
-                        console.log(`⚠️ Image non trouvée pour ${espace}, fallback avec couleur`);
+                        console.log(`Image non trouvée pour ${espace}, fallback avec couleur`);
                     }
                 } catch (error) {
-                    console.error(`❌ Erreur chargement image pour ${espace}:`, error);
+                    console.error(`Erreur chargement image pour ${espace}:`, error);
                     // Fallback couleur
                     const colors = {
                         eleves: 'linear-gradient(135deg, #2F6B3F, #1F4A2C)',

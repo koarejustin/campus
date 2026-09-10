@@ -55,7 +55,7 @@
       void el.offsetWidth;
       el.classList.add('ui-reveal');
     }
-    // ⚠️ playReveal() modifie lui-même la classe de l'élément observé : sans
+    // playReveal() modifie lui-même la classe de l'élément observé : sans
     // garde, ça redéclenche l'observateur en boucle infinie (page qui se fige
     // complètement, plus aucun clic ne répond). On ne réagit donc qu'à une
     // vraie transition "devient actif" (absent → présent dans oldValue),

@@ -149,7 +149,7 @@ function afficherEntreesJournal(entrees, idRelation) {
     if (!container) return;
 
     if (!entrees || entrees.length === 0) {
-        container.innerHTML = '<div class="empty">📝 Aucune entrée pour le moment. Commencez à écrire votre histoire !</div>';
+        container.innerHTML = '<div class="empty">Aucune entrée pour le moment. Commencez à écrire votre histoire !</div>';
         return;
     }
 
@@ -172,7 +172,7 @@ function afficherEntreesJournal(entrees, idRelation) {
                 ${escapeHtml(entree.contenu).replace(/\n/g, '<br>')}
             </div>
             
-            ${entree.is_prive ? '<div class="badge-prive">🔒 Privée (alumni seulement)</div>' : ''}
+            ${entree.is_prive ? '<div class="badge-prive">Privée (alumni seulement)</div>' : ''}
             
             <div class="entree-footer">
                 <small>${new Date(entree.date_creation).toLocaleTimeString('fr-FR', {
@@ -181,8 +181,8 @@ function afficherEntreesJournal(entrees, idRelation) {
                 })}</small>
                 ${isCurrentUserAuthor(entree) ? `
                     <div class="entree-actions">
-                        <button onclick="editEntree(${entree.id_journal})" class="btn-small">✏️ Modifier</button>
-                        <button onclick="deleteEntree(${entree.id_journal})" class="btn-small btn-danger">🗑️ Supprimer</button>
+                        <button onclick="editEntree(${entree.id_journal})" class="btn-small">Modifier</button>
+                        <button onclick="deleteEntree(${entree.id_journal})" class="btn-small btn-danger">Supprimer</button>
                     </div>
                 ` : ''}
             </div>
@@ -197,12 +197,12 @@ function afficherEntreesJournal(entrees, idRelation) {
 
 function getTypeIcon(type) {
     const icons = {
-        'note': '📝',
-        'objectif': '🎯',
-        'reflexion': '💭',
-        'feedback': '💬'
+        'note': '',
+        'objectif': '',
+        'reflexion': '',
+        'feedback': ''
     };
-    return icons[type] || '📄';
+    return icons[type] || '';
 }
 
 function escapeHtml(text) {
@@ -337,8 +337,8 @@ function afficherListeElevesMentorat(eleves) {
                 ${eleve.moyenne_generale ? `<div class="moyenne">Moyenne: <strong>${eleve.moyenne_generale}/20</strong></div>` : ''}
             </div>
             <div class="eleve-stats">
-                <span>📝 ${eleve.nb_entrees_journal} entrées</span>
-                <span>🎯 ${eleve.nb_objectifs} objectifs</span>
+                <span>${eleve.nb_entrees_journal} entrées</span>
+                <span>${eleve.nb_objectifs} objectifs</span>
             </div>
         </div>
     `).join('');
@@ -373,7 +373,7 @@ function afficherDetailEleveMentorat(eleve, entrees, notes, idRelation) {
                 <h3>${escapeHtml(eleve.nom_complet)}</h3>
                 <p class="classe">${eleve.classe}</p>
                 <div class="resultats">
-                    <h4>📊 Résultats scolaires</h4>
+                    <h4>Résultats scolaires</h4>
                     <div class="moyenne-generale">
                         Moyenne générale: <strong>${eleve.moyenne_generale || 'N/A'}/20</strong>
                     </div>
@@ -390,8 +390,8 @@ function afficherDetailEleveMentorat(eleve, entrees, notes, idRelation) {
 
             <div class="journal-container" data-relation="${idRelation}">
                 <div class="journal-header">
-                    <h4>📖 Journal de Bord Partagé</h4>
-                    <button class="btn-p" onclick="ouvrirAjoutEntree(${idRelation})">➕ Nouvelle entrée</button>
+                    <h4>Journal de Bord Partagé</h4>
+                    <button class="btn-p" onclick="ouvrirAjoutEntree(${idRelation})">Nouvelle entrée</button>
                 </div>
                 <div id="journal-entrees">
                     ${entrees.length > 0 ? '' : '<div class="empty">Aucune entrée pour le moment</div>'}
@@ -413,7 +413,7 @@ async function loadMentorEleve() {
         } else {
             document.getElementById('mentor-container').innerHTML = `
                 <div class="card mentor-empty" style="padding:20px;text-align:center;">
-                    <div class="empty">📚 Vous n'avez pas de mentor pour le moment.</div>
+                    <div class="empty">Vous n'avez pas de mentor pour le moment.</div>
                     <button class="btn-p" style="margin-top:16px;" onclick="demanderConseil()">Demander un mentor</button>
                 </div>
             `;
@@ -451,10 +451,10 @@ function afficherProfilMentor(alumni) {
 
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
                 <button class="btn-p" onclick="ouvrirJournalEleve(${alumni.id_relation})">
-                    📖 Voir notre journal de bord
+                    Voir notre journal de bord
                 </button>
                 <button class="btn-p" onclick="demanderConseil('${escapeHtml(alumni.id_alumni || alumni.id_user || '')}')">
-                    ✉️ Demander un conseil
+                    Demander un conseil
                 </button>
             </div>
         </div>
@@ -471,8 +471,8 @@ async function ouvrirJournalEleve(idRelation) {
         if (data.success) {
             container.innerHTML = `
                 <div class="journal-eleve-view">
-                    <h3>📖 Notre Journal de Bord</h3>
-                    <button class="btn-p" onclick="ouvrirAjoutEntree(${idRelation})">➕ Ajouter une réflexion</button>
+                    <h3>Notre Journal de Bord</h3>
+                    <button class="btn-p" onclick="ouvrirAjoutEntree(${idRelation})">Ajouter une réflexion</button>
                     <div id="journal-entrees-eleve" data-relation="${idRelation}"></div>
                 </div>
             `;
@@ -517,16 +517,16 @@ function afficherListeElevesOrientations(eleves) {
                     <div class="orientation-status">
                         ${eleve.orientation_suggeree ? 
                             `<div class="orientation-set">
-                                <strong>🎯 Orientation: ${eleve.orientation_suggeree}</strong>
+                                <strong>Orientation: ${eleve.orientation_suggeree}</strong>
                                 ${eleve.justification_orientation ? 
                                     `<p class="justification">"${escapeHtml(eleve.justification_orientation.substring(0, 100))}"</p>` 
                                     : ''}
                             </div>` 
-                            : '<div class="no-orientation">⚠️ Pas d\'orientation définie</div>'}
+                            : '<div class="no-orientation">Pas d\'orientation définie</div>'}
                     </div>
                     
                     <div class="orientation-stats">
-                        ${eleve.moyenne ? `<span>📊 ${Number(eleve.moyenne).toFixed(2)}/20</span>` : ''}
+                        ${eleve.moyenne ? `<span>${Number(eleve.moyenne).toFixed(2)}/20</span>` : ''}
                     </div>
                     
                     <button class="btn-small" onclick="event.stopPropagation(); openOrientationModal(${eleve.id_relation}, '${escapeHtml(eleve.prenom + ' ' + eleve.nom)}')">

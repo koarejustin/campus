@@ -414,7 +414,7 @@
       </div>
 
       <div class="activation-msg" id="activation-msg">
-        ✨ Compte activé avec succès ! Reconnectez-vous avec ce mot de passe.
+        Compte activé avec succès ! Reconnectez-vous avec ce mot de passe.
       </div>
 
       <label class="field-label">Matricule · Code Unique</label>
@@ -535,14 +535,14 @@
 
     function showErr(msg) {
       const el = document.getElementById('error-box');
-      el.textContent = '⚠️ ' + msg;
+      el.textContent = '' + msg;
       el.style.display = 'block';
     }
     function hideErr() { document.getElementById('error-box').style.display = 'none'; }
 
     async function chargerConfigEcole() {
       try {
-        // ✅ SÉCURITÉ : utilise la route publique (sans token requis)
+        // SÉCURITÉ : utilise la route publique (sans token requis)
         const response = await fetch('/api/admin/config-public');
         const data = await response.json();
         if (data.success && data.config) {
@@ -575,7 +575,7 @@
       try {
         const body = { code_unique: username, mot_de_passe: password };
         // On envoie le rôle seulement si détecté (optionnel, le backend le retrouve tout seul)
-        // ✅ "APE" n'est pas un vrai rôle de compte (un membre du bureau APE est
+        // "APE" n'est pas un vrai rôle de compte (un membre du bureau APE est
         // un PARENT) — ne jamais l'envoyer tel quel au backend, il ne
         // correspondra jamais à aucun compte.
         const roleToSend = detectedInfo?.role || (urlRole === 'APE' ? null : urlRole);
@@ -647,7 +647,7 @@
 
         // Trouver la page cible
         // Priorité : rôle backend > rôle détecté par préfixe > rôle URL
-        // ✅ Cas particulier APE : il n'existe pas de compte "APE" séparé —
+        // Cas particulier APE : il n'existe pas de compte "APE" séparé —
         // un membre du bureau APE est simplement un PARENT. Si l'entrée
         // vient du bouton "Bureau APE" (urlRole=APE), on l'envoie vers
         // ape.html plutôt que parent.html, même si le compte réel est PARENT.

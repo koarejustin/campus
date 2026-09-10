@@ -33,7 +33,7 @@ async function loadMoyennesAvancees(trimestre = '') {
   } catch (e) {
     container.innerHTML = `
       <div style="padding:24px;background:#fff;border-radius:16px;border:1px solid #F7E3DC;color:#c0392b;font-size:.82rem">
-        ⚠️ Impossible de charger les moyennes : ${e.message}
+        Impossible de charger les moyennes : ${e.message}
       </div>`;
   }
 }
@@ -105,7 +105,7 @@ function renderMoyennesDashboard(data) {
 
       <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid var(--border)">
         <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px">
-          📈 Évolution des Moyennes
+          Évolution des Moyennes
         </div>
         <canvas id="chart-evolution" height="180"></canvas>
         ${evolution.length === 0 ? '<div style="text-align:center;color:var(--muted);font-size:.8rem;padding:40px">Pas encore de données multi-trimestres</div>' : ''}
@@ -113,7 +113,7 @@ function renderMoyennesDashboard(data) {
 
       <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid var(--border)">
         <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px">
-          🎯 Analyse Prédictive
+          Analyse Prédictive
         </div>
         <div style="font-size:.7rem;color:var(--muted);margin-bottom:12px">Note min. au prochain devoir (coef 2) pour :</div>
         ${[
@@ -126,7 +126,7 @@ function renderMoyennesDashboard(data) {
             <div style="display:flex;justify-content:space-between;margin-bottom:3px">
               <span style="font-size:.7rem;font-weight:600;color:var(--ink)">${p.label}</span>
               <span style="font-size:.82rem;font-weight:900;color:${p.color}">
-                ${p.val === null ? '🚫 Impossible' : p.val === undefined ? '—' : p.val + ' / 20'}
+                ${p.val === null ? 'Impossible' : p.val === undefined ? '—' : p.val + ' / 20'}
               </span>
             </div>
           </div>
@@ -137,7 +137,7 @@ function renderMoyennesDashboard(data) {
     <!-- Graphique : Moyennes par matière -->
     <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid var(--border);margin-bottom:16px">
       <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px">
-        📊 Moyennes par Matière
+        Moyennes par Matière
       </div>
       <canvas id="chart-matieres" height="120"></canvas>
     </div>
@@ -145,7 +145,7 @@ function renderMoyennesDashboard(data) {
     <!-- Tableau détaillé des matières -->
     <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid var(--border);margin-bottom:16px">
       <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px">
-        📋 Détail par Matière · ${data.eleve?.classe || ''}
+        Détail par Matière · ${data.eleve?.classe || ''}
       </div>
       <div style="overflow-x:auto">
         <table style="width:100%;border-collapse:collapse;font-size:.78rem">
@@ -189,11 +189,11 @@ function renderMoyennesDashboard(data) {
     ${alertes.length > 0 ? `
     <div style="background:#fff;border-radius:20px;padding:20px;border:1px solid #F7E3DC;margin-bottom:16px">
       <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#C0392B;margin-bottom:12px">
-        ⚠️ Alertes · Baisses Détectées
+        Alertes · Baisses Détectées
       </div>
       ${alertes.map(a => `
         <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:10px;background:${a.alerte==='CRITIQUE'?'#F9E8E1':'#F5EAD2'};margin-bottom:8px">
-          <span style="font-size:1.2rem">${a.alerte === 'CRITIQUE' ? '🔴' : '🟡'}</span>
+          <span style="font-size:1.2rem">${a.alerte === 'CRITIQUE' ? '' : ''}</span>
           <div>
             <div style="font-weight:700;font-size:.8rem;color:var(--ink)">${a.matiere}</div>
             <div style="font-size:.7rem;color:var(--muted)">Baisse de ${a.baisse} pts · ${a.alerte}</div>
@@ -343,7 +343,7 @@ async function loadConvocationsRealtime() {
     if (data.convocations.length === 0) {
       container.innerHTML = `
         <div style="text-align:center;padding:40px;color:var(--muted)">
-          <div style="font-size:2rem;margin-bottom:8px">✅</div>
+          <div style="font-size:2rem;margin-bottom:8px"></div>
           <div style="font-size:.82rem">Aucune convocation</div>
         </div>`;
       return;
@@ -351,11 +351,11 @@ async function loadConvocationsRealtime() {
 
     container.innerHTML = data.convocations.map(c => {
       const statutColor = {
-        'ENVOYEE':   { bg: '#F2E6C5', color: '#7A5218', icon: '🕐', label: 'En attente' },
-        'EN_ATTENTE':{ bg: '#F2E6C5', color: '#7A5218', icon: '🕐', label: 'En attente' },
-        'LU':        { bg: '#EDF1DE', color: '#3D5322', icon: '✅', label: 'Lu par parent' },
-        'VALIDE':    { bg: '#EDF1DE', color: '#3D5322', icon: '✅', label: 'Validé' },
-        'PASSEE':    { bg: '#F2ECDE', color: '#5A4D36', icon: '📁', label: 'Passée' },
+        'ENVOYEE':   { bg: '#F2E6C5', color: '#7A5218', icon: '', label: 'En attente' },
+        'EN_ATTENTE':{ bg: '#F2E6C5', color: '#7A5218', icon: '', label: 'En attente' },
+        'LU':        { bg: '#EDF1DE', color: '#3D5322', icon: '', label: 'Lu par parent' },
+        'VALIDE':    { bg: '#EDF1DE', color: '#3D5322', icon: '', label: 'Validé' },
+        'PASSEE':    { bg: '#F2ECDE', color: '#5A4D36', icon: '', label: 'Passée' },
       };
       const s = statutColor[c.statut] || statutColor['ENVOYEE'];
       const urgent = c.periode === 'URGENTE';
@@ -374,7 +374,7 @@ async function loadConvocationsRealtime() {
           ${c.description ? `<div style="font-size:.75rem;color:var(--muted);margin-bottom:8px">${c.description}</div>` : ''}
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div style="font-size:.7rem;color:var(--muted)">
-              📅 ${new Date(c.date_convocation).toLocaleDateString('fr-FR', {weekday:'short',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})}
+              ${new Date(c.date_convocation).toLocaleDateString('fr-FR', {weekday:'short',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})}
               ${urgent ? ' <span style="color:#C0392B;font-weight:700">— URGENT</span>' : ''}
             </div>
             ${c.date_accuse ? `

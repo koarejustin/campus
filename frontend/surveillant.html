@@ -78,7 +78,7 @@
         </section>
 
         <section class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm mb-6">
-            <label class="block text-sm font-black mb-2">🔒 Sécurité — Changer mon mot de passe</label>
+            <label class="block text-sm font-black mb-2">Sécurité — Changer mon mot de passe</label>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                 <input type="password" id="cpAncien" placeholder="Mot de passe actuel"
                     class="px-4 py-2 border border-slate-200 rounded-lg text-sm">
@@ -115,7 +115,7 @@
     </div>
 
     <script>
-        // ✅ SÉCURITÉ : Vérification session + rôle depuis le token JWT
+        // SÉCURITÉ : Vérification session + rôle depuis le token JWT
         const session = JSON.parse(localStorage.getItem('user_session') || 'null');
         if (!session || !session.token) {
             alert('Veuillez vous connecter.');
@@ -249,7 +249,7 @@
                 });
                 const d = await res.json();
                 if (d.success) {
-                    msg.innerText = '✅ Mot de passe changé';
+                    msg.innerText = 'Mot de passe changé';
                     document.getElementById('cpAncien').value = '';
                     document.getElementById('cpNouveau').value = '';
                 } else {

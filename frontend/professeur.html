@@ -459,7 +459,7 @@
         max-width: 84vw !important;
       }
 
-      /* ✅ .notes-grid avait une colonne fixe de 260px non responsive —
+      /* .notes-grid avait une colonne fixe de 260px non responsive —
          sur téléphone ça forçait toute la page (dont la barre "choisir
          la classe" juste au-dessus) hors de l'écran visible. */
       .notes-grid {
@@ -2452,7 +2452,7 @@
       style="display:none; position:fixed; top:70px; right:20px; width:min(360px,90vw); max-height:80vh; background:#fff; border-radius:16px; box-shadow:0 8px 24px rgba(0,0,0,.2); z-index:1000; border:1px solid var(--border); overflow:hidden;">
       <div
         style="padding:12px 16px; background:var(--accent); color:#fff; display:flex; justify-content:space-between; align-items:center;">
-        <span style="font-weight:800; font-size:.85rem;">🔔 Notifications</span>
+        <span style="font-weight:800; font-size:.85rem;">Notifications</span>
         <button onclick="markAllNotifRead()"
           style="background:rgba(255,255,255,.2); border:none; border-radius:8px; padding:4px 10px; font-size:.65rem; font-weight:700; color:#fff; cursor:pointer;">Tout
           marquer lu</button>
@@ -2601,7 +2601,7 @@
               <div>
                 <label>Matières & classes enseignées</label>
                 <div style="font-size:.76rem;color:var(--muted);background:var(--bg2,#FDFAF2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
-                  🔒 Attribuées par la Direction, pas modifiables ici — voir le résumé
+                  Attribuées par la Direction, pas modifiables ici — voir le résumé
                   "Classes & Matières attribuées" à gauche. Une classe manquante ou
                   incorrecte ? Contactez la Direction pour la corriger.
                 </div>
@@ -2684,7 +2684,7 @@
             <div style="padding:12px;" id="ct-list"></div>
           </div>
           <div class="card" style="padding:18px;">
-            <div style="font-size:.86rem;font-weight:800;color:var(--ink);margin-bottom:14px;">➕ Nouvelle séance</div>
+            <div style="font-size:.86rem;font-weight:800;color:var(--ink);margin-bottom:14px;">Nouvelle séance</div>
             <div style="display:flex;flex-direction:column;gap:9px;">
               <div><label>Classe</label><select id="ct-cls"></select></div>
               <div><label>Date</label><input type="date" id="ct-date"></div>
@@ -2719,10 +2719,10 @@
         <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;align-items:center;" id="s-res-bar">
           <div id="s-res-tabs-mobile" style="display:flex;gap:6px;flex-wrap:wrap;">
             <button class="cls-tab on" onclick="filtRes('',this)" id="rt-all">Toutes</button>
-            <button class="cls-tab" onclick="filtRes('cours',this)">📄 Cours</button>
-            <button class="cls-tab" onclick="filtRes('td',this)">📝 TD & Exercices</button>
-            <button class="cls-tab" onclick="filtRes('video',this)">🎥 Vidéos</button>
-            <button class="cls-tab" onclick="filtRes('doc',this)">📎 Documents</button>
+            <button class="cls-tab" onclick="filtRes('cours',this)">Cours</button>
+            <button class="cls-tab" onclick="filtRes('td',this)">TD & Exercices</button>
+            <button class="cls-tab" onclick="filtRes('video',this)">Vidéos</button>
+            <button class="cls-tab" onclick="filtRes('doc',this)">Documents</button>
           </div>
           <div style="margin-left:auto;display:flex;gap:7px;">
             <select id="res-filter-cls"
@@ -2747,7 +2747,7 @@
             <div id="videos-section">
               <div
                 style="font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center;gap:7px;">
-                🎥 Vidéos de cours
+                Vidéos de cours
                 <span class="b b-blue" id="video-cnt">0</span>
               </div>
               <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;"
@@ -2757,7 +2757,7 @@
             <div id="docs-section">
               <div
                 style="font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center;gap:7px;">
-                📄 Documents & Cours
+                Documents & Cours
                 <span class="b b-grn" id="doc-cnt">0</span>
               </div>
               <div class="card" style="overflow:hidden;">
@@ -2841,11 +2841,11 @@
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
                     <div><label>Type</label>
                       <select id="res-type">
-                        <option value="cours">📄 Cours</option>
-                        <option value="td">📝 TD / Exercices</option>
-                        <option value="exercice">✏️ Correction</option>
-                        <option value="video">🎥 Vidéo</option>
-                        <option value="doc">📎 Autre</option>
+                        <option value="cours">Cours</option>
+                        <option value="td">TD / Exercices</option>
+                        <option value="exercice">Correction</option>
+                        <option value="video">Vidéo</option>
+                        <option value="doc">Autre</option>
                       </select>
                     </div>
                     <div><label>Trimestre</label>
@@ -2890,7 +2890,7 @@
                 </div>
                 <div id="dest-mode-all"
                   style="display:none;padding:9px 12px;background:#F0F7F3;border-radius:8px;border:1px solid var(--accent3);">
-                  <div style="font-size:.72rem;font-weight:700;color:var(--accent);">📢 Toutes mes classes — Tle D ·
+                  <div style="font-size:.72rem;font-weight:700;color:var(--accent);">Toutes mes classes — Tle D ·
                     1ère D · 2nde C · 3ème</div>
                   <div style="font-size:.64rem;color:var(--muted);margin-top:2px;">Le document sera visible par tous vos
                     élèves</div>
@@ -2937,7 +2937,7 @@
           <!-- Sidebar -->
           <div class="conv-sidebar">
             <div class="conv-sidebar-hd">
-              <span class="conv-sidebar-title">💬 Collègues <span id="online-cnt"
+              <span class="conv-sidebar-title">Collègues <span id="online-cnt"
                   style="font-size:.65rem;color:#52B788;font-weight:700;"></span></span>
               <div class="conv-hd-btns">
                 <button class="conv-hd-btn" title="Nouveau groupe"
@@ -2952,7 +2952,7 @@
               </div>
             </div>
             <div class="conv-search">
-              <input type="text" placeholder="🔍 Rechercher…" oninput="filtProfs(this.value)">
+              <input type="text" placeholder="Rechercher…" oninput="filtProfs(this.value)">
             </div>
             <div class="conv-list" id="conv-list"></div>
           </div>
@@ -3004,19 +3004,19 @@
             <!-- Attach menu -->
             <div class="attach-menu" id="attach-menu">
               <div class="attach-item" onclick="triggerAttach('image/*')">
-                <div class="attach-ico" style="background:#BF59CF;">🖼️</div>
+                <div class="attach-ico" style="background:#BF59CF;"></div>
                 <span class="attach-lbl">Photos & Images</span>
               </div>
               <div class="attach-item" onclick="triggerAttach('video/*')">
-                <div class="attach-ico" style="background:#E53E3E;">🎬</div>
+                <div class="attach-ico" style="background:#E53E3E;"></div>
                 <span class="attach-lbl">Vidéo</span>
               </div>
               <div class="attach-item" onclick="triggerAttach('.pdf,.doc,.docx,.pptx,.xlsx,.txt')">
-                <div class="attach-ico" style="background:#0063CB;">📄</div>
+                <div class="attach-ico" style="background:#0063CB;"></div>
                 <span class="attach-lbl">Document</span>
               </div>
               <div class="attach-item" onclick="triggerAttach('.mp3,.ogg,.wav,.m4a,.aac')">
-                <div class="attach-ico" style="background:#D3396D;">🎵</div>
+                <div class="attach-ico" style="background:#D3396D;"></div>
                 <span class="attach-lbl">Audio</span>
               </div>
             </div>
@@ -3053,14 +3053,14 @@
 
             <!-- Stickers panel -->
             <div class="sticker-wrap" id="sticker-wrap">
-              <div style="font-size:.7rem;font-weight:700;color:var(--muted);margin-bottom:6px;">Stickers 🎭</div>
+              <div style="font-size:.7rem;font-weight:700;color:var(--muted);margin-bottom:6px;">Stickers</div>
               <div class="sticker-grid" id="sticker-grid"></div>
             </div>
 
             <!-- Sondage overlay -->
             <div class="poll-overlay" id="poll-overlay">
               <div class="poll-box">
-                <div style="font-size:.9rem;font-weight:700;color:var(--ink);margin-bottom:12px;">📊 Créer un sondage</div>
+                <div style="font-size:.9rem;font-weight:700;color:var(--ink);margin-bottom:12px;">Créer un sondage</div>
                 <input id="poll-question" placeholder="Question…"
                   style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--ink);font-size:.82rem;outline:none;margin-bottom:8px;box-sizing:border-box;">
                 <div id="poll-options-wrap">
@@ -3138,7 +3138,7 @@
           <div class="card">
             <div class="card-hd">
               <div>
-                <div class="card-hd-title">📊 QCM</div>
+                <div class="card-hd-title">QCM</div>
                 <div class="card-hd-sub">Grille de réponses une fois, correction automatique ensuite</div>
               </div>
               <button class="btn-p" onclick="openAddQcm()">
@@ -3154,7 +3154,7 @@
 
           <div class="card" id="add-qcm-panel" style="display:none; margin-top:14px;">
             <div class="card-hd">
-              <div class="card-hd-title">➕ Nouveau QCM</div>
+              <div class="card-hd-title">Nouveau QCM</div>
               <button class="btn-g" onclick="closeAddQcm()">✕</button>
             </div>
             <div style="padding:12px; display:flex; flex-direction:column; gap:12px;">
@@ -3196,7 +3196,7 @@
               </div>
               <div id="qc-msg" style="display:none;"></div>
               <div style="display:flex; gap:8px;">
-                <button class="btn-p" onclick="saveQcm()" style="flex:1;">✅ Créer le QCM</button>
+                <button class="btn-p" onclick="saveQcm()" style="flex:1;">Créer le QCM</button>
                 <button class="btn-g" onclick="closeAddQcm()">Annuler</button>
               </div>
             </div>
@@ -3215,8 +3215,8 @@
             </div>
             <div style="padding:10px 12px 0;display:flex;align-items:center;gap:8px;">
               <span style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Saisie :</span>
-              <button class="qcm-mode-btn" id="qcm-mode-rapide" onclick="switchQcmSaisieMode('rapide')" style="font-size:.72rem;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;font-weight:700;">⌨️ Rapide (taper la suite)</button>
-              <button class="qcm-mode-btn" id="qcm-mode-menus" onclick="switchQcmSaisieMode('menus')" style="font-size:.72rem;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;font-weight:700;">🖱️ Menus déroulants</button>
+              <button class="qcm-mode-btn" id="qcm-mode-rapide" onclick="switchQcmSaisieMode('rapide')" style="font-size:.72rem;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;font-weight:700;">Rapide (taper la suite)</button>
+              <button class="qcm-mode-btn" id="qcm-mode-menus" onclick="switchQcmSaisieMode('menus')" style="font-size:.72rem;padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-family:inherit;font-weight:700;">Menus déroulants</button>
             </div>
             <div id="qcm-grade-list" style="padding:12px;"></div>
           </div>
@@ -3230,7 +3230,7 @@
           <div class="card">
             <div class="card-hd">
               <div>
-                <div class="card-hd-title">📝 Devoirs programmés</div>
+                <div class="card-hd-title">Devoirs programmés</div>
                 <div class="card-hd-sub">Visible par les élèves de vos classes</div>
               </div>
               <button class="btn-p" onclick="openAddDevoir()">
@@ -3247,7 +3247,7 @@
           <!-- Formulaire ajout/modification -->
           <div class="card" id="add-devoir-panel" style="display:none;">
             <div class="card-hd">
-              <div class="card-hd-title" id="devoir-form-title">➕ Nouveau devoir</div>
+              <div class="card-hd-title" id="devoir-form-title">Nouveau devoir</div>
               <button class="btn-g" onclick="closeAddDevoir()">✕</button>
             </div>
             <div style="padding:12px; display:flex; flex-direction:column; gap:12px;">
@@ -3275,7 +3275,7 @@
               </div>
               <div id="dev-msg" style="display:none;"></div>
               <div style="display:flex; gap:8px;">
-                <button class="btn-p" onclick="saveDevoir()" style="flex:1;">✅ Enregistrer</button>
+                <button class="btn-p" onclick="saveDevoir()" style="flex:1;">Enregistrer</button>
                 <button class="btn-g" onclick="closeAddDevoir()">Annuler</button>
               </div>
             </div>
@@ -3289,11 +3289,11 @@
         <div style="display:flex;gap:8px;margin-bottom:16px;">
           <button id="tab-annonces" onclick="switchAnnonceTab('annonces')"
             style="padding:9px 20px;border-radius:30px;font-size:.78rem;font-weight:800;border:none;cursor:pointer;background:linear-gradient(135deg,#2F6B3F,#1F4A2C);color:#fff;font-family:inherit;">
-            📢 Annonces officielles
+            Annonces officielles
           </button>
           <button id="tab-sms" onclick="switchAnnonceTab('sms')"
             style="padding:9px 20px;border-radius:30px;font-size:.78rem;font-weight:800;border:1.5px solid #DCD3B8;cursor:pointer;background:#fff;color:#5A4D36;font-family:inherit;">
-            ✉️ Messages de la direction <span id="sms-count-badge"
+            Messages de la direction <span id="sms-count-badge"
               style="display:none;background:#C0392B;color:#fff;border-radius:20px;padding:1px 6px;font-size:.65rem;margin-left:4px;">0</span>
           </button>
         </div>
@@ -3303,7 +3303,7 @@
           <div class="card">
             <div class="card-hd">
               <div>
-                <div class="card-hd-title">📢 Annonces officielles</div>
+                <div class="card-hd-title">Annonces officielles</div>
                 <div class="card-hd-sub">Messages de la Direction et des Surveillants</div>
               </div>
               <span class="b b-blue" id="annonces-count-badge">0</span>
@@ -3317,15 +3317,15 @@
           <div class="card">
             <div class="card-hd">
               <div>
-                <div class="card-hd-title">✉️ Messages privés — Direction</div>
+                <div class="card-hd-title">Messages privés — Direction</div>
                 <div class="card-hd-sub">Messages envoyés directement par la Direction à votre intention</div>
               </div>
               <button onclick="loadSmsDirection()"
-                style="padding:6px 12px;border:1.5px solid #DCD3B8;border-radius:8px;background:#fff;cursor:pointer;font-size:.73rem;font-weight:700;font-family:inherit;">🔄
+                style="padding:6px 12px;border:1.5px solid #DCD3B8;border-radius:8px;background:#fff;cursor:pointer;font-size:.73rem;font-weight:700;font-family:inherit;">
                 Actualiser</button>
             </div>
             <div id="sms-list" style="padding:12px;">
-              <div style="text-align:center;padding:30px;color:#6B5D42;font-size:.8rem;">⏳ Chargement…</div>
+              <div style="text-align:center;padding:30px;color:#6B5D42;font-size:.8rem;">Chargement…</div>
             </div>
           </div>
         </div>
@@ -3349,7 +3349,7 @@
     const authH = () => ({ 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' });
     const $ = id => document.getElementById(id);
     const esc = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    // ✅ La réponse de login ne renvoie jamais id_user/id dans user_session —
+    // La réponse de login ne renvoie jamais id_user/id dans user_session —
     // MY_USER_ID était donc systématiquement null en production, ce qui
     // cassait silencieusement le badge "non lu" et le clic "marquer comme
     // lu" des messages privés de la direction. Le token JWT, lui, porte
@@ -3376,7 +3376,7 @@
     let replyMsg = null;
     let ctxMsgId = null;
     // ============================================================
-    // ✅ SÉCURITÉ : Vérification du rôle PROFESSEUR
+    // SÉCURITÉ : Vérification du rôle PROFESSEUR
     // ============================================================
     const token = TOK;
     const session = SESS;
@@ -3442,7 +3442,7 @@
         MES_CLASSES.length = 0;
         PROF.classes.forEach(c => MES_CLASSES.push(c));
         selCls = PROF.classes[0] || '';
-        console.log('✅ Classes:', PROF.classes, '| Matières:', PROF.matieres);
+        console.log('Classes:', PROF.classes, '| Matières:', PROF.matieres);
       } catch (e) {
         console.warn('chargerClasses:', e.message);
         PROF.classes = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère C', '1ère D', 'Tle A', 'Tle C', 'Tle D'];
@@ -3458,7 +3458,7 @@
     let conversations = {};
     let profsOnline = [];
     let salleSocket = null;
-    // ✅ Identifiant de conversation privée : doit être IDENTIQUE des deux
+    // Identifiant de conversation privée : doit être IDENTIQUE des deux
     // côtés (avant : chacun utilisait le code de l'AUTRE comme conv_id, donc
     // deux identifiants différents pour la même conversation — le
     // destinataire ne voyait jamais les messages qu'on lui envoyait, ni en
@@ -3493,11 +3493,11 @@
         if (!conversations[cid].find(x => x.id === m.id)) conversations[cid].push(m);
         if (currentConv === cid) { renderMsgs(); setTimeout(scrollMsgs, 50); }
         renderConvList();
-        if (!isMine) toast('💬 ' + msg.nom, 'info');
+        if (!isMine) toast('' + msg.nom, 'info');
       });
       salleSocket.on('user-joined', d => {
         const p = PROFS_LIST.find(x => x.id === d.code); if (p) p.online = true;
-        renderConvList(); toast('🟢 ' + (d.prenom || d.nom) + ' en ligne', 'info');
+        renderConvList(); toast('' + (d.prenom || d.nom) + ' en ligne', 'info');
       });
       salleSocket.on('user-left', d => {
         const p = PROFS_LIST.find(x => x.id === d.code); if (p) p.online = false;
@@ -3647,7 +3647,7 @@
       ct: { title: 'Cahier de Texte', sub: 'Journal de séances · Visible par la Direction' },
       res: { title: 'Ressources & Cours', sub: 'Publications visibles par vos élèves uniquement' },
       devoirs: { title: 'Mes Devoirs', sub: 'Programmer et gérer les devoirs pour vos classes' },  // ← AJOUT
-      salle: { title: 'Salle des Profs', sub: '🔒 Espace privé · Invisible pour la Direction' },
+      salle: { title: 'Salle des Profs', sub: 'Espace privé · Invisible pour la Direction' },
       annonces: { title: 'Annonces reçues', sub: 'Messages officiels de la direction et des surveillants' },  // ← AJOUT
     };
     function go(page, el) {
@@ -3756,7 +3756,7 @@
           const dashRes = document.getElementById('dash-res');
           if (dashRes) {
             dashRes.innerHTML = recent.length ? recent.map(r => {
-              const ico = r.type === 'video' ? '🎥' : r.type === 'audio' ? '🎵' : r.type === 'image' ? '🖼️' : '📄';
+              const ico = r.type === 'video' ? '' : r.type === 'audio' ? '' : r.type === 'image' ? '' : '';
               return `<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;margin-bottom:5px;background:#FAFFFE;cursor:pointer;" onclick="go('res',document.getElementById('ni-res'))">
                 <span style="font-size:.9rem;">${ico}</span>
                 <span style="font-size:.77rem;font-weight:700;color:var(--ink);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.titre)}</span>
@@ -3898,7 +3898,7 @@
 
     async function saveProfile() {
       const msgEl = $('profil-msg');
-      showMsg(msgEl, '⏳ Enregistrement...', 'info');
+      showMsg(msgEl, 'Enregistrement...', 'info');
       try {
         const fd = new FormData();
         const nom = ($('pf-nom')?.value || '').trim();
@@ -3956,10 +3956,10 @@
           loadProfil();
 
           PROF._photoFile = null;
-          showMsg(msgEl, '✅ Profil enregistré avec succès', 'ok');
+          showMsg(msgEl, 'Profil enregistré avec succès', 'ok');
           toast('Profil mis à jour ✓', 'ok');
 
-          // ✅ Champ "Nouveau mot de passe" rempli → changement séparé,
+          // Champ "Nouveau mot de passe" rempli → changement séparé,
           // via l'endpoint dédié (vérifie l'ancien mot de passe).
           const ancien = $('pf-pwd-old')?.value;
           const nouveau = $('pf-pwd')?.value;
@@ -3975,22 +3975,22 @@
                 });
                 const dp = await rp.json();
                 if (dp.success) {
-                  toast('✅ Mot de passe changé', 'ok');
+                  toast('Mot de passe changé', 'ok');
                   $('pf-pwd-old').value = '';
                   $('pf-pwd').value = '';
                 } else {
-                  toast('❌ ' + (dp.message || 'Mot de passe non changé'), 'err');
+                  toast('' + (dp.message || 'Mot de passe non changé'), 'err');
                 }
               } catch (ep) {
-                toast('❌ Erreur changement mot de passe: ' + ep.message, 'err');
+                toast('Erreur changement mot de passe: ' + ep.message, 'err');
               }
             }
           }
         } else {
-          showMsg(msgEl, '❌ ' + (data.message || 'Erreur'), 'err');
+          showMsg(msgEl, '' + (data.message || 'Erreur'), 'err');
         }
       } catch (e) {
-        showMsg(msgEl, '❌ Erreur: ' + e.message, 'err');
+        showMsg(msgEl, 'Erreur: ' + e.message, 'err');
       }
     }
 
@@ -4017,7 +4017,7 @@
     async function loadEleves() {
       const tri = $('tri-sel')?.value || '1';
       // Loader
-      $('eleve-list').innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.75rem;">⏳ Chargement…</div>';
+      $('eleve-list').innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:.75rem;">Chargement…</div>';
       try {
         const r = await fetch(
           `${API}/professeurs/eleves?classe=${encodeURIComponent(selCls)}&trimestre=${tri}`,
@@ -4107,7 +4107,7 @@
             Saisie Notes · T${tri} · <span style="color:var(--muted);">${selCls}</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;" id="mats-grid">
-            <div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--muted);font-size:.75rem;">⏳ Chargement des notes existantes…</div>
+            <div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--muted);font-size:.75rem;">Chargement des notes existantes…</div>
           </div>
           <div style="display:flex;gap:7px;margin-top:12px;">
             <input type="text" id="note-com" placeholder="Appréciation (optionnel)" style="flex:1;padding:8px 11px;font-size:.78rem;border:1px solid var(--border);border-radius:8px;outline:none;">
@@ -4120,7 +4120,7 @@
           <!-- Scanner la copie corrigée -->
           <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
             <button type="button" onclick="toggleScanZone()" style="background:none;border:1.5px dashed var(--border);border-radius:9px;padding:9px 12px;width:100%;font-size:.76rem;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;">
-              📎 Scanner la copie corrigée (optionnel)
+              Scanner la copie corrigée (optionnel)
             </button>
             <div id="scan-zone" style="display:none;margin-top:10px;">
               <select id="scan-matiere" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:.78rem;font-family:inherit;margin-bottom:7px;">
@@ -4128,11 +4128,11 @@
               </select>
               <div style="display:flex;gap:7px;margin-bottom:9px;">
                 <label style="flex:1;text-align:center;padding:10px;border:1.5px solid var(--accent3);background:#F0F7F3;border-radius:8px;font-size:.76rem;font-weight:700;color:var(--accent);cursor:pointer;">
-                  📷 Prendre une photo
+                  Prendre une photo
                   <input type="file" id="scan-fichier-camera" accept="image/*" capture="environment" style="display:none;" onchange="syncScanFile(this)">
                 </label>
                 <label style="flex:1;text-align:center;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-size:.76rem;font-weight:700;color:var(--muted);cursor:pointer;">
-                  📁 Choisir un fichier
+                  Choisir un fichier
                   <input type="file" id="scan-fichier-disque" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="syncScanFile(this)">
                 </label>
               </div>
@@ -4146,15 +4146,15 @@
                   <input type="radio" name="scan-visibilite" value="false">Garder pour moi (preuve)
                 </label>
               </div>
-              <!-- ✅ Dernier repère visuel avant l'envoi : à qui cette copie
+              <!-- Dernier repère visuel avant l'envoi : à qui cette copie
                    va-t-elle être associée ? Évite qu'un scan parte sur le
                    mauvais élève si le prof a changé de sélection sans s'en
                    rendre compte. -->
               <div style="font-size:.72rem;font-weight:700;color:var(--accent);background:#F0F7F3;border-radius:7px;padding:7px 10px;margin-bottom:9px;text-align:center;">
-                📤 Envoi pour : ${esc(selEleve.prenom)} ${esc(selEleve.nom)} <span style="font-weight:500;color:var(--muted);">(${esc(selEleve.code || '')})</span>
+                Envoi pour : ${esc(selEleve.prenom)} ${esc(selEleve.nom)} <span style="font-weight:500;color:var(--muted);">(${esc(selEleve.code || '')})</span>
               </div>
               <button class="btn-p" id="scan-btn-envoyer" style="width:100%;justify-content:center;" onclick="envoyerCopieScan()">
-                📤 Envoyer la copie de ${esc(selEleve.prenom)} ${esc(selEleve.nom)}
+                Envoyer la copie de ${esc(selEleve.prenom)} ${esc(selEleve.nom)}
               </button>
               <div id="scan-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
             </div>
@@ -4205,14 +4205,14 @@
     function updBar(i, val) {
       let v = parseFloat(val) || 0;
 
-      // 🔒 Bloquer à 20 maximum
+      // Bloquer à 20 maximum
       if (v > 20) {
         v = 20;
         const inp = document.getElementById('ni-' + i);
         if (inp) inp.value = 20;
       }
 
-      // 🔒 Bloquer à 0 minimum
+      // Bloquer à 0 minimum
       if (v < 0) {
         v = 0;
         const inp = document.getElementById('ni-' + i);
@@ -4268,7 +4268,7 @@
 
       if (!notes.length) { toast('Saisir au moins une note valide (0–20)', 'err'); return; }
 
-      showMsg(noteMsg, '⏳ Enregistrement en base…', 'info');
+      showMsg(noteMsg, 'Enregistrement en base…', 'info');
       try {
         const r = await fetch(API + '/professeurs/notes', {
           method: 'POST',
@@ -4280,16 +4280,16 @@
           const moy = notes.reduce((s, n) => s + n.note, 0) / notes.length;
           selEleve.moy = moy.toFixed(1);
           renderEleves(); // mise à jour temps réel
-          showMsg(noteMsg, `✅ ${data.message || notes.length + ' note(s) enregistrée(s)'} — Moy: ${moy.toFixed(2)}/20`, 'ok');
+          showMsg(noteMsg, `${data.message || notes.length + ' note(s) enregistrée(s)'} — Moy: ${moy.toFixed(2)}/20`, 'ok');
           toast('Notes sauvegardées ✓', 'ok');
           const kn = $('k-notes');
           if (kn && !isNaN(parseInt(kn.textContent)))
             kn.textContent = parseInt(kn.textContent) + notes.length;
         } else {
-          showMsg(noteMsg, '❌ ' + (data.message || 'Erreur serveur'), 'err');
+          showMsg(noteMsg, '' + (data.message || 'Erreur serveur'), 'err');
         }
       } catch (e) {
-        showMsg(noteMsg, '❌ Erreur réseau : ' + e.message, 'err');
+        showMsg(noteMsg, 'Erreur réseau : ' + e.message, 'err');
       }
     }
 
@@ -4303,12 +4303,12 @@
       if (input.files && input.files[0]) {
         _scanSelectedFile = input.files[0];
         const nomEl = $('scan-fichier-nom');
-        if (nomEl) nomEl.textContent = '✅ ' + input.files[0].name;
+        if (nomEl) nomEl.textContent = '' + input.files[0].name;
         // Vide l'autre champ pour éviter toute confusion sur quel fichier sera envoyé
         const autre = input.id === 'scan-fichier-camera' ? $('scan-fichier-disque') : $('scan-fichier-camera');
         if (autre) autre.value = '';
 
-        // ✅ Aperçu immédiat : si le fichier ne s'affiche pas, c'est le
+        // Aperçu immédiat : si le fichier ne s'affiche pas, c'est le
         // signe le plus simple (sans IA) qu'il est corrompu ou illisible —
         // permet aussi au prof de vérifier visuellement que c'est la bonne
         // copie avant l'envoi.
@@ -4334,7 +4334,7 @@
       if (!_scanSelectedFile) { toast('Prenez une photo ou choisissez un fichier', 'err'); return; }
       if (!idMatiere) { toast('Choisissez une matière', 'err'); return; }
 
-      showMsg(scanMsg, '⏳ Envoi en cours…', 'info');
+      showMsg(scanMsg, 'Envoi en cours…', 'info');
       try {
         const fd = new FormData();
         fd.append('scan', _scanSelectedFile);
@@ -4350,7 +4350,7 @@
         });
         const data = await r.json();
         if (data.success) {
-          showMsg(scanMsg, '✅ ' + data.message, 'ok');
+          showMsg(scanMsg, '' + data.message, 'ok');
           toast(data.message, 'ok');
           _scanSelectedFile = null;
           if ($('scan-fichier-nom')) $('scan-fichier-nom').textContent = 'Aucun fichier sélectionné';
@@ -4358,10 +4358,10 @@
           if ($('scan-fichier-disque')) $('scan-fichier-disque').value = '';
           if ($('scan-apercu')) $('scan-apercu').style.display = 'none';
         } else {
-          showMsg(scanMsg, '❌ ' + (data.message || 'Erreur serveur'), 'err');
+          showMsg(scanMsg, '' + (data.message || 'Erreur serveur'), 'err');
         }
       } catch (e) {
-        showMsg(scanMsg, '❌ Erreur réseau : ' + e.message, 'err');
+        showMsg(scanMsg, 'Erreur réseau : ' + e.message, 'err');
       }
     }
 
@@ -4406,7 +4406,7 @@
           <div style="font-size:.6rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;">${s.cls} · ${s.mat} · ${s.hdeb}–${s.hfin}</div>
           <div style="font-size:.82rem;font-weight:800;color:var(--ink);margin-top:2px;">${esc(s.titre)}</div>
           <div style="font-size:.72rem;color:var(--muted);margin-top:2px;">${esc(s.contenu)}</div>
-          ${s.taf ? `<div style="margin-top:4px;font-size:.68rem;font-weight:700;color:var(--amber);">📌 ${esc(s.taf)}</div>` : ''}
+          ${s.taf ? `<div style="margin-top:4px;font-size:.68rem;font-weight:700;color:var(--amber);">${esc(s.taf)}</div>` : ''}
         </div>
         <span style="font-size:.65rem;color:var(--muted);white-space:nowrap;margin-left:10px;flex-shrink:0;">${s.date}</span>
       </div>
@@ -4426,7 +4426,7 @@
         heure_fin: $('ct-hfin').value
       };
       if (!entry.titre || !entry.matiere) { showMsg($('ct-msg'), 'Titre et matière requis', 'err'); return; }
-      showMsg($('ct-msg'), '⏳ Enregistrement…', 'info');
+      showMsg($('ct-msg'), 'Enregistrement…', 'info');
       try {
         const r = await fetch(API + '/professeurs/cahier-texte', {
           method: 'POST',
@@ -4442,11 +4442,11 @@
             hdeb: entry.heure_debut, hfin: entry.heure_fin
           });
           renderCT();
-          showMsg($('ct-msg'), '✅ Séance enregistrée en BD', 'ok');
+          showMsg($('ct-msg'), 'Séance enregistrée en BD', 'ok');
           toast('Cahier de texte mis à jour ✓', 'ok');
           $('ct-titre').value = ''; $('ct-contenu').value = ''; $('ct-taf').value = '';
         } else {
-          showMsg($('ct-msg'), '❌ ' + (data.message || 'Erreur'), 'err');
+          showMsg($('ct-msg'), '' + (data.message || 'Erreur'), 'err');
         }
       } catch (e) {
         // Fallback local si API indisponible
@@ -4456,7 +4456,7 @@
           hdeb: entry.heure_debut, hfin: entry.heure_fin
         });
         renderCT();
-        showMsg($('ct-msg'), '⚠️ Enregistré localement (hors ligne)', 'info');
+        showMsg($('ct-msg'), 'Enregistré localement (hors ligne)', 'info');
       }
     }
 
@@ -4544,7 +4544,7 @@
       <div class="video-thumb" style="background:#0D1F14;position:relative;overflow:hidden;">
         ${fullUrl
             ? `<video src="${fullUrl}" preload="metadata" style="width:100%;height:100%;object-fit:cover;opacity:.7;" muted></video>`
-            : `<div style="font-size:3rem;opacity:.3;display:flex;align-items:center;justify-content:center;height:100%;">🎥</div>`}
+            : `<div style="font-size:3rem;opacity:.3;display:flex;align-items:center;justify-content:center;height:100%;"></div>`}
         <div class="play-overlay" onclick="openVideo('${esc(v.titre)}','${v.url || ''}')">
           <div class="play-btn-big"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
         </div>
@@ -4555,31 +4555,31 @@
         <div style="font-size:.78rem;font-weight:800;color:var(--ink);line-height:1.3;">${esc(v.titre)}</div>
         <div style="font-size:.64rem;color:var(--muted);margin-top:3px;">${v.cls} · ${v.mat} · ${v.date}</div>
         <div style="display:flex;gap:5px;margin-top:6px;">
-          <button onclick="openVideo('${esc(v.titre)}','${v.url || ''}')" style="flex:1;padding:4px;font-size:.66rem;font-weight:700;border:1px solid var(--accent3);border-radius:6px;cursor:pointer;background:#E8F5EE;color:var(--accent);font-family:'DM Sans',sans-serif;">▶ Lire</button>
+          <button onclick="openVideo('${esc(v.titre)}','${v.url || ''}')" style="flex:1;padding:4px;font-size:.66rem;font-weight:700;border:1px solid var(--accent3);border-radius:6px;cursor:pointer;background:#E8F5EE;color:var(--accent);font-family:'DM Sans',sans-serif;">Lire</button>
           <button onclick="toggleResVisible(${v.id})" style="flex:1;padding:4px;font-size:.66rem;font-weight:700;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:${v.visible ? '#E8F5EE' : '#F9E8E1'};color:${v.visible ? 'var(--accent)' : 'var(--red)'};font-family:'DM Sans',sans-serif;">${v.visible ? '✓ Visible' : '✗ Masqué'}</button>
-          <button onclick="deleteRes(${v.id})" style="padding:4px 8px;font-size:.66rem;font-weight:700;border:1px solid #E8B8A8;border-radius:6px;cursor:pointer;background:#F9E8E1;color:var(--red);font-family:'DM Sans',sans-serif;">🗑</button>
+          <button onclick="deleteRes(${v.id})" style="padding:4px 8px;font-size:.66rem;font-weight:700;border:1px solid #E8B8A8;border-radius:6px;cursor:pointer;background:#F9E8E1;color:var(--red);font-family:'DM Sans',sans-serif;"></button>
         </div>
       </div>
     </div>`;
       }).join('');
 
       // Liste docs
-      const typeIco = { cours: '📄', td: '📝', exercice: '✏️', doc: '📎', audio: '🎵', image: '🖼️' };
+      const typeIco = { cours: '', td: '', exercice: '', doc: '', audio: '', image: '' };
       const typeLbl = { cours: 'Cours', td: 'TD', exercice: 'Exercice', doc: 'Document', audio: 'Audio', image: 'Image' };
       const typeBg = { cours: '#E8F5EE', td: '#FBF3DE', exercice: '#F2E6C5', doc: '#EFF5EA', audio: '#FDF2F8', image: '#ECFDF5' };
       const typeTxt = { cours: 'var(--accent)', td: '#8A6118', exercice: '#6B4816', doc: '#1A3F24', audio: '#9D174D', image: '#587530' };
       $('res-list').innerHTML = docs.length ? docs.map(res => `
     <div style="display:flex;align-items:center;gap:12px;padding:11px 12px;border-bottom:1px solid #F5F9F6;transition:.15s;" onmouseover="this.style.background='#FAFFFE'" onmouseout="this.style.background=''">
-      <div style="width:36px;height:36px;border-radius:10px;background:${res.col};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">${typeIco[res.type] || '📄'}</div>
+      <div style="width:36px;height:36px;border-radius:10px;background:${res.col};display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;">${typeIco[res.type] || ''}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:.8rem;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(res.titre)}</div>
         <div style="font-size:.65rem;color:var(--muted);margin-top:1px;">${esc(res.cls)} · ${esc(res.mat)} · ${res.taille} · ${res.date}</div>
       </div>
       <span style="padding:2px 8px;border-radius:4px;font-size:.6rem;font-weight:800;background:${typeBg[res.type] || '#EFF5EA'};color:${typeTxt[res.type] || '#1A3F24'};flex-shrink:0;">${typeLbl[res.type] || 'Doc'}</span>
       ${res.url
-          ? `<button onclick="openVideo('${esc(res.titre)}','${res.url}')" style="padding:4px 10px;font-size:.66rem;font-weight:700;border:1px solid #D4DFC0;border-radius:6px;cursor:pointer;background:#ECFDF5;color:#587530;flex-shrink:0;">📂 Ouvrir</button>`
+          ? `<button onclick="openVideo('${esc(res.titre)}','${res.url}')" style="padding:4px 10px;font-size:.66rem;font-weight:700;border:1px solid #D4DFC0;border-radius:6px;cursor:pointer;background:#ECFDF5;color:#587530;flex-shrink:0;">Ouvrir</button>`
           : ''}
-      <button onclick="deleteRes(${res.id})" style="padding:4px 8px;font-size:.66rem;border:1px solid #E8B8A8;border-radius:6px;cursor:pointer;background:#F9E8E1;color:var(--red);font-family:'DM Sans',sans-serif;">🗑</button>
+      <button onclick="deleteRes(${res.id})" style="padding:4px 8px;font-size:.66rem;border:1px solid #E8B8A8;border-radius:6px;cursor:pointer;background:#F9E8E1;color:var(--red);font-family:'DM Sans',sans-serif;"></button>
     </div>`).join('')
         : '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">Aucun document publié</div>';
     }
@@ -4640,7 +4640,7 @@
       if (!cls) { if (prev) prev.style.display = 'none'; return; }
       // Nb élèves simulé
       const nb = { 'Tle D': 38, '1ère D': 42, '2nde C': 40, '3ème': 36 }[cls] || 35;
-      if (txt) txt.textContent = '👥 ' + nb + ' élèves de ' + cls + ' recevront ce document';
+      if (txt) txt.textContent = '' + nb + ' élèves de ' + cls + ' recevront ce document';
       if (prev) prev.style.display = 'block';
     }
 
@@ -4652,9 +4652,9 @@
       const nmEl = document.getElementById('file-preview-name');
       const metaEl = document.getElementById('file-preview-meta');
       const ext = f.name.split('.').pop().toLowerCase();
-      const icos = { pdf: '📄', doc: '📝', docx: '📝', mp4: '🎥', mp3: '🎵', jpg: '🖼️', jpeg: '🖼️', png: '🖼️' };
+      const icos = { pdf: '', doc: '', docx: '', mp4: '', mp3: '', jpg: '', jpeg: '', png: '' };
       const sz = f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' Mo' : (f.size / 1024).toFixed(0) + ' Ko';
-      if (icoEl) icoEl.textContent = icos[ext] || '📎';
+      if (icoEl) icoEl.textContent = icos[ext] || '';
       if (nmEl) nmEl.textContent = f.name;
       if (metaEl) metaEl.textContent = sz + ' · ' + ext.toUpperCase();
       if (box) box.style.display = 'flex';
@@ -4698,7 +4698,7 @@
       if (!isAll && !cls) { showMsg(msg, 'Choisissez une classe destinataire', 'err'); return; }
 
       // Afficher chargement
-      showMsg(msg, '⏳ Publication en cours...', 'info');
+      showMsg(msg, 'Publication en cours...', 'info');
 
       // FormData pour l'envoi multipart
       const fd = new FormData();
@@ -4721,7 +4721,7 @@
         if (data.success) {
           const res = data.ressource;
           const nbEl = isAll ? '⊘ toutes classes' : cls;
-          showMsg(msg, '✅ Publié pour ' + nbEl, 'ok');
+          showMsg(msg, 'Publié pour ' + nbEl, 'ok');
           toast(hasFile ? 'Document envoyé aux élèves ✓' : 'Cours publié sans fichier ✓', 'ok');
 
           // Détecter le vrai type selon l'extension
@@ -4761,11 +4761,11 @@
           $('dest-preview')?.setAttribute('style', 'display:none');
           if ($('res-cls')) $('res-cls').value = '';
         } else {
-          showMsg(msg, '❌ ' + (data.message || 'Erreur lors de la publication'), 'err');
+          showMsg(msg, '' + (data.message || 'Erreur lors de la publication'), 'err');
         }
       } catch (e) {
         console.error('Erreur publication:', e);
-        showMsg(msg, '❌ Erreur réseau : ' + e.message, 'err');
+        showMsg(msg, 'Erreur réseau : ' + e.message, 'err');
       }
     }
 
@@ -4810,14 +4810,14 @@
     // ── Conversations ──
     function renderConvList(filtre = '') {
       const list = PROFS_LIST.filter(p => !filtre || p.nm.toLowerCase().includes(filtre.toLowerCase()));
-      // ✅ La "Salle commune" (conv_id = 'general') n'apparaissait nulle part
+      // La "Salle commune" (conv_id = 'general') n'apparaissait nulle part
       // dans la liste — une fois qu'on cliquait sur un collègue, impossible
       // d'y revenir sans recharger toute la page. Toujours visible en haut,
       // sauf pendant une recherche de collègue précis.
       const generalMsgs = conversations['general'] || [];
       const generalLast = generalMsgs[generalMsgs.length - 1];
       const generalHtml = filtre ? '' : `<div class="conv-item ${currentConv === 'general' ? 'sel' : ''}" onclick="loadConv('general')">
-      <div class="conv-av" style="background:var(--accent);">🏫</div>
+      <div class="conv-av" style="background:var(--accent);"></div>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <span class="conv-nm">Salle commune</span>
@@ -4850,9 +4850,9 @@
     }
 
     function bubblePreview(m) {
-      if (m.media === 'img') return '🖼️ Photo';
-      if (m.media === 'file') return '📎 ' + esc(m.fileName || 'Fichier');
-      if (m.media === 'audio') return '🎤 Message vocal';
+      if (m.media === 'img') return 'Photo';
+      if (m.media === 'file') return '' + esc(m.fileName || 'Fichier');
+      if (m.media === 'audio') return 'Message vocal';
       return esc((m.txt || '').substring(0, 40));
     }
 
@@ -4866,7 +4866,7 @@
       $('chat-hd-nm').textContent = p?.nm || 'Salle commune';
       $('chat-hd-sub').textContent = p?.online ? 'En ligne' : 'Hors ligne';
       cancelReply(); renderConvList(); renderMsgs();
-      // ✅ Recharge toujours l'historique réel depuis la BD — avant, seule la
+      // Recharge toujours l'historique réel depuis la BD — avant, seule la
       // Salle commune le faisait ; une conversation privée démarrait vide à
       // chaque ouverture de page, même si des messages existaient déjà.
       loadMessages(id);
@@ -4900,7 +4900,7 @@
               <source src="${m.src}">Navigateur incompatible.
             </video>
             <div style="font-size:.62rem;opacity:.6;margin-top:3px;cursor:pointer;"
-              onclick="openVideo('Vidéo','${m.src}')">⛶ Plein écran</div>
+              onclick="openVideo('Vidéo','${m.src}')">Plein écran</div>
           </div>`;
         } else if (m.media === 'audio') {
           inner += `<div style="min-width:200px;">
@@ -4910,7 +4910,7 @@
           </div>`;
         } else if (m.media === 'file') {
           const ext2 = (m.fileName || m.src || '').split('.').pop().toLowerCase();
-          const ico = { pdf: '📄', doc: '📝', docx: '📝', pptx: '📊', xlsx: '📊', mp3: '🎵' }[ext2] || '📎';
+          const ico = { pdf: '', doc: '', docx: '', pptx: '', xlsx: '', mp3: '' }[ext2] || '';
           inner += `<div class="bubble-file" style="cursor:pointer;"
             onclick="openVideo('${esc(m.fileName || 'Fichier')}','${m.src || ''}')">
             <div class="bubble-file-ico">${ico}</div>
@@ -4927,7 +4927,7 @@
           if (pd) {
             const total = pd.votes.reduce((a, b) => a + b, 0);
             inner += `<div class="bubble-poll">
-              <div style="font-size:.8rem;font-weight:700;color:var(--ink);margin-bottom:8px;">📊 ${esc(pd.question)}</div>
+              <div style="font-size:.8rem;font-weight:700;color:var(--ink);margin-bottom:8px;">${esc(pd.question)}</div>
               ${pd.options.map((o, i) => {
               const pct = total ? Math.round(pd.votes[i] / total * 100) : 0;
               const voted = pd.voters && pd.voters[PROF.code] === i;
@@ -4994,7 +4994,7 @@
       const localId = Date.now();
       const localMsg = {
         id: localId, from: PROF.code, nm: PROF.prenom + ' ' + PROF.nom,
-        txt: '⏳ Envoi de ' + f.name + '…', t: nowHHMM(), mine: true, date: "Aujourd'hui"
+        txt: 'Envoi de ' + f.name + '…', t: nowHHMM(), mine: true, date: "Aujourd'hui"
       };
       if (!conversations[currentConv]) conversations[currentConv] = [];
       conversations[currentConv].push(localMsg);
@@ -5061,9 +5061,9 @@
           mediaRecorder.start(200);
           recInterval = setInterval(() => {
             recSecs++;
-            btn.title = `⏹ ${Math.floor(recSecs / 60)}:${(recSecs % 60).toString().padStart(2, '0')}`;
+            btn.title = `${Math.floor(recSecs / 60)}:${(recSecs % 60).toString().padStart(2, '0')}`;
           }, 1000);
-          toast('🎤 Enregistrement… Appuyez pour arrêter', 'info');
+          toast('Enregistrement… Appuyez pour arrêter', 'info');
         } catch (e) {
           toast('Micro non disponible : ' + e.message, 'err');
         }
@@ -5394,7 +5394,7 @@
       } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
         body.innerHTML = '<img src="' + fullUrl + '" style="max-width:100%;max-height:72vh;object-fit:contain;">';
       } else {
-        body.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:3rem;margin-bottom:12px;">📄</div><div style="color:#ccc;margin-bottom:16px;">' + esc(titre || '') + '</div><a href="' + fullUrl + '" download target="_blank" style="background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;">⬇️ Télécharger</a></div>';
+        body.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:3rem;margin-bottom:12px;"></div><div style="color:#ccc;margin-bottom:16px;">' + esc(titre || '') + '</div><a href="' + fullUrl + '" download target="_blank" style="background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;">Télécharger</a></div>';
       }
       box.appendChild(hd); box.appendChild(body); overlay.appendChild(box);
       document.body.appendChild(overlay);
@@ -5406,7 +5406,7 @@
     async function loadQcmList() {
       const box = $('qcm-list');
       if (!box) return;
-      box.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);">⏳ Chargement…</div>';
+      box.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);">Chargement…</div>';
       try {
         const r = await fetch(`${API}/professeurs/qcm`, { headers: { 'Authorization': 'Bearer ' + TOK } });
         const d = await r.json();
@@ -5451,7 +5451,7 @@
       const cls = $('qc-cls').value;
       const matSelect = $('qc-mat');
       if (!cls) { matSelect.innerHTML = '<option value="">— Choisir une classe d\'abord —</option>'; return; }
-      matSelect.innerHTML = '<option>⏳…</option>';
+      matSelect.innerHTML = '<option>…</option>';
       try {
         const r = await fetch(`${API}/professeurs/mes-matieres?classe=${encodeURIComponent(cls)}`, { headers: { 'Authorization': 'Bearer ' + TOK } });
         const d = await r.json();
@@ -5486,7 +5486,7 @@
       const msgEl = $('qc-msg');
 
       if (!classe || !id_matiere || !titre) {
-        msgEl.style.display = 'block'; msgEl.textContent = '⚠️ Classe, matière et titre requis'; msgEl.style.color = 'var(--red)';
+        msgEl.style.display = 'block'; msgEl.textContent = 'Classe, matière et titre requis'; msgEl.style.color = 'var(--red)';
         return;
       }
       try {
@@ -5501,17 +5501,17 @@
           closeAddQcm();
           loadQcmList();
         } else {
-          msgEl.style.display = 'block'; msgEl.textContent = '❌ ' + (d.message || 'Erreur'); msgEl.style.color = 'var(--red)';
+          msgEl.style.display = 'block'; msgEl.textContent = '' + (d.message || 'Erreur'); msgEl.style.color = 'var(--red)';
         }
       } catch (e) {
-        msgEl.style.display = 'block'; msgEl.textContent = '❌ Erreur réseau : ' + e.message; msgEl.style.color = 'var(--red)';
+        msgEl.style.display = 'block'; msgEl.textContent = 'Erreur réseau : ' + e.message; msgEl.style.color = 'var(--red)';
       }
     }
 
     let qcmEnCours = null;
     let qcmGradeIdCourant = null;
     let qcmGradeElevesCourant = [];
-    // ✅ Deux façons de saisir les réponses d'une copie, au choix du prof :
+    // Deux façons de saisir les réponses d'une copie, au choix du prof :
     // "rapide" (un seul champ, on tape la suite de lettres en regardant la
     // copie — beaucoup plus rapide que cliquer 20 menus un par un) ou
     // "menus" (un menu déroulant par question, zéro risque de faute de
@@ -5522,7 +5522,7 @@
       qcmGradeIdCourant = idQcm;
       $('qcm-list-view').style.display = 'none';
       $('qcm-grade-view').style.display = 'block';
-      $('qcm-grade-list').innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);">⏳ Chargement…</div>';
+      $('qcm-grade-list').innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);">Chargement…</div>';
       try {
         const r = await fetch(`${API}/professeurs/qcm/${idQcm}`, { headers: { 'Authorization': 'Bearer ' + TOK } });
         const d = await r.json();
@@ -5572,7 +5572,7 @@
             </div>
             <div style="margin-bottom:8px;">${saisie}</div>
             <button class="btn-p qcm-btn-corriger" style="font-size:.72rem;padding:6px 12px;" onclick="submitQcmNote('${qcmGradeIdCourant}','${e.id_eleve}',this)">
-              ${dejaFait ? `🔁 Recorriger ${esc(nomComplet)}` : `✅ Corriger ${esc(nomComplet)}`}
+              ${dejaFait ? `Recorriger ${esc(nomComplet)}` : `Corriger ${esc(nomComplet)}`}
             </button>
           </div>`;
       }).join('');
@@ -5591,7 +5591,7 @@
       return { nbCorrectes, note };
     }
 
-    // ✅ Recalcule le score dès qu'une réponse change, avant tout
+    // Recalcule le score dès qu'une réponse change, avant tout
     // enregistrement — le prof voit le résultat s'afficher en direct et le
     // nom de l'élève reste affiché dans le bouton, pour limiter le risque
     // de valider la mauvaise ligne dans une longue liste de copies.
@@ -5602,7 +5602,7 @@
       _qcmRefreshBadge(card, reponses);
     }
 
-    // ✅ Mode rapide : le prof tape la suite de lettres d'un coup (au lieu
+    // Mode rapide : le prof tape la suite de lettres d'un coup (au lieu
     // de cliquer 20 menus déroulants) — on filtre à la volée pour ne
     // garder que des lettres valides (A–E), en majuscule.
     function updateQcmLivePreviewRapide(inputEl) {
@@ -5622,12 +5622,12 @@
       if (incomplet) {
         badge.textContent = `${reponses.length}/${qcmEnCours.nb_questions} réponses saisies…`;
         badge.style.color = 'var(--muted)';
-        if (btn) btn.textContent = `✅ Corriger ${nom}`;
+        if (btn) btn.textContent = `Corriger ${nom}`;
         return;
       }
       badge.textContent = `→ ${note}/${qcmEnCours.bareme} (${nbCorrectes}/${qcmEnCours.nb_questions}) — pas encore enregistré`;
       badge.style.color = '#D97706';
-      if (btn) btn.textContent = `✅ Enregistrer ${note}/${qcmEnCours.bareme} pour ${nom}`;
+      if (btn) btn.textContent = `Enregistrer ${note}/${qcmEnCours.bareme} pour ${nom}`;
     }
 
     async function submitQcmNote(idQcm, idEleve, btn) {
@@ -5637,7 +5637,7 @@
         ? rapideInp.value.split('')
         : [...card.querySelectorAll('.qcm-rep-eleve')].map(s => s.value);
       if (reponses_eleve.length !== qcmEnCours.nb_questions) {
-        toast(`⚠️ ${reponses_eleve.length}/${qcmEnCours.nb_questions} réponses saisies — complète avant d'enregistrer`, 'err');
+        toast(`${reponses_eleve.length}/${qcmEnCours.nb_questions} réponses saisies — complète avant d'enregistrer`, 'err');
         return;
       }
       try {
@@ -5651,13 +5651,13 @@
           const badge = card.querySelector('.qcm-note-badge');
           badge.textContent = `${d.note}/${qcmEnCours.bareme} (${d.nb_correctes}/${d.nb_questions}) — enregistré`;
           badge.style.color = 'var(--accent)';
-          btn.textContent = `🔁 Recorriger ${card.dataset.nom}`;
+          btn.textContent = `Recorriger ${card.dataset.nom}`;
           toast(`Note enregistrée pour ${card.dataset.nom} : ${d.note}/${qcmEnCours.bareme}`, 'ok');
         } else {
-          toast('❌ ' + (d.message || 'Erreur'), 'err');
+          toast('' + (d.message || 'Erreur'), 'err');
         }
       } catch (e) {
-        toast('❌ Erreur réseau : ' + e.message, 'err');
+        toast('Erreur réseau : ' + e.message, 'err');
       }
     }
 
@@ -5695,7 +5695,7 @@
       if (!container) return;
 
       if (!devoirsData.length) {
-        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:.8rem;">📭 Aucun devoir programmé</div>';
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:.8rem;">Aucun devoir programmé</div>';
         return;
       }
 
@@ -5704,24 +5704,24 @@
       container.innerHTML = devoirsData.map(d => {
         const isExpired = d.date_limite && d.date_limite < today;
         const statusClass = isExpired ? 'b-red' : 'b-grn';
-        const statusText = isExpired ? '⚠️ Expiré' : '📅 En attente';
+        const statusText = isExpired ? 'Expiré' : 'En attente';
 
         return `
             <div style="border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;background:#fff;">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
                     <span class="b ${statusClass}" style="font-size:.6rem;">${statusText}</span>
-                    <span class="b b-blue" style="font-size:.6rem;">📖 ${esc(d.matiere)}</span>
-                    <span class="b b-ind" style="font-size:.6rem;">🏫 ${esc(d.classe)}</span>
+                    <span class="b b-blue" style="font-size:.6rem;">${esc(d.matiere)}</span>
+                    <span class="b b-ind" style="font-size:.6rem;">${esc(d.classe)}</span>
                 </div>
                 <div style="font-size:.88rem;font-weight:800;color:var(--ink);margin-bottom:4px;">${esc(d.titre)}</div>
                 <div style="font-size:.72rem;color:var(--muted);margin-bottom:6px;">${esc(d.description || 'Aucune description')}</div>
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
                     <div style="font-size:.68rem;color:${isExpired ? 'var(--red)' : 'var(--accent)'};">
-                        📅 À rendre le ${d.date_limite_fr || d.date_limite}
+                        À rendre le ${d.date_limite_fr || d.date_limite}
                     </div>
                     <div style="display:flex;gap:6px;">
-                        <button class="btn-p devoir-edit" data-id="${d.id_devoir}" style="padding:5px 10px;font-size:.68rem;">✏️ Modifier</button>
-                        <button class="btn-g devoir-delete" data-id="${d.id_devoir}" style="padding:5px 10px;font-size:.68rem;background:#F9E8E1;color:var(--red);">🗑 Supprimer</button>
+                        <button class="btn-p devoir-edit" data-id="${d.id_devoir}" style="padding:5px 10px;font-size:.68rem;">Modifier</button>
+                        <button class="btn-g devoir-delete" data-id="${d.id_devoir}" style="padding:5px 10px;font-size:.68rem;background:#F9E8E1;color:var(--red);">Supprimer</button>
                     </div>
                 </div>
             </div>
@@ -5790,11 +5790,11 @@
       const date = document.getElementById('dev-date').value;
       const msgEl = document.getElementById('dev-msg');
 
-      if (!cls) { showMsg(msgEl, '⚠️ Sélectionnez une classe', 'err'); return; }
-      if (!titre) { showMsg(msgEl, '⚠️ Titre du devoir requis', 'err'); return; }
-      if (!date) { showMsg(msgEl, '⚠️ Date limite requise', 'err'); return; }
+      if (!cls) { showMsg(msgEl, 'Sélectionnez une classe', 'err'); return; }
+      if (!titre) { showMsg(msgEl, 'Titre du devoir requis', 'err'); return; }
+      if (!date) { showMsg(msgEl, 'Date limite requise', 'err'); return; }
 
-      showMsg(msgEl, '⏳ Enregistrement...', 'info');
+      showMsg(msgEl, 'Enregistrement...', 'info');
 
       const payload = {
         classe: cls,
@@ -5822,16 +5822,16 @@
         const data = await r.json();
 
         if (data.success) {
-          showMsg(msgEl, '✅ ' + (editingDevoirId ? 'Devoir modifié' : 'Devoir créé'), 'ok');
+          showMsg(msgEl, '' + (editingDevoirId ? 'Devoir modifié' : 'Devoir créé'), 'ok');
           toast((editingDevoirId ? 'Devoir modifié' : 'Devoir créé') + ' ✓', 'ok');
           closeAddDevoir();
           editingDevoirId = null;
           loadDevoirs();
         } else {
-          showMsg(msgEl, '❌ ' + (data.message || 'Erreur'), 'err');
+          showMsg(msgEl, '' + (data.message || 'Erreur'), 'err');
         }
       } catch (e) {
-        showMsg(msgEl, '❌ Erreur réseau: ' + e.message, 'err');
+        showMsg(msgEl, 'Erreur réseau: ' + e.message, 'err');
       }
     }
 
@@ -5893,7 +5893,7 @@
         renderSmsDirection();
       } catch (e) {
         console.warn('loadSmsDirection:', e.message);
-        container.innerHTML = '<div style="text-align:center;padding:30px;color:#6B5D42;font-size:.8rem;">⚠️ Impossible de charger les messages privés</div>';
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:#6B5D42;font-size:.8rem;">Impossible de charger les messages privés</div>';
       }
     }
 
@@ -5903,7 +5903,7 @@
       if (!smsMessagesData.length) {
         updateSmsBadgeCount();
         container.innerHTML = `<div style="text-align:center;padding:40px;color:#6B5D42;">
-          <div style="font-size:2rem;margin-bottom:8px;">✉️</div>
+          <div style="font-size:2rem;margin-bottom:8px;"></div>
           <div style="font-size:.83rem;font-weight:600;">Aucun message privé reçu</div>
           <div style="font-size:.73rem;margin-top:4px;">Les messages privés que la direction vous envoie apparaîtront ici</div>
         </div>`;
@@ -5921,7 +5921,7 @@
         const isDir = (m.expediteur_role || '').toUpperCase() === 'DIRECTION';
         const borderColor = isDir ? '#2F6B3F' : '#2D6A4F';
         const bgGrad = isDir ? 'linear-gradient(135deg,#2F6B3F,#1F4A2C)' : 'linear-gradient(135deg,#2D6A4F,#52B788)';
-        const badge = isDir ? '📌 Direction' : '👤 ' + esc(m.expediteur_role || 'Inconnu');
+        const badge = isDir ? 'Direction' : '' + esc(m.expediteur_role || 'Inconnu');
         const badgeColor = isDir ? '#2F6B3F' : '#2D6A4F';
         const badgeBg = isDir ? '#E4EEDD' : '#ECFDF5';
         const unread = !m.lu && m.destinataire_id === profId;
@@ -5935,10 +5935,10 @@
             <div style="font-size:.8rem;color:#2E2718;line-height:1.5;">${esc(m.contenu || m.message || '')}</div>
             <div style="margin-top:6px;">
               <span style="font-size:.63rem;background:${badgeBg};color:${badgeColor};padding:2px 7px;border-radius:20px;font-weight:700;">${badge}</span>
-              ${unread ? '<span style="font-size:.6rem;background:#F9E8E1;color:#A93226;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:4px;">🔴 Non lu</span>' : ''}
+              ${unread ? '<span style="font-size:.6rem;background:#F9E8E1;color:#A93226;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:4px;">Non lu</span>' : ''}
             </div>
           </div>
-          ${m.destinataire_id === profId ? `<button onclick="event.stopPropagation();deleteSms('${msgId}')" title="Supprimer" style="background:none;border:none;color:#6B5D42;cursor:pointer;font-size:.9rem;padding:4px;align-self:flex-start;">🗑️</button>` : ''}
+          ${m.destinataire_id === profId ? `<button onclick="event.stopPropagation();deleteSms('${msgId}')" title="Supprimer" style="background:none;border:none;color:#6B5D42;cursor:pointer;font-size:.9rem;padding:4px;align-self:flex-start;"></button>` : ''}
         </div>`;
       }).join('');
     }
@@ -6055,7 +6055,7 @@
 
       } catch (e) {
         console.warn('loadAnnonces:', e.message);
-        container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">⚠️ Impossible de charger les annonces</div>';
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">Impossible de charger les annonces</div>';
       }
     }
 
@@ -6066,7 +6066,7 @@
       if (!container) return;
 
       if (!annoncesData.length) {
-        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:.8rem;">📭 Aucune annonce reçue pour le moment</div>';
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:.8rem;">Aucune annonce reçue pour le moment</div>';
         if (countBadge) {
           countBadge.style.display = 'none';
         }
@@ -6083,7 +6083,7 @@
         const bgColor = isUrgent ? '#F9E8E1' : '#FAFFFE';
         const borderColor = isUrgent ? '#C0392B' : '#2F6B3F';
         const badgeClass = isUrgent ? 'b-red' : 'b-blue';
-        const badgeText = isUrgent ? '🔴 URGENT' : 'ℹ️ INFO';
+        const badgeText = isUrgent ? 'URGENT' : 'INFO';
 
         // Formater la date
         let dateFormatted = 'Date inconnue';
@@ -6103,10 +6103,10 @@
                         <span class="b ${badgeClass}" style="font-size:.6rem;">${badgeText}</span>
                         <span style="font-size:.78rem;font-weight:800;color:var(--ink);">${esc(a.titre)}</span>
                     </div>
-                    <span style="font-size:.65rem;color:var(--muted);">📅 ${dateFormatted}</span>
+                    <span style="font-size:.65rem;color:var(--muted);">${dateFormatted}</span>
                 </div>
                 <div style="font-size:.74rem;color:var(--muted);line-height:1.5;margin-top:4px;">${esc(a.contenu)}</div>
-                ${a.destinataires && a.destinataires !== 'tous' ? `<div style="margin-top:6px;font-size:.6rem;color:var(--accent2);">👥 Destinataires : ${esc(a.destinataires)}</div>` : ''}
+                ${a.destinataires && a.destinataires !== 'tous' ? `<div style="margin-top:6px;font-size:.6rem;color:var(--accent2);">Destinataires : ${esc(a.destinataires)}</div>` : ''}
             </div>
         `;
       }).join('');
@@ -6116,13 +6116,13 @@
     let notifInterval = null;
 
     async function loadNotifications() {
-      console.log('🔔 Chargement des notifications...');
+      console.log('Chargement des notifications...');
       try {
         const response = await fetch(`${API}/notifications`, {
           headers: { 'Authorization': 'Bearer ' + TOK }
         });
         const data = await response.json();
-        console.log('📢 Réponse notifications:', data);
+        console.log('Réponse notifications:', data);
 
         if (data.success) {
           notificationsData = Array.isArray(data.notifications) ? data.notifications.map(n => ({
@@ -6131,7 +6131,7 @@
             lu: n.lu || n.lue || n.est_lu || false,
             message: n.message || n.contenu || ''
           })) : [];
-          console.log(`✅ ${notificationsData.length} notifications chargées`);
+          console.log(`${notificationsData.length} notifications chargées`);
           updateNotifBadge();
           renderNotifList();
         } else {
@@ -6141,7 +6141,7 @@
           renderNotifList();
         }
       } catch (e) {
-        console.error('❌ Erreur loadNotifications:', e.message);
+        console.error('Erreur loadNotifications:', e.message);
       }
     }
     function updateNotifBadge() {
@@ -6179,15 +6179,15 @@
         const bgColor = isUnread ? '#F2E6C5' : '#FAFAFA';
         const borderColor = isUnread ? '#C08A28' : '#DCD3B8';
 
-        let typeIcon = '📢';
-        if (n.type === 'NOTE') typeIcon = '📝';
-        else if (n.type === 'DEVOIR') typeIcon = '📚';
-        else if (n.type === 'CONVOCATION') typeIcon = '⚠️';
-        else if (n.type === 'ABSENCE') typeIcon = '📅';
-        else if (n.type === 'RESSOURCE') typeIcon = '📄';
-        else if (n.type === 'ORIENTATION') typeIcon = '🧭';
-        else if (n.type === 'ANNONCE') typeIcon = '📢';
-        else if (n.type === 'MESSAGE_SALLE' || n.type === 'MESSAGE_PRIVE') typeIcon = '💬';
+        let typeIcon = '';
+        if (n.type === 'NOTE') typeIcon = '';
+        else if (n.type === 'DEVOIR') typeIcon = '';
+        else if (n.type === 'CONVOCATION') typeIcon = '';
+        else if (n.type === 'ABSENCE') typeIcon = '';
+        else if (n.type === 'RESSOURCE') typeIcon = '';
+        else if (n.type === 'ORIENTATION') typeIcon = '';
+        else if (n.type === 'ANNONCE') typeIcon = '';
+        else if (n.type === 'MESSAGE_SALLE' || n.type === 'MESSAGE_PRIVE') typeIcon = '';
 
         let lien = n.lien || '#';
         let dateFormatted = 'Récemment';
@@ -6226,7 +6226,7 @@
                     <div style="flex:1;">
                         <div style="font-size:.78rem; font-weight:800; color:var(--ink);">${esc(n.titre || 'Notification')}</div>
                         <div style="font-size:.68rem; color:var(--muted); margin-top:2px;">${esc(n.message || '')}</div>
-                        <div style="font-size:.58rem; color:#6B5D42; margin-top:3px;">⏱️ ${dateFormatted}</div>
+                        <div style="font-size:.58rem; color:#6B5D42; margin-top:3px;">${dateFormatted}</div>
                     </div>
                     ${isUnread ? '<span style="width:8px; height:8px; background:#C0392B; border-radius:50%; flex-shrink:0;"></span>' : ''}
                 </div>
@@ -6248,7 +6248,7 @@
     }
 
     async function handleNotifClick(notifId, targetPage) {
-      console.log('🔔 Clic notification:', notifId, 'Page:', targetPage);
+      console.log('Clic notification:', notifId, 'Page:', targetPage);
 
       // Marquer comme lue
       try {

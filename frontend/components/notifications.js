@@ -118,17 +118,17 @@
   /* ── 5. Icône selon le type de notif ── */
   function iconePourType(type) {
     const icons = {
-      'DEVOIR':       '📝',
-      'COMPOSITION':  '📋',
-      'EXAMEN_BLANC': '🎓',
-      'FORUM_CLASSE': '💬',
-      'INTER_CLASSE': '💬',
-      'GRAND_ELEVES': '🌍',
-      'ANNONCE':      '📢',
-      'CONVOCATION':  '⚠️',
-      'ABSENCE':      '📅',
+      'DEVOIR':       '',
+      'COMPOSITION':  '',
+      'EXAMEN_BLANC': '',
+      'FORUM_CLASSE': '',
+      'INTER_CLASSE': '',
+      'GRAND_ELEVES': '',
+      'ANNONCE':      '',
+      'CONVOCATION':  '',
+      'ABSENCE':      '',
     };
-    return icons[type] || '🔔';
+    return icons[type] || '';
   }
 
   /* ── 6. Construire et injecter la cloche dans la page ── */
@@ -148,7 +148,7 @@
       border: 1px solid var(--border, #DCD3B8);
     `;
     btn.innerHTML = `
-      🔔
+     
       <span id="notif-badge" style="
         display: none; position: absolute; top: -3px; right: -3px;
         background: #C0392B; color: white; font-size: 0.55rem;
@@ -177,7 +177,7 @@
         border-bottom: 1px solid var(--border, #DCD3B8);
         display: flex; justify-content: space-between; align-items: center;
       ">
-        🔔 Notifications
+        Notifications
         <button id="notif-mark-all" style="
           font-size: 0.65rem; font-weight: 700; color: #4C8C5C;
           background: none; border: none; cursor: pointer; padding: 0;
@@ -225,7 +225,7 @@
       const notifs = data.notifications || [];
 
       if (!notifs.length) {
-        list.innerHTML = '<div style="padding:30px;text-align:center;"><div style="font-size:2rem;margin-bottom:8px;">🔕</div><div style="color:#6B5D42;font-size:0.8rem;">Aucune notification</div></div>';
+        list.innerHTML = '<div style="padding:30px;text-align:center;"><div style="font-size:2rem;margin-bottom:8px;"></div><div style="color:#6B5D42;font-size:0.8rem;">Aucune notification</div></div>';
         return;
       }
 

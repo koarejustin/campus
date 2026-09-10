@@ -40,7 +40,7 @@ select {
   /* Apparition en fondu + léger glissement au chargement d'une section.
      Ajouté automatiquement par ui-animations.js à l'intérieur de toute
      section qui devient active (classe .sec.on, .pg.on, etc.).
-     ⚠️ Chaque page définit déjà sa propre animation sur .sec.on / .pg.on
+     Chaque page définit déjà sa propre animation sur .sec.on / .pg.on
      (ex: "animation: fu .3s ease", sans forwards). Cette règle-là a une
      spécificité plus forte (2 classes) que .ui-reveal (1 classe) et gagne
      la cascade sur la propriété "animation" — sans !important ici, notre

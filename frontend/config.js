@@ -22,5 +22,5 @@
   window.SERVER_BASE = origin;
   
   // Pour debug (visible dans console)
-  console.log('🌐 API_BASE:', window.API_BASE);
+  console.log('API_BASE:', window.API_BASE);
 })();
