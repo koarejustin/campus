@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../../services/api_client.dart';
 import '../../../theme.dart';
 import '../../../utils.dart';
@@ -80,6 +81,7 @@ class _ApeCotisationsScreenState extends State<ApeCotisationsScreen> {
     return Scaffold(
       floatingActionButton: _bureauGestion
           ? FloatingActionButton.extended(onPressed: _openForm, backgroundColor: kApeGradient.colors.first, icon: const Icon(Icons.add_rounded), label: const Text('Cotisation'))
+              .animate().fadeIn(delay: 300.ms, duration: 250.ms).scale(begin: const Offset(0.7, 0.7), end: const Offset(1, 1), curve: Curves.easeOutBack)
           : null,
       body: _loading
           ? ListView(padding: const EdgeInsets.all(16), children: const [SkeletonList(count: 5)])
@@ -92,17 +94,17 @@ class _ApeCotisationsScreenState extends State<ApeCotisationsScreen> {
                   const SizedBox(height: 10),
                   if (_mesCotisations.isEmpty)
                     const Text('Aucune cotisation enregistrée', style: TextStyle(color: kTextGray)),
-                  for (final c in _mesCotisations)
+                  for (final indexed in _mesCotisations.asMap().entries)
                     Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         dense: true,
-                        leading: CircleAvatar(backgroundColor: _statutColor(c['statut_paiement']).withValues(alpha: 0.12), child: Icon(Icons.payments_rounded, color: _statutColor(c['statut_paiement']), size: 18)),
-                        title: Text(c['motif_cotisation'] ?? 'Cotisation', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                        subtitle: Text('${c['prenom_enfant'] ?? ''} ${c['nom_enfant'] ?? ''}', style: const TextStyle(fontSize: 11.5)),
-                        trailing: Text('${toDouble(c['montant']).toStringAsFixed(0)} F', style: TextStyle(color: _statutColor(c['statut_paiement']), fontWeight: FontWeight.w800)),
+                        leading: CircleAvatar(backgroundColor: _statutColor(indexed.value['statut_paiement']).withValues(alpha: 0.12), child: Icon(Icons.payments_rounded, color: _statutColor(indexed.value['statut_paiement']), size: 18)),
+                        title: Text(indexed.value['motif_cotisation'] ?? 'Cotisation', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                        subtitle: Text('${indexed.value['prenom_enfant'] ?? ''} ${indexed.value['nom_enfant'] ?? ''}', style: const TextStyle(fontSize: 11.5)),
+                        trailing: Text('${toDouble(indexed.value['montant']).toStringAsFixed(0)} F', style: TextStyle(color: _statutColor(indexed.value['statut_paiement']), fontWeight: FontWeight.w800)),
                       ),
-                    ),
+                    ).animate().fadeIn(delay: (indexed.key * 60).ms, duration: 260.ms).slideX(begin: 0.06, end: 0, curve: Curves.easeOutCubic),
                   if (_bureauGestion) ...[
                     const SizedBox(height: 24),
                     Container(
@@ -116,12 +118,13 @@ class _ApeCotisationsScreenState extends State<ApeCotisationsScreen> {
                           _resumeChip('Dossiers', (_resumeBureau['count'] ?? 0).toDouble(), isCount: true),
                         ],
                       ),
-                    ),
+                    ).animate().fadeIn(duration: 300.ms),
                     const SizedBox(height: 14),
                     const Text('Vue d\'ensemble — tous les parents', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)),
                     const SizedBox(height: 10),
-                    for (final c in _toutes)
+                    for (final indexed in _toutes.asMap().entries)
                       Builder(builder: (context) {
+                        final c = indexed.value;
                         final paye = c['statut_paiement'] == 'PAYE';
                         final id = c['id_cotisation'];
                         final busy = _updating.contains(id);
@@ -144,7 +147,7 @@ class _ApeCotisationsScreenState extends State<ApeCotisationsScreen> {
                                     ),
                                   ),
                           ),
-                        );
+                        ).animate().fadeIn(delay: (indexed.key * 40).ms, duration: 220.ms).slideX(begin: 0.06, end: 0, curve: Curves.easeOutCubic);
                       }),
                   ],
                 ],

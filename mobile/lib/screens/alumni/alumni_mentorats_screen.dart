@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/api_client.dart';
 import '../../theme.dart';
 import '../../widgets/skeleton.dart';
@@ -88,7 +89,7 @@ class _AlumniMentoratsScreenState extends State<AlumniMentoratsScreen> {
         backgroundColor: kAlumniGradient.colors.first,
         icon: const Icon(Icons.add_rounded),
         label: const Text('Conseil'),
-      ),
+      ).animate().fadeIn(delay: 300.ms, duration: 250.ms).scale(begin: const Offset(0.7, 0.7), end: const Offset(1, 1), curve: Curves.easeOutBack),
       body: _loading
           ? const Padding(padding: EdgeInsets.all(16), child: SkeletonList(count: 6))
           : RefreshIndicator(
@@ -99,7 +100,7 @@ class _AlumniMentoratsScreenState extends State<AlumniMentoratsScreen> {
                   const Text('Mes conseils de mentorat', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)),
                   const SizedBox(height: 10),
                   if (_mesConseils.isEmpty) const Text('Aucun conseil publié pour le moment', style: TextStyle(color: kTextGray)),
-                  for (final c in _mesConseils)
+                  for (final indexed in _mesConseils.asMap().entries)
                     Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: Padding(
@@ -107,21 +108,21 @@ class _AlumniMentoratsScreenState extends State<AlumniMentoratsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if ((c['titre'] ?? '').toString().isNotEmpty) Text(c['titre'], style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5)),
+                            if ((indexed.value['titre'] ?? '').toString().isNotEmpty) Text(indexed.value['titre'], style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5)),
                             const SizedBox(height: 4),
-                            Text(c['contenu_conseil'] ?? '', style: const TextStyle(fontSize: 13)),
-                            if ((c['filiere_suggeree'] ?? '').toString().isNotEmpty) ...[
+                            Text(indexed.value['contenu_conseil'] ?? '', style: const TextStyle(fontSize: 13)),
+                            if ((indexed.value['filiere_suggeree'] ?? '').toString().isNotEmpty) ...[
                               const SizedBox(height: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(color: kAlumniGradient.colors.first.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
-                                child: Text(c['filiere_suggeree'], style: TextStyle(fontSize: 10.5, color: kAlumniGradient.colors.first, fontWeight: FontWeight.w700)),
+                                child: Text(indexed.value['filiere_suggeree'], style: TextStyle(fontSize: 10.5, color: kAlumniGradient.colors.first, fontWeight: FontWeight.w700)),
                               ),
                             ],
                           ],
                         ),
                       ),
-                    ),
+                    ).animate().fadeIn(delay: (indexed.key * 60).ms, duration: 260.ms).slideX(begin: 0.06, end: 0, curve: Curves.easeOutCubic),
                   const SizedBox(height: 22),
                   const Text('Élèves disponibles pour mentorat', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)),
                   const SizedBox(height: 8),
@@ -137,34 +138,34 @@ class _AlumniMentoratsScreenState extends State<AlumniMentoratsScreen> {
                   const SizedBox(height: 10),
                   if (_elevesDisponibles.isEmpty)
                     const Text('Aucun élève de Terminale trouvé', style: TextStyle(color: kTextGray)),
-                  for (final e in _elevesDisponibles)
+                  for (final indexed in _elevesDisponibles.asMap().entries)
                     Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         dense: true,
-                        leading: CircleAvatar(backgroundColor: kAlumniGradient.colors.first.withValues(alpha: 0.12), child: Text((e['prenom'] ?? '?').toString().isNotEmpty ? e['prenom'][0] : '?', style: TextStyle(color: kAlumniGradient.colors.first, fontWeight: FontWeight.w800))),
-                        title: Text('${e['prenom'] ?? ''} ${e['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                        subtitle: Text(e['classe'] ?? '', style: const TextStyle(fontSize: 11)),
+                        leading: CircleAvatar(backgroundColor: kAlumniGradient.colors.first.withValues(alpha: 0.12), child: Text((indexed.value['prenom'] ?? '?').toString().isNotEmpty ? indexed.value['prenom'][0] : '?', style: TextStyle(color: kAlumniGradient.colors.first, fontWeight: FontWeight.w800))),
+                        title: Text('${indexed.value['prenom'] ?? ''} ${indexed.value['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                        subtitle: Text(indexed.value['classe'] ?? '', style: const TextStyle(fontSize: 11)),
                         trailing: OutlinedButton(
-                          onPressed: () => _openMentorerForm(e),
+                          onPressed: () => _openMentorerForm(indexed.value),
                           child: const Text('🤝 Mentorer', style: TextStyle(fontSize: 11)),
                         ),
                       ),
-                    ),
+                    ).animate().fadeIn(delay: (indexed.key * 40).ms, duration: 220.ms).slideX(begin: 0.06, end: 0, curve: Curves.easeOutCubic),
                   if (_orientations.isNotEmpty) ...[
                     const SizedBox(height: 22),
                     const Text('Orientations de mes élèves mentorés', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)),
                     const SizedBox(height: 10),
-                    for (final e in _orientations)
+                    for (final indexed in _orientations.asMap().entries)
                       Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
                           dense: true,
-                          title: Text('${e['prenom'] ?? ''} ${e['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                          subtitle: Text(e['orientation_suggeree'] != null ? '· ${e['orientation_suggeree']}' : '· Non définie', style: TextStyle(fontSize: 11.5, color: e['orientation_suggeree'] != null ? kAlumniGradient.colors.first : kAmber)),
-                          trailing: OutlinedButton(onPressed: () => _openOrientationForm(e), child: const Text('🎯 Orienter', style: TextStyle(fontSize: 11))),
+                          title: Text('${indexed.value['prenom'] ?? ''} ${indexed.value['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                          subtitle: Text(indexed.value['orientation_suggeree'] != null ? '· ${indexed.value['orientation_suggeree']}' : '· Non définie', style: TextStyle(fontSize: 11.5, color: indexed.value['orientation_suggeree'] != null ? kAlumniGradient.colors.first : kAmber)),
+                          trailing: OutlinedButton(onPressed: () => _openOrientationForm(indexed.value), child: const Text('🎯 Orienter', style: TextStyle(fontSize: 11))),
                         ),
-                      ),
+                      ).animate().fadeIn(delay: (indexed.key * 40).ms, duration: 220.ms).slideX(begin: 0.06, end: 0, curve: Curves.easeOutCubic),
                   ],
                 ],
               ),

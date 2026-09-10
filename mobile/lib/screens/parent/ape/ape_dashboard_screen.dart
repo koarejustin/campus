@@ -78,9 +78,9 @@ class _ApeDashboardScreenState extends State<ApeDashboardScreen> {
           else
             Row(
               children: [
-                Expanded(child: _kpi('Payé (moi)', '${_totalPaye.toStringAsFixed(0)} F', kGreen, Icons.check_circle_rounded)),
+                Expanded(child: _kpi('Payé (moi)', '${_totalPaye.toStringAsFixed(0)} F', kGreen, Icons.check_circle_rounded).animate().fadeIn(delay: 80.ms, duration: 350.ms).slideY(begin: 0.25, end: 0, curve: Curves.easeOutCubic)),
                 const SizedBox(width: 12),
-                Expanded(child: _kpi('Restant dû', '${_totalDu.toStringAsFixed(0)} F', kRed, Icons.schedule_rounded)),
+                Expanded(child: _kpi('Restant dû', '${_totalDu.toStringAsFixed(0)} F', kRed, Icons.schedule_rounded).animate().fadeIn(delay: 160.ms, duration: 350.ms).slideY(begin: 0.25, end: 0, curve: Curves.easeOutCubic)),
               ],
             ),
           const SizedBox(height: 22),
@@ -108,16 +108,16 @@ class _ApeDashboardScreenState extends State<ApeDashboardScreen> {
             const SizedBox(height: 22),
             const Text('Derniers messages du forum', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)),
             const SizedBox(height: 10),
-            for (final p in _forum)
+            for (final indexed in _forum.asMap().entries)
               Card(
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   dense: true,
                   leading: const CircleAvatar(backgroundColor: kBg, child: Icon(Icons.forum_rounded, color: Color(0xFF9C4A3D), size: 18)),
-                  title: Text('${p['prenom'] ?? ''} ${p['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
-                  subtitle: Text(p['contenu'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
+                  title: Text('${indexed.value['prenom'] ?? ''} ${indexed.value['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+                  subtitle: Text(indexed.value['contenu'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
                 ),
-              ),
+              ).animate().fadeIn(delay: (indexed.key * 80).ms, duration: 260.ms),
           ],
         ],
       ),

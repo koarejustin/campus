@@ -111,9 +111,15 @@ class _AlumniDashboardScreenState extends State<AlumniDashboardScreen> {
           else
             Row(
               children: [
-                Expanded(child: _StatCard(label: 'Conseils publiés', value: '$_nbConseils', icon: Icons.tips_and_updates_rounded, color: kAlumniGradient.colors.first, onTap: () => widget.onNavigate(1))),
+                Expanded(
+                  child: _StatCard(label: 'Conseils publiés', value: '$_nbConseils', icon: Icons.tips_and_updates_rounded, color: kAlumniGradient.colors.first, onTap: () => widget.onNavigate(1))
+                      .animate().fadeIn(delay: 80.ms, duration: 350.ms).slideY(begin: 0.25, end: 0, curve: Curves.easeOutCubic),
+                ),
                 const SizedBox(width: 12),
-                Expanded(child: _StatCard(label: 'Élèves mentorés', value: '$_nbEleves', icon: Icons.groups_rounded, color: kIndigo, onTap: () => widget.onNavigate(3))),
+                Expanded(
+                  child: _StatCard(label: 'Élèves mentorés', value: '$_nbEleves', icon: Icons.groups_rounded, color: kIndigo, onTap: () => widget.onNavigate(3))
+                      .animate().fadeIn(delay: 160.ms, duration: 350.ms).slideY(begin: 0.25, end: 0, curve: Curves.easeOutCubic),
+                ),
               ],
             ),
           const SizedBox(height: 22),
@@ -124,30 +130,30 @@ class _AlumniDashboardScreenState extends State<AlumniDashboardScreen> {
           else if (_dernieresEntrees.isEmpty)
             const Text('Aucune entrée pour le moment', style: TextStyle(color: kTextGray))
           else
-            for (final e in _dernieresEntrees)
+            for (final indexed in _dernieresEntrees.asMap().entries)
               Card(
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   dense: true,
                   leading: const CircleAvatar(backgroundColor: kBg, child: Icon(Icons.menu_book_rounded, color: Color(0xFFC9932A), size: 18)),
-                  title: Text(e['titre'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                  subtitle: Text('${e['prenom'] ?? ''} ${e['nom'] ?? ''}', style: const TextStyle(fontSize: 11.5)),
+                  title: Text(indexed.value['titre'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                  subtitle: Text('${indexed.value['prenom'] ?? ''} ${indexed.value['nom'] ?? ''}', style: const TextStyle(fontSize: 11.5)),
                   onTap: () => widget.onNavigate(3),
                 ),
-              ),
+              ).animate().fadeIn(delay: (indexed.key * 80).ms, duration: 260.ms),
           if (!_loading && _derniersConseils.isNotEmpty) ...[
             const SizedBox(height: 22),
             const Text('Vos derniers conseils', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)),
             const SizedBox(height: 10),
-            for (final c in _derniersConseils.take(3))
+            for (final indexed in _derniersConseils.take(3).toList().asMap().entries)
               Card(
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   dense: true,
                   leading: const CircleAvatar(backgroundColor: kBg, child: Icon(Icons.tips_and_updates_rounded, color: Color(0xFFC9932A), size: 18)),
-                  title: Text(c['titre'] ?? c['contenu_conseil'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  title: Text(indexed.value['titre'] ?? indexed.value['contenu_conseil'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
-              ),
+              ).animate().fadeIn(delay: (indexed.key * 80).ms, duration: 260.ms),
           ],
         ],
       ),

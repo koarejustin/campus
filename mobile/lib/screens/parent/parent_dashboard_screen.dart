@@ -152,11 +152,13 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             Row(
               children: [
                 Expanded(
-                  child: _StatCard(label: 'Moyenne générale', value: _moyenne != null ? '${_moyenne!.toStringAsFixed(2)}/20' : '—', icon: Icons.grade_rounded, color: kIndigo, onTap: () => widget.onNavigate(1)),
+                  child: _StatCard(label: 'Moyenne générale', value: _moyenne != null ? '${_moyenne!.toStringAsFixed(2)}/20' : '—', icon: Icons.grade_rounded, color: kIndigo, onTap: () => widget.onNavigate(1))
+                      .animate().fadeIn(delay: 80.ms, duration: 350.ms).slideY(begin: 0.25, end: 0, curve: Curves.easeOutCubic),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _StatCard(label: 'Absences non just.', value: '$_absencesNonJust', icon: Icons.event_busy_rounded, color: _absencesNonJust > 0 ? kRed : kGreen, onTap: () => widget.onNavigate(2)),
+                  child: _StatCard(label: 'Absences non just.', value: '$_absencesNonJust', icon: Icons.event_busy_rounded, color: _absencesNonJust > 0 ? kRed : kGreen, onTap: () => widget.onNavigate(2))
+                      .animate().fadeIn(delay: 160.ms, duration: 350.ms).slideY(begin: 0.25, end: 0, curve: Curves.easeOutCubic),
                 ),
               ],
             ),
@@ -207,15 +209,15 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             const SizedBox(height: 22),
             const Text('Annonces', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)),
             const SizedBox(height: 10),
-            for (final a in _annonces)
+            for (final indexed in _annonces.asMap().entries)
               Card(
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   dense: true,
                   leading: const CircleAvatar(backgroundColor: kBg, child: Icon(Icons.campaign_rounded, color: kIndigo, size: 18)),
-                  title: Text(a['titre'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                  title: Text(indexed.value['titre'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
                 ),
-              ),
+              ).animate().fadeIn(delay: (indexed.key * 80).ms, duration: 260.ms),
           ],
         ],
       ),

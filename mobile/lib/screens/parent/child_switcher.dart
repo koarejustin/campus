@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme.dart';
 import 'parent_state.dart';
 
@@ -43,6 +44,6 @@ class ChildSwitcher extends StatelessWidget {
           );
         }).toList(),
       ),
-    );
+    ).animate().fadeIn(delay: 120.ms, duration: 300.ms);
   }
 }
