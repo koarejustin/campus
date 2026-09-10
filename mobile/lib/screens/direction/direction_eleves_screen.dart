@@ -80,7 +80,7 @@ class _DirectionElevesScreenState extends State<DirectionElevesScreen> {
               backgroundColor: kDirectionGradient.colors.first,
               icon: const Icon(Icons.person_add_rounded),
               label: const Text('Élève'),
-            )
+            ).animate().fadeIn(delay: 300.ms, duration: 250.ms).scale(begin: const Offset(0.7, 0.7), end: const Offset(1, 1), curve: Curves.easeOutBack)
           : null,
       body: Column(
         children: [

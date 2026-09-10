@@ -104,7 +104,8 @@ class _DirectionDashboardScreenState extends State<DirectionDashboardScreen> {
               crossAxisCount: 2, shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
               mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 1.3,
               children: [
-                _StatCard(label: 'Élèves', value: '${_stats['users'] ?? '—'}', icon: Icons.groups_rounded, color: kIndigo, onTap: () => widget.onNavigate(1)),
+                _StatCard(label: 'Élèves', value: '${_stats['users'] ?? '—'}', icon: Icons.groups_rounded, color: kIndigo, onTap: () => widget.onNavigate(1))
+                    .animate().fadeIn(duration: 300.ms).slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
                 _StatCard(
                   label: 'Professeurs', value: '${_stats['professors'] ?? '—'}', icon: Icons.co_present_rounded, color: kGreen,
                   onTap: () {
@@ -114,10 +115,13 @@ class _DirectionDashboardScreenState extends State<DirectionDashboardScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('🔒 Section réservée à la Direction'), backgroundColor: kTextGray));
                     }
                   },
-                ),
-                _StatCard(label: 'Surveillants', value: '${_stats['surveillants'] ?? '—'}', icon: Icons.shield_rounded, color: kSurveillantGradient.colors.first),
-                _StatCard(label: 'Présence', value: _stats['presence'] != null ? '${_stats['presence']}%' : '—', icon: Icons.how_to_reg_rounded, color: kGreen),
-                _StatCard(label: 'Absences', value: '${_stats['absences'] ?? '—'}', icon: Icons.event_busy_rounded, color: kRed, onTap: () => widget.onNavigate(2)),
+                ).animate(delay: 50.ms).fadeIn(duration: 300.ms).slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
+                _StatCard(label: 'Surveillants', value: '${_stats['surveillants'] ?? '—'}', icon: Icons.shield_rounded, color: kSurveillantGradient.colors.first)
+                    .animate(delay: 100.ms).fadeIn(duration: 300.ms).slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
+                _StatCard(label: 'Présence', value: _stats['presence'] != null ? '${_stats['presence']}%' : '—', icon: Icons.how_to_reg_rounded, color: kGreen)
+                    .animate(delay: 150.ms).fadeIn(duration: 300.ms).slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
+                _StatCard(label: 'Absences', value: '${_stats['absences'] ?? '—'}', icon: Icons.event_busy_rounded, color: kRed, onTap: () => widget.onNavigate(2))
+                    .animate(delay: 200.ms).fadeIn(duration: 300.ms).slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
                 // "alerts" côté API = nombre de notifications système non lues
                 // (toutes confondues, tous rôles) — ça n'a jamais été un vrai
                 // compte de convocations. Le backend expose maintenant un vrai
@@ -125,36 +129,42 @@ class _DirectionDashboardScreenState extends State<DirectionDashboardScreen> {
                 _StatCard(
                   label: 'Convocations en attente', value: '${_stats['convocations_en_attente'] ?? '—'}', icon: Icons.mail_outline_rounded, color: kAmber,
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SurveillantConvocationsScreen())),
-                ),
-                _StatCard(label: 'Moyenne générale', value: _stats['moyenne_generale'] != null ? '${toDouble(_stats['moyenne_generale']).toStringAsFixed(1)}/20' : '—', icon: Icons.trending_up_rounded, color: kAlumniGradient.colors.first),
+                ).animate(delay: 250.ms).fadeIn(duration: 300.ms).slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
+                _StatCard(label: 'Moyenne générale', value: _stats['moyenne_generale'] != null ? '${toDouble(_stats['moyenne_generale']).toStringAsFixed(1)}/20' : '—', icon: Icons.trending_up_rounded, color: kAlumniGradient.colors.first)
+                    .animate(delay: 300.ms).fadeIn(duration: 300.ms).slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
               ],
             ),
           if (!_loading && moyennesClasses.isNotEmpty) ...[
             const SizedBox(height: 24),
-            const Text('Moyenne par classe', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)),
+            const Text('Moyenne par classe', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)).animate().fadeIn(duration: 300.ms),
             const SizedBox(height: 10),
-            for (final entry in moyennesClasses.entries)
+            for (final indexed in moyennesClasses.entries.toList().asMap().entries)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Row(
                   children: [
-                    SizedBox(width: 70, child: Text(entry.key.toString(), style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700))),
+                    SizedBox(width: 70, child: Text(indexed.value.key.toString(), style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700))),
                     Expanded(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(6),
-                        child: LinearProgressIndicator(
-                          value: (toDouble(entry.value) / 20).clamp(0, 1),
-                          minHeight: 10,
-                          backgroundColor: kBg,
-                          color: kDirectionGradient.colors.first,
+                        child: TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0, end: (toDouble(indexed.value.value) / 20).clamp(0, 1)),
+                          duration: 700.ms,
+                          curve: Curves.easeOutCubic,
+                          builder: (context, value, _) => LinearProgressIndicator(
+                            value: value,
+                            minHeight: 10,
+                            backgroundColor: kBg,
+                            color: kDirectionGradient.colors.first,
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(toDouble(entry.value).toStringAsFixed(1), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: kTextGray)),
+                    Text(toDouble(indexed.value.value).toStringAsFixed(1), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: kTextGray)),
                   ],
                 ),
-              ),
+              ).animate(delay: (indexed.key * 60).ms).fadeIn(duration: 300.ms).slideX(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
           ],
         ],
       ),

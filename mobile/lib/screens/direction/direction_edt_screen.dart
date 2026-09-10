@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../services/api_client.dart';
 import '../../theme.dart';
@@ -173,7 +174,7 @@ class _DirectionEdtScreenState extends State<DirectionEdtScreen> {
               backgroundColor: kDirectionGradient.colors.first,
               icon: const Icon(Icons.add_rounded),
               label: const Text('Séance'),
-            )
+            ).animate().fadeIn(delay: 300.ms, duration: 250.ms).scale(begin: const Offset(0.7, 0.7), end: const Offset(1, 1), curve: Curves.easeOutBack)
           : null,
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -212,7 +213,7 @@ class _DirectionEdtScreenState extends State<DirectionEdtScreen> {
                         ]),
                     ],
                   ),
-                ),
+                ).animate().fadeIn(duration: 300.ms),
     );
   }
 

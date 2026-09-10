@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/api_client.dart';
 import '../../theme.dart';
 import '../../utils.dart';
@@ -84,7 +85,7 @@ class _DirectionEleveDetailScreenState extends State<DirectionEleveDetailScreen>
                         ],
                       ),
                     ),
-                  ),
+                  ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
                   const SizedBox(height: 20),
                   Row(
                     children: [
@@ -92,37 +93,37 @@ class _DirectionEleveDetailScreenState extends State<DirectionEleveDetailScreen>
                       const Spacer(),
                       Text('${_notes.length} évaluation(s)', style: const TextStyle(fontSize: 11.5, color: kTextGray)),
                     ],
-                  ),
+                  ).animate(delay: 80.ms).fadeIn(duration: 250.ms),
                   const SizedBox(height: 10),
                   if (_notes.isEmpty)
                     const Text('Aucune note enregistrée', style: TextStyle(color: kTextGray))
                   else
-                    for (final n in _notes)
+                    for (final n in _notes.asMap().entries)
                       Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
                           dense: true,
-                          title: Text(n['matiere'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
-                          subtitle: Text('${n['prof_prenom'] ?? ''} ${n['prof_nom'] ?? ''} · T${n['trimestre'] ?? ''}', style: const TextStyle(fontSize: 11)),
-                          trailing: Text('${toDouble(n['note']).toStringAsFixed(1)}/20', style: TextStyle(fontWeight: FontWeight.w800, color: toDouble(n['note']) >= 10 ? kGreen : kRed)),
+                          title: Text(n.value['matiere'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
+                          subtitle: Text('${n.value['prof_prenom'] ?? ''} ${n.value['prof_nom'] ?? ''} · T${n.value['trimestre'] ?? ''}', style: const TextStyle(fontSize: 11)),
+                          trailing: Text('${toDouble(n.value['note']).toStringAsFixed(1)}/20', style: TextStyle(fontWeight: FontWeight.w800, color: toDouble(n.value['note']) >= 10 ? kGreen : kRed)),
                         ),
-                      ),
+                      ).animate(delay: (120 + n.key * 30).ms).fadeIn(duration: 220.ms).slideX(begin: 0.06, end: 0, curve: Curves.easeOutCubic),
                   const SizedBox(height: 20),
-                  const Text('Absences récentes', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)),
+                  const Text('Absences récentes', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)).animate(delay: 150.ms).fadeIn(duration: 250.ms),
                   const SizedBox(height: 10),
                   if (_absences.isEmpty)
                     const Text('Aucune absence enregistrée', style: TextStyle(color: kTextGray))
                   else
-                    for (final a in _absences)
+                    for (final a in _absences.asMap().entries)
                       Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         child: ListTile(
                           dense: true,
-                          leading: Icon(a['justifiee'] == true ? Icons.check_circle_outline_rounded : Icons.cancel_outlined, color: a['justifiee'] == true ? kGreen : kRed, size: 18),
-                          title: Text(a['date_absence'] ?? '', style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
-                          subtitle: Text(a['raison_absence'] ?? (a['justifiee'] == true ? 'Justifiée' : 'Non justifiée'), style: const TextStyle(fontSize: 11)),
+                          leading: Icon(a.value['justifiee'] == true ? Icons.check_circle_outline_rounded : Icons.cancel_outlined, color: a.value['justifiee'] == true ? kGreen : kRed, size: 18),
+                          title: Text(a.value['date_absence'] ?? '', style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
+                          subtitle: Text(a.value['raison_absence'] ?? (a.value['justifiee'] == true ? 'Justifiée' : 'Non justifiée'), style: const TextStyle(fontSize: 11)),
                         ),
-                      ),
+                      ).animate(delay: (200 + a.key * 30).ms).fadeIn(duration: 220.ms).slideX(begin: 0.06, end: 0, curve: Curves.easeOutCubic),
                 ],
               ),
             ),
