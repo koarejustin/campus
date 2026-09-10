@@ -53,10 +53,66 @@ class _DirectionDashboardScreenState extends State<DirectionDashboardScreen> {
     return '🌙';
   }
 
+  void _openRepartitionSheet(BuildContext context, List<dynamic> repartition) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: kBorder, borderRadius: BorderRadius.circular(2)))),
+              const SizedBox(height: 16),
+              const Text('Répartition par classe', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+              const SizedBox(height: 4),
+              Text('${repartition.length} classe(s)', style: const TextStyle(fontSize: 12.5, color: kTextGray)),
+              const SizedBox(height: 16),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: repartition.length,
+                  separatorBuilder: (_, __) => const Divider(height: 18),
+                  itemBuilder: (context, i) {
+                    final c = repartition[i];
+                    final effectif = (c['effectif'] ?? 0) as int;
+                    final maxEffectif = repartition.map((r) => (r['effectif'] ?? 0) as int).reduce((a, b) => a > b ? a : b);
+                    return Row(
+                      children: [
+                        SizedBox(width: 90, child: Text(c['classe']?.toString() ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700))),
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(6),
+                            child: TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0, end: maxEffectif == 0 ? 0 : effectif / maxEffectif),
+                              duration: 500.ms,
+                              curve: Curves.easeOutCubic,
+                              builder: (context, value, _) => LinearProgressIndicator(value: value, minHeight: 10, backgroundColor: kBg, color: kParentGradient.colors.first),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        SizedBox(width: 26, child: Text('$effectif', textAlign: TextAlign.right, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: kTextGray))),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ApiClient.instance.user;
     final moyennesClasses = (_stats['moyennes_classes'] as Map?) ?? {};
+    final repartitionClasses = (_stats['repartition_classes'] as List?) ?? [];
     return RefreshIndicator(
       onRefresh: _load,
       child: ListView(
@@ -132,6 +188,10 @@ class _DirectionDashboardScreenState extends State<DirectionDashboardScreen> {
                 ).animate(delay: 250.ms).fadeIn(duration: 300.ms).slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
                 _StatCard(label: 'Moyenne générale', value: _stats['moyenne_generale'] != null ? '${toDouble(_stats['moyenne_generale']).toStringAsFixed(1)}/20' : '—', icon: Icons.trending_up_rounded, color: kAlumniGradient.colors.first)
                     .animate(delay: 300.ms).fadeIn(duration: 300.ms).slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
+                _StatCard(
+                  label: 'Classes', value: '${repartitionClasses.length}', icon: Icons.class_rounded, color: kParentGradient.colors.first,
+                  onTap: repartitionClasses.isEmpty ? null : () => _openRepartitionSheet(context, repartitionClasses),
+                ).animate(delay: 350.ms).fadeIn(duration: 300.ms).slideY(begin: 0.12, end: 0, curve: Curves.easeOutCubic),
               ],
             ),
           if (!_loading && moyennesClasses.isNotEmpty) ...[
