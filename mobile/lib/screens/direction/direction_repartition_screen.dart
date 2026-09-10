@@ -100,7 +100,7 @@ class _DirectionRepartitionScreenState extends State<DirectionRepartitionScreen>
                                     tween: Tween(begin: 0, end: maxEffectif == 0 ? 0 : ((indexed.value['effectif'] ?? 0) as int) / maxEffectif),
                                     duration: 700.ms,
                                     curve: Curves.easeOutCubic,
-                                    builder: (context, value, _) => LinearProgressIndicator(value: value, minHeight: 12, backgroundColor: kBg, color: kParentGradient.colors.first),
+                                    builder: (context, value, _) => LinearProgressIndicator(value: value, minHeight: 12, backgroundColor: kBg, color: kSurveillantGradient.colors.first),
                                   ),
                                 ),
                               ),

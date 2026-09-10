@@ -90,7 +90,7 @@ class _DirectionDashboardScreenState extends State<DirectionDashboardScreen> {
                               tween: Tween(begin: 0, end: maxEffectif == 0 ? 0 : effectif / maxEffectif),
                               duration: 500.ms,
                               curve: Curves.easeOutCubic,
-                              builder: (context, value, _) => LinearProgressIndicator(value: value, minHeight: 10, backgroundColor: kBg, color: kParentGradient.colors.first),
+                              builder: (context, value, _) => LinearProgressIndicator(value: value, minHeight: 10, backgroundColor: kBg, color: kSurveillantGradient.colors.first),
                             ),
                           ),
                         ),
