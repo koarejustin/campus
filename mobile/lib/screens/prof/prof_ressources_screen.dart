@@ -20,7 +20,7 @@ class _ProfRessourcesScreenState extends State<ProfRessourcesScreen> {
   String _typeFilter = 'toutes';
 
   static const _typeColors = {
-    'cours': kGreen, 'td': Color(0xFF0EA5E9), 'exercice': kAmber, 'doc': Color(0xFF7C3AED),
+    'cours': kGreen, 'td': Color(0xFF6B7A5C), 'exercice': kAmber, 'doc': Color(0xFF1F4A2C),
   };
 
   @override

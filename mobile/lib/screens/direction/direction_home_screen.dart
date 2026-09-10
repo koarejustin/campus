@@ -32,10 +32,10 @@ class _DirectionHomeScreenState extends State<DirectionHomeScreen> {
         backgroundColor: Colors.white,
         indicatorColor: kDirectionGradient.colors.first.withValues(alpha: 0.14),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded, color: Color(0xFF1E293B)), label: 'Accueil'),
-          NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups_rounded, color: Color(0xFF1E293B)), label: 'Élèves'),
-          NavigationDestination(icon: Icon(Icons.event_busy_outlined), selectedIcon: Icon(Icons.event_busy_rounded, color: Color(0xFF1E293B)), label: 'Absences'),
-          NavigationDestination(icon: Icon(Icons.apps_rounded), selectedIcon: Icon(Icons.apps_rounded, color: Color(0xFF1E293B)), label: 'Plus'),
+          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded, color: Color(0xFF23301C)), label: 'Accueil'),
+          NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups_rounded, color: Color(0xFF23301C)), label: 'Élèves'),
+          NavigationDestination(icon: Icon(Icons.event_busy_outlined), selectedIcon: Icon(Icons.event_busy_rounded, color: Color(0xFF23301C)), label: 'Absences'),
+          NavigationDestination(icon: Icon(Icons.apps_rounded), selectedIcon: Icon(Icons.apps_rounded, color: Color(0xFF23301C)), label: 'Plus'),
         ],
       ),
     );

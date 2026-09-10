@@ -401,7 +401,7 @@ class _InterClassesBoardState extends State<_InterClassesBoard> {
 
   // Une couleur stable par nom de classe (même classe = même couleur à
   // chaque ouverture), pour repérer un fil d'un coup d'œil.
-  static const _palette = [kIndigo, kGreen, kAmber, kRed, Color(0xFF0EA5E9), Color(0xFFDB2777), Color(0xFF7C3AED), Color(0xFF16A34A)];
+  static const _palette = [kIndigo, kGreen, kAmber, kRed, Color(0xFF6B7A5C), Color(0xFF9C4A3D), Color(0xFF1F4A2C), Color(0xFF4A6329)];
   Color _colorFor(String classe) => _palette[classe.hashCode.abs() % _palette.length];
 
   @override

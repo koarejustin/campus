@@ -50,11 +50,11 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
         backgroundColor: Colors.white,
         indicatorColor: kParentGradient.colors.first.withValues(alpha: 0.14),
         destinations: [
-          const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded, color: Color(0xFFF59E0B)), label: 'Accueil'),
-          const NavigationDestination(icon: Icon(Icons.grade_outlined), selectedIcon: Icon(Icons.grade_rounded, color: Color(0xFFF59E0B)), label: 'Bulletin'),
-          const NavigationDestination(icon: Icon(Icons.event_busy_outlined), selectedIcon: Icon(Icons.event_busy_rounded, color: Color(0xFFF59E0B)), label: 'Absences'),
-          const NavigationDestination(icon: Icon(Icons.mail_outline_rounded), selectedIcon: Icon(Icons.mail_rounded, color: Color(0xFFF59E0B)), label: 'Convoc.'),
-          const NavigationDestination(icon: Icon(Icons.apps_rounded), selectedIcon: Icon(Icons.apps_rounded, color: Color(0xFFF59E0B)), label: 'Plus'),
+          const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded, color: Color(0xFFC9932A)), label: 'Accueil'),
+          const NavigationDestination(icon: Icon(Icons.grade_outlined), selectedIcon: Icon(Icons.grade_rounded, color: Color(0xFFC9932A)), label: 'Bulletin'),
+          const NavigationDestination(icon: Icon(Icons.event_busy_outlined), selectedIcon: Icon(Icons.event_busy_rounded, color: Color(0xFFC9932A)), label: 'Absences'),
+          const NavigationDestination(icon: Icon(Icons.mail_outline_rounded), selectedIcon: Icon(Icons.mail_rounded, color: Color(0xFFC9932A)), label: 'Convoc.'),
+          const NavigationDestination(icon: Icon(Icons.apps_rounded), selectedIcon: Icon(Icons.apps_rounded, color: Color(0xFFC9932A)), label: 'Plus'),
         ],
       ),
     );

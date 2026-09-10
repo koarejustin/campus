@@ -6,6 +6,7 @@ import 'services/push_notifications.dart';
 import 'theme.dart';
 import 'role_router.dart';
 import 'screens/role_select_screen.dart';
+import 'screens/welcome_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,7 +62,7 @@ class _StartupGateState extends State<_StartupGate> {
     if (!_ready) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    if (!ApiClient.instance.isLoggedIn) return const RoleSelectScreen();
+    if (!ApiClient.instance.isLoggedIn) return const WelcomeScreen();
     return homeScreenFor(ApiClient.instance.user?['role_actuel']);
   }
 }

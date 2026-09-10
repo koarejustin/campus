@@ -129,7 +129,7 @@ class _AlumniDashboardScreenState extends State<AlumniDashboardScreen> {
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   dense: true,
-                  leading: const CircleAvatar(backgroundColor: kBg, child: Icon(Icons.menu_book_rounded, color: Color(0xFFF59E0B), size: 18)),
+                  leading: const CircleAvatar(backgroundColor: kBg, child: Icon(Icons.menu_book_rounded, color: Color(0xFFC9932A), size: 18)),
                   title: Text(e['titre'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
                   subtitle: Text('${e['prenom'] ?? ''} ${e['nom'] ?? ''}', style: const TextStyle(fontSize: 11.5)),
                   onTap: () => widget.onNavigate(3),
@@ -144,7 +144,7 @@ class _AlumniDashboardScreenState extends State<AlumniDashboardScreen> {
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   dense: true,
-                  leading: const CircleAvatar(backgroundColor: kBg, child: Icon(Icons.tips_and_updates_rounded, color: Color(0xFFF59E0B), size: 18)),
+                  leading: const CircleAvatar(backgroundColor: kBg, child: Icon(Icons.tips_and_updates_rounded, color: Color(0xFFC9932A), size: 18)),
                   title: Text(c['titre'] ?? c['contenu_conseil'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
               ),

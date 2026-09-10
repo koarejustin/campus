@@ -78,9 +78,9 @@ class _NoteEntryScreenState extends State<NoteEntryScreen> {
   ({String label, Color color}) _mention(double note) {
     if (note >= 16) return (label: 'Excellent', color: kGreen);
     if (note >= 14) return (label: 'Très bien', color: kGreen);
-    if (note >= 12) return (label: 'Bien', color: const Color(0xFF0EA5E9));
+    if (note >= 12) return (label: 'Bien', color: const Color(0xFF6B7A5C));
     if (note >= 10) return (label: 'Assez bien', color: kAmber);
-    if (note >= 8) return (label: 'Passable', color: const Color(0xFFF97316));
+    if (note >= 8) return (label: 'Passable', color: const Color(0xFFB8651E));
     return (label: 'Insuffisant', color: kRed);
   }
 

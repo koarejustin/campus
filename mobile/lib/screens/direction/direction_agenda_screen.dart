@@ -66,7 +66,7 @@ class _DirectionAgendaScreenState extends State<DirectionAgendaScreen> {
                         return Card(
                           margin: const EdgeInsets.only(bottom: 8),
                           child: ListTile(
-                            leading: CircleAvatar(backgroundColor: kSurveillantGradient.colors.first.withValues(alpha: 0.12), child: const Icon(Icons.event_rounded, color: Color(0xFF0EA5E9), size: 18)),
+                            leading: CircleAvatar(backgroundColor: kSurveillantGradient.colors.first.withValues(alpha: 0.12), child: const Icon(Icons.event_rounded, color: Color(0xFF6B7A5C), size: 18)),
                             title: Text(e['titre'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
                             subtitle: Text('${e['date_debut'] ?? ''}${(e['description'] ?? '').toString().isNotEmpty ? '\n${e['description']}' : ''}', style: const TextStyle(fontSize: 11.5)),
                             isThreeLine: (e['description'] ?? '').toString().isNotEmpty,

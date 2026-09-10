@@ -119,7 +119,7 @@ class _ApeForumScreenState extends State<ApeForumScreen> {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const Icon(Icons.favorite_rounded, size: 16, color: Color(0xFFDB2777)),
+                                        const Icon(Icons.favorite_rounded, size: 16, color: Color(0xFF9C4A3D)),
                                         const SizedBox(width: 4),
                                         Text('${p['nb_likes'] ?? 0}', style: const TextStyle(fontSize: 12, color: kTextGray, fontWeight: FontWeight.w700)),
                                       ],

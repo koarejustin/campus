@@ -18,10 +18,10 @@ class ParentPlusScreen extends StatelessWidget {
   const ParentPlusScreen({super.key});
 
   static final _items = <_PlusItem>[
-    _PlusItem('Cotisations APE', Icons.payments_rounded, Color(0xFFF59E0B), (_) => const ParentCotisationsScreen()),
+    _PlusItem('Cotisations APE', Icons.payments_rounded, Color(0xFFC9932A), (_) => const ParentCotisationsScreen()),
     _PlusItem('Annonces', Icons.campaign_rounded, kRed, (_) => const ParentAnnoncesScreen()),
-    _PlusItem('Espace APE', Icons.groups_rounded, Color(0xFFDB2777), (_) => const ApeHomeScreen()),
-    _PlusItem('Mon profil', Icons.person_rounded, Color(0xFFF59E0B), (_) => const ParentProfilScreen()),
+    _PlusItem('Espace APE', Icons.groups_rounded, Color(0xFF9C4A3D), (_) => const ApeHomeScreen()),
+    _PlusItem('Mon profil', Icons.person_rounded, Color(0xFFC9932A), (_) => const ParentProfilScreen()),
   ];
 
   @override

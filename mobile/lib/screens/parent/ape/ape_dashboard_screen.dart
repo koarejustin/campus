@@ -113,7 +113,7 @@ class _ApeDashboardScreenState extends State<ApeDashboardScreen> {
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   dense: true,
-                  leading: const CircleAvatar(backgroundColor: kBg, child: Icon(Icons.forum_rounded, color: Color(0xFFDB2777), size: 18)),
+                  leading: const CircleAvatar(backgroundColor: kBg, child: Icon(Icons.forum_rounded, color: Color(0xFF9C4A3D), size: 18)),
                   title: Text('${p['prenom'] ?? ''} ${p['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5)),
                   subtitle: Text(p['contenu'] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
                 ),

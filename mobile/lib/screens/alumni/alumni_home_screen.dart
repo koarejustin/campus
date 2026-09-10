@@ -50,15 +50,15 @@ class _AlumniHomeScreenState extends State<AlumniHomeScreen> {
         backgroundColor: Colors.white,
         indicatorColor: kAlumniGradient.colors.first.withValues(alpha: 0.14),
         destinations: [
-          const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded, color: Color(0xFFF59E0B)), label: 'Accueil'),
-          const NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups_rounded, color: Color(0xFFF59E0B)), label: 'Mentorats'),
+          const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home_rounded, color: Color(0xFFC9932A)), label: 'Accueil'),
+          const NavigationDestination(icon: Icon(Icons.groups_outlined), selectedIcon: Icon(Icons.groups_rounded, color: Color(0xFFC9932A)), label: 'Mentorats'),
           NavigationDestination(
             icon: _demandesCount > 0 ? Badge(label: Text('$_demandesCount'), child: const Icon(Icons.inbox_outlined)) : const Icon(Icons.inbox_outlined),
-            selectedIcon: const Icon(Icons.inbox_rounded, color: Color(0xFFF59E0B)),
+            selectedIcon: const Icon(Icons.inbox_rounded, color: Color(0xFFC9932A)),
             label: 'Demandes',
           ),
-          const NavigationDestination(icon: Icon(Icons.menu_book_outlined), selectedIcon: Icon(Icons.menu_book_rounded, color: Color(0xFFF59E0B)), label: 'Journal'),
-          const NavigationDestination(icon: Icon(Icons.person_outline_rounded), selectedIcon: Icon(Icons.person_rounded, color: Color(0xFFF59E0B)), label: 'Profil'),
+          const NavigationDestination(icon: Icon(Icons.menu_book_outlined), selectedIcon: Icon(Icons.menu_book_rounded, color: Color(0xFFC9932A)), label: 'Journal'),
+          const NavigationDestination(icon: Icon(Icons.person_outline_rounded), selectedIcon: Icon(Icons.person_rounded, color: Color(0xFFC9932A)), label: 'Profil'),
         ],
       ),
     );
