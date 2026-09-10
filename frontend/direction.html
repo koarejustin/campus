@@ -3429,7 +3429,7 @@
             <div id="tab-msgs" style="padding:16px;display:none;">
               <div
                 style="background:#E4EEDD;border:1px solid #CFE0BE;border-radius:12px;padding:16px;text-align:center;">
-                <div style="font-size:1.8rem;margin-bottom:8px;"></div>
+                <div style="font-size:1.8rem;margin-bottom:8px;">💬</div>
                 <div style="font-size:.82rem;font-weight:800;color:#163A20;margin-bottom:6px;">Messages Privés</div>
                 <div style="font-size:.73rem;color:#2F6B3F;line-height:1.6;">
                   Pour envoyer un message privé à un professeur,<br>
@@ -4469,7 +4469,7 @@
     // ÉLÈVES
     // ══════════════════════════════════════
     async function loadEleves() {
-      $('el-wrap').innerHTML = '<div style="text-align:center;padding:36px;color:#6B5D42;"></div>';
+      $('el-wrap').innerHTML = '<div style="text-align:center;padding:36px;color:#6B5D42;">⏳</div>';
       try {
         const d = await api('/admin/eleves');
         const raw = d.eleves || d.data || [];
@@ -4583,7 +4583,7 @@
     }
 
     async function loadElevesParClasse(cls) {
-      $('el-wrap').innerHTML = '<div style="text-align:center;padding:36px;color:#6B5D42;"></div>';
+      $('el-wrap').innerHTML = '<div style="text-align:center;padding:36px;color:#6B5D42;">⏳</div>';
       try {
         const url = cls ? `/admin/eleves?classe=${encodeURIComponent(cls)}` : '/admin/eleves';
         const d = await api(url);
@@ -4921,7 +4921,7 @@
             <svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="34" fill="none" stroke="#fff" stroke-width="2" opacity=".35"/><circle cx="35" cy="35" r="20" fill="none" stroke="#fff" stroke-width="2" opacity=".35"/></svg>
           </div>
           <div class="fiche-hd">
-            ${logo ? `<img src="${logo}" class="fiche-logo">` : '<div class="fiche-logo fiche-logo-vide"></div>'}
+            ${logo ? `<img src="${logo}" class="fiche-logo">` : '<div class="fiche-logo fiche-logo-vide">🎓</div>'}
             <div class="fiche-ecole">${esc(ecole)}</div>
           </div>
           <div class="fiche-corps">
@@ -6970,7 +6970,7 @@
       if (countBadge) countBadge.textContent = filtered.length;
       if (!filtered.length) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:50px;color:#6B5D42;">
-          <div style="font-size:2rem;margin-bottom:8px;"></div>
+          <div style="font-size:2rem;margin-bottom:8px;">📋</div>
           <div style="font-size:.82rem;font-weight:600;">Aucune épreuve programmée</div>
           <div style="font-size:.72rem;margin-top:4px;">Cliquez sur "Nouvelle épreuve" pour commencer</div>
         </td></tr>`;
@@ -6991,8 +6991,8 @@
           <td style="padding:13px 14px;"><span style="background:${bg};color:${tc};padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:800;">${label}</span></td>
           <td style="padding:13px 14px;text-align:center;">
             <div style="display:flex;gap:6px;justify-content:center;">
-              <button onclick="editCompo('${c.id || c.id_composition}')" style="padding:5px 9px;border:1px solid #DCD3B8;border-radius:7px;background:#fff;cursor:pointer;font-size:.72rem;"></button>
-              <button onclick="deleteCompo('${c.id || c.id_composition}')" style="padding:5px 9px;border:1px solid #E8B8A8;border-radius:7px;background:#F9E8E1;color:#A93226;cursor:pointer;font-size:.72rem;"></button>
+              <button onclick="editCompo('${c.id || c.id_composition}')" style="padding:5px 9px;border:1px solid #DCD3B8;border-radius:7px;background:#fff;cursor:pointer;font-size:.72rem;">✏️</button>
+              <button onclick="deleteCompo('${c.id || c.id_composition}')" style="padding:5px 9px;border:1px solid #E8B8A8;border-radius:7px;background:#F9E8E1;color:#A93226;cursor:pointer;font-size:.72rem;">🗑️</button>
             </div>
           </td>
         </tr>`;

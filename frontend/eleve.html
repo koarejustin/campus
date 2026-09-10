@@ -1181,7 +1181,7 @@
           <div class="sb-user-mat" id="sb-mat">--</div>
         </div>
         <button onclick="openChangePassword()" title="Changer mon mot de passe"
-          style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px;cursor:pointer;color:#fff;flex-shrink:0;"></button>
+          style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px;cursor:pointer;color:#fff;flex-shrink:0;">🔒</button>
       </div>
     </div>
 
@@ -1338,25 +1338,25 @@
           <div class="kpi-label">Moyenne Générale</div>
           <div class="kpi-val" id="kpi-moy" style="color:var(--accent)">--</div>
           <div class="kpi-foot">sur 20</div>
-          <div class="kpi-icon" style="background:#E4EEDD;"></div>
+          <div class="kpi-icon" style="background:#E4EEDD;">📊</div>
         </div>
         <div class="kpi">
           <div class="kpi-label">Absences NJ</div>
           <div class="kpi-val" id="kpi-abs" style="color:var(--red)">--</div>
           <div class="kpi-foot">non justifiées</div>
-          <div class="kpi-icon" style="background:#F7E3DC;"></div>
+          <div class="kpi-icon" style="background:#F7E3DC;">⚠️</div>
         </div>
         <div class="kpi">
           <div class="kpi-label">Convocations</div>
           <div class="kpi-val" id="kpi-conv" style="color:var(--amber)">--</div>
           <div class="kpi-foot">en attente</div>
-          <div class="kpi-icon" style="background:#F2E6C5;"></div>
+          <div class="kpi-icon" style="background:#F2E6C5;">🔔</div>
         </div>
         <div class="kpi">
           <div class="kpi-label">Ressources</div>
           <div class="kpi-val" id="kpi-res" style="color:var(--green)">--</div>
           <div class="kpi-foot">disponibles</div>
-          <div class="kpi-icon" style="background:#EDF1DE;"></div>
+          <div class="kpi-icon" style="background:#EDF1DE;">📚</div>
         </div>
       </div>
       <div class="grid-2" style="gap:14px;margin-bottom:14px;">
@@ -1391,16 +1391,20 @@
         </div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;"><button onclick="goPage('forum-classe')"
             style="padding:14px 10px;background:#E4EEDD;border:none;border-radius:10px;cursor:pointer;">
-            <div style="font-size:1.4rem;margin-bottom:4px;"></div>
+            <div style="font-size:1.4rem;margin-bottom:4px;">💬</div>
             <div style="font-size:.68rem;font-weight:700;">Forum Classe</div>
           </button><button onclick="goPage('grand-eleves')"
             style="padding:14px 10px;background:#F2F0E2;border:none;border-radius:10px;cursor:pointer;">
-            <div style="font-size:1.4rem;margin-bottom:4px;"></div>
+            <div style="font-size:1.4rem;margin-bottom:4px;">🌍</div>
             <div style="font-size:.68rem;font-weight:700;">Grand Élèves</div>
           </button><button onclick="goPage('ressources')"
             style="padding:14px 10px;background:#F5EAD2;border:none;border-radius:10px;cursor:pointer;">
-            <div style="font-size:1.4rem;margin-bottom:4px;"></div>
+            <div style="font-size:1.4rem;margin-bottom:4px;">📖</div>
             <div style="font-size:.68rem;font-weight:700;">Ressources</div>
+          </button><button onclick="openChangePassword()"
+            style="padding:14px 10px;background:#F2E6C5;border:none;border-radius:10px;cursor:pointer;">
+            <div style="font-size:1.4rem;margin-bottom:4px;">👤</div>
+            <div style="font-size:.68rem;font-weight:700;">Mon Profil</div>
           </button></div>
       </div>
     </div>
@@ -1447,7 +1451,7 @@
       <div class="card">
         <div id="abs-content">
           <div class="empty">
-            <div class="empty-icon"></div>
+            <div class="empty-icon">📅</div>
             <div class="empty-txt">Chargement...</div>
           </div>
         </div>
@@ -1464,7 +1468,7 @@
       </div>
       <div id="conv-content" style="display:flex;flex-direction:column;gap:10px;">
         <div class="empty">
-          <div class="empty-icon"></div>
+          <div class="empty-icon">⏳</div>
           <div class="empty-txt">Chargement...</div>
         </div>
       </div>
@@ -1480,7 +1484,7 @@
       </div>
       <div id="ann-content" style="display:flex;flex-direction:column;gap:10px;">
         <div class="empty">
-          <div class="empty-icon"></div>
+          <div class="empty-icon">⏳</div>
           <div class="empty-txt">Chargement...</div>
         </div>
       </div>
@@ -1503,7 +1507,7 @@
       </div>
       <div id="res-content" style="display:flex;flex-direction:column;gap:10px;">
         <div class="empty">
-          <div class="empty-icon"></div>
+          <div class="empty-icon">📚</div>
           <div class="empty-txt">Chargement...</div>
         </div>
       </div>
@@ -1566,7 +1570,7 @@
           id="inter-channel-title">Sélectionnez une classe pour démarrer la discussion</div>
         <div id="inter-thread" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
           <div class="empty">
-            <div class="empty-icon"></div>
+            <div class="empty-icon">👆</div>
             <div class="empty-txt">Sélectionnez une classe ci-dessus</div>
           </div>
         </div>
@@ -1608,7 +1612,7 @@
       <div id="prog-devoirs" class="prog-panel" style="display:none">
         <div id="prog-dev-content">
           <div class="empty-prog">
-            <div class="empty-prog-icon"></div>
+            <div class="empty-prog-icon">⏳</div>
             <div class="empty-prog-text">Chargement des devoirs...</div>
           </div>
         </div>
@@ -1616,7 +1620,7 @@
       <div id="prog-compos" class="prog-panel" style="display:none">
         <div id="prog-comp-content">
           <div class="empty-prog">
-            <div class="empty-prog-icon"></div>
+            <div class="empty-prog-icon">⏳</div>
             <div class="empty-prog-text">Chargement...</div>
           </div>
         </div>
@@ -1664,7 +1668,7 @@
       <!-- ── CONTENEUR PRINCIPAL ── -->
       <div id="mentor-container" style="min-height:200px;">
         <div style="text-align:center;padding:40px;color:#6B5D42;">
-          <div style="font-size:2rem;margin-bottom:12px;"></div>
+          <div style="font-size:2rem;margin-bottom:12px;">⏳</div>
           <p>Chargement...</p>
         </div>
       </div>
@@ -1674,7 +1678,7 @@
 
         <!-- Bannière invitation -->
         <div id="alumni-banniere" style="background:linear-gradient(135deg,#4C8C5C 0%,#1F4A2C 100%);border-radius:16px;padding:20px;color:#fff;text-align:center;">
-          <div style="font-size:2rem;margin-bottom:8px;"></div>
+          <div style="font-size:2rem;margin-bottom:8px;">🤝</div>
           <div id="alumni-banniere-titre" style="font-size:1.05rem;font-weight:700;margin-bottom:4px;">Trouvez votre mentor</div>
           <div id="alumni-banniere-sous-titre" style="font-size:0.82rem;opacity:0.85;">Un ancien élève de votre école, prêt à vous guider vers votre avenir.</div>
         </div>
@@ -1692,7 +1696,7 @@
             oninput="filtrerListeAlumni(this.value)"
             style="width:100%;box-sizing:border-box;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.85rem;font-family:inherit;margin-bottom:14px;outline:none;">
           <div id="alumni-list-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
-            <div class="empty"><div class="empty-icon"></div><div class="empty-txt">Chargement des alumni...</div></div>
+            <div class="empty"><div class="empty-icon">⏳</div><div class="empty-txt">Chargement des alumni...</div></div>
           </div>
           <div id="alumni-load-more-wrap" style="display:none;text-align:center;margin-top:14px;">
             <button class="btn-p" onclick="afficherPlusAlumni()" style="background:none;border:1.5px solid var(--border);color:var(--text);">Afficher plus</button>
@@ -1734,7 +1738,7 @@
             <button class="btn-sm" onclick="ouvrirAjoutObjectif()">+ Objectif</button>
           </div>
           <div id="objectifs-list">
-            <div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucun objectif défini pour l'instant.</div></div>
+            <div class="empty"><div class="empty-icon">🎯</div><div class="empty-txt">Aucun objectif défini pour l'instant.</div></div>
           </div>
         </div>
 
@@ -1745,7 +1749,7 @@
             <button class="btn-sm" onclick="ouvrirAjoutEntree(document.currentRelationId||0)">+ Entrée</button>
           </div>
           <div id="journal-entrees-eleve">
-            <div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune entrée pour le moment.</div></div>
+            <div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Aucune entrée pour le moment.</div></div>
           </div>
         </div>
       </div>
@@ -1756,7 +1760,7 @@
     <div id="modal-conseil" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:16px;">
       <div style="background:#fff;border-radius:18px;padding:22px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.2);position:relative;">
         <div id="conseil-succes" style="display:none;text-align:center;padding:20px 0;">
-          <div style="font-size:2.4rem;margin-bottom:10px;"></div>
+          <div style="font-size:2.4rem;margin-bottom:10px;">✅</div>
           <div style="font-weight:800;font-size:1rem;color:#3D5322;">Demande envoyée !</div>
         </div>
         <div id="conseil-form-body">
@@ -2092,7 +2096,7 @@
         .filter(n => n.moyenne !== null && n.moyenne !== undefined);
 
       if (!notes.length) {
-        el.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune note pour ce trimestre</div></div>';
+        el.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Aucune note pour ce trimestre</div></div>';
         return;
       }
 
@@ -2136,7 +2140,7 @@
         const tot = data.count_total || 0, just = data.absences_justifiees || 0, nj = data.absences_non_justifiees || 0;
         document.getElementById('abs-resume').innerHTML = `<div class="kpi" style="padding:14px;"><div class="kpi-label">Total Absences</div><div style="font-size:1.4rem;font-weight:900;">${tot}</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Justifiées</div><div style="font-size:1.4rem;font-weight:900;color:var(--green)">${just}</div></div><div class="kpi" style="padding:14px;"><div class="kpi-label">Non Justifiées</div><div style="font-size:1.4rem;font-weight:900;color:var(--red)">${nj}</div></div>`;
         const abs = data.absences || [];
-        if (!abs.length) { document.getElementById('abs-content').innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune absence enregistrée</div></div>'; return; }
+        if (!abs.length) { document.getElementById('abs-content').innerHTML = '<div class="empty"><div class="empty-icon">✅</div><div class="empty-txt">Aucune absence enregistrée</div></div>'; return; }
         document.getElementById('abs-content').innerHTML = `<table class="tbl"><thead><tr><th>Date</th><th>Raison</th><th>Statut</th></tr></thead><tbody>${abs.map(a => `<tr><td><strong>${new Date(a.date_absence).toLocaleDateString('fr-FR')}</strong></td><td>${a.raison_absence || '—'}</td><td><span class="${a.justifiee ? 'badge-ok' : 'badge-red'}">${a.statut || (a.justifiee ? 'Justifiée' : 'Non justifiée')}</span></td></tr>`).join('')}</tbody></table>`;
       } catch (e) { document.getElementById('abs-content').innerHTML = `<div style="background:#F7E3DC;border:1px solid #E8B8A8;border-radius:10px;padding:14px;">Erreur : ${e.message}</div>`; }
     }
@@ -2149,7 +2153,7 @@
         const convs = data.convocations || [];
 
         if (!convs.length) {
-          document.getElementById('conv-content').innerHTML = `<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune convocation en attente</div></div>`;
+          document.getElementById('conv-content').innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-txt">Aucune convocation en attente</div></div>`;
           return;
         }
 
@@ -2280,7 +2284,7 @@
     function renderRessources(list) {
       const box = document.getElementById('res-content');
       if (!list.length) {
-        box.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune ressource publiée pour votre classe</div></div>';
+        box.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune ressource publiée pour votre classe</div></div>';
         return;
       }
 
@@ -2305,20 +2309,20 @@
             if (ytMatch) {
               const ytId = ytMatch[1];
               const thumb = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
-              return `<div class="res-card" onclick="openRessource('${v.id}','${url}')" style="cursor:pointer;padding:8px;flex-direction:column;"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;position:relative;background:#000"><img src="${thumb}" alt="${title}" style="width:100%;height:100%;object-fit:cover;display:block;"/><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:28px;opacity:0.95;"></div></div><div style="margin-top:8px;"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
+              return `<div class="res-card" onclick="openRessource('${v.id}','${url}')" style="cursor:pointer;padding:8px;flex-direction:column;"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;position:relative;background:#000"><img src="${thumb}" alt="${title}" style="width:100%;height:100%;object-fit:cover;display:block;"/><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:28px;opacity:0.95;">▶️</div></div><div style="margin-top:8px;"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
             }
             // Direct video file — bouton visible et cliquable (avant : juste un
             // survol de souris pour prévisualiser, invisible et inutilisable au tactile/mobile).
             if (/\.(mp4|webm|mov)$/i.test(v.url||'')) {
-              return `<div class="res-card" style="padding:8px;flex-direction:column;cursor:pointer;" onclick="openRessource('${v.id}','${url}')"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;position:relative;background:#000"><video muted loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"><source src="${url}" type="video/mp4">${title}</video><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-size:20px;"></div></div><div style="margin-top:8px;"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
+              return `<div class="res-card" style="padding:8px;flex-direction:column;cursor:pointer;" onclick="openRessource('${v.id}','${url}')"><div style="width:100%;height:140px;overflow:hidden;border-radius:8px;position:relative;background:#000"><video muted loop playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;"><source src="${url}" type="video/mp4">${title}</video><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;font-size:20px;">▶️</div></div><div style="margin-top:8px;"><div class="res-title" style="font-size:0.85rem;">${title}</div><div class="res-meta">${meta}</div></div></div>`;
             }
             // fallback link
-            return `<div class="res-card" onclick="openRessource('${v.id}','${url}')"><div class="res-icon" style="background:#E4EEDD;"></div><div><div class="res-title">${title}</div><div class="res-meta">${meta}</div></div></div>`;
+            return `<div class="res-card" onclick="openRessource('${v.id}','${url}')"><div class="res-icon" style="background:#E4EEDD;">🎬</div><div><div class="res-title">${title}</div><div class="res-meta">${meta}</div></div></div>`;
           }).join('')}</div></div>`;
       }
 
       if (courses.length) {
-        html += `<div><h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 12px;">Cours & TD (${courses.length})</h3><div style="display: flex; flex-direction: column; gap: 8px;">${courses.map(doc => `<div class="res-card" onclick="openRessource('${doc.id}','${doc.url || ''}')"><div class="res-icon" style="background:#E8F5EE;"></div><div><div class="res-title">${escHtml(doc.titre || 'Cours')}</div><div class="res-meta">${doc.prof_prenom || ''} ${doc.prof_nom || ''} · ${doc.classe || ''}</div></div></div>`).join('')}</div></div>`;
+        html += `<div><h3 style="font-size: 0.9rem; font-weight: 800; margin-bottom: 12px;">📚 Cours & TD (${courses.length})</h3><div style="display: flex; flex-direction: column; gap: 8px;">${courses.map(doc => `<div class="res-card" onclick="openRessource('${doc.id}','${doc.url || ''}')"><div class="res-icon" style="background:#E8F5EE;">📄</div><div><div class="res-title">${escHtml(doc.titre || 'Cours')}</div><div class="res-meta">${doc.prof_prenom || ''} ${doc.prof_nom || ''} · ${doc.classe || ''}</div></div></div>`).join('')}</div></div>`;
       }
 
       box.innerHTML = html;
@@ -2425,7 +2429,7 @@
     function renderThread(containerId, msgs, type) {
       const el = document.getElementById(containerId);
       if (!msgs.length) {
-        el.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Soyez le premier à écrire</div></div>';
+        el.innerHTML = '<div class="empty"><div class="empty-icon">💬</div><div class="empty-txt">Soyez le premier à écrire</div></div>';
         return;
       }
       // Construire un index id → message pour afficher les citations
@@ -2706,7 +2710,7 @@
     function renderPosts(posts) {
       const container = document.getElementById('ge-posts');
       if (!container) return;
-      if (!posts.length) { container.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune publication</div></div>'; return; }
+      if (!posts.length) { container.innerHTML = '<div class="empty"><div class="empty-icon">📭</div><div class="empty-txt">Aucune publication</div></div>'; return; }
       container.innerHTML = posts.map(p => {
         const author = escHtml(p.nom_auteur || '');
         const time = escHtml(p.time || '');
@@ -2810,7 +2814,7 @@
         const data = await r.json();
         const anns = data.annonces || [];
         if (!anns.length) {
-          box.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune annonce officielle pour le moment</div></div>';
+          box.innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce officielle pour le moment</div></div>';
           return;
         }
         const typeStyle = {
@@ -2835,7 +2839,7 @@
           </div>`;
         }).join('');
       } catch (e) {
-        box.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Impossible de charger les annonces</div></div>';
+        box.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger les annonces</div></div>';
       }
     }
 
@@ -2848,7 +2852,7 @@
         const data = await r.json();
         const acts = data.activites || [];
         if (!acts.length) {
-          box.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune activité programmée</div></div>';
+          box.innerHTML = '<div class="empty"><div class="empty-icon">🎭</div><div class="empty-txt">Aucune activité programmée</div></div>';
           return;
         }
         box.innerHTML = acts.map(a => {
@@ -2866,7 +2870,7 @@
           </div>`;
         }).join('');
       } catch (e) {
-        box.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Impossible de charger les activités</div></div>';
+        box.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger les activités</div></div>';
       }
     }
 
@@ -2881,9 +2885,9 @@
         const r = await fetch(`${API}/eleves/annonces`, { headers: authH() });
         const data = await r.json();
         const anns = data.annonces || [];
-        if (!anns.length) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune annonce</div></div>'; return; }
+        if (!anns.length) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce</div></div>'; return; }
         document.getElementById('ann-content').innerHTML = anns.map(a => `<div class="card"><div class="card-hd"><div><strong>${escHtml(a.titre)}</strong><div style="font-size:0.65rem;">${new Date(a.date_publication || a.created_at).toLocaleDateString('fr-FR')}</div></div><span class="badge-blue">${a.type || 'INFO'}</span></div><div>${escHtml(a.contenu || '')}</div></div>`).join('');
-      } catch (e) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune annonce disponible</div></div>'; }
+      } catch (e) { document.getElementById('ann-content').innerHTML = '<div class="empty"><div class="empty-icon">📢</div><div class="empty-txt">Aucune annonce disponible</div></div>'; }
     }
 
     // ==================== PROGRAMME & DEVOIRS ====================
@@ -2911,7 +2915,7 @@
     async function renderEmploiDuTemps() {
       const container = document.getElementById('prog-edt-content');
       if (!container) return;
-      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Chargement de l\'emploi du temps...</div></div>';
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement de l\'emploi du temps...</div></div>';
 
       try {
         const response = await fetch(`${API}/eleves/horaire`, { headers: authH() });
@@ -2919,7 +2923,7 @@
         const semaine = data.horaire?.semaine || [];
 
         if (!semaine.length) {
-          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">L\'emploi du temps de ta classe n\'a pas encore été saisi par la Direction.</div></div>';
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">🗓️</div><div class="empty-prog-text">L\'emploi du temps de ta classe n\'a pas encore été saisi par la Direction.</div></div>';
           return;
         }
 
@@ -2944,7 +2948,7 @@
         `;
       } catch (e) {
         console.warn('Erreur chargement emploi du temps:', e);
-        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Erreur de chargement de l\'emploi du temps</div></div>';
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Erreur de chargement de l\'emploi du temps</div></div>';
       }
     }
 
@@ -2960,7 +2964,7 @@
       const container = document.getElementById('prog-dev-content');
       if (!container) return;
 
-      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Chargement des devoirs...</div></div>';
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement des devoirs...</div></div>';
 
       try {
         const response = await fetch(`${API}/eleves/devoirs`, { headers: authH() });
@@ -2968,7 +2972,7 @@
         const devoirs = data.devoirs || [];
 
         if (!devoirs.length) {
-          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Aucun devoir programmé pour le moment</div></div>';
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">📝</div><div class="empty-prog-text">Aucun devoir programmé pour le moment</div></div>';
           return;
         }
 
@@ -2996,14 +3000,14 @@
         `;
       } catch (e) {
         console.warn('Erreur chargement devoirs:', e);
-        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Impossible de charger les devoirs</div></div>';
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Impossible de charger les devoirs</div></div>';
       }
     }
     async function renderCompositions() {
       const container = document.getElementById('prog-comp-content');
       if (!container) return;
 
-      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Chargement des compositions...</div></div>';
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement des compositions...</div></div>';
 
       try {
         const response = await fetch(`${API}/eleves/compositions`, { headers: authH() });
@@ -3011,7 +3015,7 @@
         const compositions = data.compositions || [];
 
         if (!compositions.length) {
-          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Aucune composition programmée pour le moment</div></div>';
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">📋</div><div class="empty-prog-text">Aucune composition programmée pour le moment</div></div>';
           return;
         }
 
@@ -3037,7 +3041,7 @@
         `;
       } catch (e) {
         console.warn('Erreur chargement compositions:', e);
-        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Impossible de charger les compositions</div></div>';
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Impossible de charger les compositions</div></div>';
       }
     }
 
@@ -3045,7 +3049,7 @@
       const container = document.getElementById('prog-exam-content');
       if (!container) return;
 
-      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Chargement des examens blancs...</div></div>';
+      container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⏳</div><div class="empty-prog-text">Chargement des examens blancs...</div></div>';
 
       try {
         const response = await fetch(`${API}/eleves/compositions`, { headers: authH() });
@@ -3053,7 +3057,7 @@
         const examens = data.examensBlancs || [];
 
         if (!examens.length) {
-          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Aucun examen blanc programmé</div></div>';
+          container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">🎓</div><div class="empty-prog-text">Aucun examen blanc programmé</div></div>';
           return;
         }
 
@@ -3079,7 +3083,7 @@
         `;
       } catch (e) {
         console.warn('Erreur chargement examens blancs:', e);
-        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon"></div><div class="empty-prog-text">Impossible de charger les examens blancs</div></div>';
+        container.innerHTML = '<div class="empty-prog"><div class="empty-prog-icon">⚠️</div><div class="empty-prog-text">Impossible de charger les examens blancs</div></div>';
       }
     }
 
@@ -3144,7 +3148,7 @@
       if (!classeActuelle.startsWith('TLE')) {
         document.getElementById('mentor-container').innerHTML = `
           <div class="card" style="padding:24px;text-align:center;">
-            <div style="font-size:2rem;margin-bottom:8px;"></div>
+            <div style="font-size:2rem;margin-bottom:8px;">🎓</div>
             <div style="color:var(--muted);font-size:0.85rem;">Le mentorat par les anciens élèves est réservé aux classes de Terminale.</div>
           </div>`;
         return;
@@ -3183,7 +3187,7 @@
         console.error('Erreur chargement mentor:', error);
         document.getElementById('mentor-container').innerHTML = `
           <div class="card" style="padding:24px;text-align:center;">
-            <div style="font-size:2rem;margin-bottom:8px;"></div>
+            <div style="font-size:2rem;margin-bottom:8px;">⚠️</div>
             <div style="color:var(--muted);font-size:0.85rem;">Impossible de charger le mentorat.</div>
             <button class="btn-p" onclick="loadMentoratEleve()" style="margin-top:12px;">Réessayer</button>
           </div>`;
@@ -3246,7 +3250,7 @@
         ...journalObjectifs
       ];
       if (!combined.length) {
-        el.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucun objectif défini pour l\'instant.</div></div>';
+        el.innerHTML = '<div class="empty"><div class="empty-icon">🎯</div><div class="empty-txt">Aucun objectif défini pour l\'instant.</div></div>';
         return;
       }
       el.innerHTML = combined.map(obj => {
@@ -3307,7 +3311,7 @@
         rendreListeAlumni(alumni);
 
       } catch (e) {
-        container.innerHTML = `<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Impossible de charger la liste.</div></div>`;
+        container.innerHTML = `<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger la liste.</div></div>`;
         console.warn('Erreur liste alumni:', e);
       }
     }
@@ -3355,7 +3359,7 @@
         container.style.display = 'block';
         container.innerHTML = `
           <div style="padding:20px;text-align:center;grid-column:1/-1;">
-            <div style="font-size:2rem;margin-bottom:8px;"></div>
+            <div style="font-size:2rem;margin-bottom:8px;">🔍</div>
             <div style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">Aucun mentor ne correspond à votre recherche.</div>
             <button class="btn-p" onclick="ouvrirModalConseil()">Envoyer une demande ouverte</button>
           </div>`;
@@ -3450,14 +3454,14 @@
       document.getElementById('res-content').style.display = 'none';
       const container = document.getElementById('profs-content');
       container.style.display = 'flex';
-      container.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Chargement...</div></div>';
+      container.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-txt">Chargement...</div></div>';
 
       try {
         const r = await fetch(`${API}/eleves/professeurs`, { headers: authH() });
         const d = await r.json();
         const profs = d.professeurs || d.profs || [];
         if (!profs.length) {
-          container.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucun professeur trouvé pour votre classe.</div></div>';
+          container.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-txt">Aucun professeur trouvé pour votre classe.</div></div>';
           return;
         }
         container.innerHTML = profs.map(p => `
@@ -3474,7 +3478,7 @@
           </div>
         `).join('');
       } catch (e) {
-        container.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Impossible de charger la liste.</div></div>';
+        container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><div class="empty-txt">Impossible de charger la liste.</div></div>';
       }
     }
 
@@ -3602,7 +3606,7 @@
       if (!container) return;
 
       if (!entrees || !entrees.length) {
-        container.innerHTML = '<div class="empty"><div class="empty-icon"></div><div class="empty-txt">Aucune entrée pour le moment. Ajoutez votre première réflexion !</div></div>';
+        container.innerHTML = '<div class="empty"><div class="empty-icon">📝</div><div class="empty-txt">Aucune entrée pour le moment. Ajoutez votre première réflexion !</div></div>';
         return;
       }
 

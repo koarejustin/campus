@@ -3004,19 +3004,19 @@
             <!-- Attach menu -->
             <div class="attach-menu" id="attach-menu">
               <div class="attach-item" onclick="triggerAttach('image/*')">
-                <div class="attach-ico" style="background:#BF59CF;"></div>
+                <div class="attach-ico" style="background:#BF59CF;">🖼️</div>
                 <span class="attach-lbl">Photos & Images</span>
               </div>
               <div class="attach-item" onclick="triggerAttach('video/*')">
-                <div class="attach-ico" style="background:#E53E3E;"></div>
+                <div class="attach-ico" style="background:#E53E3E;">🎬</div>
                 <span class="attach-lbl">Vidéo</span>
               </div>
               <div class="attach-item" onclick="triggerAttach('.pdf,.doc,.docx,.pptx,.xlsx,.txt')">
-                <div class="attach-ico" style="background:#0063CB;"></div>
+                <div class="attach-ico" style="background:#0063CB;">📄</div>
                 <span class="attach-lbl">Document</span>
               </div>
               <div class="attach-item" onclick="triggerAttach('.mp3,.ogg,.wav,.m4a,.aac')">
-                <div class="attach-ico" style="background:#D3396D;"></div>
+                <div class="attach-ico" style="background:#D3396D;">🎵</div>
                 <span class="attach-lbl">Audio</span>
               </div>
             </div>
@@ -4544,7 +4544,7 @@
       <div class="video-thumb" style="background:#0D1F14;position:relative;overflow:hidden;">
         ${fullUrl
             ? `<video src="${fullUrl}" preload="metadata" style="width:100%;height:100%;object-fit:cover;opacity:.7;" muted></video>`
-            : `<div style="font-size:3rem;opacity:.3;display:flex;align-items:center;justify-content:center;height:100%;"></div>`}
+            : `<div style="font-size:3rem;opacity:.3;display:flex;align-items:center;justify-content:center;height:100%;">🎥</div>`}
         <div class="play-overlay" onclick="openVideo('${esc(v.titre)}','${v.url || ''}')">
           <div class="play-btn-big"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
         </div>
@@ -4557,7 +4557,7 @@
         <div style="display:flex;gap:5px;margin-top:6px;">
           <button onclick="openVideo('${esc(v.titre)}','${v.url || ''}')" style="flex:1;padding:4px;font-size:.66rem;font-weight:700;border:1px solid var(--accent3);border-radius:6px;cursor:pointer;background:#E8F5EE;color:var(--accent);font-family:'DM Sans',sans-serif;">Lire</button>
           <button onclick="toggleResVisible(${v.id})" style="flex:1;padding:4px;font-size:.66rem;font-weight:700;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:${v.visible ? '#E8F5EE' : '#F9E8E1'};color:${v.visible ? 'var(--accent)' : 'var(--red)'};font-family:'DM Sans',sans-serif;">${v.visible ? '✓ Visible' : '✗ Masqué'}</button>
-          <button onclick="deleteRes(${v.id})" style="padding:4px 8px;font-size:.66rem;font-weight:700;border:1px solid #E8B8A8;border-radius:6px;cursor:pointer;background:#F9E8E1;color:var(--red);font-family:'DM Sans',sans-serif;"></button>
+          <button onclick="deleteRes(${v.id})" style="padding:4px 8px;font-size:.66rem;font-weight:700;border:1px solid #E8B8A8;border-radius:6px;cursor:pointer;background:#F9E8E1;color:var(--red);font-family:'DM Sans',sans-serif;">🗑️</button>
         </div>
       </div>
     </div>`;
@@ -4579,7 +4579,7 @@
       ${res.url
           ? `<button onclick="openVideo('${esc(res.titre)}','${res.url}')" style="padding:4px 10px;font-size:.66rem;font-weight:700;border:1px solid #D4DFC0;border-radius:6px;cursor:pointer;background:#ECFDF5;color:#587530;flex-shrink:0;">Ouvrir</button>`
           : ''}
-      <button onclick="deleteRes(${res.id})" style="padding:4px 8px;font-size:.66rem;border:1px solid #E8B8A8;border-radius:6px;cursor:pointer;background:#F9E8E1;color:var(--red);font-family:'DM Sans',sans-serif;"></button>
+      <button onclick="deleteRes(${res.id})" style="padding:4px 8px;font-size:.66rem;border:1px solid #E8B8A8;border-radius:6px;cursor:pointer;background:#F9E8E1;color:var(--red);font-family:'DM Sans',sans-serif;">🗑</button>
     </div>`).join('')
         : '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">Aucun document publié</div>';
     }
@@ -4817,7 +4817,7 @@
       const generalMsgs = conversations['general'] || [];
       const generalLast = generalMsgs[generalMsgs.length - 1];
       const generalHtml = filtre ? '' : `<div class="conv-item ${currentConv === 'general' ? 'sel' : ''}" onclick="loadConv('general')">
-      <div class="conv-av" style="background:var(--accent);"></div>
+      <div class="conv-av" style="background:var(--accent);">🏫</div>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <span class="conv-nm">Salle commune</span>
@@ -5394,7 +5394,7 @@
       } else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
         body.innerHTML = '<img src="' + fullUrl + '" style="max-width:100%;max-height:72vh;object-fit:contain;">';
       } else {
-        body.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:3rem;margin-bottom:12px;"></div><div style="color:#ccc;margin-bottom:16px;">' + esc(titre || '') + '</div><a href="' + fullUrl + '" download target="_blank" style="background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;">Télécharger</a></div>';
+        body.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:3rem;margin-bottom:12px;">📄</div><div style="color:#ccc;margin-bottom:16px;">' + esc(titre || '') + '</div><a href="' + fullUrl + '" download target="_blank" style="background:#25D366;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;">⬇️ Télécharger</a></div>';
       }
       box.appendChild(hd); box.appendChild(body); overlay.appendChild(box);
       document.body.appendChild(overlay);
@@ -5903,7 +5903,7 @@
       if (!smsMessagesData.length) {
         updateSmsBadgeCount();
         container.innerHTML = `<div style="text-align:center;padding:40px;color:#6B5D42;">
-          <div style="font-size:2rem;margin-bottom:8px;"></div>
+          <div style="font-size:2rem;margin-bottom:8px;">✉️</div>
           <div style="font-size:.83rem;font-weight:600;">Aucun message privé reçu</div>
           <div style="font-size:.73rem;margin-top:4px;">Les messages privés que la direction vous envoie apparaîtront ici</div>
         </div>`;
@@ -5938,7 +5938,7 @@
               ${unread ? '<span style="font-size:.6rem;background:#F9E8E1;color:#A93226;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:4px;">Non lu</span>' : ''}
             </div>
           </div>
-          ${m.destinataire_id === profId ? `<button onclick="event.stopPropagation();deleteSms('${msgId}')" title="Supprimer" style="background:none;border:none;color:#6B5D42;cursor:pointer;font-size:.9rem;padding:4px;align-self:flex-start;"></button>` : ''}
+          ${m.destinataire_id === profId ? `<button onclick="event.stopPropagation();deleteSms('${msgId}')" title="Supprimer" style="background:none;border:none;color:#6B5D42;cursor:pointer;font-size:.9rem;padding:4px;align-self:flex-start;">🗑️</button>` : ''}
         </div>`;
       }).join('');
     }
