@@ -18,8 +18,8 @@ async function loadMoyennesAvancees(trimestre = '') {
 
   // Skeleton loader
   container.innerHTML = `
-    <div class="sk-block" style="height:120px;border-radius:16px;margin-bottom:16px;background:linear-gradient(90deg,#EDE0C8 25%,#FAF5EA 50%,#EDE0C8 75%);background-size:200% 100%;animation:sk-shine 1.4s infinite"></div>
-    <div class="sk-block" style="height:300px;border-radius:16px;background:linear-gradient(90deg,#EDE0C8 25%,#FAF5EA 50%,#EDE0C8 75%);background-size:200% 100%;animation:sk-shine 1.4s infinite"></div>
+    <div class="sk-block" style="height:120px;border-radius:16px;margin-bottom:16px;background:linear-gradient(90deg,#F2E2B8 25%,#FCF7E8 50%,#F2E2B8 75%);background-size:200% 100%;animation:sk-shine 1.4s infinite"></div>
+    <div class="sk-block" style="height:300px;border-radius:16px;background:linear-gradient(90deg,#F2E2B8 25%,#FCF7E8 50%,#F2E2B8 75%);background-size:200% 100%;animation:sk-shine 1.4s infinite"></div>
   `;
 
   try {
@@ -45,7 +45,7 @@ function renderMoyennesDashboard(data) {
 
   const mg      = data.moyenne_generale;
   const mention = data.mention || '—';
-  const couleur = mg >= 14 ? '#6B8E3D' : mg >= 10 ? '#B5502F' : '#C0392B';
+  const couleur = mg >= 14 ? '#6B8E3D' : mg >= 10 ? '#2F6B3F' : '#C0392B';
   const evolution = data.evolution_trimestrielle || [];
   const alertes   = data.alertes_baisses || [];
   const predictif = data.predictif || {};
@@ -63,7 +63,7 @@ function renderMoyennesDashboard(data) {
           ${mg !== null ? mg.toFixed(2) : '—'}
         </div>
         <div style="font-size:.72rem;font-weight:700;color:${couleur};margin-top:6px">${mention}</div>
-        <div style="width:100%;height:6px;background:#F5EFE0;border-radius:3px;margin-top:12px;overflow:hidden">
+        <div style="width:100%;height:6px;background:#FBF3DE;border-radius:3px;margin-top:12px;overflow:hidden">
           <div style="height:100%;width:${mg !== null ? (mg/20*100) : 0}%;background:${couleur};border-radius:3px;transition:width .8s ease"></div>
         </div>
       </div>
@@ -120,7 +120,7 @@ function renderMoyennesDashboard(data) {
           { label: 'Obtenir 10/20', val: predictif.pour_avoir_10,  color: '#C0392B' },
           { label: 'Atteindre 12', val: predictif.pour_avoir_12,  color: '#E67E22' },
           { label: 'Viser 14',     val: predictif.pour_avoir_14,  color: '#6B8E3D' },
-          { label: 'Maintenir',    val: predictif.pour_maintenir, color: '#B5502F' },
+          { label: 'Maintenir',    val: predictif.pour_maintenir, color: '#2F6B3F' },
         ].map(p => `
           <div style="margin-bottom:10px">
             <div style="display:flex;justify-content:space-between;margin-bottom:3px">
@@ -160,9 +160,9 @@ function renderMoyennesDashboard(data) {
           </thead>
           <tbody>
             ${(data.detail_matieres || []).map(m => {
-              const c = m.moyenne >= 14 ? '#6B8E3D' : m.moyenne >= 10 ? '#B5502F' : m.moyenne !== null ? '#C0392B' : '#8A7D68';
+              const c = m.moyenne >= 14 ? '#6B8E3D' : m.moyenne >= 10 ? '#2F6B3F' : m.moyenne !== null ? '#C0392B' : '#6B5D42';
               return `
-              <tr style="border-bottom:1px solid #F5EFE0">
+              <tr style="border-bottom:1px solid #FBF3DE">
                 <td style="padding:10px 12px;font-weight:600;color:var(--ink)">${m.nom}${m.optionnel ? ' <span style="font-size:.6rem;color:var(--muted)">(opt.)</span>' : ''}</td>
                 <td style="padding:10px 12px;text-align:center;font-weight:800;color:var(--muted)">${m.coefficient}</td>
                 <td style="padding:10px 12px;text-align:center;font-weight:900;color:${c};font-size:.95rem">
@@ -174,7 +174,7 @@ function renderMoyennesDashboard(data) {
                   </span>
                 </td>
                 <td style="padding:10px 12px">
-                  <div style="height:6px;background:#F5EFE0;border-radius:3px;width:100%;overflow:hidden">
+                  <div style="height:6px;background:#FBF3DE;border-radius:3px;width:100%;overflow:hidden">
                     <div style="height:100%;width:${m.moyenne !== null ? (m.moyenne/20*100) : 0}%;background:${c};border-radius:3px"></div>
                   </div>
                 </td>
@@ -224,10 +224,10 @@ function renderMoyennesDashboard(data) {
           datasets: [{
             label: 'Moyenne Générale',
             data: evolution.map(e => e.moyenne),
-            borderColor: '#B5502F',
+            borderColor: '#2F6B3F',
             backgroundColor: 'rgba(59,73,223,.08)',
             borderWidth: 3,
-            pointBackgroundColor: '#B5502F',
+            pointBackgroundColor: '#2F6B3F',
             pointRadius: 6,
             pointHoverRadius: 8,
             tension: 0.4,
@@ -253,7 +253,7 @@ function renderMoyennesDashboard(data) {
             }
           },
           scales: {
-            y: { min: 0, max: 20, ticks: { font: { size: 10 } }, grid: { color: '#F5EFE0' } },
+            y: { min: 0, max: 20, ticks: { font: { size: 10 } }, grid: { color: '#FBF3DE' } },
             x: { ticks: { font: { size: 10 } }, grid: { display: false } }
           }
         }
@@ -291,7 +291,7 @@ function renderMoyennesDashboard(data) {
             }
           },
           scales: {
-            y: { min: 0, max: 20, ticks: { font: { size: 10 } }, grid: { color: '#F5EFE0' } },
+            y: { min: 0, max: 20, ticks: { font: { size: 10 } }, grid: { color: '#FBF3DE' } },
             x: { ticks: { font: { size: 9 }, maxRotation: 30 }, grid: { display: false } }
           }
         }
@@ -355,7 +355,7 @@ async function loadConvocationsRealtime() {
         'EN_ATTENTE':{ bg: '#F2E6C5', color: '#7A5218', icon: '🕐', label: 'En attente' },
         'LU':        { bg: '#EDF1DE', color: '#3D5322', icon: '✅', label: 'Lu par parent' },
         'VALIDE':    { bg: '#EDF1DE', color: '#3D5322', icon: '✅', label: 'Validé' },
-        'PASSEE':    { bg: '#F0EAE0', color: '#6B5D4A', icon: '📁', label: 'Passée' },
+        'PASSEE':    { bg: '#F2ECDE', color: '#5A4D36', icon: '📁', label: 'Passée' },
       };
       const s = statutColor[c.statut] || statutColor['ENVOYEE'];
       const urgent = c.periode === 'URGENTE';

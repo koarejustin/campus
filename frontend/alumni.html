@@ -15,14 +15,14 @@
     <link rel="stylesheet" href="mentorat.css">
     <style>
         :root {
-            --bg: #F5EFE0;
-            --sidebar: #1E150E;
+            --bg: #FBF3DE;
+            --sidebar: #182013;
             --accent: #D97706;
             --accent2: #C08A28;
-            --ink: #201509;
-            --muted: #8A6B4A;
+            --ink: #182013;
+            --muted: #5A6B42;
             --card: #FFFFFF;
-            --border: #EDE0C8;
+            --border: #F2E2B8;
         }
 
         * {
@@ -248,7 +248,7 @@
         }
 
         .inp:focus {
-            border-color: #B5502F;
+            border-color: #2F6B3F;
         }
 
         /* ── BOUTONS ─────────────────────────────────────────────────── */
@@ -283,7 +283,7 @@
             gap: 10px;
             padding: 12px;
             border-radius: 10px;
-            background: #FAF6EE;
+            background: #FDFAF2;
             border: 1px solid var(--border);
             margin-bottom: 10px;
         }
@@ -541,7 +541,7 @@
                     <div style="font-size:1.1rem; font-weight:700; color:var(--ink); margin-bottom:8px;">
                         📚 Publier un conseil de mentorat
                     </div>
-                    <div style="font-size:0.85rem; color:#8B3220; margin-bottom:20px;">Partagez votre expérience avec
+                    <div style="font-size:0.85rem; color:#1F4A2C; margin-bottom:20px;">Partagez votre expérience avec
                         les élèves</div>
                     <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:16px;">
                         <div>
@@ -669,7 +669,7 @@
                 <div style="font-size:1.1rem; font-weight:700; color:var(--ink); margin-bottom:8px;">
                     🎯 Orientation pour <span id="orientation-eleve-nom"></span>
                 </div>
-                <div style="font-size:0.85rem; color:#8B3220; margin-bottom:20px;">Littérature ou Science ?</div>
+                <div style="font-size:0.85rem; color:#1F4A2C; margin-bottom:20px;">Littérature ou Science ?</div>
                 <input type="hidden" id="orientation-relation-id">
                 <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:18px;">
                     <label
@@ -710,7 +710,7 @@
                         Annuler
                     </button>
                     <button onclick="submitOrientation()"
-                        style="padding:10px 20px; background:linear-gradient(135deg,#B5502F,#8B3220); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                        style="padding:10px 20px; background:linear-gradient(135deg,#2F6B3F,#1F4A2C); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
                         Confirmer l'orientation
                     </button>
                 </div>
@@ -725,11 +725,11 @@
                 <div id="modal-confirm-texte" style="font-size:0.92rem; color:var(--ink); margin-bottom:20px; line-height:1.5;"></div>
                 <div style="display:flex; gap:10px;">
                     <button onclick="document.getElementById('modal-confirm').style.display='none'"
-                        style="flex:1; padding:10px 16px; background:#F0EAE0; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:var(--muted);">
+                        style="flex:1; padding:10px 16px; background:#F2ECDE; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:var(--muted);">
                         Annuler
                     </button>
                     <button id="modal-confirm-btn"
-                        style="flex:1; padding:10px 16px; background:linear-gradient(135deg,#B5502F,#8B3220); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                        style="flex:1; padding:10px 16px; background:linear-gradient(135deg,#2F6B3F,#1F4A2C); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
                         Confirmer
                     </button>
                 </div>
@@ -844,25 +844,25 @@
                     <div style="position:relative; display:inline-block; margin-bottom:11px;">
                         <div id="pr-av"
                             style="width:86px; height:86px; border-radius:50%; margin:0 auto; overflow:hidden;
-                                background:#FBF0E6; border:3px solid #F5E4D3; display:flex; align-items:center;
-                                justify-content:center; font-size:1.9rem; font-weight:900; color:#B5502F; cursor:pointer;"
+                                background:#E4EEDD; border:3px solid #DCE9D2; display:flex; align-items:center;
+                                justify-content:center; font-size:1.9rem; font-weight:900; color:#2F6B3F; cursor:pointer;"
                             onclick="document.getElementById('fp2').click()">
                             <span id="pr-av-t">?</span>
                         </div>
                         <input type="file" id="fp2" accept="image/*" style="display:none;" onchange="uploadPhoto(this)">
-                        <div onclick="document.getElementById('fp2').click()" style="position:absolute; bottom:-1px; right:-1px; background:#B5502F; border-radius:50%;
+                        <div onclick="document.getElementById('fp2').click()" style="position:absolute; bottom:-1px; right:-1px; background:#2F6B3F; border-radius:50%;
                                 width:22px; height:22px; display:flex; align-items:center; justify-content:center;
                                 border:2px solid #fff; cursor:pointer; font-size:10px; color:#fff;">✎</div>
                     </div>
-                    <div id="pr-nc" style="font-size:.92rem; font-weight:900; color:#2E2013;"></div>
-                    <div id="pr-cc" style="font-size:.62rem; color:#8A7D68; font-weight:700; font-family:monospace;">
+                    <div id="pr-nc" style="font-size:.92rem; font-weight:900; color:#23301C;"></div>
+                    <div id="pr-cc" style="font-size:.62rem; color:#6B5D42; font-weight:700; font-family:monospace;">
                     </div>
                     <div id="pr-ac" style="margin-top:6px;"></div>
-                    <div style="margin-top:10px; background:#FBF0E6; border-radius:11px; padding:9px;">
-                        <div style="font-size:.54rem; font-weight:800; color:#C86A42; text-transform:uppercase;">Domaine
+                    <div style="margin-top:10px; background:#E4EEDD; border-radius:11px; padding:9px;">
+                        <div style="font-size:.54rem; font-weight:800; color:#4C8C5C; text-transform:uppercase;">Domaine
                             d'expertise</div>
-                        <div id="pr-ex" style="font-size:.78rem; font-weight:800; color:#2E2013;">—</div>
-                        <div id="pr-se" style="font-size:.62rem; color:#C86A42;">—</div>
+                        <div id="pr-ex" style="font-size:.78rem; font-weight:800; color:#23301C;">—</div>
+                        <div id="pr-se" style="font-size:.62rem; color:#4C8C5C;">—</div>
                     </div>
                     <button class="btn-p" style="width:100%; margin-top:11px; justify-content:center;"
                         onclick="document.getElementById('fp2').click()">📷 Changer la photo</button>
@@ -871,71 +871,71 @@
                 <!-- Formulaire profil -->
                 <div class="card">
                     <div
-                        style="font-size:.74rem; font-weight:900; color:#2E2013; text-transform:uppercase; margin-bottom:14px;">
+                        style="font-size:.74rem; font-weight:900; color:#23301C; text-transform:uppercase; margin-bottom:14px;">
                         Informations professionnelles
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
                         <div>
                             <label
-                                style="font-size:.58rem; font-weight:800; color:#8A7D68; text-transform:uppercase;">Prénom</label>
-                            <input class="inp" id="pr-pn" disabled style="background:#FAF6EE; color:#6B5D4A;">
+                                style="font-size:.58rem; font-weight:800; color:#6B5D42; text-transform:uppercase;">Prénom</label>
+                            <input class="inp" id="pr-pn" disabled style="background:#FDFAF2; color:#5A4D36;">
                         </div>
                         <div>
                             <label
-                                style="font-size:.58rem; font-weight:800; color:#8A7D68; text-transform:uppercase;">Nom</label>
-                            <input class="inp" id="pr-nn" disabled style="background:#FAF6EE; color:#6B5D4A;">
+                                style="font-size:.58rem; font-weight:800; color:#6B5D42; text-transform:uppercase;">Nom</label>
+                            <input class="inp" id="pr-nn" disabled style="background:#FDFAF2; color:#5A4D36;">
                         </div>
                         <div>
                             <label
-                                style="font-size:.58rem; font-weight:800; color:#B5502F; text-transform:uppercase;">Poste
+                                style="font-size:.58rem; font-weight:800; color:#2F6B3F; text-transform:uppercase;">Poste
                                 actuel ✎</label>
                             <input class="inp" id="pr-pa" placeholder="Ex: Développeur Full Stack…">
                         </div>
                         <div>
                             <label
-                                style="font-size:.58rem; font-weight:800; color:#B5502F; text-transform:uppercase;">Entreprise
+                                style="font-size:.58rem; font-weight:800; color:#2F6B3F; text-transform:uppercase;">Entreprise
                                 ✎</label>
                             <input class="inp" id="pr-en" placeholder="Nom de l'entreprise">
                         </div>
                         <div>
                             <label
-                                style="font-size:.58rem; font-weight:800; color:#B5502F; text-transform:uppercase;">Téléphone
+                                style="font-size:.58rem; font-weight:800; color:#2F6B3F; text-transform:uppercase;">Téléphone
                                 ✎</label>
                             <input class="inp" id="pr-tl" placeholder="+226 70 00 00 00">
                         </div>
                         <div>
                             <label
-                                style="font-size:.58rem; font-weight:800; color:#B5502F; text-transform:uppercase;">Ville
+                                style="font-size:.58rem; font-weight:800; color:#2F6B3F; text-transform:uppercase;">Ville
                                 de résidence ✎</label>
                             <input class="inp" id="pr-vr" placeholder="Ouagadougou">
                         </div>
                         <div>
                             <label
-                                style="font-size:.58rem; font-weight:800; color:#B5502F; text-transform:uppercase;">Domaine
+                                style="font-size:.58rem; font-weight:800; color:#2F6B3F; text-transform:uppercase;">Domaine
                                 d'expertise ✎</label>
                             <input class="inp" id="pr-de" placeholder="Ex: Informatique, Marketing…">
                         </div>
                         <div>
                             <label
-                                style="font-size:.58rem; font-weight:800; color:#B5502F; text-transform:uppercase;">Secteur
+                                style="font-size:.58rem; font-weight:800; color:#2F6B3F; text-transform:uppercase;">Secteur
                                 d'activité ✎</label>
                             <input class="inp" id="pr-sa" placeholder="Ex: Tech, Finance…">
                         </div>
                         <div style="grid-column:1/-1;">
-                            <label style="font-size:.58rem; font-weight:800; color:#B5502F; text-transform:uppercase;">À
+                            <label style="font-size:.58rem; font-weight:800; color:#2F6B3F; text-transform:uppercase;">À
                                 propos ✎</label>
                             <textarea class="inp" id="pr-bi" rows="3"
                                 placeholder="Parlez de votre parcours professionnel, vos expériences…"></textarea>
                         </div>
                         <div style="grid-column:1/-1;">
                             <label
-                                style="font-size:.58rem; font-weight:800; color:#B5502F; text-transform:uppercase;">LinkedIn
+                                style="font-size:.58rem; font-weight:800; color:#2F6B3F; text-transform:uppercase;">LinkedIn
                                 ✎</label>
                             <input class="inp" id="pr-li" placeholder="https://linkedin.com/in/votreprofil">
                         </div>
                         <div style="grid-column:1/-1;">
                             <label
-                                style="font-size:.58rem; font-weight:800; color:#B5502F; text-transform:uppercase;">Site
+                                style="font-size:.58rem; font-weight:800; color:#2F6B3F; text-transform:uppercase;">Site
                                 web personnel ✎</label>
                             <input class="inp" id="pr-sw" placeholder="https://votresite.com">
                         </div>
@@ -955,16 +955,16 @@
                 </div>
 
                 <div class="card" style="grid-column:2;">
-                    <div style="font-size:.74rem; font-weight:900; color:#2E2013; text-transform:uppercase; margin-bottom:14px;">
+                    <div style="font-size:.74rem; font-weight:900; color:#23301C; text-transform:uppercase; margin-bottom:14px;">
                         🔒 Sécurité
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
                         <div>
-                            <label style="font-size:.58rem; font-weight:800; color:#8A7D68; text-transform:uppercase;">Mot de passe actuel</label>
+                            <label style="font-size:.58rem; font-weight:800; color:#6B5D42; text-transform:uppercase;">Mot de passe actuel</label>
                             <input class="inp" id="cp-ancien" type="password">
                         </div>
                         <div>
-                            <label style="font-size:.58rem; font-weight:800; color:#8A7D68; text-transform:uppercase;">Nouveau mot de passe</label>
+                            <label style="font-size:.58rem; font-weight:800; color:#6B5D42; text-transform:uppercase;">Nouveau mot de passe</label>
                             <input class="inp" id="cp-nouveau" type="password">
                         </div>
                     </div>
@@ -1234,7 +1234,7 @@
                     eleves.length
                         ? eleves.map(e => `
                             <div style="display:flex; align-items:center; justify-content:space-between;
-                                padding:10px 12px; border-radius:10px; background:#FAF6EE;
+                                padding:10px 12px; border-radius:10px; background:#FDFAF2;
                                 border:1px solid var(--border); margin-bottom:8px;">
                                 <div>
                                     <strong>${esc(e.prenom)} ${esc(e.nom)}</strong>
@@ -1344,7 +1344,7 @@
 
                 majBadgeDemandes(demandes.length);
                 box.innerHTML = demandes.map(dm => `
-                    <div style="padding:14px; border-radius:10px; background:#FAF6EE;
+                    <div style="padding:14px; border-radius:10px; background:#FDFAF2;
                         border:1px solid var(--border); margin-bottom:10px;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
                             <div>
@@ -1355,14 +1355,14 @@
                                 </div>
                                 ${(dm.domaines_assistance && dm.domaines_assistance.length) ? `
                                     <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:5px;">
-                                        ${dm.domaines_assistance.map(t => `<span style="background:#FBF0E6;color:#B5502F;padding:2px 8px;border-radius:6px;font-size:.65rem;font-weight:700;">${esc(t)}</span>`).join('')}
+                                        ${dm.domaines_assistance.map(t => `<span style="background:#E4EEDD;color:#2F6B3F;padding:2px 8px;border-radius:6px;font-size:.65rem;font-weight:700;">${esc(t)}</span>`).join('')}
                                     </div>` : ''}
-                                ${dm.message ? `<div style="font-size:.78rem;color:#3A2F22;margin-top:8px;background:#fff;padding:8px 10px;border-radius:8px;">${esc(dm.message)}</div>` : ''}
+                                ${dm.message ? `<div style="font-size:.78rem;color:#2E2718;margin-top:8px;background:#fff;padding:8px 10px;border-radius:8px;">${esc(dm.message)}</div>` : ''}
                             </div>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:12px;">
                             <button class="btn-p" style="flex:1;" onclick="repondreADemande(${dm.id_demande}, true, '${dm.id_eleve}', '${esc(dm.prenom)} ${esc(dm.nom)}')">✅ Accepter</button>
-                            <button style="flex:1;padding:8px 14px;background:#F0EAE0;border:none;border-radius:8px;font-weight:700;cursor:pointer;color:var(--muted);"
+                            <button style="flex:1;padding:8px 14px;background:#F2ECDE;border:none;border-radius:8px;font-weight:700;cursor:pointer;color:var(--muted);"
                                 onclick="repondreADemande(${dm.id_demande}, false)">✖️ Refuser</button>
                         </div>
                     </div>
@@ -1428,14 +1428,14 @@
                     eleves.length
                         ? eleves.map(e => `
                             <div style="display:flex; align-items:center; justify-content:space-between;
-                                padding:10px 12px; border-radius:10px; background:#FAF6EE;
+                                padding:10px 12px; border-radius:10px; background:#FDFAF2;
                                 border:1px solid var(--border); margin-bottom:8px;">
                                 <div>
                                     <strong>${esc(e.prenom)} ${esc(e.nom)}</strong>
                                     <div style="font-size:.72rem; color:var(--muted);">
                                         ${esc(e.classe_actuelle || '')}
                                         ${e.orientation
-                                ? ` · <span style="color:#8B3220; font-weight:700;">${esc(e.orientation)}</span>`
+                                ? ` · <span style="color:#1F4A2C; font-weight:700;">${esc(e.orientation)}</span>`
                                 : ' · <span style="color:#C08A28;">Non définie</span>'}
                                     </div>
                                 </div>
@@ -1543,7 +1543,7 @@
                             </div>
                             ${domaines.length ? `
                                 <div style="display:flex; flex-wrap:wrap; gap:4px; margin:6px 0;">
-                                    ${domaines.map(dm => `<span style="background:#FBF0E6; color:#B5502F; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:6px;">${esc(dm)}</span>`).join('')}
+                                    ${domaines.map(dm => `<span style="background:#E4EEDD; color:#2F6B3F; font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:6px;">${esc(dm)}</span>`).join('')}
                                 </div>` : ''}
                             ${moy ? `<div style="background:#F5EAD2; color:#EA580C; font-weight:700; font-size:.78rem; padding:6px 10px; border-radius:8px; margin:6px 0;">Moyenne: ${moy}/20</div>` : ''}
                             <div style="font-size:.68rem; color:var(--muted); margin-top:6px;">
@@ -1577,7 +1577,7 @@
                         <div id="journal-entrees">
                             ${entrees.length
                         ? entrees.map(e => `
-                                    <div style="padding:12px; border-radius:10px; background:#FAF6EE;
+                                    <div style="padding:12px; border-radius:10px; background:#FDFAF2;
                                         border:1px solid var(--border); margin-bottom:10px;">
                                         <div style="display:flex; justify-content:space-between;">
                                             <strong style="font-size:.85rem;">${esc(e.titre || 'Sans titre')}</strong>

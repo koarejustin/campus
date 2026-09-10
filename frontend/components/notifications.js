@@ -142,10 +142,10 @@
     btn.id = 'notif-btn';
     btn.style.cssText = `
       position: relative; cursor: pointer; width: 40px; height: 40px;
-      background: var(--bg2, #F0EAE0); border-radius: 50%;
+      background: var(--bg2, #F2ECDE); border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 1.1rem; flex-shrink: 0; transition: background 0.2s;
-      border: 1px solid var(--border, #E5DDCC);
+      border: 1px solid var(--border, #DCD3B8);
     `;
     btn.innerHTML = `
       🔔
@@ -168,18 +168,18 @@
       width: min(360px, calc(100vw - 32px));
       background: var(--card-bg, white); border-radius: 16px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 9999;
-      border: 1px solid var(--border, #E5DDCC); overflow: hidden;
+      border: 1px solid var(--border, #DCD3B8); overflow: hidden;
       max-height: 80vh;
     `;
     panel.innerHTML = `
       <div style="
         padding: 14px 16px; font-weight: 800; font-size: 0.85rem;
-        border-bottom: 1px solid var(--border, #E5DDCC);
+        border-bottom: 1px solid var(--border, #DCD3B8);
         display: flex; justify-content: space-between; align-items: center;
       ">
         🔔 Notifications
         <button id="notif-mark-all" style="
-          font-size: 0.65rem; font-weight: 700; color: #C86A42;
+          font-size: 0.65rem; font-weight: 700; color: #4C8C5C;
           background: none; border: none; cursor: pointer; padding: 0;
         ">Tout marquer lu</button>
       </div>
@@ -211,7 +211,7 @@
     const list = document.getElementById('notif-list');
     if (!list) return;
 
-    list.innerHTML = '<div style="padding:20px;text-align:center;color:#8A7D68;font-size:0.8rem;">Chargement...</div>';
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:#6B5D42;font-size:0.8rem;">Chargement...</div>';
 
     try {
       const session = JSON.parse(localStorage.getItem('user_session') || '{}');
@@ -225,7 +225,7 @@
       const notifs = data.notifications || [];
 
       if (!notifs.length) {
-        list.innerHTML = '<div style="padding:30px;text-align:center;"><div style="font-size:2rem;margin-bottom:8px;">🔕</div><div style="color:#8A7D68;font-size:0.8rem;">Aucune notification</div></div>';
+        list.innerHTML = '<div style="padding:30px;text-align:center;"><div style="font-size:2rem;margin-bottom:8px;">🔕</div><div style="color:#6B5D42;font-size:0.8rem;">Aucune notification</div></div>';
         return;
       }
 
@@ -237,7 +237,7 @@
           <div data-id="${n.id_notification || n.id}" data-type="${n.type || ''}" data-lien="${n.lien || ''}"
             onclick="window._notifClick(this)"
             style="
-              padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border-light, #F0EAE0);
+              padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border-light, #F2ECDE);
               display: flex; gap: 12px; align-items: flex-start;
               background: ${lue ? 'transparent' : 'rgba(99,102,241,0.04)'};
               transition: background 0.15s;
@@ -247,13 +247,13 @@
           >
             <div style="font-size:1.2rem;flex-shrink:0;margin-top:2px;">${icone}</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-weight:${lue ? '500' : '700'};font-size:0.8rem;color:var(--text,#2E2013);line-height:1.3;margin-bottom:3px;">
+              <div style="font-weight:${lue ? '500' : '700'};font-size:0.8rem;color:var(--text,#23301C);line-height:1.3;margin-bottom:3px;">
                 ${escH(n.titre || '')}
               </div>
-              <div style="font-size:0.72rem;color:#6B5D4A;line-height:1.4;">${escH(n.contenu || '')}</div>
-              <div style="font-size:0.65rem;color:#8A7D68;margin-top:4px;">${date}</div>
+              <div style="font-size:0.72rem;color:#5A4D36;line-height:1.4;">${escH(n.contenu || '')}</div>
+              <div style="font-size:0.65rem;color:#6B5D42;margin-top:4px;">${date}</div>
             </div>
-            ${!lue ? '<div style="width:8px;height:8px;background:#C86A42;border-radius:50%;flex-shrink:0;margin-top:6px;"></div>' : ''}
+            ${!lue ? '<div style="width:8px;height:8px;background:#4C8C5C;border-radius:50%;flex-shrink:0;margin-top:6px;"></div>' : ''}
           </div>
         `;
       }).join('');

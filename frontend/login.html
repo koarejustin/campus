@@ -23,7 +23,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #1A130D;
+      background: #17200F;
       position: relative;
       overflow: hidden;
     }
@@ -93,7 +93,7 @@
       width: 64px;
       height: 64px;
       border-radius: 20px;
-      background: linear-gradient(135deg, #C86A42, #A8532E);
+      background: linear-gradient(135deg, #4C8C5C, #3E7A4E);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -120,7 +120,7 @@
     }
 
     .logo-title span {
-      color: #CC8656;
+      color: #5C9A6C;
     }
 
     .logo-sub {
@@ -148,7 +148,7 @@
       left: 0;
       right: 0;
       height: 3px;
-      background: linear-gradient(90deg, #C86A42, #A8532E);
+      background: linear-gradient(90deg, #4C8C5C, #3E7A4E);
       border-radius: 24px 24px 0 0;
       transition: background .4s;
     }
@@ -164,7 +164,7 @@
       margin-bottom: 18px;
       font-size: .72rem;
       font-weight: 700;
-      color: #D9A67E;
+      color: #B7CFA0;
     }
 
     .role-badge.on {
@@ -176,7 +176,7 @@
       height: 7px;
       min-width: 7px;
       border-radius: 50%;
-      background: #CC8656;
+      background: #5C9A6C;
       animation: pulseD 1.5s infinite;
     }
 
@@ -201,7 +201,7 @@
       margin-bottom: 16px;
       font-size: .73rem;
       font-weight: 700;
-      color: #D9A67E;
+      color: #B7CFA0;
       text-align: center;
     }
 
@@ -294,7 +294,7 @@
     .btn-login {
       width: 100%;
       padding: 15px;
-      background: linear-gradient(135deg, #C86A42, #8B3220);
+      background: linear-gradient(135deg, #4C8C5C, #1F4A2C);
       border: none;
       border-radius: 14px;
       font-size: .9rem;
@@ -520,7 +520,7 @@
       if (state === 'loading') {
         btn.disabled = true;
         btn.innerHTML = '<div class="spinner"></div>' + (text || 'Vérification...');
-        bar.style.background = 'linear-gradient(90deg,#C86A42,#A8532E)';
+        bar.style.background = 'linear-gradient(90deg,#4C8C5C,#3E7A4E)';
       } else if (state === 'success') {
         btn.style.background = 'linear-gradient(135deg,#6B8E3D,#587530)';
         btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"><polyline points="20 6 9 17 4 12"/></svg> ' + (text || 'Connexion réussie !');

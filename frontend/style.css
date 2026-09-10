@@ -1,18 +1,18 @@
 /* 1. VARIABLES & BASE */
 :root {
-    --primary: #B5502F;
-    --primary-deep: #6B2A17;
-    --primary-light: #FBF0E6;
+    --primary: #2F6B3F;
+    --primary-deep: #163A20;
+    --primary-light: #E4EEDD;
     --amber: #D97706;
     --amber-light: #F5EAD2;
-    --bg: #FAF6EE;
+    --bg: #FDFAF2;
     --glass: rgba(255, 255, 255, 0.9);
 }
 
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background-color: var(--bg);
-    color: #2E2013;
+    color: #23301C;
     overflow-x: hidden;
 }
 
@@ -24,7 +24,7 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 14px;
-    background: #F0EAE0;
+    background: #F2ECDE;
     color: var(--primary) !important;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
@@ -43,7 +43,7 @@ body {
     background: white;
     padding: 3rem 2rem;
     border-radius: 2.5rem;
-    border: 1px solid #E5DDCC;
+    border: 1px solid #DCD3B8;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     text-align: center;
@@ -62,7 +62,7 @@ body {
     background: white;
     padding: 2.5rem 1.5rem;
     border-radius: 2rem;
-    border: 2px solid #F0EAE0;
+    border: 2px solid #F2ECDE;
     text-align: center;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -122,6 +122,6 @@ aside::-webkit-scrollbar {
 }
 
 aside::-webkit-scrollbar-thumb {
-    background: #E5DDCC;
+    background: #DCD3B8;
     border-radius: 10px;
 }

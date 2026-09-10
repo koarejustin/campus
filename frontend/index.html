@@ -11,10 +11,10 @@
       theme: {
         extend: {
           colors: {
-            indigo: { 50: '#FBF0E6', 100: '#F5E4D3', 200: '#E8C9AE', 500: '#C86A42', 600: '#B5502F', 700: '#8B3220', 900: '#6B2A17' },
-            purple: { 50: '#FBF0E6', 100: '#F5E4D3', 200: '#E8C9AE', 500: '#C86A42', 600: '#B5502F', 700: '#8B3220', 900: '#6B2A17' },
-            violet: { 50: '#FBF0E6', 100: '#F5E4D3', 200: '#E8C9AE', 500: '#C86A42', 600: '#B5502F', 700: '#8B3220', 900: '#6B2A17' },
-            blue: { 50: '#FAF5EA', 100: '#EDE0C8', 200: '#E3D2AE', 500: '#B08A5C', 600: '#A67C52', 700: '#7A5838', 900: '#664A2E' },
+            indigo: { 50: '#E4EEDD', 100: '#DCE9D2', 200: '#C7DCB8', 500: '#4C8C5C', 600: '#2F6B3F', 700: '#1F4A2C', 900: '#163A20' },
+            purple: { 50: '#E4EEDD', 100: '#DCE9D2', 200: '#C7DCB8', 500: '#4C8C5C', 600: '#2F6B3F', 700: '#1F4A2C', 900: '#163A20' },
+            violet: { 50: '#E4EEDD', 100: '#DCE9D2', 200: '#C7DCB8', 500: '#4C8C5C', 600: '#2F6B3F', 700: '#1F4A2C', 900: '#163A20' },
+            blue: { 50: '#FCF7E8', 100: '#F2E2B8', 200: '#EAD497', 500: '#D4A94A', 600: '#C9932A', 700: '#8A6118', 900: '#6B4E14' },
             red: { 50: '#F9E8E1', 100: '#F7E3DC', 200: '#E8B8A8', 500: '#CC5C46', 600: '#C0392B', 700: '#A93226', 900: '#7A2418' },
             rose: { 50: '#F9E8E1', 100: '#F7E3DC', 200: '#E8B8A8', 500: '#CC5C46', 600: '#C0392B', 700: '#A93226', 900: '#7A2418' },
             amber: { 50: '#F5EAD2', 100: '#F2E6C5', 200: '#E8C79A', 500: '#C08A28', 600: '#A85A1E', 700: '#7A5218', 900: '#6B4816' },
@@ -141,7 +141,7 @@
     </style>
 </head>
 
-<body class="bg-[#FAF6EE] text-slate-900">
+<body class="bg-[#FDFAF2] text-slate-900">
 
     <div id="view-home" class="view">
         <nav
@@ -291,14 +291,14 @@
                     } else {
                         // Fallback : couleur de fond avec dégradé
                         const colors = {
-                            eleves: 'linear-gradient(135deg, #B5502F, #8B3220)',
-                            professeurs: 'linear-gradient(135deg, #8B3220, #DB2777)',
+                            eleves: 'linear-gradient(135deg, #2F6B3F, #1F4A2C)',
+                            professeurs: 'linear-gradient(135deg, #1F4A2C, #DB2777)',
                             parents: 'linear-gradient(135deg, #F43F5E, #F97316)',
                             ape: 'linear-gradient(135deg, #6B8E3D, #14B8A6)',
                             alumni: 'linear-gradient(135deg, #C08A28, #C0392B)',
-                            direction: 'linear-gradient(135deg, #2E2013, #241A10)'
+                            direction: 'linear-gradient(135deg, #23301C, #1E2818)'
                         };
-                        card.style.background = colors[espace] || 'linear-gradient(135deg, #A67C52, #664A2E)';
+                        card.style.background = colors[espace] || 'linear-gradient(135deg, #C9932A, #6B4E14)';
                         card.style.backgroundSize = 'cover';
 
                         // Ajouter une icône en fallback
@@ -327,14 +327,14 @@
                     console.error(`❌ Erreur chargement image pour ${espace}:`, error);
                     // Fallback couleur
                     const colors = {
-                        eleves: 'linear-gradient(135deg, #B5502F, #8B3220)',
-                        professeurs: 'linear-gradient(135deg, #8B3220, #DB2777)',
+                        eleves: 'linear-gradient(135deg, #2F6B3F, #1F4A2C)',
+                        professeurs: 'linear-gradient(135deg, #1F4A2C, #DB2777)',
                         parents: 'linear-gradient(135deg, #F43F5E, #F97316)',
                         ape: 'linear-gradient(135deg, #6B8E3D, #14B8A6)',
                         alumni: 'linear-gradient(135deg, #C08A28, #C0392B)',
-                        direction: 'linear-gradient(135deg, #2E2013, #241A10)'
+                        direction: 'linear-gradient(135deg, #23301C, #1E2818)'
                     };
-                    card.style.background = colors[espace] || 'linear-gradient(135deg, #A67C52, #664A2E)';
+                    card.style.background = colors[espace] || 'linear-gradient(135deg, #C9932A, #6B4E14)';
                 }
             }
         }
@@ -360,7 +360,7 @@
                             logoContainer.style.width = '56px';
                             logoContainer.style.height = '56px';
                             logoContainer.style.padding = '6px';
-                            logoContainer.style.background = 'linear-gradient(135deg, #B5502F, #8B3220)';
+                            logoContainer.style.background = 'linear-gradient(135deg, #2F6B3F, #1F4A2C)';
                             logoContainer.style.borderRadius = '14px';
                             logoContainer.style.display = 'flex';
                             logoContainer.style.alignItems = 'center';

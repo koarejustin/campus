@@ -101,7 +101,7 @@
             overflow: hidden;
             display: none;
             flex-direction: column;
-            border: 1px solid #E5DDCC;
+            border: 1px solid #DCD3B8;
         }
 
         .notif-panel.open {
@@ -110,7 +110,7 @@
 
         .notif-header {
             padding: 14px 16px;
-            border-bottom: 1px solid #E5DDCC;
+            border-bottom: 1px solid #DCD3B8;
             font-weight: 800;
             font-size: 0.9rem;
             display: flex;
@@ -139,7 +139,7 @@
 
         .notif-item {
             padding: 14px 16px;
-            border-bottom: 1px solid #F0EAE0;
+            border-bottom: 1px solid #F2ECDE;
             cursor: pointer;
             transition: background 0.15s ease;
             display: flex;
@@ -171,20 +171,20 @@
         .notif-title {
             font-weight: 800;
             font-size: 0.82rem;
-            color: #241A10;
+            color: #1E2818;
             margin-bottom: 6px;
         }
 
         .notif-desc {
             font-size: 0.74rem;
-            color: #4A3F30;
+            color: #3D3524;
             margin-bottom: 6px;
             line-height: 1.5;
         }
 
         .notif-time {
             font-size: 0.65rem;
-            color: #8A7D68;
+            color: #6B5D42;
         }
 
         .sb-logo-icon svg {
@@ -365,8 +365,8 @@
 
         .btn-g {
             padding: 8px 14px;
-            background: #F0EAE0;
-            color: #4A3F30;
+            background: #F2ECDE;
+            color: #3D3524;
             border: none;
             border-radius: 8px;
             font-size: .76rem;
@@ -700,7 +700,7 @@
             const container = document.getElementById('notif-list');
             if (!container) return;
             if (!notifData.length) {
-                container.innerHTML = '<div style="padding:16px;text-align:center;color:#8A7D68;">Aucune notification</div>';
+                container.innerHTML = '<div style="padding:16px;text-align:center;color:#6B5D42;">Aucune notification</div>';
                 return;
             }
             container.innerHTML = notifData.map(n => {
