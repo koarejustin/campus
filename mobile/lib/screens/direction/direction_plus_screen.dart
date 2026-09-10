@@ -6,6 +6,7 @@ import '../surveillant/surveillant_convocations_screen.dart';
 import '../surveillant/surveillant_cahiers_screen.dart';
 import '../surveillant/surveillant_annonces_screen.dart';
 import 'direction_edt_screen.dart';
+import 'direction_repartition_screen.dart';
 import 'direction_profs_screen.dart';
 import 'direction_parents_screen.dart';
 import 'direction_alumni_screen.dart';
@@ -43,6 +44,7 @@ class DirectionPlusScreen extends StatelessWidget {
   static final _items = <_PlusItem>[
     _PlusItem('Convocations', Icons.mail_rounded, kAmber, (_) => const SurveillantConvocationsScreen()),
     _PlusItem('Emploi du temps', Icons.calendar_month_rounded, kIndigo, (_) => const DirectionEdtScreen()),
+    _PlusItem('Répartition par classe', Icons.class_rounded, kParentGradient.colors.first, (_) => const DirectionRepartitionScreen()),
     _PlusItem('Cahiers de texte', Icons.menu_book_rounded, kGreen, (_) => const SurveillantCahiersScreen()),
     _PlusItem('Corps enseignant', Icons.co_present_rounded, kGreen, (_) => const DirectionProfsScreen(), directionOnly: true),
     _PlusItem('Parents', Icons.family_restroom_rounded, kParentGradient.colors.first, (_) => const DirectionParentsScreen(), directionOnly: true),

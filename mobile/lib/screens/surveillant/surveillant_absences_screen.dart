@@ -15,6 +15,9 @@ class _SurveillantAbsencesScreenState extends State<SurveillantAbsencesScreen> {
   bool _loading = true;
   List<dynamic> _absences = [];
 
+  int get _nbNonJustifiees => _absences.where((a) => a['justifiee'] != true).length;
+  int get _nbJustifiees => _absences.where((a) => a['justifiee'] == true).length;
+
   @override
   void initState() {
     super.initState();
@@ -88,49 +91,106 @@ class _SurveillantAbsencesScreenState extends State<SurveillantAbsencesScreen> {
       ),
       body: _loading
           ? const Padding(padding: EdgeInsets.all(16), child: SkeletonList(count: 8, itemHeight: 76))
-          : _absences.isEmpty
-              ? const Center(child: Text('Aucune absence enregistrée', style: TextStyle(color: kTextGray)))
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-                    itemCount: _absences.length,
-                    itemBuilder: (context, i) {
-                      final a = _absences[i];
-                      final justifiee = a['justifiee'] == true;
-                      return Dismissible(
-                        key: ValueKey(a['id_absence']),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          decoration: BoxDecoration(color: kRed, borderRadius: BorderRadius.circular(14)),
-                          child: const Icon(Icons.delete_rounded, color: Colors.white),
-                        ),
-                        confirmDismiss: (_) async {
-                          await _delete(a['id_absence']);
-                          return false;
-                        },
-                        child: Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: (justifiee ? kGreen : kRed).withValues(alpha: 0.12),
-                              child: Icon(Icons.event_busy_rounded, color: justifiee ? kGreen : kRed, size: 18),
-                            ),
-                            title: Text('${a['prenom'] ?? ''} ${a['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                            subtitle: Text('${a['classe_actuelle'] ?? ''} · ${_formatDate(a['date_absence'])}${(a['raison_absence'] ?? '').toString().isNotEmpty ? ' · ${a['raison_absence']}' : ''}', style: const TextStyle(fontSize: 11)),
-                            trailing: Switch(
-                              value: justifiee,
-                              activeThumbColor: kGreen,
-                              onChanged: (v) => _toggleJustifiee(a['id_absence'], v),
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _CountCard(label: 'Total', value: _absences.length, color: kAmber, icon: Icons.event_busy_rounded)
+                            .animate().fadeIn(duration: 300.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _CountCard(label: 'Non justifiées', value: _nbNonJustifiees, color: kRed, icon: Icons.cancel_rounded)
+                            .animate(delay: 60.ms).fadeIn(duration: 300.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _CountCard(label: 'Justifiées', value: _nbJustifiees, color: kGreen, icon: Icons.check_circle_rounded)
+                            .animate(delay: 120.ms).fadeIn(duration: 300.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  if (_absences.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(child: Text('Aucune absence enregistrée', style: TextStyle(color: kTextGray))),
+                    )
+                  else
+                    for (int i = 0; i < _absences.length; i++)
+                      Builder(builder: (context) {
+                        final a = _absences[i];
+                        final justifiee = a['justifiee'] == true;
+                        return Dismissible(
+                          key: ValueKey(a['id_absence']),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 20),
+                            decoration: BoxDecoration(color: kRed, borderRadius: BorderRadius.circular(14)),
+                            child: const Icon(Icons.delete_rounded, color: Colors.white),
+                          ),
+                          confirmDismiss: (_) async {
+                            await _delete(a['id_absence']);
+                            return false;
+                          },
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: (justifiee ? kGreen : kRed).withValues(alpha: 0.12),
+                                child: Icon(Icons.event_busy_rounded, color: justifiee ? kGreen : kRed, size: 18),
+                              ),
+                              title: Text('${a['prenom'] ?? ''} ${a['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                              subtitle: Text('${a['classe_actuelle'] ?? ''} · ${_formatDate(a['date_absence'])}${(a['raison_absence'] ?? '').toString().isNotEmpty ? ' · ${a['raison_absence']}' : ''}', style: const TextStyle(fontSize: 11)),
+                              trailing: Switch(
+                                value: justifiee,
+                                activeThumbColor: kGreen,
+                                onChanged: (v) => _toggleJustifiee(a['id_absence'], v),
+                              ),
                             ),
                           ),
-                        ),
-                      ).animate().fadeIn(delay: (i * 40).ms, duration: 220.ms);
-                    },
-                  ),
-                ),
+                        ).animate().fadeIn(delay: (180 + i * 40).ms, duration: 220.ms);
+                      }),
+                ],
+              ),
+            ),
+    );
+  }
+}
+
+class _CountCard extends StatelessWidget {
+  final String label;
+  final int value;
+  final Color color;
+  final IconData icon;
+  const _CountCard({required this.label, required this.value, required this.color, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: color, size: 18),
+            const SizedBox(height: 8),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: value.toDouble()),
+              duration: 700.ms,
+              curve: Curves.easeOutCubic,
+              builder: (context, v, _) => Text('${v.round()}', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: color)),
+            ),
+            const SizedBox(height: 2),
+            Text(label, style: const TextStyle(fontSize: 10.5, color: kTextGray, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ),
     );
   }
 }
