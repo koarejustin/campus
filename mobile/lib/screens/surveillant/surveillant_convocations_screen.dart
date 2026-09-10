@@ -15,6 +15,9 @@ class _SurveillantConvocationsScreenState extends State<SurveillantConvocationsS
   bool _loading = true;
   List<dynamic> _convocations = [];
 
+  int get _nbEnAttente => _convocations.where((c) => c['statut_accuse_reception'] != true).length;
+  int get _nbAccusees => _convocations.where((c) => c['statut_accuse_reception'] == true).length;
+
   @override
   void initState() {
     super.initState();
@@ -63,49 +66,109 @@ class _SurveillantConvocationsScreenState extends State<SurveillantConvocationsS
         label: const Text('Convoquer'),
       ),
       body: _loading
-          ? const Padding(padding: EdgeInsets.all(16), child: SkeletonList(count: 6, itemHeight: 96))
-          : _convocations.isEmpty
-              ? const Center(child: Text('Aucune convocation', style: TextStyle(color: kTextGray)))
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
-                    itemCount: _convocations.length,
-                    itemBuilder: (context, i) {
-                      final c = _convocations[i];
-                      final vu = c['statut_accuse_reception'] == true;
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(child: Text('${c['prenom'] ?? ''} ${c['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14))),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(color: (vu ? kGreen : kAmber).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
-                                    child: Text(c['statut_accuse_label'] ?? '', style: TextStyle(color: vu ? kGreen : kAmber, fontSize: 10, fontWeight: FontWeight.w800)),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(c['sujet'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                              const SizedBox(height: 4),
-                              Text(_formatDate(c['date_convocation']), style: TextStyle(color: kSurveillantGradient.colors.first, fontSize: 12, fontWeight: FontWeight.w700)),
-                              if ((c['description'] ?? '').toString().isNotEmpty) ...[
-                                const SizedBox(height: 4),
-                                Text(c['description'], style: const TextStyle(fontSize: 12.5, color: kTextGray)),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ).animate().fadeIn(delay: (i * 60).ms, duration: 250.ms).slideY(begin: 0.06, end: 0, curve: Curves.easeOutCubic);
-                    },
+          ? ListView(
+              padding: const EdgeInsets.all(16),
+              children: const [
+                Row(children: [
+                  Expanded(child: Skeleton(height: 78)),
+                  SizedBox(width: 12),
+                  Expanded(child: Skeleton(height: 78)),
+                ]),
+                SizedBox(height: 20),
+                SkeletonList(count: 6, itemHeight: 96),
+              ],
+            )
+          : RefreshIndicator(
+              onRefresh: _load,
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _CountCard(label: 'En attente', value: _nbEnAttente, color: kAmber)
+                            .animate().fadeIn(duration: 300.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _CountCard(label: 'Accusées', value: _nbAccusees, color: kGreen)
+                            .animate(delay: 80.ms).fadeIn(duration: 300.ms).slideY(begin: 0.2, end: 0, curve: Curves.easeOutCubic),
+                      ),
+                    ],
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  if (_convocations.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(child: Text('Aucune convocation', style: TextStyle(color: kTextGray))),
+                    )
+                  else
+                    for (int i = 0; i < _convocations.length; i++)
+                      Builder(builder: (context) {
+                        final c = _convocations[i];
+                        final vu = c['statut_accuse_reception'] == true;
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(child: Text('${c['prenom'] ?? ''} ${c['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14))),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(color: (vu ? kGreen : kAmber).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(6)),
+                                      child: Text(c['statut_accuse_label'] ?? '', style: TextStyle(color: vu ? kGreen : kAmber, fontSize: 10, fontWeight: FontWeight.w800)),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(c['sujet'] ?? '', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                                const SizedBox(height: 4),
+                                Text(_formatDate(c['date_convocation']), style: TextStyle(color: kSurveillantGradient.colors.first, fontSize: 12, fontWeight: FontWeight.w700)),
+                                if ((c['description'] ?? '').toString().isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(c['description'], style: const TextStyle(fontSize: 12.5, color: kTextGray)),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ).animate().fadeIn(delay: (180 + i * 60).ms, duration: 250.ms).slideY(begin: 0.06, end: 0, curve: Curves.easeOutCubic);
+                      }),
+                ],
+              ),
+            ),
+    );
+  }
+}
+
+class _CountCard extends StatelessWidget {
+  final String label;
+  final int value;
+  final Color color;
+  const _CountCard({required this.label, required this.value, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: value.toDouble()),
+              duration: 700.ms,
+              curve: Curves.easeOutCubic,
+              builder: (context, v, _) => Text('${v.round()}', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: color)),
+            ),
+            const SizedBox(height: 2),
+            Text(label, style: const TextStyle(fontSize: 12, color: kTextGray, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      ),
     );
   }
 }
