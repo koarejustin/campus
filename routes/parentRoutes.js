@@ -1,8 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
+const { ensureRole } = require('../middleware/authMiddleware');
 const parentController = require('../controller/parentController');
 const surveillantController = require('../controller/surveillantController');
+
+// ✅ SÉCURITÉ : comme professeurRoutes.js avant son propre correctif, ce
+// fichier n'appliquait que "es-tu connecté" (auth), jamais "es-tu bien un
+// parent" — n'importe quel compte authentifié (élève, prof, alumni) pouvait
+// appeler ces endpoints. Les controllers vérifient déjà la relation
+// parent↔enfant via req.user.id (donc pas de fuite de données d'un AUTRE
+// parent), mais rien n'empêchait un non-parent d'écrire dans
+// gestion_ape.profils_parents (PUT /profil) sous son propre id_user, ou
+// d'accéder à des routes qui n'ont pas de sens pour son rôle réel.
+router.use(authMiddleware, ensureRole('PARENT'));
 
 // Routes parents
 router.get('/mes-enfants', authMiddleware, (req, res, next) => {
