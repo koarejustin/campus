@@ -4,6 +4,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../services/api_client.dart';
 import '../../theme.dart';
+import '../../widgets/change_password_dialog.dart';
+import '../../widgets/photo_credit.dart';
 import '../role_select_screen.dart';
 import 'ape/ape_home_screen.dart';
 
@@ -190,12 +192,23 @@ class _ParentProfilScreenState extends State<ParentProfilScreen> {
                 SizedBox(
                   width: double.infinity, height: 46,
                   child: OutlinedButton.icon(
+                    onPressed: () => showChangePasswordDialog(context),
+                    icon: const Icon(Icons.lock_reset_rounded, color: kIndigo),
+                    label: const Text('Changer mon mot de passe', style: TextStyle(color: kIndigo, fontWeight: FontWeight.w700)),
+                    style: OutlinedButton.styleFrom(side: const BorderSide(color: kIndigo)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity, height: 46,
+                  child: OutlinedButton.icon(
                     onPressed: _logout,
                     icon: const Icon(Icons.logout_rounded, color: kRed),
                     label: const Text('Déconnexion', style: TextStyle(color: kRed, fontWeight: FontWeight.w700)),
                     style: OutlinedButton.styleFrom(side: const BorderSide(color: kRed)),
                   ),
                 ),
+                const PhotoCredit(),
               ],
             ),
     );

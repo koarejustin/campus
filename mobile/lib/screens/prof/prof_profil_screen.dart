@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../services/api_client.dart';
 import '../../theme.dart';
 import '../../utils.dart';
+import '../../widgets/change_password_dialog.dart';
+import '../../widgets/photo_credit.dart';
 import '../role_select_screen.dart';
 
 const _kClassesConnues = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère C', '1ère D', 'Tle A', 'Tle C', 'Tle D'];
@@ -274,6 +276,17 @@ class _ProfProfilScreenState extends State<ProfProfilScreen> {
                         : const Text('Enregistrer', style: TextStyle(fontWeight: FontWeight.w800)),
                   ),
                 ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity, height: 46,
+                  child: OutlinedButton.icon(
+                    onPressed: () => showChangePasswordDialog(context),
+                    icon: const Icon(Icons.lock_reset_rounded, color: kIndigo),
+                    label: const Text('Changer mon mot de passe', style: TextStyle(color: kIndigo, fontWeight: FontWeight.w700)),
+                    style: OutlinedButton.styleFrom(side: const BorderSide(color: kIndigo)),
+                  ),
+                ),
+                const PhotoCredit(),
                 const SizedBox(height: 28),
               ],
             ),

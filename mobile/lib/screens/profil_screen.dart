@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../services/api_client.dart';
 import '../theme.dart';
+import '../widgets/change_password_dialog.dart';
+import '../widgets/photo_credit.dart';
 import 'role_select_screen.dart';
 
 class ProfilScreen extends StatefulWidget {
@@ -99,7 +101,18 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     ],
                   ),
                 ).animate().fadeIn(delay: 220.ms, duration: 300.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
-                const SizedBox(height: 28),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: OutlinedButton.icon(
+                    onPressed: () => showChangePasswordDialog(context),
+                    icon: const Icon(Icons.lock_reset_rounded, color: kIndigo),
+                    label: const Text('Changer mon mot de passe', style: TextStyle(color: kIndigo, fontWeight: FontWeight.w700)),
+                    style: OutlinedButton.styleFrom(side: const BorderSide(color: kIndigo)),
+                  ),
+                ).animate().fadeIn(delay: 260.ms, duration: 300.ms),
+                const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
                   height: 46,
@@ -109,7 +122,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     label: const Text('Déconnexion', style: TextStyle(color: kRed, fontWeight: FontWeight.w700)),
                     style: OutlinedButton.styleFrom(side: const BorderSide(color: kRed)),
                   ),
-                ).animate().fadeIn(delay: 300.ms, duration: 300.ms),
+                ).animate().fadeIn(delay: 320.ms, duration: 300.ms),
+                const PhotoCredit(),
               ],
             ),
     );
