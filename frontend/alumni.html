@@ -393,6 +393,40 @@
             margin-top: 4px;
         }
     </style>
+    <!-- Bloc decisif place en dernier avant </head> : gagne sur les regles
+         plus anciennes du fichier a specificite egale (voir la meme technique
+         utilisee sur direction.html). Cette page n'avait ete concue qu'en
+         mise en page desktop fixe (grilles a colonnes en pixels/2 colonnes,
+         aucun @media dans tout le fichier) — sur mobile, les colonnes fixes
+         debordaient hors de l'ecran au lieu de s'empiler. -->
+    <style>
+        @media (max-width: 639px) {
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .grid2-mobile-stack {
+                grid-template-columns: 1fr !important;
+            }
+
+            .profil-outer-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .profil-security-col {
+                grid-column: 1 !important;
+            }
+
+            .journal-split-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .journal-sidebar-sticky {
+                position: static !important;
+                top: auto !important;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -620,7 +654,7 @@
                             <label style="font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; display:block; margin-bottom:6px;">Conseil concret</label>
                             <textarea id="mentorat-conseil-contenu" class="inp" rows="4" placeholder="Expliquez ce que vous voulez lui transmettre : méthode, habitudes, orientation, motivation…"></textarea>
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div class="grid2-mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                             <div>
                                 <label style="font-size:0.78rem; font-weight:700; color:var(--muted); text-transform:uppercase; display:block; margin-bottom:6px;">Domaine</label>
                                 <select id="mentorat-conseil-domaine" class="inp">
@@ -755,8 +789,8 @@
                     <div class="pg-sub">Suivez vos élèves mentorés et construisez votre histoire ensemble</div>
                 </div>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 2fr; gap:20px;">
-                <div class="card" style="height:fit-content; position:sticky; top:80px;">
+            <div class="journal-split-grid" style="display:grid; grid-template-columns:1fr 2fr; gap:20px;">
+                <div class="journal-sidebar-sticky card" style="height:fit-content; position:sticky; top:80px;">
                     <h3 style="margin-bottom:12px; font-weight:700;">Mes élèves mentorés</h3>
                     <input type="text" id="recherche-eleve-journal" placeholder="Rechercher un élève par nom…"
                         oninput="rechercheElevesMentorat(this.value)"
@@ -792,7 +826,7 @@
                                 style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Titre</label>
                             <input type="text" id="entree-titre" placeholder="Titre de votre entrée…" class="inp">
                         </div>
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                        <div class="grid2-mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                             <div>
                                 <label
                                     style="font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase;">Type</label>
@@ -837,7 +871,7 @@
                     <div class="pg-sub">Gérez vos informations professionnelles</div>
                 </div>
             </div>
-            <div style="display:grid; grid-template-columns:250px 1fr; gap:16px; align-items:start;">
+            <div class="profil-outer-grid" style="display:grid; grid-template-columns:250px 1fr; gap:16px; align-items:start;">
 
                 <!-- Carte avatar -->
                 <div class="card" style="text-align:center;">
@@ -874,7 +908,7 @@
                         style="font-size:.74rem; font-weight:900; color:#23301C; text-transform:uppercase; margin-bottom:14px;">
                         Informations professionnelles
                     </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
+                    <div class="grid2-mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
                         <div>
                             <label
                                 style="font-size:.58rem; font-weight:800; color:#6B5D42; text-transform:uppercase;">Prénom</label>
@@ -954,11 +988,11 @@
                     </div>
                 </div>
 
-                <div class="card" style="grid-column:2;">
+                <div class="profil-security-col card" style="grid-column:2;">
                     <div style="font-size:.74rem; font-weight:900; color:#23301C; text-transform:uppercase; margin-bottom:14px;">
                         Sécurité
                     </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
+                    <div class="grid2-mobile-stack" style="display:grid; grid-template-columns:1fr 1fr; gap:11px;">
                         <div>
                             <label style="font-size:.58rem; font-weight:800; color:#6B5D42; text-transform:uppercase;">Mot de passe actuel</label>
                             <input class="inp" id="cp-ancien" type="password">
