@@ -411,6 +411,11 @@
 
     @media (max-width:640px) {
       #s-salle .salle-wrap {
+        /* .salle-wrap est display:grid (pas flex) — "flex-direction:column"
+           seul n'avait donc aucun effet, la grille 280px/1fr restait active
+           et debordait de l'ecran. Il faut aussi repasser en display:flex
+           pour que flex-direction s'applique reellement. */
+        display: flex !important;
         flex-direction: column !important;
         height: calc(100dvh - 95px) !important;
       }
@@ -468,6 +473,19 @@
 
       .eleve-list {
         max-height: 240px !important;
+      }
+
+      /* Même bug que .notes-grid : .profil-wrap a une colonne fixe de
+         340px qui, seule, dépasse déjà la largeur d'un téléphone — la
+         page "Mon Profil" restait entièrement invisible sur mobile. */
+      .profil-wrap {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Même bug encore, sur Cahier de texte / Ressources / Devoirs :
+         colonne fixe de 340px (liste + barre laterale). */
+      .wide-sidebar-split {
+        grid-template-columns: 1fr !important;
       }
     }
 
@@ -2669,7 +2687,7 @@
 
       <!-- ══ CAHIER DE TEXTE ══ -->
       <div id="s-ct" class="sec">
-        <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
+        <div class="wide-sidebar-split" style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
           <div class="card">
             <div class="card-hd">
               <div>
@@ -2740,7 +2758,7 @@
           </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
+        <div class="wide-sidebar-split" style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
           <!-- Liste ressources : docs + vidéos -->
           <div>
             <!-- Vidéos -->
@@ -3225,7 +3243,7 @@
 
       <!-- ══ DEVOIRS ══ -->
       <div id="s-devoirs" class="sec">
-        <div style="display:grid; grid-template-columns:1fr 340px; gap:14px;">
+        <div class="wide-sidebar-split" style="display:grid; grid-template-columns:1fr 340px; gap:14px;">
           <!-- Liste des devoirs -->
           <div class="card">
             <div class="card-hd">
