@@ -8,7 +8,7 @@
 // connexion au serveur, comme WhatsApp ou Gmail.
 // ================================================================
 
-const CACHE_NAME = 'campus-numerique-v3';
+const CACHE_NAME = 'campus-numerique-v4';
 const APP_SHELL = [
   '/eleve.html',
   '/manifest.json',

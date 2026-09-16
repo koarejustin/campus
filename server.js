@@ -231,7 +231,20 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // ── Fichiers statiques ──
-app.use(express.static('frontend'));
+// ✅ Les pages HTML (eleve.html, direction.html...) ne doivent jamais être
+// servies depuis un cache navigateur/PWA sans vérification — sinon un
+// téléphone qui a déjà ouvert l'appli continue d'afficher une version
+// figée même après un nouveau déploiement (constaté : un correctif visible
+// en test mais invisible sur le téléphone d'un élève). Les fichiers
+// versionnés (JS/CSS/images) gardent un cache normal, seul le HTML est
+// forcé à revalider à chaque chargement.
+app.use(express.static('frontend', {
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        }
+    }
+}));
 
 // ── UPLOADS : s'assurer que le dossier existe puis le servir ──
 const UPLOAD_DIR = path.join(__dirname, 'public', 'uploads');
