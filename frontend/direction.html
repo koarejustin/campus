@@ -3942,20 +3942,43 @@
         <div class="card" style="padding:20px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap;">
             <div style="font-size:.9rem;font-weight:800;color:#1E2818;">Coefficients par classe</div>
-            <select id="bareme-classe" onchange="loadCoefficientsClasse()" style="width:160px;">
-              <option value="6ème">6ème</option>
-              <option value="5ème">5ème</option>
-              <option value="4ème">4ème</option>
-              <option value="3ème">3ème</option>
-              <option value="2nde A">2nde A</option>
-              <option value="2nde C">2nde C</option>
-              <option value="1ère A">1ère A</option>
-              <option value="1ère C">1ère C</option>
-              <option value="1ère D">1ère D</option>
-              <option value="Tle A">Tle A</option>
-              <option value="Tle C">Tle C</option>
-              <option value="Tle D">Tle D</option>
-            </select>
+            <div style="display:flex;gap:8px;">
+              <select id="bareme-classe" onchange="loadCoefficientsClasse()" style="width:160px;">
+                <option value="6ème">6ème</option>
+                <option value="5ème">5ème</option>
+                <option value="4ème">4ème</option>
+                <option value="3ème">3ème</option>
+                <option value="2nde A">2nde A</option>
+                <option value="2nde C">2nde C</option>
+                <option value="1ère A">1ère A</option>
+                <option value="1ère C">1ère C</option>
+                <option value="1ère D">1ère D</option>
+                <option value="Tle A">Tle A</option>
+                <option value="Tle C">Tle C</option>
+                <option value="Tle D">Tle D</option>
+              </select>
+              <button class="btn-p" style="font-size:.72rem;white-space:nowrap;" onclick="toggleAjoutMatiere()">
+                <i data-lucide="plus" style="width:13px;height:13px;"></i>Ajouter une matière
+              </button>
+            </div>
+          </div>
+          <div id="bareme-ajout-form" style="display:none;background:#FDFAF2;border:1.5px solid #DCD3B8;border-radius:10px;padding:14px;margin-bottom:14px;">
+            <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+              <div><label style="font-size:.65rem;">Nom de la matière</label><input id="am-nom" type="text" placeholder="Ex: Informatique"></div>
+              <div><label style="font-size:.65rem;">Coefficient</label><input id="am-coef" type="number" min="1" max="20" value="1"></div>
+              <div><label style="font-size:.65rem;">Domaine</label>
+                <select id="am-domaine">
+                  <option>Lettres</option><option>Sciences</option><option>Langues</option><option>EPS</option><option>Arts</option><option>Autre</option>
+                </select>
+              </div>
+            </div>
+            <label style="font-size:.7rem;display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+              <input id="am-optionnel" type="checkbox" style="width:auto;">Matière optionnelle
+            </label>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-p" style="font-size:.72rem;" onclick="submitAjoutMatiere()">Ajouter à cette classe</button>
+              <button class="btn-g" style="font-size:.72rem;background:#F2ECDE;" onclick="toggleAjoutMatiere()">Annuler</button>
+            </div>
           </div>
           <div id="bareme-list">
             <div style="text-align:center;padding:30px;color:#6B5D42;">Chargement…</div>
@@ -4174,7 +4197,11 @@
             <input type="number" min="1" max="20" value="${r.coefficient}" id="coef-${r.id_coefficient}"
               style="width:60px;text-align:center;padding:6px;border:1.5px solid #DCD3B8;border-radius:7px;font-weight:800;">
             <button class="btn-p" style="font-size:.68rem;padding:6px 10px;" onclick="saveCoefficient(${r.id_coefficient})">Enregistrer</button>
+            <button class="btn-g" style="font-size:.68rem;padding:6px 10px;background:#F7E3DC;color:#A93226;" onclick="retirerCoefficient(${r.id_coefficient}, ${JSON.stringify(r.nom_matiere).replace(/"/g, '&quot;')})">
+              <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
+            </button>
           </div>`).join('');
+        if (window.lucide) lucide.createIcons();
       } catch (e) {
         $('bareme-list').innerHTML = '<div style="text-align:center;padding:30px;color:#6B5D42;">Erreur de chargement.</div>';
       }
@@ -4185,6 +4212,45 @@
       try {
         const d = await api('/admin/coefficients/' + id, { method: 'PUT', body: JSON.stringify({ coefficient: val }) });
         if (d.success) toast('Coefficient mis à jour', 'ok');
+        else toast('' + (d.message || 'Erreur'), 'err');
+      } catch (e) { toast('Erreur réseau', 'err'); }
+    }
+
+    function toggleAjoutMatiere() {
+      const f = $('bareme-ajout-form');
+      if (!f) return;
+      const visible = f.style.display !== 'none';
+      f.style.display = visible ? 'none' : 'block';
+      if (!visible) { $('am-nom').value = ''; $('am-coef').value = 1; $('am-optionnel').checked = false; }
+    }
+
+    async function submitAjoutMatiere() {
+      const classe = $('bareme-classe')?.value;
+      const nom_matiere = $('am-nom')?.value?.trim();
+      const coefficient = $('am-coef')?.value;
+      const domaine = $('am-domaine')?.value;
+      const optionnel = $('am-optionnel')?.checked;
+      if (!nom_matiere) { toast('Nom de la matière requis', 'err'); return; }
+      try {
+        const d = await api('/admin/coefficients', {
+          method: 'POST',
+          body: JSON.stringify({ classe, nom_matiere, coefficient, domaine, optionnel })
+        });
+        if (d.success) {
+          toast('Matière ajoutée', 'ok');
+          toggleAjoutMatiere();
+          loadCoefficientsClasse();
+        } else {
+          toast('' + (d.message || 'Erreur'), 'err');
+        }
+      } catch (e) { toast('Erreur réseau', 'err'); }
+    }
+
+    async function retirerCoefficient(id, nom) {
+      if (!confirm(`Retirer "${nom}" du programme de cette classe ? Les notes déjà saisies dans cette matière restent conservées, mais elle ne comptera plus dans les nouvelles moyennes.`)) return;
+      try {
+        const d = await api('/admin/coefficients/' + id, { method: 'DELETE' });
+        if (d.success) { toast('Matière retirée', 'ok'); loadCoefficientsClasse(); }
         else toast('' + (d.message || 'Erreur'), 'err');
       } catch (e) { toast('Erreur réseau', 'err'); }
     }

@@ -268,6 +268,61 @@ exports.updateCoefficient = async (req, res) => {
     }
 };
 
+// ✅ Ajouter une matière au programme d'une classe — certaines écoles
+// n'enseignent pas exactement les mêmes matières (ex: pas d'ECM en
+// Terminale) ; avant, seule la modification d'un coefficient existant
+// était possible, impossible d'ajouter/retirer une matière entière.
+exports.addCoefficient = async (req, res) => {
+    try {
+        const { classe, nom_matiere, coefficient, domaine, optionnel } = req.body;
+        if (!classe || !nom_matiere) {
+            return res.status(400).json({ success: false, message: 'Classe et nom de matière requis.' });
+        }
+        const coef = parseInt(coefficient);
+        if (isNaN(coef) || coef < 1 || coef > 20) {
+            return res.status(400).json({ success: false, message: 'Coefficient invalide (doit être entre 1 et 20).' });
+        }
+        // La matière doit exister dans pedagogie.matieres pour qu'un
+        // professeur puisse un jour y saisir des notes (id_matiere).
+        await db.query(
+            `INSERT INTO pedagogie.matieres (nom_matiere) VALUES ($1) ON CONFLICT (nom_matiere) DO NOTHING`,
+            [nom_matiere.trim()]
+        );
+        const ins = await db.query(
+            `INSERT INTO pedagogie.coefficients (classe, nom_matiere, coefficient, domaine, optionnel, updated_by)
+             VALUES ($1, $2, $3, $4, $5, $6)
+             ON CONFLICT (classe, nom_matiere) DO NOTHING
+             RETURNING id_coefficient`,
+            [classe, nom_matiere.trim(), coef, domaine || 'Autre', !!optionnel, req.user?.id || null]
+        );
+        if (!ins.rows.length) {
+            return res.status(409).json({ success: false, message: 'Cette matière existe déjà pour cette classe.' });
+        }
+        await rechargerMoteurNotes();
+        res.json({ success: true, id_coefficient: ins.rows[0].id_coefficient });
+    } catch (err) {
+        console.error('addCoefficient:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+// ✅ Retirer une matière du programme d'une classe — ne supprime pas
+// les notes déjà saisies (elles restent visibles dans l'historique),
+// seulement l'entrée du barème pour que la matière ne compte plus
+// dans les nouveaux calculs de moyenne de cette classe.
+exports.deleteCoefficient = async (req, res) => {
+    try {
+        const { id_coefficient } = req.params;
+        const del = await db.query(`DELETE FROM pedagogie.coefficients WHERE id_coefficient = $1`, [id_coefficient]);
+        if (del.rowCount === 0) return res.status(404).json({ success: false, message: 'Coefficient introuvable.' });
+        await rechargerMoteurNotes();
+        res.json({ success: true });
+    } catch (err) {
+        console.error('deleteCoefficient:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
 exports.getConfigurationNotes = async (req, res) => {
     try {
         const q = await db.query(

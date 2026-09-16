@@ -35,7 +35,9 @@ router.get('/bulletin-eleve/pdf', auth, dirOuSurv, ctrl.getBulletinElevePdf);
 
 // ── Barème & Notes (coefficients, pondération, seuils de mention) ──
 router.get('/coefficients', auth, dirSeule, ctrl.getCoefficients);
+router.post('/coefficients', auth, dirSeule, ctrl.addCoefficient);
 router.put('/coefficients/:id_coefficient', auth, dirSeule, ctrl.updateCoefficient);
+router.delete('/coefficients/:id_coefficient', auth, dirSeule, ctrl.deleteCoefficient);
 router.get('/configuration-notes', auth, dirSeule, ctrl.getConfigurationNotes);
 router.put('/configuration-notes', auth, dirSeule, ctrl.updateConfigurationNotes);
 
