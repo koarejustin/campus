@@ -747,6 +747,14 @@
       font-family: 'DM Sans', sans-serif;
       outline: none;
       transition: .15s;
+      /* Grandit avec le texte (comme WhatsApp) au lieu de rester sur une
+         seule ligne — la barre d'entrée est un enfant flex normal (pas en
+         position fixe), donc la zone des messages au-dessus (flex:1,
+         overflow-y:auto) se réduit automatiquement, rien n'est jamais caché. */
+      resize: none;
+      max-height: 100px;
+      line-height: 1.4;
+      overflow-y: auto;
     }
 
     .forum-input:focus {
@@ -1545,8 +1553,9 @@
             style="background:none;border:none;cursor:pointer;font-size:1rem;color:#6B5D42;padding:0;">✕</button>
         </div>
         <div class="forum-input-bar">
-          <input type="text" class="forum-input" id="fc-input" placeholder="Écrire un message à la classe..."
-            onkeydown="if(event.key==='Enter')sendForumMsg('classe')">
+          <textarea class="forum-input" id="fc-input" rows="1" placeholder="Écrire un message à la classe..."
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendForumMsg('classe');}"
+            oninput="autoResizeForumInput(this)"></textarea>
           <button class="btn-send" onclick="sendForumMsg('classe')"><svg viewBox="0 0 24 24">
               <line x1="22" y1="2" x2="11" y2="13" />
               <polygon points="22 2 15 22 11 13 2 9 22 2" />
@@ -1588,8 +1597,10 @@
           <button onclick="cancelReply('inter')"
             style="background:none;border:none;cursor:pointer;font-size:1rem;color:#6B5D42;padding:0;">✕</button>
         </div>
-        <div class="forum-input-bar"><input type="text" class="forum-input" id="inter-input"
-            placeholder="Message inter-classes..." onkeydown="if(event.key==='Enter')sendForumMsg('inter')"><button
+        <div class="forum-input-bar"><textarea class="forum-input" id="inter-input" rows="1"
+            placeholder="Message inter-classes..."
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendForumMsg('inter');}"
+            oninput="autoResizeForumInput(this)"></textarea><button
             class="btn-send" onclick="sendForumMsg('inter')"><svg viewBox="0 0 24 24">
               <line x1="22" y1="2" x2="11" y2="13" />
               <polygon points="22 2 15 22 11 13 2 9 22 2" />
@@ -2541,6 +2552,11 @@
       }
     }
 
+    function autoResizeForumInput(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+    }
+
     async function sendForumMsg(type) {
       const inputId = type === 'classe' ? 'fc-input' : 'inter-input';
       const input = document.getElementById(inputId);
@@ -2562,6 +2578,7 @@
       }
 
       input.value = '';
+      input.style.height = 'auto';
       const reply = _replyTo[type];
       cancelReply(type);
       try {
@@ -3321,6 +3338,19 @@
       }
     }
 
+    // Palette variée (thème "Arbre à Palabres") assignée par hash du nom —
+    // avant, chaque avatar sans photo était le même vert répété partout,
+    // ce qui rendait la liste monotone (voir capture : que des "H"/"A" verts).
+    const AVATAR_PALETTE = [
+      ['#2F6B3F', '#1F4A2C'], ['#C9932A', '#96631C'], ['#4C6B8C', '#2C4A6B'],
+      ['#A85A3D', '#7A3E29'], ['#6B5C9E', '#473D6B'], ['#3D8C7A', '#256B5A'],
+    ];
+    function couleurAvatar(nom) {
+      let h = 0;
+      for (let i = 0; i < nom.length; i++) h = (h * 31 + nom.charCodeAt(i)) >>> 0;
+      return AVATAR_PALETTE[h % AVATAR_PALETTE.length];
+    }
+
     function carteAlumniHTML(a) {
       const idAlumni = a.id_alumni || a.auteur_id;
       const nomAlumni = a.auteur || (a.prenom + ' ' + a.nom);
@@ -3329,20 +3359,23 @@
       const alumnProfessionText = jsQuote(a.profession || '');
       const alumnDomaineText = jsQuote(a.domaine_expertise || '');
       const iniAlumni = (a.auteur || a.prenom || '?')[0].toUpperCase();
+      const [c1, c2] = couleurAvatar(nomAlumni || '?');
       const avatarStyle = a.photo_url
         ? `background:url('${a.photo_url}') center/cover;`
-        : `background:linear-gradient(135deg,#4C8C5C,#1F4A2C);`;
+        : `background:linear-gradient(135deg,${c1},${c2});`;
+      const domaine = a.domaine_expertise || a.profession || '';
       return `
         <div class="mat-row" id="alumni-row-${idAlumni}"
-             style="padding:14px;border:1px solid rgba(15,23,42,0.08);border-radius:14px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s;"
-             onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.06)'" onmouseout="this.style.boxShadow='none'">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:44px;height:44px;border-radius:12px;${avatarStyle}display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:1rem;flex-shrink:0;">
+             style="padding:14px;border:1px solid rgba(15,23,42,0.08);border-radius:14px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s, transform .15s;"
+             onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.06)';this.style.transform='translateY(-1px)'"
+             onmouseout="this.style.boxShadow='none';this.style.transform='none'">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:48px;height:48px;border-radius:50%;${avatarStyle}display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:1.05rem;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.12);">
               ${a.photo_url ? '' : iniAlumni}
             </div>
             <div style="flex:1;min-width:0;">
-              <div style="font-weight:700;font-size:0.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(nomAlumni)}</div>
-              <div style="font-size:0.72rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(a.profession || a.domaine_expertise || 'Alumni')}</div>
+              <div style="font-weight:800;font-size:0.9rem;color:#1E2818;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(nomAlumni)}</div>
+              ${domaine ? `<div style="display:inline-block;margin-top:3px;padding:2px 8px;border-radius:20px;background:${c1}18;color:${c1};font-size:0.66rem;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(domaine)}</div>` : ''}
             </div>
           </div>
           ${a.entreprise_actuelle ? `<div style="font-size:0.72rem;color:var(--muted);">${escHtml(a.entreprise_actuelle)}</div>` : ''}
