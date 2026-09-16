@@ -1265,8 +1265,39 @@ exports.getMonProfil = async (req, res) => {
             if (pr.rows.length) poste_elu = pr.rows[0].poste;
         } catch (e) { /* table pas encore créée */ }
 
-        res.json({ success: true, profil: { nom: row.nom, prenom: row.prenom, code_unique: row.code_unique, classe: row.classe_actuelle, email: row.email || null, telephone: row.telephone || null, role_special: row.role_special || null, poste_elu } });
+        // Effectif de la classe — utile à afficher sur le profil, comme sur
+        // le bulletin (mêmes élèves actifs comptés de la même façon).
+        let effectif_classe = null;
+        if (row.classe_actuelle) {
+            const eff = await db.query(
+                `SELECT COUNT(*) FROM vie_scolaire.profils_eleves pe
+                 JOIN authentification.comptes c ON c.id_user = pe.id_user
+                 WHERE pe.classe_actuelle = $1 AND c.role_actuel = 'ELEVE' AND c.est_actif = true`,
+                [row.classe_actuelle]
+            );
+            effectif_classe = parseInt(eff.rows[0].count);
+        }
+
+        res.json({ success: true, profil: { nom: row.nom, prenom: row.prenom, code_unique: row.code_unique, classe: row.classe_actuelle, effectif_classe, email: row.email || null, telephone: row.telephone || null, role_special: row.role_special || null, poste_elu } });
     } catch (e) { res.status(500).json({ success: false }); }
+};
+
+// ✅ L'élève peut mettre à jour son téléphone/email de contact — pas son
+// nom, prénom ou classe (contrôlés par la Direction uniquement).
+exports.updateMonProfil = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        if (!eleveId) return res.status(401).json({ success: false });
+        const { email, telephone } = req.body;
+        await db.query(
+            `UPDATE authentification.comptes SET email = COALESCE($1, email), telephone = COALESCE($2, telephone) WHERE id_user = $3 AND role_actuel = 'ELEVE'`,
+            [email || null, telephone || null, eleveId]
+        );
+        res.json({ success: true });
+    } catch (e) {
+        console.error('updateMonProfil:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
 };
 
 // ========== SUPPRESSION DE MESSAGES ==========

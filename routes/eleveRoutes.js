@@ -53,6 +53,7 @@ router.get('/devoirs', eleveAuth, eleveController.getDevoirs);
 
 // Profil élève
 router.get('/mon-profil', eleveAuth, eleveController.getMonProfil);
+router.put('/mon-profil', eleveAuth, eleveController.updateMonProfil);
 
 // Professeurs accessibles par classe
 router.get('/professeurs', eleveAuth, eleveController.getProfesseurs);

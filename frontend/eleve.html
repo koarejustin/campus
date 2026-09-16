@@ -1193,23 +1193,6 @@
       </div>
     </div>
 
-    <div id="m-chg-pwd" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none';">
-      <div style="background:#fff;border-radius:14px;padding:20px;max-width:380px;width:92%;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <div style="font-size:.9rem;font-weight:800;color:#1E2818;">Changer mon mot de passe</div>
-          <button onclick="document.getElementById('m-chg-pwd').style.display='none';" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:#6B5D42;">✕</button>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:9px;">
-          <div><label style="font-size:.68rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Mot de passe actuel</label>
-            <input id="cp-ancien" type="password" style="width:100%;padding:8px 11px;border:1.5px solid #DCD3B8;border-radius:8px;font-size:.8rem;box-sizing:border-box;"></div>
-          <div><label style="font-size:.68rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Nouveau mot de passe</label>
-            <input id="cp-nouveau" type="password" style="width:100%;padding:8px 11px;border:1.5px solid #DCD3B8;border-radius:8px;font-size:.8rem;box-sizing:border-box;"></div>
-          <div id="cp-msg" style="display:none;font-size:.72rem;padding:7px;border-radius:7px;"></div>
-          <button onclick="submitChangePassword()" style="background:var(--accent);color:#fff;border:none;border-radius:9px;padding:10px;font-size:.8rem;font-weight:700;cursor:pointer;">Changer le mot de passe</button>
-        </div>
-      </div>
-    </div>
-
     <div class="sb-scroll">
       <div class="sb-grp">Mon Espace</div>
       <div class="ni on" onclick="goPage('dashboard')" id="ni-dashboard">
@@ -1324,6 +1307,70 @@
     </div>
   </aside>
 
+  <!-- Ces deux fenêtres modales doivent être en dehors de <aside class="sidebar">
+       — cette dernière a "transform: translateX(-100%)" sur mobile (tiroir
+       masqué par défaut, voir responsive.css), et un transform sur un
+       ancêtre casse position:fixed pour ses enfants : les modales
+       héritaient du décalage de la sidebar et s'affichaient hors écran
+       (jamais visibles sur téléphone, même quand display="flex"). -->
+  <div id="m-chg-pwd" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none';">
+    <div style="background:#fff;border-radius:14px;padding:20px;max-width:380px;width:92%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:.9rem;font-weight:800;color:#1E2818;">Changer mon mot de passe</div>
+        <button onclick="document.getElementById('m-chg-pwd').style.display='none';" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:#6B5D42;">✕</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <div><label style="font-size:.68rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Mot de passe actuel</label>
+          <input id="cp-ancien" type="password" style="width:100%;padding:8px 11px;border:1.5px solid #DCD3B8;border-radius:8px;font-size:.8rem;box-sizing:border-box;"></div>
+        <div><label style="font-size:.68rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Nouveau mot de passe</label>
+          <input id="cp-nouveau" type="password" style="width:100%;padding:8px 11px;border:1.5px solid #DCD3B8;border-radius:8px;font-size:.8rem;box-sizing:border-box;"></div>
+        <div id="cp-msg" style="display:none;font-size:.72rem;padding:7px;border-radius:7px;"></div>
+        <button onclick="submitChangePassword()" style="background:var(--accent);color:#fff;border:none;border-radius:9px;padding:10px;font-size:.8rem;font-weight:700;cursor:pointer;">Changer le mot de passe</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MON PROFIL ══ -->
+  <div id="m-mon-profil" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none';">
+    <div style="background:#fff;border-radius:14px;padding:20px;max-width:380px;width:92%;max-height:85vh;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:.9rem;font-weight:800;color:#1E2818;">Mon Profil</div>
+        <button onclick="document.getElementById('m-mon-profil').style.display='none';" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:#6B5D42;">✕</button>
+      </div>
+      <div id="mp-loading" style="text-align:center;padding:20px;color:var(--muted);font-size:.8rem;">Chargement…</div>
+      <div id="mp-content" style="display:none;flex-direction:column;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#F5EAD2;border-radius:12px;">
+          <div id="mp-avatar" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#2F6B3F,#1F4A2C);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:1.1rem;flex-shrink:0;">?</div>
+          <div style="min-width:0;">
+            <div id="mp-nom" style="font-weight:800;font-size:.95rem;color:#1E2818;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">—</div>
+            <div id="mp-matricule" style="font-size:.7rem;color:var(--muted);font-family:'JetBrains Mono',monospace;">—</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:#F2F0E2;border-radius:10px;padding:10px;">
+            <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Classe actuelle</div>
+            <div id="mp-classe" style="font-size:.85rem;font-weight:800;color:#1E2818;margin-top:2px;">—</div>
+          </div>
+          <div style="background:#F2F0E2;border-radius:10px;padding:10px;">
+            <div style="font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;">Effectif de la classe</div>
+            <div id="mp-effectif" style="font-size:.85rem;font-weight:800;color:#1E2818;margin-top:2px;">—</div>
+          </div>
+        </div>
+        <div>
+          <label style="font-size:.68rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Téléphone</label>
+          <input id="mp-telephone" type="tel" placeholder="+226 XX XX XX XX" style="width:100%;padding:8px 11px;border:1.5px solid #DCD3B8;border-radius:8px;font-size:.8rem;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:.68rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Email</label>
+          <input id="mp-email" type="email" placeholder="votre@email.com" style="width:100%;padding:8px 11px;border:1.5px solid #DCD3B8;border-radius:8px;font-size:.8rem;box-sizing:border-box;">
+        </div>
+        <div id="mp-msg" style="display:none;font-size:.72rem;padding:7px;border-radius:7px;"></div>
+        <button onclick="submitMonProfil()" style="background:var(--accent);color:#fff;border:none;border-radius:9px;padding:10px;font-size:.8rem;font-weight:700;cursor:pointer;">Enregistrer</button>
+        <button onclick="document.getElementById('m-mon-profil').style.display='none';openChangePassword();" style="background:none;border:1.5px solid #DCD3B8;color:#5A4D36;border-radius:9px;padding:9px;font-size:.76rem;font-weight:700;cursor:pointer;">Changer mon mot de passe</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ MAIN ══ -->
   <main id="main-scroll">
 
@@ -1349,7 +1396,7 @@
           <div class="kpi-icon" style="background:#E4EEDD;">📊</div>
         </div>
         <div class="kpi">
-          <div class="kpi-label">Absences NJ</div>
+          <div class="kpi-label">Absences</div>
           <div class="kpi-val" id="kpi-abs" style="color:var(--red)">--</div>
           <div class="kpi-foot">non justifiées</div>
           <div class="kpi-icon" style="background:#F7E3DC;">⚠️</div>
@@ -1414,7 +1461,7 @@
             style="padding:14px 10px;background:#F5EAD2;border:none;border-radius:10px;cursor:pointer;">
             <div style="font-size:1.4rem;margin-bottom:4px;">📖</div>
             <div style="font-size:.68rem;font-weight:700;">Ressources</div>
-          </button><button onclick="openChangePassword()"
+          </button><button onclick="openMonProfil()"
             style="padding:14px 10px;background:#F2E6C5;border:none;border-radius:10px;cursor:pointer;">
             <div style="font-size:1.4rem;margin-bottom:4px;">👤</div>
             <div style="font-size:.68rem;font-weight:700;">Mon Profil</div>
@@ -1987,6 +2034,63 @@
     function openChangePassword() {
       const m = document.getElementById('m-chg-pwd');
       if (m) m.style.display = 'flex';
+    }
+
+    async function openMonProfil() {
+      const modal = document.getElementById('m-mon-profil');
+      const loading = document.getElementById('mp-loading');
+      const content = document.getElementById('mp-content');
+      modal.style.display = 'flex';
+      loading.style.display = 'block';
+      content.style.display = 'none';
+      try {
+        const r = await fetch(`${API}/eleves/mon-profil`, { headers: authH() });
+        const d = await r.json();
+        if (!d.success) throw new Error();
+        const p = d.profil;
+        document.getElementById('mp-avatar').textContent = (p.prenom || '?')[0].toUpperCase();
+        document.getElementById('mp-nom').textContent = `${p.prenom} ${p.nom}`;
+        document.getElementById('mp-matricule').textContent = p.code_unique;
+        document.getElementById('mp-classe').textContent = p.classe || '—';
+        document.getElementById('mp-effectif').textContent = p.effectif_classe !== null ? `${p.effectif_classe} élève(s)` : '—';
+        document.getElementById('mp-telephone').value = p.telephone || '';
+        document.getElementById('mp-email').value = p.email || '';
+        loading.style.display = 'none';
+        content.style.display = 'flex';
+      } catch (e) {
+        loading.textContent = 'Erreur de chargement du profil.';
+      }
+    }
+
+    async function submitMonProfil() {
+      // La base n'accepte que des chiffres (+ optionnel en tête) — le
+      // champ affiche "+226 XX XX XX XX" à titre d'exemple, les espaces
+      // qu'un utilisateur tape naturellement sont donc retirés ici plutôt
+      // que de faire échouer l'enregistrement avec une erreur technique.
+      const telephoneBrut = document.getElementById('mp-telephone').value.trim();
+      const telephone = telephoneBrut.replace(/[\s.\-()]/g, '');
+      const email = document.getElementById('mp-email').value.trim();
+      if (telephone && !/^\+?[0-9]{8,20}$/.test(telephone)) {
+        const msgEl = document.getElementById('mp-msg');
+        msgEl.style.display = 'block'; msgEl.textContent = 'Numéro de téléphone invalide (8 à 20 chiffres)'; msgEl.style.background = '#F9E8E1'; msgEl.style.color = '#C0392B';
+        return;
+      }
+      const msgEl = document.getElementById('mp-msg');
+      msgEl.style.display = 'block'; msgEl.textContent = 'Enregistrement…'; msgEl.style.background = '#FDFAF2'; msgEl.style.color = '#5A4D36';
+      try {
+        const r = await fetch(`${API}/eleves/mon-profil`, {
+          method: 'PUT', headers: { ...authH(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ telephone, email })
+        });
+        const d = await r.json();
+        if (d.success) {
+          msgEl.textContent = 'Profil mis à jour ✓'; msgEl.style.background = '#E4EEDD'; msgEl.style.color = '#1F4A2C';
+        } else {
+          msgEl.textContent = d.message || 'Erreur'; msgEl.style.background = '#F9E8E1'; msgEl.style.color = '#C0392B';
+        }
+      } catch (e) {
+        msgEl.textContent = 'Erreur réseau'; msgEl.style.background = '#F9E8E1'; msgEl.style.color = '#C0392B';
+      }
     }
 
     async function submitChangePassword() {
@@ -3364,28 +3468,25 @@
         ? `background:url('${a.photo_url}') center/cover;`
         : `background:linear-gradient(135deg,${c1},${c2});`;
       const domaine = a.domaine_expertise || a.profession || '';
+      // Une seule ligne bien alignée : avatar+nom à gauche, Profil au
+      // milieu, Demander à droite — au lieu d'un empilement vertical
+      // (avatar/nom, puis détails, puis boutons sur une ligne à part).
       return `
         <div class="mat-row" id="alumni-row-${idAlumni}"
-             style="padding:14px;border:1px solid rgba(15,23,42,0.08);border-radius:14px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s, transform .15s;"
+             style="padding:10px 12px;border:1px solid rgba(15,23,42,0.08);border-radius:14px;display:flex;align-items:center;gap:8px;transition:box-shadow .15s, transform .15s;"
              onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.06)';this.style.transform='translateY(-1px)'"
              onmouseout="this.style.boxShadow='none';this.style.transform='none'">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:48px;height:48px;border-radius:50%;${avatarStyle}display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:1.05rem;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.12);">
-              ${a.photo_url ? '' : iniAlumni}
-            </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-weight:800;font-size:0.9rem;color:#1E2818;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(nomAlumni)}</div>
-              ${domaine ? `<div style="display:inline-block;margin-top:3px;padding:2px 8px;border-radius:20px;background:${c1}18;color:${c1};font-size:0.66rem;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(domaine)}</div>` : ''}
-            </div>
+          <div style="width:38px;height:38px;border-radius:50%;${avatarStyle}display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:0.9rem;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.12);">
+            ${a.photo_url ? '' : iniAlumni}
           </div>
-          ${a.entreprise_actuelle ? `<div style="font-size:0.72rem;color:var(--muted);">${escHtml(a.entreprise_actuelle)}</div>` : ''}
-          ${a.contenu_conseil || a.titre ? `<div style="font-size:0.74rem;color:var(--muted);line-height:1.35;">${escHtml((a.contenu_conseil || a.titre || '').substring(0, 70))}…</div>` : ''}
-          <div style="display:flex;gap:8px;">
-            <button onclick="voirProfilMentor(${alumnIdText})"
-              style="flex:1;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:0.72rem;font-weight:700;background:#fff;cursor:pointer;">Profil</button>
-            <button class="btn-p" onclick="ouvrirModalConseil(${alumnIdText}, ${alumnNameText})"
-              style="flex:1;padding:8px 10px;font-size:0.72rem;">Demander</button>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:800;font-size:0.82rem;color:#1E2818;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(nomAlumni)}</div>
+            <div style="font-size:0.68rem;color:${domaine ? c1 : 'var(--muted)'};font-weight:${domaine ? 700 : 400};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(domaine || 'Alumni')}</div>
           </div>
+          <button onclick="voirProfilMentor(${alumnIdText})"
+            style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:0.68rem;font-weight:700;background:#fff;cursor:pointer;flex-shrink:0;">Profil</button>
+          <button class="btn-p" onclick="ouvrirModalConseil(${alumnIdText}, ${alumnNameText})"
+            style="padding:7px 10px;font-size:0.68rem;flex-shrink:0;white-space:nowrap;">Demander</button>
         </div>`;
     }
 
