@@ -203,22 +203,12 @@
       pointer-events: none;
     }
 
-    .ni-locked-vis {
-      opacity: .4;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-
-    .dir-tag {
-      margin-left: auto;
-      background: rgba(239, 68, 68, .18);
-      color: #D98A75;
-      font-size: .55rem;
-      font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 4px;
-      letter-spacing: .04em;
-      flex-shrink: 0;
+    /* Sections réservées à la Direction — invisibles pour un surveillant
+       (pas seulement grisées avec un badge "DIR" comme avant) : la
+       sécurité réelle vient des routes serveur (dirSeule), ceci n'est
+       que l'affichage. */
+    .ni-dir-only {
+      display: none;
     }
 
     .ni-sep {
@@ -2443,25 +2433,20 @@
         <div class="ni-sep"></div>
         <div class="nav-grp">Direction</div>
 
-        <div class="ni ni-locked-vis" id="ni-flux" data-page="flux">
+        <div class="ni ni-dir-only" id="ni-flux" data-page="flux">
           <i data-lucide="message-square" class="ni-icon"></i><span>Communication</span>
-          <span class="dir-tag" id="dt-flux">DIR</span>
         </div>
-        <div class="ni ni-locked-vis" id="ni-corps" data-page="corps">
+        <div class="ni ni-dir-only" id="ni-corps" data-page="corps">
           <i data-lucide="book-open" class="ni-icon"></i><span>Corps Enseignant</span>
-          <span class="dir-tag" id="dt-corps">DIR</span>
         </div>
-        <div class="ni ni-locked-vis" id="ni-parents" data-page="parents">
+        <div class="ni ni-dir-only" id="ni-parents" data-page="parents">
           <i data-lucide="users" class="ni-icon"></i><span>Parents</span>
-          <span class="dir-tag" id="dt-parents">DIR</span>
         </div>
-        <div class="ni ni-locked-vis" id="ni-alumni" data-page="alumni">
+        <div class="ni ni-dir-only" id="ni-alumni" data-page="alumni">
           <i data-lucide="graduation-cap" class="ni-icon"></i><span>Anciens Élèves</span>
-          <span class="dir-tag" id="dt-alumni">DIR</span>
         </div>
-        <div class="ni ni-locked-vis" id="ni-sign" data-page="sign">
+        <div class="ni ni-dir-only" id="ni-sign" data-page="sign">
           <i data-lucide="file-check" class="ni-icon"></i><span>Signatures</span>
-          <span class="dir-tag" id="dt-sign">DIR</span>
         </div>
         <!-- Comptabilité : retirée du menu pour l'instant, dépend du système
              de paiement en ligne (voir CAHIER_DES_CHARGES_PAIEMENT.md) —
@@ -2469,25 +2454,20 @@
              mis en place. -->
         <!-- Agenda Direction : retirée du menu pour l'instant (même décision
              produit), section/backend déjà prêts. -->
-        <div class="ni ni-locked-vis" id="ni-compo" data-page="compo">
+        <div class="ni ni-dir-only" id="ni-compo" data-page="compo">
           <i data-lucide="pen-square" class="ni-icon"></i><span>Compositions</span>
-          <span class="dir-tag" id="dt-compo">DIR</span>
         </div>
-        <div class="ni ni-locked-vis" id="ni-elections" data-page="elections">
+        <div class="ni ni-dir-only" id="ni-elections" data-page="elections">
           <i data-lucide="award" class="ni-icon"></i><span>Élections</span>
-          <span class="dir-tag" id="dt-elections">DIR</span>
         </div>
-        <div class="ni ni-locked-vis" id="ni-bareme" data-page="bareme">
+        <div class="ni ni-dir-only" id="ni-bareme" data-page="bareme">
           <i data-lucide="calculator" class="ni-icon"></i><span>Barème & Notes</span>
-          <span class="dir-tag" id="dt-bareme">DIR</span>
         </div>
-        <div class="ni ni-locked-vis" id="ni-passage" data-page="passage">
+        <div class="ni ni-dir-only" id="ni-passage" data-page="passage">
           <i data-lucide="arrow-right-circle" class="ni-icon"></i><span>Passage de classe</span>
-          <span class="dir-tag" id="dt-passage">DIR</span>
         </div>
-        <div class="ni ni-locked-vis" id="ni-params" data-page="params">
+        <div class="ni ni-dir-only" id="ni-params" data-page="params">
           <i data-lucide="settings" class="ni-icon"></i><span>Paramètres</span>
-          <span class="dir-tag" id="dt-params">DIR</span>
         </div>
       </nav>
     </div>
@@ -4498,23 +4478,24 @@
       }
       
       // Direction seule a accès à Communication, Corps Enseignant, Parents,
-      // Anciens Élèves, Signatures, Compositions, Élections — un surveillant
-      // garde Absences/Convocations/Emploi du temps/Élèves (déjà visibles par
-      // défaut) mais pas ces responsabilités de direction.
+      // Anciens Élèves, Signatures, Compositions, Élections, Barème & Notes,
+      // Passage de classe, Paramètres — un surveillant garde Absences/
+      // Convocations/Emploi du temps/Élèves (déjà visibles par défaut) mais
+      // pas ces responsabilités de direction. Ces sections sont entièrement
+      // masquées (ni-dir-only, display:none) pour un surveillant, pas
+      // seulement grisées — un surveillant qui se connecte ne les voit
+      // même pas dans le menu.
       if (ROLE === 'DIRECTION') {
         ['ni-flux', 'ni-corps', 'ni-parents', 'ni-alumni', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections', 'ni-bareme', 'ni-passage', 'ni-params'].forEach(id => {
           const el = $(id); const page = el?.dataset.page;
           if (el && page) {
-            el.classList.remove('ni-locked-vis');
+            el.classList.remove('ni-dir-only');
             el.onclick = () => go(page, el);
           }
         });
-        // Supprimer les badges DIR
-        ['dt-flux', 'dt-corps', 'dt-parents', 'dt-alumni', 'dt-sign', 'dt-compta', 'dt-agenda', 'dt-compo', 'dt-elections', 'dt-params'].forEach(id => { const e = $(id); if (e) e.style.display = 'none'; });
-      } else {
-        // Surveillant : ces sections restent verrouillées (badge "DIR" visible,
-        // grisées, clic désactivé via CSS — état par défaut, rien à faire ici)
       }
+      // Surveillant : ces sections restent masquées (état par défaut via CSS,
+      // rien à faire ici) — la sécurité réelle est appliquée côté serveur.
     }
 
     function accessDenied(titre) {
