@@ -109,6 +109,7 @@ router.get('/mes-matieres', authMiddleware, ctrl.getMesMatieres);
 
 // ── Notes ──
 router.post('/notes', authMiddleware, ctrl.saveNotes);
+router.get('/appreciation', authMiddleware, ctrl.getAppreciation);
 
 // ── Ressources ──
 router.get('/ressources', authMiddleware, ctrl.getRessources);

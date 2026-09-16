@@ -27,11 +27,30 @@ const dirSeule = ensureRoleIn(['DIRECTION']);
 // ── Stats dashboard ──
 router.get('/stats', auth, dirOuSurv, ctrl.getStats);
 
+// ── Fiches d'identifiants (PDF) ──
+router.post('/fiches-identifiants/pdf', auth, dirSeule, ctrl.getFichesIdentifiantsPdf);
+
+// ── Bulletin d'un élève (PDF) ──
+router.get('/bulletin-eleve/pdf', auth, dirOuSurv, ctrl.getBulletinElevePdf);
+
+// ── Barème & Notes (coefficients, pondération, seuils de mention) ──
+router.get('/coefficients', auth, dirSeule, ctrl.getCoefficients);
+router.put('/coefficients/:id_coefficient', auth, dirSeule, ctrl.updateCoefficient);
+router.get('/configuration-notes', auth, dirSeule, ctrl.getConfigurationNotes);
+router.put('/configuration-notes', auth, dirSeule, ctrl.updateConfigurationNotes);
+
+// ── Passage de classe / année scolaire ──
+router.get('/annee-scolaire', auth, dirOuSurv, ctrl.getAnneeScolaire);
+router.post('/annee-scolaire/avancer', auth, dirSeule, ctrl.avancerAnneeScolaire);
+router.get('/passage/roster', auth, dirSeule, ctrl.getRosterPassage);
+router.post('/passage/executer', auth, dirSeule, ctrl.executerPassage);
+
 // ── Réinitialiser le mot de passe d'un compte (tous rôles) ──
 router.put('/comptes/:id/reset-password', auth, dirSeule, ctrl.resetMotDePasse);
 
 // ── Élèves ──
 router.get('/eleves', auth, dirOuSurv, ctrl.getElevesDir);
+router.put('/eleves/:id', auth, dirSeule, ctrl.updateEleve);
 router.get('/eleve/:id', auth, dirOuSurv, ctrl.getEleveDetail);
 router.post('/eleves', auth, dirSeule, ctrl.createEleve);
 router.post('/eleves/import-excel', auth, dirSeule, uploadExcel.single('fichier'), ctrl.importElevesExcel);
@@ -131,7 +150,7 @@ router.get('/espace-image/:espace', auth, async (req, res) => {
 // ============================================================
 router.get('/config-public', async (req, res) => {
     try {
-        const result = await db.query('SELECT nom_etablissement, logo_url, adresse FROM gestion.configuration LIMIT 1');
+        const result = await db.query('SELECT nom_etablissement, logo_url, adresse, annee_scolaire_active FROM gestion.configuration LIMIT 1');
         if (result.rows.length > 0) {
             res.json({ success: true, config: result.rows[0] });
         } else {

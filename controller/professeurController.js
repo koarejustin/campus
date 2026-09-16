@@ -462,12 +462,50 @@ exports.saveNotes = async (req, res) => {
                 }
             } catch (e) { console.warn('Erreur notification note:', e.message); }
         }
+
+        // ✅ Appréciation du professeur — un texte par élève × matière ×
+        // trimestre (distinct des notes elles-mêmes), enregistré pour
+        // chaque matière réellement notée dans cet envoi.
+        const appreciation = (req.body.appreciation || '').trim();
+        if (appreciation) {
+            const matieresNotees = [...new Set(
+                notes.filter(n => n.id_eleve && idsAutorises.has(parseInt(n.id_matiere))).map(n => `${n.id_eleve}|${n.id_matiere}`)
+            )];
+            for (const key of matieresNotees) {
+                const [idEleve, idMatiere] = key.split('|');
+                await db.query(
+                    `INSERT INTO pedagogie.appreciations (id_eleve, id_professeur, id_matiere, trimestre, annee_scolaire, texte, updated_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, NOW())
+                     ON CONFLICT (id_eleve, id_matiere, trimestre, annee_scolaire)
+                     DO UPDATE SET texte = EXCLUDED.texte, id_professeur = EXCLUDED.id_professeur, updated_at = NOW()`,
+                    [idEleve, profId, idMatiere, trimestre, annee_scolaire, appreciation]
+                );
+            }
+        }
+
         res.json({
             success: true,
             message: `${saved} note(s) enregistrée(s)` + (refusees ? ` — ${refusees} refusée(s) (matière non autorisée)` : '')
         });
     } catch (e) {
         console.error('Erreur saveNotes:', e);
+        res.status(500).json({ message: 'Erreur serveur' });
+    }
+};
+
+// ✅ Lecture d'une appréciation déjà enregistrée — pour pré-remplir le
+// champ côté prof plutôt que de toujours repartir d'un champ vide.
+exports.getAppreciation = async (req, res) => {
+    try {
+        const { id_eleve, id_matiere, trimestre, annee_scolaire } = req.query;
+        if (!id_eleve || !id_matiere || !trimestre) return res.status(400).json({ message: 'Paramètres manquants' });
+        const r = await db.query(
+            `SELECT texte FROM pedagogie.appreciations WHERE id_eleve = $1 AND id_matiere = $2 AND trimestre = $3 AND annee_scolaire = $4`,
+            [id_eleve, id_matiere, trimestre, annee_scolaire || '2025-2026']
+        );
+        res.json({ success: true, texte: r.rows[0]?.texte || '' });
+    } catch (e) {
+        console.error('Erreur getAppreciation:', e.message);
         res.status(500).json({ message: 'Erreur serveur' });
     }
 };

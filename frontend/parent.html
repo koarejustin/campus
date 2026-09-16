@@ -30,8 +30,6 @@
   </script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="responsive.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap"
     rel="stylesheet">
   <style>
@@ -969,8 +967,6 @@
             <button class="btn bo bs tri" onclick="selTri(3,this)">Trim. 3</button>
             <button class="btn bg bs" id="btn-pdf" onclick="dlPDF()"><i data-lucide="download"
                 style="width:12px;height:12px;"></i>PDF</button>
-            <button class="btn bo bs" onclick="window.print()"><i data-lucide="printer"
-                style="width:12px;height:12px;"></i>Imprimer</button>
           </div>
         </div>
         <div class="bul-doc" id="bul-doc">
@@ -1666,7 +1662,7 @@
           : '<td style="padding:14px 16px;"></td>';
 
         tbody += `<tr style="border-bottom:1px solid #FBF3DE;${!hasNote ? 'opacity:.5;' : ''}">
-          <td style="font-weight:700;padding:14px 16px;font-size:.82rem;">${icn(m.nom || '')} ${esc(m.nom)}${m.optionnel ? ' <span style="font-size:.6rem;color:#6B5D42">(opt.)</span>' : ''}</td>
+          <td style="font-weight:700;padding:14px 16px;font-size:.82rem;">${icn(m.nom || '')} ${esc(m.nom)}${m.optionnel ? ' <span style="font-size:.6rem;color:#6B5D42">(opt.)</span>' : ''}${m.appreciation ? `<div style="font-weight:400;font-style:italic;font-size:.7rem;color:#6B5D42;margin-top:3px;">"${esc(m.appreciation)}"</div>` : ''}</td>
           <td style="text-align:center;font-weight:800;color:#6B5D42;font-size:.85rem;padding:14px 10px;">${m.coefficient}</td>
           ${tdD}${tdMoyD}${tdCompo}${tdF}${tdAp}
         </tr>`;
@@ -1691,6 +1687,8 @@
       document.getElementById('bul-pts').textContent = mg !== null && mg !== undefined ? mg.toFixed(1) : '—';
       document.getElementById('bul-coef').textContent = 'coef total : ' + (data.detail_matieres || []).reduce((s, m) => s + (m.coefficient || 0), 0);
       document.getElementById('st-moy').textContent = mg !== null && mg !== undefined ? mg.toFixed(2) : '—';
+      const rangEl = document.getElementById('st-rang');
+      if (rangEl) rangEl.textContent = (data.rang && data.rang.position) ? data.rang.position + 'e / ' + data.rang.effectif : '—';
 
       if (window.lucide) lucide.createIcons();
     }
@@ -1706,24 +1704,19 @@
       btn.innerHTML = '<div class="spin" style="width:12px;height:12px;border-width:2px;"></div> Génération…';
       btn.disabled = true;
       try {
-        const { jsPDF } = window.jspdf;
-        const el = document.getElementById('bul-doc');
-        const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false });
-        const img = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-        const pw = pdf.internal.pageSize.getWidth();
-        const ph = pdf.internal.pageSize.getHeight();
-        const ih = (canvas.height * pw) / canvas.width;
-        let y = 0;
-        while (y < ih) {
-          if (y > 0) pdf.addPage();
-          pdf.addImage(img, 'PNG', 0, -y, pw, ih);
-          y += ph;
-        }
+        const tok = localStorage.getItem('token');
+        const tri = triActif || 1;
+        const r = await fetch(`/api/parents/bulletin-pdf?enfant_id=${E.id_enfant}&trimestre=${tri}`, {
+          headers: { 'Authorization': 'Bearer ' + tok }
+        });
+        if (!r.ok) throw new Error('Erreur serveur');
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
         const nom = (E.nom || 'enfant').replace(/\s/g, '_');
-        const tri = ['', 'T1', 'T2', 'T3'][triActif] || 'T1';
-        pdf.save(`Bulletin_${nom}_${tri}_2025-2026.pdf`);
-      } catch (e) { dlg('Erreur PDF', 'Impossible de générer le PDF. Essayez avec Chrome ou Firefox à jour.'); }
+        const a = document.createElement('a');
+        a.href = url; a.download = `Bulletin_${nom}_T${tri}_2025-2026.pdf`; a.click();
+        URL.revokeObjectURL(url);
+      } catch (e) { dlg('Erreur PDF', 'Impossible de générer le PDF. Réessayez dans un instant.'); }
       btn.innerHTML = '<i data-lucide="download" style="width:12px;height:12px;"></i>PDF';
       btn.disabled = false;
       if (window.lucide) lucide.createIcons();

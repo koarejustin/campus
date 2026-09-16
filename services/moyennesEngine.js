@@ -4,9 +4,19 @@
  * Système Post-Primaire et Secondaire (6ème → Terminale)
  * Conforme au programme officiel MENA/BF
  * ================================================================
+ * Les coefficients, la pondération devoirs/composition et les seuils
+ * de mention sont chargés depuis la base (pedagogie.coefficients et
+ * gestion.configuration) via chargerConfiguration(), appelée une fois
+ * au démarrage du serveur puis re-appelée après toute modification
+ * par la Direction — pas besoin de redéployer pour changer un barème.
+ * PROGRAMMES_DEFAUT sert uniquement de filet de sécurité si la base
+ * n'a pas encore été peuplée (premier démarrage, base vide).
+ * ================================================================
  */
 
-const PROGRAMMES = {
+const db = require('../config/db');
+
+const PROGRAMMES_DEFAUT = {
   '6ème': [
     { nom: 'Français',                          coef: 3, domaine: 'Lettres' },
     { nom: 'Mathématiques',                     coef: 3, domaine: 'Sciences' },
@@ -148,6 +158,51 @@ const PROGRAMMES = {
   ],
 };
 
+// État vivant, remplacé par chargerConfiguration() — PROGRAMMES_DEFAUT
+// reste la valeur de repli tant que la base n'a pas encore été lue.
+let PROGRAMMES = PROGRAMMES_DEFAUT;
+let PONDERATION = { devoirs: 0.4, composition: 0.6 };
+let SEUILS = { tres_bien: 16, bien: 14, assez_bien: 12, passable: 10 };
+let SEUILS_HONNEUR = { felicitations: 16, encouragement: 14, tableau_honneur: 12 };
+let ANNEE_SCOLAIRE_ACTIVE = '2025-2026';
+
+async function chargerConfiguration() {
+  try {
+    const coefRes = await db.query(
+      `SELECT classe, nom_matiere, coefficient, domaine, optionnel FROM pedagogie.coefficients ORDER BY classe, id_coefficient`
+    );
+    if (coefRes.rows.length) {
+      const programme = {};
+      for (const r of coefRes.rows) {
+        if (!programme[r.classe]) programme[r.classe] = [];
+        programme[r.classe].push({ nom: r.nom_matiere, coef: r.coefficient, domaine: r.domaine, optionnel: !!r.optionnel });
+      }
+      PROGRAMMES = programme;
+    }
+
+    const confRes = await db.query(
+      `SELECT poids_devoirs, poids_composition, seuil_tres_bien, seuil_bien, seuil_assez_bien, seuil_passable,
+              seuil_felicitations, seuil_encouragement, seuil_tableau_honneur, annee_scolaire_active
+       FROM gestion.configuration LIMIT 1`
+    );
+    if (confRes.rows.length) {
+      const c = confRes.rows[0];
+      PONDERATION = { devoirs: parseFloat(c.poids_devoirs), composition: parseFloat(c.poids_composition) };
+      SEUILS = {
+        tres_bien: parseFloat(c.seuil_tres_bien), bien: parseFloat(c.seuil_bien),
+        assez_bien: parseFloat(c.seuil_assez_bien), passable: parseFloat(c.seuil_passable),
+      };
+      SEUILS_HONNEUR = {
+        felicitations: parseFloat(c.seuil_felicitations), encouragement: parseFloat(c.seuil_encouragement),
+        tableau_honneur: parseFloat(c.seuil_tableau_honneur),
+      };
+      ANNEE_SCOLAIRE_ACTIVE = c.annee_scolaire_active || ANNEE_SCOLAIRE_ACTIVE;
+    }
+  } catch (e) {
+    console.error('chargerConfiguration (moyennesEngine): échec, valeurs par défaut conservées —', e.message);
+  }
+}
+
 const ALIAS_CLASSES = {
   '6e':'6ème','6eme':'6ème','5e':'5ème','5eme':'5ème',
   '4e':'4ème','4eme':'4ème','3e':'3ème','3eme':'3ème',
@@ -216,17 +271,29 @@ function normaliserNomMatiereAvecAlias(nom) {
 
 function getMention(m) {
   if (m === null || m === undefined) return null;
-  if (m >= 16) return 'Très Bien';
-  if (m >= 14) return 'Bien';
-  if (m >= 12) return 'Assez Bien';
-  if (m >= 10) return 'Passable';
+  if (m >= SEUILS.tres_bien) return 'Très Bien';
+  if (m >= SEUILS.bien) return 'Bien';
+  if (m >= SEUILS.assez_bien) return 'Assez Bien';
+  if (m >= SEUILS.passable) return 'Passable';
   return 'Insuffisant';
 }
 
-// Règle officielle BF (confirmée) : moyenne des devoirs = 40%, moyenne de(s) composition(s) = 60%
+// Mention d'honneur (distincte de la mention Très Bien/Bien/... —
+// celle-ci décide qui apparaît sur le tableau d'honneur/encouragements/
+// félicitations affichés en conseil de classe), réglable par la Direction.
+function getMentionHonneur(m) {
+  if (m === null || m === undefined) return null;
+  if (m >= SEUILS_HONNEUR.felicitations) return 'Félicitations';
+  if (m >= SEUILS_HONNEUR.encouragement) return 'Encouragements';
+  if (m >= SEUILS_HONNEUR.tableau_honneur) return "Tableau d'honneur";
+  return null;
+}
+
+// Pondération devoirs/composition — réglable par la Direction (voir
+// gestion.configuration), 40/60 par défaut (règle officielle BF).
 function calculerMoyenneMatiere(notes) {
   if (!notes || notes.length === 0) return null;
-  const devoirs = notes.filter(n => !n.type_evaluation || ['DEVOIR','RATTRAPAGE',null,undefined].includes(n.type_evaluation));
+  const devoirs = notes.filter(n => !n.type_evaluation || ['DEVOIR','DEVOIR1','DEVOIR2','RATTRAPAGE',null,undefined].includes(n.type_evaluation));
   const compos  = notes.filter(n => ['COMPO','COMPOSITION','EXAMEN'].includes(n.type_evaluation));
 
   if (devoirs.length === 0 && compos.length === 0) {
@@ -237,7 +304,7 @@ function calculerMoyenneMatiere(notes) {
 
   if (moyD !== null && moyC === null) return Math.round(moyD * 100) / 100;
   if (moyC !== null && moyD === null) return Math.round(moyC * 100) / 100;
-  return Math.round(((moyD * 0.4) + (moyC * 0.6)) * 100) / 100;
+  return Math.round(((moyD * PONDERATION.devoirs) + (moyC * PONDERATION.composition)) * 100) / 100;
 }
 
 function calculerMoyenneGenerale(classe, notesParMatiere) {
@@ -326,8 +393,31 @@ function getProgramme(classe) {
   return PROGRAMMES[normaliserClasse(classe)] || null;
 }
 
+// Classement compétition (1, 2, 2, 4 — les ex-æquo partagent le même
+// rang et le suivant saute le nombre de places prises, comme sur un
+// vrai bulletin). items: [{ id, moyenne }], moyenne peut être null
+// (élève sans note sur la période → pas classé, rang = null).
+function calculerRangs(items) {
+  const classables = items.filter(i => i.moyenne !== null && i.moyenne !== undefined);
+  const nonClasses = items.filter(i => i.moyenne === null || i.moyenne === undefined);
+  classables.sort((a, b) => b.moyenne - a.moyenne);
+
+  let rangCourant = 0, dernierMoyenne = null;
+  const resultats = classables.map((item, index) => {
+    if (item.moyenne !== dernierMoyenne) {
+      rangCourant = index + 1;
+      dernierMoyenne = item.moyenne;
+    }
+    return { ...item, rang: rangCourant };
+  });
+
+  return [...resultats, ...nonClasses.map(i => ({ ...i, rang: null }))];
+}
+
 module.exports = {
-  PROGRAMMES, calculerMoyenneGenerale, calculerMoyenneMatiere,
-  calculerEvolution, noteMinimalePourCible, detecterBaisses,
-  getMention, normaliserClasse, getProgramme, normaliserNomMatiereAvecAlias,
+  chargerConfiguration, calculerMoyenneGenerale, calculerMoyenneMatiere,
+  calculerEvolution, noteMinimalePourCible, detecterBaisses, calculerRangs,
+  getMention, getMentionHonneur, normaliserClasse, getProgramme, normaliserNomMatiereAvecAlias,
+  getProgrammes: () => PROGRAMMES, getPonderation: () => PONDERATION, getSeuils: () => SEUILS,
+  getSeuilsHonneur: () => SEUILS_HONNEUR, getAnneeScolaireActive: () => ANNEE_SCOLAIRE_ACTIVE,
 };

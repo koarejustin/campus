@@ -2477,6 +2477,14 @@
           <i data-lucide="award" class="ni-icon"></i><span>Élections</span>
           <span class="dir-tag" id="dt-elections">DIR</span>
         </div>
+        <div class="ni ni-locked-vis" id="ni-bareme" data-page="bareme">
+          <i data-lucide="calculator" class="ni-icon"></i><span>Barème & Notes</span>
+          <span class="dir-tag" id="dt-bareme">DIR</span>
+        </div>
+        <div class="ni ni-locked-vis" id="ni-passage" data-page="passage">
+          <i data-lucide="arrow-right-circle" class="ni-icon"></i><span>Passage de classe</span>
+          <span class="dir-tag" id="dt-passage">DIR</span>
+        </div>
         <div class="ni ni-locked-vis" id="ni-params" data-page="params">
           <i data-lucide="settings" class="ni-icon"></i><span>Paramètres</span>
           <span class="dir-tag" id="dt-params">DIR</span>
@@ -3341,22 +3349,31 @@
     <div id="s-corps" class="sec">
       <div style="display:grid;grid-template-columns:1fr 340px;gap:14px;">
         <div class="card" style="padding:20px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <div style="font-size:.9rem;font-weight:800;color:#1E2818;">Corps Enseignant</div>
-            <div style="display:flex;gap:8px;">
-              <input type="text" id="corps-srch" placeholder="Rechercher prof…" style="width:180px;"
-                oninput="filtCorps()">
+          <div style="display:flex;gap:0;margin-bottom:16px;border-radius:10px;overflow:hidden;border:1.5px solid #DCD3B8;width:fit-content;">
+            <button id="corps-tab-profs-btn" onclick="switchCorpsRoleTab('profs')"
+              style="padding:9px 20px;font-size:.78rem;font-weight:800;border:none;background:#2F6B3F;color:#fff;cursor:pointer;font-family:inherit;">
+              Professeurs <span id="corps-count-profs" style="opacity:.85;"></span></button>
+            <button id="corps-tab-survs-btn" onclick="switchCorpsRoleTab('survs')"
+              style="padding:9px 20px;font-size:.78rem;font-weight:800;border:none;background:#FDFAF2;color:#5A4D36;cursor:pointer;font-family:inherit;">
+              Surveillants <span id="corps-count-survs" style="opacity:.85;"></span></button>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap;">
+            <input type="text" id="corps-srch" placeholder="Rechercher un professeur…" style="width:180px;"
+              oninput="filtCorps()">
+            <div id="corps-actions-profs" style="display:flex;gap:8px;">
               <button class="btn-p" style="font-size:.72rem;background:#D4A94A;white-space:nowrap;" onclick="openImportGenerique('professeurs')">
                 <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer (Excel)
               </button>
               <button class="btn-p" style="font-size:.72rem;background:linear-gradient(135deg,#2F6B3F,#1F4A2C);white-space:nowrap;" onclick="openAddCorps()">
                 <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un professeur
               </button>
+            </div>
+            <div id="corps-actions-survs" style="display:none;gap:8px;">
+              <button class="btn-p" style="font-size:.72rem;background:#D4A94A;white-space:nowrap;" onclick="openImportGenerique('surveillants')">
+                <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer (Excel)
+              </button>
               <button class="btn-p" style="font-size:.72rem;background:#6F5216;white-space:nowrap;" onclick="openAddSurveillant()">
                 <i data-lucide="plus" style="width:14px;height:14px;"></i> Ajouter un surveillant
-              </button>
-              <button class="btn-p" style="font-size:.72rem;background:#D4A94A;white-space:nowrap;" onclick="openImportGenerique('surveillants')">
-                <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer surveillants (Excel)
               </button>
             </div>
           </div>
@@ -3939,6 +3956,98 @@
       </div>
     </div>
 
+    <!-- ══════════ BARÈME & NOTES ══════════ -->
+    <div id="s-bareme" class="sec">
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:14px;">
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap;">
+            <div style="font-size:.9rem;font-weight:800;color:#1E2818;">Coefficients par classe</div>
+            <select id="bareme-classe" onchange="loadCoefficientsClasse()" style="width:160px;">
+              <option value="6ème">6ème</option>
+              <option value="5ème">5ème</option>
+              <option value="4ème">4ème</option>
+              <option value="3ème">3ème</option>
+              <option value="2nde A">2nde A</option>
+              <option value="2nde C">2nde C</option>
+              <option value="1ère A">1ère A</option>
+              <option value="1ère C">1ère C</option>
+              <option value="1ère D">1ère D</option>
+              <option value="Tle A">Tle A</option>
+              <option value="Tle C">Tle C</option>
+              <option value="Tle D">Tle D</option>
+            </select>
+          </div>
+          <div id="bareme-list">
+            <div style="text-align:center;padding:30px;color:#6B5D42;">Chargement…</div>
+          </div>
+        </div>
+        <div class="card" style="padding:20px;">
+          <div style="font-size:.9rem;font-weight:800;color:#1E2818;margin-bottom:14px;">Pondération & mentions</div>
+          <div style="font-size:.72rem;font-weight:700;color:#5A4D36;margin-bottom:8px;">Devoirs / Composition (somme = 1)</div>
+          <div style="display:flex;gap:8px;margin-bottom:16px;">
+            <div style="flex:1;"><label style="font-size:.65rem;">Devoirs</label><input id="pond-devoirs" type="number" min="0" max="1" step="0.05"></div>
+            <div style="flex:1;"><label style="font-size:.65rem;">Composition</label><input id="pond-composition" type="number" min="0" max="1" step="0.05"></div>
+          </div>
+          <div style="font-size:.72rem;font-weight:700;color:#5A4D36;margin-bottom:8px;">Seuils de mention (sur 20)</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+            <div><label style="font-size:.65rem;">Très Bien à partir de</label><input id="seuil-tb" type="number" min="0" max="20" step="0.5"></div>
+            <div><label style="font-size:.65rem;">Bien à partir de</label><input id="seuil-b" type="number" min="0" max="20" step="0.5"></div>
+            <div><label style="font-size:.65rem;">Assez Bien à partir de</label><input id="seuil-ab" type="number" min="0" max="20" step="0.5"></div>
+            <div><label style="font-size:.65rem;">Passable à partir de</label><input id="seuil-p" type="number" min="0" max="20" step="0.5"></div>
+          </div>
+          <div style="font-size:.72rem;font-weight:700;color:#5A4D36;margin-bottom:8px;">Mentions d'honneur — conseil de classe (sur 20)</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+            <div><label style="font-size:.65rem;">Félicitations à partir de</label><input id="seuil-felic" type="number" min="0" max="20" step="0.5"></div>
+            <div><label style="font-size:.65rem;">Encouragements à partir de</label><input id="seuil-encour" type="number" min="0" max="20" step="0.5"></div>
+            <div><label style="font-size:.65rem;">Tableau d'honneur à partir de</label><input id="seuil-tabhonneur" type="number" min="0" max="20" step="0.5"></div>
+          </div>
+          <button class="btn-p" style="width:100%;justify-content:center;" onclick="saveConfigurationNotes()">
+            <i data-lucide="save" style="width:13px;height:13px;"></i>Enregistrer
+          </button>
+          <div id="bareme-conf-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ PASSAGE DE CLASSE ══════════ -->
+    <div id="s-passage" class="sec">
+      <div class="card" style="padding:16px 20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-size:.7rem;color:#6B5D42;">ANNÉE SCOLAIRE ACTIVE</div>
+          <div style="font-size:1.1rem;font-weight:900;color:#1E2818;" id="passage-annee-active">—</div>
+        </div>
+        <button class="btn-p" style="background:#6F5216;" onclick="confirmerAvancerAnnee()">
+          <i data-lucide="calendar-plus" style="width:14px;height:14px;"></i>Démarrer la nouvelle année scolaire
+        </button>
+      </div>
+      <div class="card" style="padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;flex-wrap:wrap;">
+          <div style="font-size:.9rem;font-weight:800;color:#1E2818;">Décisions de fin d'année, par classe</div>
+          <select id="passage-classe" onchange="loadRosterPassage()" style="width:160px;">
+            <option value="6ème">6ème</option>
+            <option value="5ème">5ème</option>
+            <option value="4ème">4ème</option>
+            <option value="3ème">3ème</option>
+            <option value="2nde A">2nde A</option>
+            <option value="2nde C">2nde C</option>
+            <option value="1ère A">1ère A</option>
+            <option value="1ère C">1ère C</option>
+            <option value="1ère D">1ère D</option>
+            <option value="Tle A">Tle A</option>
+            <option value="Tle C">Tle C</option>
+            <option value="Tle D">Tle D</option>
+          </select>
+        </div>
+        <div id="passage-roster">
+          <div style="text-align:center;padding:30px;color:#6B5D42;">Chargement…</div>
+        </div>
+        <button class="btn-p" style="width:100%;justify-content:center;margin-top:14px;" onclick="validerPassage()">
+          <i data-lucide="check" style="width:14px;height:14px;"></i>Valider le passage pour cette classe
+        </button>
+        <div id="passage-msg" style="display:none;margin-top:8px;font-size:.72rem;padding:8px;border-radius:7px;font-weight:600;"></div>
+      </div>
+    </div>
+
     <!-- ══════════ PARAMÈTRES DE L'ÉTABLISSEMENT ══════════ -->
     <div id="s-params" class="sec">
       <div class="card" style="width:100%;box-sizing:border-box;">
@@ -4041,6 +4150,194 @@
       ape: 'APE', alumni: 'Anciens Élèves', direction: 'Direction'
     };
     let paramsLogoFile = null;
+
+    // ══════════════════════════════════════
+    // BARÈME & NOTES — coefficients par classe, pondération, mentions.
+    // Chaque sauvegarde recharge immédiatement le moteur de calcul côté
+    // serveur (voir moyennesEngine.chargerConfiguration) : pas besoin de
+    // redéployer, les bulletins reflètent le changement à la requête suivante.
+    // ══════════════════════════════════════
+    async function loadBareme() {
+      loadCoefficientsClasse();
+      try {
+        const d = await api('/admin/configuration-notes');
+        if (d.success && d.config) {
+          $('pond-devoirs').value = d.config.poids_devoirs ?? 0.4;
+          $('pond-composition').value = d.config.poids_composition ?? 0.6;
+          $('seuil-tb').value = d.config.seuil_tres_bien ?? 16;
+          $('seuil-b').value = d.config.seuil_bien ?? 14;
+          $('seuil-ab').value = d.config.seuil_assez_bien ?? 12;
+          $('seuil-p').value = d.config.seuil_passable ?? 10;
+          $('seuil-felic').value = d.config.seuil_felicitations ?? 16;
+          $('seuil-encour').value = d.config.seuil_encouragement ?? 14;
+          $('seuil-tabhonneur').value = d.config.seuil_tableau_honneur ?? 12;
+        }
+      } catch (e) { console.warn('loadBareme config:', e.message); }
+    }
+
+    async function loadCoefficientsClasse() {
+      const classe = $('bareme-classe')?.value || '6ème';
+      $('bareme-list').innerHTML = '<div style="text-align:center;padding:30px;color:#6B5D42;">Chargement…</div>';
+      try {
+        const d = await api('/admin/coefficients?classe=' + encodeURIComponent(classe));
+        const rows = d.coefficients || [];
+        if (!rows.length) {
+          $('bareme-list').innerHTML = '<div style="text-align:center;padding:30px;color:#6B5D42;">Aucune matière pour cette classe.</div>';
+          return;
+        }
+        $('bareme-list').innerHTML = rows.map(r => `
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #F2ECDE;">
+            <div style="flex:1;">
+              <div style="font-size:.8rem;font-weight:700;color:#1E2818;">${esc(r.nom_matiere)}${r.optionnel ? ' <span style="font-size:.6rem;color:#6B5D42;">(optionnel)</span>' : ''}</div>
+              <div style="font-size:.65rem;color:#6B5D42;">${esc(r.domaine || '')}</div>
+            </div>
+            <input type="number" min="1" max="20" value="${r.coefficient}" id="coef-${r.id_coefficient}"
+              style="width:60px;text-align:center;padding:6px;border:1.5px solid #DCD3B8;border-radius:7px;font-weight:800;">
+            <button class="btn-p" style="font-size:.68rem;padding:6px 10px;" onclick="saveCoefficient(${r.id_coefficient})">Enregistrer</button>
+          </div>`).join('');
+      } catch (e) {
+        $('bareme-list').innerHTML = '<div style="text-align:center;padding:30px;color:#6B5D42;">Erreur de chargement.</div>';
+      }
+    }
+
+    async function saveCoefficient(id) {
+      const val = $('coef-' + id)?.value;
+      try {
+        const d = await api('/admin/coefficients/' + id, { method: 'PUT', body: JSON.stringify({ coefficient: val }) });
+        if (d.success) toast('Coefficient mis à jour', 'ok');
+        else toast('' + (d.message || 'Erreur'), 'err');
+      } catch (e) { toast('Erreur réseau', 'err'); }
+    }
+
+    async function saveConfigurationNotes() {
+      const body = {
+        poids_devoirs: $('pond-devoirs').value,
+        poids_composition: $('pond-composition').value,
+        seuil_tres_bien: $('seuil-tb').value,
+        seuil_bien: $('seuil-b').value,
+        seuil_assez_bien: $('seuil-ab').value,
+        seuil_passable: $('seuil-p').value,
+        seuil_felicitations: $('seuil-felic').value,
+        seuil_encouragement: $('seuil-encour').value,
+        seuil_tableau_honneur: $('seuil-tabhonneur').value,
+      };
+      const msgEl = $('bareme-conf-msg');
+      try {
+        const d = await api('/admin/configuration-notes', { method: 'PUT', body: JSON.stringify(body) });
+        if (d.success) {
+          showMsg(msgEl, 'Enregistré — appliqué immédiatement à tous les bulletins', 'ok');
+          toast('Configuration enregistrée', 'ok');
+        } else {
+          showMsg(msgEl, '' + (d.message || 'Erreur'), 'err');
+        }
+      } catch (e) { showMsg(msgEl, 'Erreur réseau', 'err'); }
+    }
+
+    // ══════════════════════════════════════
+    // PASSAGE DE CLASSE — voir services/bulletinService.js
+    // (construireRosterPassage) pour le calcul de la moyenne annuelle et
+    // de la décision suggérée par élève.
+    // ══════════════════════════════════════
+    const CLASSE_SUIVANTE = {
+      '6ème': '5ème', '5ème': '4ème', '4ème': '3ème', '3ème': '2nde A',
+      '2nde A': '1ère A', '2nde C': '1ère C',
+      '1ère A': 'Tle A', '1ère C': 'Tle C', '1ère D': 'Tle D',
+    };
+    const TOUTES_CLASSES = ['6ème', '5ème', '4ème', '3ème', '2nde A', '2nde C', '1ère A', '1ère C', '1ère D', 'Tle A', 'Tle C', 'Tle D'];
+    let passageRosterData = [];
+
+    async function loadPassage() {
+      try {
+        const d = await api('/admin/annee-scolaire');
+        if (d.success) $('passage-annee-active').textContent = d.annee_scolaire_active;
+      } catch (e) { console.warn('loadPassage annee:', e.message); }
+      loadRosterPassage();
+    }
+
+    function optionsClasses(classeActuelle, selected) {
+      return TOUTES_CLASSES.map(c => `<option value="${c}" ${c === selected ? 'selected' : ''}>${c}</option>`).join('');
+    }
+
+    async function loadRosterPassage() {
+      const classe = $('passage-classe')?.value || '6ème';
+      $('passage-roster').innerHTML = '<div style="text-align:center;padding:30px;color:#6B5D42;">Chargement…</div>';
+      try {
+        const d = await api('/admin/passage/roster?classe=' + encodeURIComponent(classe));
+        passageRosterData = d.roster || [];
+        if (!passageRosterData.length) {
+          $('passage-roster').innerHTML = '<div style="text-align:center;padding:30px;color:#6B5D42;">Aucun élève actif dans cette classe.</div>';
+          return;
+        }
+        const classeSuivante = CLASSE_SUIVANTE[classe] || classe;
+        $('passage-roster').innerHTML = `
+          <div style="display:grid;grid-template-columns:1.6fr .8fr 1fr 1fr;gap:8px;padding:6px 4px;font-size:.62rem;font-weight:800;color:#6B5D42;text-transform:uppercase;letter-spacing:.05em;">
+            <div>Élève</div><div>Moy. annuelle</div><div>Décision</div><div>Classe d'arrivée</div>
+          </div>` + passageRosterData.map((e, i) => `
+          <div style="display:grid;grid-template-columns:1.6fr .8fr 1fr 1fr;gap:8px;align-items:center;padding:8px 4px;border-top:1px solid #F2ECDE;">
+            <div>
+              <div style="font-size:.8rem;font-weight:700;color:#1E2818;">${esc(e.prenom)} ${esc(e.nom)}</div>
+              <div style="font-size:.62rem;color:#6B5D42;">${esc(e.code_unique)}</div>
+            </div>
+            <div style="font-size:.85rem;font-weight:800;color:${e.moyenne_annuelle === null ? '#6B5D42' : (e.moyenne_annuelle >= 10 ? '#2F6B3F' : '#A93226')};">
+              ${e.moyenne_annuelle !== null ? e.moyenne_annuelle.toFixed(2) : '—'}
+            </div>
+            <select id="pas-dec-${i}" onchange="majClasseArrivee(${i})" style="font-size:.75rem;padding:6px;">
+              <option value="PROMU" ${e.decision_suggeree === 'PROMU' ? 'selected' : ''}>Promu(e)</option>
+              <option value="REDOUBLE" ${e.decision_suggeree === 'REDOUBLE' ? 'selected' : ''}>Redouble</option>
+              <option value="DIPLOME" ${e.decision_suggeree === 'DIPLOME' ? 'selected' : ''}>Diplômé(e)</option>
+              <option value="PARTI">Quitte l'établissement</option>
+            </select>
+            <select id="pas-cls-${i}" style="font-size:.75rem;padding:6px;">
+              ${optionsClasses(classe, e.decision_suggeree === 'PROMU' ? classeSuivante : classe)}
+            </select>
+          </div>`).join('');
+      } catch (e) {
+        $('passage-roster').innerHTML = '<div style="text-align:center;padding:30px;color:#6B5D42;">Erreur de chargement.</div>';
+      }
+    }
+
+    function majClasseArrivee(i) {
+      const dec = $('pas-dec-' + i)?.value;
+      const clsSel = $('pas-cls-' + i);
+      if (!clsSel) return;
+      clsSel.disabled = (dec === 'DIPLOME' || dec === 'PARTI');
+      if (dec === 'REDOUBLE') clsSel.value = $('passage-classe').value;
+      else if (dec === 'PROMU') clsSel.value = CLASSE_SUIVANTE[$('passage-classe').value] || $('passage-classe').value;
+    }
+
+    async function validerPassage() {
+      const decisions = passageRosterData.map((e, i) => {
+        const decision = $('pas-dec-' + i)?.value;
+        const classe_arrivee = (decision === 'DIPLOME' || decision === 'PARTI') ? null : $('pas-cls-' + i)?.value;
+        return { id_eleve: e.id_eleve, decision, classe_arrivee, moyenne_annuelle: e.moyenne_annuelle };
+      });
+      const msgEl = $('passage-msg');
+      if (!confirm(`Confirmer le passage pour ${decisions.length} élève(s) ? Cette action change leur classe/statut immédiatement.`)) return;
+      try {
+        const d = await api('/admin/passage/executer', { method: 'POST', body: JSON.stringify({ decisions }) });
+        if (d.success) {
+          showMsg(msgEl, `${d.traites} élève(s) traité(s)`, 'ok');
+          toast('Passage enregistré', 'ok');
+          loadRosterPassage();
+        } else {
+          showMsg(msgEl, '' + (d.message || 'Erreur'), 'err');
+        }
+      } catch (e) { showMsg(msgEl, 'Erreur réseau', 'err'); }
+    }
+
+    async function confirmerAvancerAnnee() {
+      const active = $('passage-annee-active')?.textContent || '';
+      if (!confirm(`Démarrer une nouvelle année scolaire après ${active} ? Fais ça uniquement une fois toutes les classes traitées — les nouvelles notes saisies par les profs seront alors rattachées à la nouvelle année.`)) return;
+      try {
+        const d = await api('/admin/annee-scolaire/avancer', { method: 'POST' });
+        if (d.success) {
+          $('passage-annee-active').textContent = d.annee_scolaire_active;
+          toast('Nouvelle année scolaire démarrée : ' + d.annee_scolaire_active, 'ok');
+        } else {
+          toast('' + (d.message || 'Erreur'), 'err');
+        }
+      } catch (e) { toast('Erreur réseau', 'err'); }
+    }
 
     async function loadParametres() {
       try {
@@ -4205,7 +4502,7 @@
       // garde Absences/Convocations/Emploi du temps/Élèves (déjà visibles par
       // défaut) mais pas ces responsabilités de direction.
       if (ROLE === 'DIRECTION') {
-        ['ni-flux', 'ni-corps', 'ni-parents', 'ni-alumni', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections', 'ni-params'].forEach(id => {
+        ['ni-flux', 'ni-corps', 'ni-parents', 'ni-alumni', 'ni-sign', 'ni-compta', 'ni-agenda', 'ni-compo', 'ni-elections', 'ni-bareme', 'ni-passage', 'ni-params'].forEach(id => {
           const el = $(id); const page = el?.dataset.page;
           if (el && page) {
             el.classList.remove('ni-locked-vis');
@@ -4244,6 +4541,8 @@
       compo: { sec: 's-compo', title: 'Compositions & Examens', sub: 'Planification des épreuves — Examens réservés aux classes terminales' },
       elections: { sec: 's-elections', title: 'Élections Scolaires', sub: 'Chef de Classe & Bureau des Élèves — Nomination officielle' },
       params: { sec: 's-params', title: 'Paramètres de l\'établissement', sub: 'Nom, logo, coordonnées et images du portail d\'accueil' },
+      bareme: { sec: 's-bareme', title: 'Barème & Notes', sub: 'Coefficients par classe, pondération devoirs/composition, seuils de mention — appliqués immédiatement à tous les bulletins' },
+      passage: { sec: 's-passage', title: 'Passage de classe', sub: 'Promotion, redoublement, fin de scolarité — et démarrage de la nouvelle année scolaire' },
     };
     function go(page, navEl) {
       const cfg = PAGES[page]; if (!cfg) return;
@@ -4273,6 +4572,8 @@
       if (page === 'compo') loadCompositions();
       if (page === 'elections') loadElections();
       if (page === 'params') loadParametres();
+      if (page === 'bareme') loadBareme();
+      if (page === 'passage') loadPassage();
     }
     // ══════════════════════════════════════
     // STATS
@@ -4722,6 +5023,15 @@
           + '</div>'
           + '<div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Téléphone parent</label>'
           + '<input id="ae-tel" type="tel" placeholder="+226 XX XX XX XX" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Sexe</label>'
+          + '<select id="ae-sexe" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;">'
+          + '<option value="">—</option><option value="M">M</option><option value="F">F</option></select></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Date de naissance</label>'
+          + '<input id="ae-date-naissance" type="date" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '<div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Lieu de naissance</label>'
+          + '<input id="ae-lieu-naissance" type="text" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.78rem;font-family:inherit;box-sizing:border-box;"></div>'
+          + '</div>'
           + '<div id="ae-msg" style="display:none;"></div>'
           + '<button onclick="submitAddEleve()" style="background:linear-gradient(135deg,#2F6B3F,#1F4A2C);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">Créer le compte élève</button>'
           + '</div></div>';
@@ -4739,13 +5049,16 @@
       const classe = document.getElementById('ae-classe')?.value;
       const email = document.getElementById('ae-email')?.value?.trim();
       const tel = document.getElementById('ae-tel')?.value?.trim();
+      const sexe = document.getElementById('ae-sexe')?.value || null;
+      const dateNaissance = document.getElementById('ae-date-naissance')?.value || null;
+      const lieuNaissance = document.getElementById('ae-lieu-naissance')?.value?.trim() || null;
       const msgEl = document.getElementById('ae-msg');
       if (!prenom || !nom || !classe) { toast('Prénom, nom et classe requis', 'err'); return; }
       if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Création en cours...'; msgEl.style.color = '#5A4D36'; }
       try {
         const d = await api('/admin/eleves', {
           method: 'POST',
-          body: JSON.stringify({ prenom, nom, classe, email, telephone: tel })
+          body: JSON.stringify({ prenom, nom, classe, email, telephone: tel, sexe, date_naissance: dateNaissance, lieu_naissance: lieuNaissance })
         });
         if (d.success) {
           const inner = document.getElementById('m-add-eleve')?.querySelector('.dir-modal');
@@ -4912,67 +5225,11 @@
     function imprimerFichesIdentifiants(comptes) {
       if (!comptes || !comptes.length) return;
       const ecole = (window._ecoleConfig && window._ecoleConfig.nom_etablissement) || 'Établissement';
-      const logo = (window._ecoleConfig && window._ecoleConfig.logo_url) || '';
-      const url = window.location.origin;
-
-      const cartes = comptes.map(c => `
-        <div class="fiche">
-          <div class="fiche-motif">
-            <svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="34" fill="none" stroke="#fff" stroke-width="2" opacity=".35"/><circle cx="35" cy="35" r="20" fill="none" stroke="#fff" stroke-width="2" opacity=".35"/></svg>
-          </div>
-          <div class="fiche-hd">
-            ${logo ? `<img src="${logo}" class="fiche-logo">` : '<div class="fiche-logo fiche-logo-vide">🎓</div>'}
-            <div class="fiche-ecole">${esc(ecole)}</div>
-          </div>
-          <div class="fiche-corps">
-            <div class="fiche-nom">${esc(c.prenom || '')} ${esc((c.nom || '').toUpperCase())}</div>
-            <div class="fiche-classe">${esc(c.classe || '') || (c.nom_enfant ? 'Parent de ' + esc(c.prenom_enfant || '') + ' ' + esc(c.nom_enfant || '') + ' (' + esc(c.classe_enfant || '') + ')' : '')}</div>
-            <div class="fiche-champ">
-              <span class="fiche-label">Matricule</span>
-              <span class="fiche-val">${esc(c.code_unique || '')}</span>
-            </div>
-            <div class="fiche-champ">
-              <span class="fiche-label">Mot de passe</span>
-              <span class="fiche-val fiche-val-mdp">${esc(c.mot_de_passe_temporaire || '')}</span>
-            </div>
-            <div class="fiche-url">${esc(url)}</div>
-          </div>
-        </div>
-      `).join('');
-
-      const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fiches identifiants — ${esc(ecole)}</title>
-      <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 12mm; background: #F2ECDE; }
-        .grille { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
-        .fiche { border-radius: 14px; overflow: hidden; break-inside: avoid; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); border: 1px solid #DCD3B8; }
-        .fiche-hd { position: relative; display: flex; align-items: center; gap: 9px; padding: 12px 14px; background: linear-gradient(135deg, #2F6B3F, #1F4A2C); overflow: hidden; }
-        .fiche-motif { position: absolute; top: -14px; right: -14px; pointer-events: none; }
-        .fiche-logo { width: 28px; height: 28px; object-fit: contain; border-radius: 7px; background: #fff; padding: 2px; position: relative; z-index: 1; }
-        .fiche-logo-vide { display: flex; align-items: center; justify-content: center; font-size: 15px; }
-        .fiche-ecole { font-size: 11px; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: .03em; position: relative; z-index: 1; }
-        .fiche-corps { padding: 12px 14px 10px; }
-        .fiche-nom { font-size: 15px; font-weight: 800; color: #1E2818; }
-        .fiche-classe { font-size: 11px; color: #1F4A2C; font-weight: 700; margin-bottom: 8px; }
-        .fiche-champ { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-top: 1px dashed #DCD3B8; }
-        .fiche-label { font-size: 10px; color: #6B5D42; }
-        .fiche-val { font-size: 13px; font-weight: 800; font-family: 'Courier New', monospace; color: #1E2818; }
-        .fiche-val-mdp { color: #2F6B3F; }
-        .fiche-url { margin-top: 9px; font-size: 9.5px; color: #6B5D42; text-align: center; }
-        @media print {
-          body { padding: 6mm; background: #fff; }
-          .fiche { box-shadow: none; border-color: #CFC49F; }
-          .fiche-hd { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        }
-      </style></head>
-      <body><div class="grille">${cartes}</div>
-      <script>window.onload = () => setTimeout(() => window.print(), 300);<\/script>
-      </body></html>`;
-
-      const w = window.open('', '_blank');
-      if (!w) { alert('Autorise les pop-ups pour imprimer les fiches.'); return; }
-      w.document.write(html);
-      w.document.close();
+      downloadPdf('/admin/fiches-identifiants/pdf', {
+        comptes,
+        ecole,
+        siteUrl: window.location.origin
+      }, `fiches-identifiants_${new Date().toISOString().split('T')[0]}.pdf`);
     }
 
     // ═══════════════════════════════════════════
@@ -6018,6 +6275,9 @@
             col: '#5C7A3D'
           }));
           corpsData = [...profs, ...survs];
+          const cp = $('corps-count-profs'), cs = $('corps-count-survs');
+          if (cp) cp.textContent = '(' + profs.length + ')';
+          if (cs) cs.textContent = '(' + survs.length + ')';
           renderCorps();
           // Cahier de textes
           loadCahiersDir();
@@ -6220,9 +6480,30 @@
       }
     }
 
+    let corpsRoleTab = 'profs';
+
+    function switchCorpsRoleTab(tab) {
+      corpsRoleTab = tab;
+      const profsActive = tab === 'profs';
+      const profsBtn = $('corps-tab-profs-btn'), survsBtn = $('corps-tab-survs-btn');
+      if (profsBtn) { profsBtn.style.background = profsActive ? '#2F6B3F' : '#FDFAF2'; profsBtn.style.color = profsActive ? '#fff' : '#5A4D36'; }
+      if (survsBtn) { survsBtn.style.background = profsActive ? '#FDFAF2' : '#6F5216'; survsBtn.style.color = profsActive ? '#5A4D36' : '#fff'; }
+      const actionsProfs = $('corps-actions-profs'), actionsSurvs = $('corps-actions-survs');
+      if (actionsProfs) actionsProfs.style.display = profsActive ? 'flex' : 'none';
+      if (actionsSurvs) actionsSurvs.style.display = profsActive ? 'none' : 'flex';
+      const srch = $('corps-srch');
+      if (srch) { srch.placeholder = profsActive ? 'Rechercher un professeur…' : 'Rechercher un surveillant…'; srch.value = ''; }
+      renderCorps();
+    }
+
     function renderCorps() {
       const q = ($('corps-srch')?.value || '').toLowerCase();
-      const r = corpsData.filter(p => !q || (p.nom + p.mat).toLowerCase().includes(q));
+      const wantRole = corpsRoleTab === 'profs' ? 'PROFESSEUR' : 'SURVEILLANT';
+      const r = corpsData.filter(p => p.role === wantRole && (!q || (p.nom + p.mat).toLowerCase().includes(q)));
+      if (!r.length) {
+        $('corps-list').innerHTML = `<div style="text-align:center;padding:30px;color:#6B5D42;">${corpsRoleTab === 'profs' ? 'Aucun professeur' : 'Aucun surveillant'} trouvé.</div>`;
+        return;
+      }
       $('corps-list').innerHTML = r.map(p => `
     <div class="prof-card">
       <div class="prof-av" style="background:${p.col};flex-shrink:0;">${p.nom.charAt(0)}</div>
@@ -7884,12 +8165,36 @@
       toast('Fichier Excel téléchargé', 'ok');
     }
 
+    // Télécharge un PDF généré côté serveur (remplace window.print()) :
+    // POST le body JSON, récupère un blob, déclenche le téléchargement —
+    // même mécanique que exportAbsencesToExcel() plus haut.
+    async function downloadPdf(path, body, filename) {
+      try {
+        const res = await fetch('/api' + path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOK },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) { toast('Erreur lors de la génération du PDF', 'err'); return; }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast('PDF téléchargé', 'ok');
+      } catch (e) { toast('Erreur réseau', 'err'); }
+    }
+
     function printAbsences() {
-      window.print();
+      downloadPdf('/surveillants/absences/pdf', { absences: getFilteredAbsences() }, `absences_${new Date().toISOString().split('T')[0]}.pdf`);
     }
 
     function printConvocations() {
-      window.print();
+      const q = ($('cv-srch')?.value || '').toLowerCase();
+      const filtered = convData.filter(c => !q || ((c.nom || '') + (c.prenom || '') + (c.code_unique || '') + (c.motif || '') + (c.classe_actuelle || '')).toLowerCase().includes(q));
+      downloadPdf('/surveillants/convocations/pdf', { convocations: filtered }, `convocations_${new Date().toISOString().split('T')[0]}.pdf`);
     }
 
     // ========== OUVERTURE MODAL ABSENCE ==========

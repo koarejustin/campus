@@ -1463,13 +1463,77 @@ exports.getMoyennesAvancees = async (req, res) => {
 
         // 6. Calcul principal via le moteur BF
         const resultat = engine.calculerMoyenneGenerale(classe_actuelle, notesParMatiere);
+
+        // 6a. Appréciations des professeurs (une par matière x trimestre —
+        // sur "tous" les trimestres on prend la plus récente par matière).
+        const apprecRes = await db.query(`
+            SELECT m.nom_matiere, a.texte, a.trimestre
+            FROM pedagogie.appreciations a
+            JOIN pedagogie.matieres m ON a.id_matiere = m.id_matiere
+            WHERE a.id_eleve = $1 ${trimestreDemande ? 'AND a.trimestre = $2' : ''}
+            ORDER BY a.trimestre DESC
+        `, trimestreDemande ? [eleveId, trimestreDemande] : [eleveId]);
+        const apprecParMatiere = {};
+        for (const a of apprecRes.rows) {
+            if (!apprecParMatiere[a.nom_matiere]) apprecParMatiere[a.nom_matiere] = a.texte;
+            apprecParMatiere[_norm(a.nom_matiere)] = apprecParMatiere[_norm(a.nom_matiere)] || a.texte;
+        }
+
         // Enrichir chaque matière — cherche par nom exact puis normalisé
         resultat.detail_matieres = resultat.detail_matieres.map(m => ({
             ...m,
             notes_detail: detailNotesParMatiere[m.nom]
                        || detailNotesParMatiere[_norm(m.nom)]
                        || null,
+            appreciation: apprecParMatiere[m.nom] || apprecParMatiere[_norm(m.nom)] || null,
         }));
+
+        // 6b. Rang dans la classe — même filtre de trimestre que l'élève,
+        // calculé sur tous les élèves actifs de la même classe.
+        let rangInfo = { position: null, effectif: 0, moyenne_classe: null, meilleure_moyenne: null, plus_faible_moyenne: null };
+        try {
+            const camaradesRes = await db.query(
+                `SELECT c.id_user FROM vie_scolaire.profils_eleves pe
+                 JOIN authentification.comptes c ON c.id_user = pe.id_user
+                 WHERE pe.classe_actuelle = $1 AND c.role_actuel = 'ELEVE' AND c.est_actif = true`,
+                [classe_actuelle]
+            );
+            const idsClasse = camaradesRes.rows.map(r => r.id_user);
+            if (idsClasse.length) {
+                const notesClasseRes = await db.query(`
+                    SELECT n.id_eleve, n.note, n.trimestre, COALESCE(n.type_evaluation,'DEVOIR') AS type_evaluation,
+                           COALESCE(m.nom_matiere, 'Matière inconnue') AS nom_matiere
+                    FROM pedagogie.notes_evaluations n
+                    LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
+                    WHERE n.id_eleve = ANY($1::uuid[])
+                `, [idsClasse]);
+                const parEleve = {};
+                for (const id of idsClasse) parEleve[id] = [];
+                for (const n of notesClasseRes.rows) {
+                    if (trimestreDemande && parseInt(n.trimestre) !== trimestreDemande) continue;
+                    if (parEleve[n.id_eleve]) parEleve[n.id_eleve].push(n);
+                }
+                const moyennesClasse = idsClasse.map(id => {
+                    const parMat = {};
+                    for (const n of parEleve[id]) {
+                        if (!parMat[n.nom_matiere]) parMat[n.nom_matiere] = [];
+                        parMat[n.nom_matiere].push(n);
+                    }
+                    const npm = Object.entries(parMat).map(([nom_matiere, notes]) => ({ nom_matiere, notes }));
+                    return { id, moyenne: engine.calculerMoyenneGenerale(classe_actuelle, npm).moyenne_generale };
+                });
+                const classes = engine.calculerRangs(moyennesClasse);
+                const moi = classes.find(c => c.id === eleveId);
+                const valides = classes.map(c => c.moyenne).filter(m => m !== null);
+                rangInfo = {
+                    position: moi ? moi.rang : null,
+                    effectif: idsClasse.length,
+                    moyenne_classe: valides.length ? Math.round((valides.reduce((a, b) => a + b, 0) / valides.length) * 100) / 100 : null,
+                    meilleure_moyenne: valides.length ? Math.max(...valides) : null,
+                    plus_faible_moyenne: valides.length ? Math.min(...valides) : null,
+                };
+            }
+        } catch (e) { console.error('Calcul rang classe:', e.message); }
 
         // 7. Évolution trimestrielle
         const evolution = engine.calculerEvolution(toutesNotes, classe_actuelle);
@@ -1521,6 +1585,7 @@ exports.getMoyennesAvancees = async (req, res) => {
             moyenne_generale: resultat.moyenne_generale,
             mention: resultat.mention,
             admis: resultat.admis,
+            rang: rangInfo,
             detail_matieres: resultat.detail_matieres,
             programme_officiel: engine.getProgramme(classe_actuelle),
             evolution_trimestrielle: evolution,
@@ -1540,6 +1605,25 @@ exports.getMoyennesAvancees = async (req, res) => {
     } catch (error) {
         console.error('getMoyennesAvancees:', error.message);
         res.status(500).json({ success: false, message: 'Erreur serveur', error: error.message });
+    }
+};
+
+// ✅ Bulletin PDF — remplace window.print() par un vrai document généré
+// serveur, avec rang et appréciation du professeur (voir services/
+// bulletinService.js et services/pdfService.js).
+exports.getBulletinPdf = async (req, res) => {
+    try {
+        const eleveId = req.user?.id;
+        const trimestre = parseInt(req.query.trimestre) || 1;
+        const anneeScolaire = req.query.annee_scolaire || engine.getAnneeScolaireActive();
+        const bulletinService = require('../services/bulletinService');
+        const pdfService = require('../services/pdfService');
+        const data = await bulletinService.calculerBulletinComplet(eleveId, trimestre, anneeScolaire);
+        if (!data) return res.status(404).json({ message: 'Profil introuvable' });
+        pdfService.streamBulletinPdf(res, data);
+    } catch (error) {
+        console.error('getBulletinPdf:', error.message);
+        res.status(500).json({ message: 'Erreur lors de la génération du bulletin' });
     }
 };
 

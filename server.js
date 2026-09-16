@@ -464,4 +464,7 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`🚀 Serveur + WebSocket lancé sur le port ${PORT}`);
     db.query('SELECT 1').then(() => console.log('✅ Connecté à PostgreSQL')).catch(e => console.error('❌ BD:', e.message));
+    require('./services/moyennesEngine').chargerConfiguration()
+        .then(() => console.log('✅ Barème de notes chargé depuis la base'))
+        .catch(e => console.error('❌ Barème de notes:', e.message));
 });

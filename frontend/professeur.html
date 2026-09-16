@@ -3591,11 +3591,13 @@
     // ══════════════════════════════════════════
     // CONFIG ÉCOLE (NOM + LOGO)
     // ══════════════════════════════════════════
+    let ANNEE_SCOLAIRE_ACTIVE = '2025-2026';
     async function chargerConfigEcole() {
       try {
         const response = await fetch('/api/admin/config-public');
         const data = await response.json();
         if (data.success && data.config) {
+          if (data.config.annee_scolaire_active) ANNEE_SCOLAIRE_ACTIVE = data.config.annee_scolaire_active;
           document.querySelectorAll('.ecole-nom').forEach(el => el.textContent = data.config.nom_etablissement);
           if (data.config.logo_url) {
             document.querySelectorAll('.ecole-logo').forEach(el => { el.src = data.config.logo_url; el.classList.remove('hidden'); });
@@ -4191,6 +4193,20 @@
         // On affiche juste les champs vides prêts à saisir
       } catch (e) { }
 
+      // Pré-remplir l'appréciation déjà enregistrée (s'il y en a une),
+      // pour la matière principale de ce prof dans cette classe.
+      if (mats[0]) {
+        try {
+          const rApp = await fetch(
+            `${API}/professeurs/appreciation?id_eleve=${selEleve.id}&id_matiere=${mats[0].id}&trimestre=${tri}&annee_scolaire=${ANNEE_SCOLAIRE_ACTIVE}`,
+            { headers: { 'Authorization': 'Bearer ' + TOK } }
+          );
+          const dApp = await rApp.json();
+          const comInp = $('note-com');
+          if (comInp) comInp.value = dApp.texte || '';
+        } catch (e) { }
+      }
+
       // Rendre la grille des matières
       const grid = document.getElementById('mats-grid');
       if (grid) {
@@ -4249,11 +4265,10 @@
       if (a) {
         let lbl = '—';
         if (val !== '') {
-          if (v >= 16) lbl = 'Excellent';
-          else if (v >= 14) lbl = 'Très Bien';
-          else if (v >= 12) lbl = 'Bien';
-          else if (v >= 10) lbl = 'Assez Bien';
-          else if (v >= 8) lbl = 'Passable';
+          if (v >= 16) lbl = 'Très Bien';
+          else if (v >= 14) lbl = 'Bien';
+          else if (v >= 12) lbl = 'Assez Bien';
+          else if (v >= 10) lbl = 'Passable';
           else lbl = 'Insuffisant';
         }
         a.textContent = val !== '' ? lbl : '—';
@@ -4286,12 +4301,14 @@
 
       if (!notes.length) { toast('Saisir au moins une note valide (0–20)', 'err'); return; }
 
+      const appreciation = ($('note-com')?.value || '').trim();
+
       showMsg(noteMsg, 'Enregistrement en base…', 'info');
       try {
         const r = await fetch(API + '/professeurs/notes', {
           method: 'POST',
           headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notes, trimestre: tri, annee_scolaire: '2025-2026' })
+          body: JSON.stringify({ notes, trimestre: tri, annee_scolaire: ANNEE_SCOLAIRE_ACTIVE, appreciation })
         });
         const data = await r.json();
         if (data.success) {

@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const pdfService = require('../services/pdfService');
 
 // ✅ SÉCURITÉ : mot de passe temporaire aléatoire à la création d'un compte.
 // Avant : le mot de passe par défaut était identique à l'identifiant
@@ -219,6 +220,268 @@ exports.getStats = async (req, res) => {
     }
 };
 
+
+// ═══════════════════════════════════════════
+// FICHES D'IDENTIFIANTS (PDF) — remplace l'ancienne popup navigateur qui
+// faisait window.print() ; génère un vrai PDF téléchargeable côté serveur.
+// Les comptes (avec mot de passe temporaire en clair) arrivent dans le
+// corps de la requête : ils ne sont disponibles qu'à l'instant de la
+// création/import, jamais stockés ni re-consultables ensuite.
+// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════
+// BARÈME & NOTES — coefficients par classe, pondération devoirs/
+// composition, seuils de mention. Remplace l'objet PROGRAMMES codé en
+// dur dans services/moyennesEngine.js ; chaque écriture recharge le
+// cache en mémoire du moteur (chargerConfiguration) pour que le
+// changement s'applique immédiatement, sans redéploiement.
+// ═══════════════════════════════════════════
+exports.getCoefficients = async (req, res) => {
+    try {
+        const { classe } = req.query;
+        const q = classe
+            ? await db.query(`SELECT id_coefficient, classe, nom_matiere, coefficient, domaine, optionnel FROM pedagogie.coefficients WHERE classe = $1 ORDER BY nom_matiere`, [classe])
+            : await db.query(`SELECT id_coefficient, classe, nom_matiere, coefficient, domaine, optionnel FROM pedagogie.coefficients ORDER BY classe, nom_matiere`);
+        res.json({ success: true, coefficients: q.rows });
+    } catch (err) {
+        console.error('getCoefficients:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+exports.updateCoefficient = async (req, res) => {
+    try {
+        const { id_coefficient } = req.params;
+        const coef = parseInt(req.body.coefficient);
+        if (isNaN(coef) || coef < 1 || coef > 20) {
+            return res.status(400).json({ success: false, message: 'Coefficient invalide (doit être entre 1 et 20).' });
+        }
+        const upd = await db.query(
+            `UPDATE pedagogie.coefficients SET coefficient = $1, updated_at = NOW(), updated_by = $2 WHERE id_coefficient = $3`,
+            [coef, req.user?.id || null, id_coefficient]
+        );
+        if (upd.rowCount === 0) return res.status(404).json({ success: false, message: 'Coefficient introuvable.' });
+        await rechargerMoteurNotes();
+        res.json({ success: true });
+    } catch (err) {
+        console.error('updateCoefficient:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+exports.getConfigurationNotes = async (req, res) => {
+    try {
+        const q = await db.query(
+            `SELECT poids_devoirs, poids_composition, seuil_tres_bien, seuil_bien, seuil_assez_bien, seuil_passable,
+                    seuil_felicitations, seuil_encouragement, seuil_tableau_honneur, annee_scolaire_active
+             FROM gestion.configuration LIMIT 1`
+        );
+        res.json({ success: true, config: q.rows[0] || {} });
+    } catch (err) {
+        console.error('getConfigurationNotes:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+exports.updateConfigurationNotes = async (req, res) => {
+    try {
+        const pd = parseFloat(req.body.poids_devoirs);
+        const pc = parseFloat(req.body.poids_composition);
+        if (isNaN(pd) || isNaN(pc) || pd < 0 || pc < 0 || Math.abs(pd + pc - 1) > 0.01) {
+            return res.status(400).json({ success: false, message: 'La pondération devoirs + composition doit totaliser 1 (ex: 0.4 + 0.6).' });
+        }
+        const seuils = ['seuil_tres_bien', 'seuil_bien', 'seuil_assez_bien', 'seuil_passable']
+            .map(k => parseFloat(req.body[k]));
+        if (seuils.some(s => isNaN(s) || s < 0 || s > 20)) {
+            return res.status(400).json({ success: false, message: 'Les seuils de mention doivent être entre 0 et 20.' });
+        }
+        const [seuilTb, seuilB, seuilAb, seuilP] = seuils;
+        if (!(seuilTb > seuilB && seuilB > seuilAb && seuilAb > seuilP)) {
+            return res.status(400).json({ success: false, message: 'Les seuils doivent être strictement décroissants : Très Bien > Bien > Assez Bien > Passable.' });
+        }
+        const seuilsHonneur = ['seuil_felicitations', 'seuil_encouragement', 'seuil_tableau_honneur']
+            .map(k => parseFloat(req.body[k]));
+        if (seuilsHonneur.some(s => isNaN(s) || s < 0 || s > 20)) {
+            return res.status(400).json({ success: false, message: 'Les seuils de mention d\'honneur doivent être entre 0 et 20.' });
+        }
+        const [seuilFelic, seuilEncour, seuilTabHonneur] = seuilsHonneur;
+        if (!(seuilFelic > seuilEncour && seuilEncour > seuilTabHonneur)) {
+            return res.status(400).json({ success: false, message: 'Les seuils d\'honneur doivent être strictement décroissants : Félicitations > Encouragements > Tableau d\'honneur.' });
+        }
+        // gestion.configuration n'a qu'une seule ligne censée toujours
+        // exister — si elle a été vidée (ex: remise à zéro complète),
+        // l'UPDATE seul ne ferait rien silencieusement. On s'assure donc
+        // qu'une ligne existe avant de mettre à jour.
+        await db.query(`INSERT INTO gestion.configuration (nom_etablissement) SELECT 'Établissement' WHERE NOT EXISTS (SELECT 1 FROM gestion.configuration)`);
+        await db.query(
+            `UPDATE gestion.configuration SET poids_devoirs = $1, poids_composition = $2,
+             seuil_tres_bien = $3, seuil_bien = $4, seuil_assez_bien = $5, seuil_passable = $6,
+             seuil_felicitations = $7, seuil_encouragement = $8, seuil_tableau_honneur = $9,
+             updated_at = NOW()`,
+            [pd, pc, seuilTb, seuilB, seuilAb, seuilP, seuilFelic, seuilEncour, seuilTabHonneur]
+        );
+        await rechargerMoteurNotes();
+        res.json({ success: true });
+    } catch (err) {
+        console.error('updateConfigurationNotes:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+// ✅ Bulletin PDF d'un élève quelconque — pour Direction/Surveillant,
+// même document que celui que l'élève/parent peuvent télécharger.
+exports.getBulletinElevePdf = async (req, res) => {
+    try {
+        const eleveId = req.query.eleve_id;
+        if (!eleveId) return res.status(400).json({ message: 'eleve_id requis' });
+        const trimestre = parseInt(req.query.trimestre) || 1;
+        const anneeScolaire = req.query.annee_scolaire || require('../services/moyennesEngine').getAnneeScolaireActive();
+        const bulletinService = require('../services/bulletinService');
+        const pdfService = require('../services/pdfService');
+        const data = await bulletinService.calculerBulletinComplet(eleveId, trimestre, anneeScolaire);
+        if (!data) return res.status(404).json({ message: 'Élève introuvable' });
+        pdfService.streamBulletinPdf(res, data);
+    } catch (err) {
+        console.error('getBulletinElevePdf:', err.message);
+        res.status(500).json({ message: 'Erreur lors de la génération du bulletin' });
+    }
+};
+
+async function rechargerMoteurNotes() {
+    try { await require('../services/moyennesEngine').chargerConfiguration(); }
+    catch (e) { console.error('Rechargement moteur de notes:', e.message); }
+}
+
+// ═══════════════════════════════════════════
+// PASSAGE DE CLASSE — remplace l'objet PROGRAMMES codé en dur n'était
+// que le premier problème : jusqu'ici, rien ne permettait de faire
+// passer un élève en classe supérieure, le faire redoubler, ou clore
+// une année scolaire — classe_actuelle n'était écrite qu'à la création
+// du compte et jamais mise à jour ensuite. Voir services/bulletinService.js
+// pour le calcul de la moyenne annuelle et la décision suggérée.
+// ═══════════════════════════════════════════
+exports.getAnneeScolaire = async (req, res) => {
+    try {
+        const q = await db.query(`SELECT annee_scolaire_active FROM gestion.configuration LIMIT 1`);
+        res.json({ success: true, annee_scolaire_active: q.rows[0]?.annee_scolaire_active || '2025-2026' });
+    } catch (err) {
+        console.error('getAnneeScolaire:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+exports.avancerAnneeScolaire = async (req, res) => {
+    try {
+        const q = await db.query(`SELECT annee_scolaire_active FROM gestion.configuration LIMIT 1`);
+        const actuelle = q.rows[0]?.annee_scolaire_active || '2025-2026';
+        const m = actuelle.match(/^(\d{4})-(\d{4})$/);
+        if (!m) return res.status(500).json({ success: false, message: 'Format d\'année scolaire invalide en base.' });
+        const suivante = `${parseInt(m[1]) + 1}-${parseInt(m[2]) + 1}`;
+        await db.query(`UPDATE gestion.configuration SET annee_scolaire_active = $1, updated_at = NOW()`, [suivante]);
+        await rechargerMoteurNotes();
+        res.json({ success: true, annee_scolaire_active: suivante });
+    } catch (err) {
+        console.error('avancerAnneeScolaire:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+exports.getRosterPassage = async (req, res) => {
+    try {
+        const { classe } = req.query;
+        if (!classe) return res.status(400).json({ message: 'classe requise' });
+        const engine = require('../services/moyennesEngine');
+        const bulletinService = require('../services/bulletinService');
+        const roster = await bulletinService.construireRosterPassage(classe, engine.getAnneeScolaireActive());
+        res.json({ success: true, roster, annee_scolaire: engine.getAnneeScolaireActive() });
+    } catch (err) {
+        console.error('getRosterPassage:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur.' });
+    }
+};
+
+exports.executerPassage = async (req, res) => {
+    const client = await db.connect();
+    try {
+        const { decisions } = req.body;
+        if (!Array.isArray(decisions) || !decisions.length) {
+            return res.status(400).json({ message: 'Aucune décision à appliquer' });
+        }
+        const decisionsValides = ['PROMU', 'REDOUBLE', 'DIPLOME', 'PARTI'];
+        for (const d of decisions) {
+            if (!d.id_eleve || !decisionsValides.includes(d.decision)) {
+                return res.status(400).json({ message: 'Décision invalide pour un élève' });
+            }
+            if (d.decision === 'PROMU' && !d.classe_arrivee) {
+                return res.status(400).json({ message: 'Classe d\'arrivée requise pour une promotion' });
+            }
+        }
+
+        const engine = require('../services/moyennesEngine');
+        const anneeScolaire = engine.getAnneeScolaireActive();
+
+        await client.query('BEGIN');
+        let traites = 0;
+        for (const d of decisions) {
+            const actuel = await client.query(
+                `SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user = $1`, [d.id_eleve]
+            );
+            if (!actuel.rows.length) continue;
+            const classeDepart = actuel.rows[0].classe_actuelle;
+
+            const statutMap = { PROMU: 'INSCRIT', REDOUBLE: 'REDOUBLANT', DIPLOME: 'DIPLOME', PARTI: 'PARTI' };
+            const classeArrivee = d.decision === 'PROMU' ? d.classe_arrivee : (d.decision === 'REDOUBLE' ? classeDepart : null);
+
+            if (d.decision === 'PROMU') {
+                await client.query(
+                    `UPDATE vie_scolaire.profils_eleves SET classe_actuelle = $1, statut_scolaire = $2 WHERE id_user = $3`,
+                    [classeArrivee, statutMap[d.decision], d.id_eleve]
+                );
+            } else {
+                await client.query(
+                    `UPDATE vie_scolaire.profils_eleves SET statut_scolaire = $1 WHERE id_user = $2`,
+                    [statutMap[d.decision], d.id_eleve]
+                );
+            }
+            // Diplômé ou parti : le compte sort des effectifs actifs (plus
+            // de connexion possible) mais reste en base — rien n'est
+            // supprimé, juste archivé.
+            if (d.decision === 'DIPLOME' || d.decision === 'PARTI') {
+                await client.query(`UPDATE authentification.comptes SET est_actif = false WHERE id_user = $1`, [d.id_eleve]);
+            }
+
+            await client.query(
+                `INSERT INTO vie_scolaire.historique_scolarite
+                 (id_eleve, annee_scolaire, classe_depart, classe_arrivee, decision, moyenne_annuelle, decide_par)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                [d.id_eleve, anneeScolaire, classeDepart, classeArrivee, d.decision, d.moyenne_annuelle || null, req.user?.id || null]
+            );
+            traites++;
+        }
+        await client.query('COMMIT');
+        res.json({ success: true, traites });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        console.error('executerPassage:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur — aucune modification appliquée.' });
+    } finally {
+        client.release();
+    }
+};
+
+exports.getFichesIdentifiantsPdf = async (req, res) => {
+    try {
+        const comptes = Array.isArray(req.body.comptes) ? req.body.comptes : [];
+        if (!comptes.length) return res.status(400).json({ message: 'Aucun compte à imprimer.' });
+        pdfService.streamFichesIdentifiants(res, {
+            comptes,
+            ecole: req.body.ecole,
+            siteUrl: req.body.siteUrl
+        });
+    } catch (err) {
+        console.error('Erreur getFichesIdentifiantsPdf:', err.message);
+        res.status(500).json({ message: 'Erreur lors de la génération du PDF.' });
+    }
+};
 
 // ═══════════════════════════════════════════
 // PROFESSEURS (corps enseignant)
@@ -887,9 +1150,12 @@ exports.messageProf = async (req, res) => {
 // ═══════════════════════════════════════════
 exports.createEleve = async (req, res) => {
     try {
-        const { prenom, nom, classe, email, telephone } = req.body;
+        const { prenom, nom, classe, email, telephone, sexe, date_naissance, lieu_naissance } = req.body;
         if (!prenom || !nom || !classe) {
             return res.status(400).json({ message: 'Prénom, nom et classe requis' });
+        }
+        if (sexe && !['M', 'F'].includes(sexe)) {
+            return res.status(400).json({ message: 'Sexe invalide (M ou F)' });
         }
 
         const bcrypt = require('bcryptjs');
@@ -922,9 +1188,9 @@ exports.createEleve = async (req, res) => {
 
         // Créer le profil élève
         await db.query(`
-            INSERT INTO vie_scolaire.profils_eleves (id_user, classe_actuelle)
-            VALUES ($1, $2)
-        `, [eleveId, classe]);
+            INSERT INTO vie_scolaire.profils_eleves (id_user, classe_actuelle, sexe, date_naissance, lieu_naissance)
+            VALUES ($1, $2, $3, $4, $5)
+        `, [eleveId, classe, sexe || null, date_naissance || null, lieu_naissance || null]);
 
         res.json({
             success: true,
@@ -935,6 +1201,50 @@ exports.createEleve = async (req, res) => {
         });
     } catch (e) {
         console.error('createEleve:', e.message);
+        res.status(500).json({ message: 'Erreur: ' + e.message });
+    }
+};
+
+// ✅ Modifier un élève — n'existait nulle part avant (aucune faute de
+// frappe corrigible, aucune classe ajustable après création). Sert
+// aussi de brique de base au passage de classe (changement en masse
+// de classe_actuelle/statut_scolaire en fin d'année).
+exports.updateEleve = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { nom, prenom, email, telephone, classe, sexe, date_naissance, lieu_naissance, statut_scolaire } = req.body;
+
+        if (sexe && !['M', 'F'].includes(sexe)) {
+            return res.status(400).json({ message: 'Sexe invalide (M ou F)' });
+        }
+        const statutsValides = ['INSCRIT', 'REDOUBLANT', 'DIPLOME', 'PARTI'];
+        if (statut_scolaire && !statutsValides.includes(statut_scolaire)) {
+            return res.status(400).json({ message: 'Statut scolaire invalide' });
+        }
+
+        if (nom !== undefined || prenom !== undefined || email !== undefined || telephone !== undefined) {
+            await db.query(
+                `UPDATE authentification.comptes SET
+                   nom = COALESCE($1, nom), prenom = COALESCE($2, prenom),
+                   email = COALESCE($3, email), telephone = COALESCE($4, telephone)
+                 WHERE id_user = $5 AND role_actuel = 'ELEVE'`,
+                [nom ? nom.toUpperCase() : null, prenom, email, telephone, id]
+            );
+        }
+        const upd = await db.query(
+            `UPDATE vie_scolaire.profils_eleves SET
+               classe_actuelle = COALESCE($1, classe_actuelle),
+               sexe = COALESCE($2, sexe),
+               date_naissance = COALESCE($3, date_naissance),
+               lieu_naissance = COALESCE($4, lieu_naissance),
+               statut_scolaire = COALESCE($5, statut_scolaire)
+             WHERE id_user = $6`,
+            [classe, sexe, date_naissance, lieu_naissance, statut_scolaire, id]
+        );
+        if (upd.rowCount === 0) return res.status(404).json({ message: 'Élève introuvable' });
+        res.json({ success: true });
+    } catch (e) {
+        console.error('updateEleve:', e.message);
         res.status(500).json({ message: 'Erreur: ' + e.message });
     }
 };

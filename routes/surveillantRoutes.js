@@ -33,12 +33,14 @@ router.get('/stats', authMiddleware, surveillantController.getSurveillantStats);
 // ============== ABSENCES ==============
 router.post('/absences', authMiddleware, surveillantController.recordAbsence);
 router.get('/absences', authMiddleware, surveillantController.getAbsences);
+router.post('/absences/pdf', authMiddleware, dirOuSurv, surveillantController.getAbsencesPdf);
 router.put('/absences/justification', authMiddleware, surveillantController.updateAbsenceJustification);
 router.delete('/absences/:id', authMiddleware, surveillantController.deleteAbsence);
 
 // ============== CONVOCATIONS ==============
 router.post('/convocations', authMiddleware, surveillantController.createConvocation);
 router.get('/convocations', authMiddleware, surveillantController.getConvocations);
+router.post('/convocations/pdf', authMiddleware, dirOuSurv, surveillantController.getConvocationsPdf);
 
 // ============== INCIDENTS ==============
 router.post('/incidents', authMiddleware, surveillantController.reportIncident);

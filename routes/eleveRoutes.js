@@ -68,6 +68,7 @@ router.get('/compositions', eleveAuth, eleveController.getCompositions);
 
 // ← AJOUTER CETTE LIGNE ICI
 router.get('/moyennes-avancees', eleveAuth, eleveController.getMoyennesAvancees);
+router.get('/bulletin-pdf', eleveAuth, eleveController.getBulletinPdf);
 
 // Copies corrigées scannées (partagées par le prof)
 router.get('/copies-scannees', eleveAuth, eleveController.getMesCopiesScannees);

@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const pdfService = require('../services/pdfService');
 
 // ============== RÉCUPÉRER LES ÉLÈVES ==============
 exports.getElevesForClass = async (req, res) => {
@@ -196,6 +197,47 @@ exports.getAbsences = async (req, res) => {
     }
 };
 
+// ✅ Remplace window.print() : génère un vrai PDF côté serveur. Les lignes
+// arrivent dans le corps de la requête (déjà filtrées côté client, comme
+// pour l'export Excel existant) plutôt que de refaire la requête SQL —
+// ainsi le PDF correspond exactement à ce que la Direction voit à l'écran
+// au moment d'imprimer (mêmes filtres, même recherche).
+exports.getAbsencesPdf = async (req, res) => {
+    const role = req.user?.role;
+    if (!['SURVEILLANT', 'DIRECTION'].includes(role?.toUpperCase())) {
+        return res.status(403).json({ message: 'Accès refusé' });
+    }
+    try {
+        const absences = Array.isArray(req.body.absences) ? req.body.absences : [];
+        const rows = absences.map(a => ({
+            matricule: a.code_unique || '',
+            eleve: `${a.prenom || ''} ${a.nom || ''}`.trim(),
+            classe: a.classe_actuelle || a.classe || '',
+            date: a.date_absence ? new Date(a.date_absence).toLocaleDateString('fr-FR') : '',
+            statut: a.justifiee ? 'Justifiée' : (a.retard ? 'Retard' : 'Non justifiée'),
+            statutColor: a.justifiee ? '#1F7A3D' : (a.retard ? '#A87A20' : '#A93226'),
+            motif: a.raison_absence || ''
+        }));
+        pdfService.streamTablePdf(res, {
+            title: 'Liste des absences',
+            subtitle: 'Campus Numérique FASO',
+            filename: 'absences.pdf',
+            columns: [
+                { key: 'matricule', label: 'Matricule', weight: 1.2 },
+                { key: 'eleve', label: 'Élève', weight: 2 },
+                { key: 'classe', label: 'Classe', weight: 1 },
+                { key: 'date', label: 'Date', weight: 1 },
+                { key: 'statut', label: 'Statut', weight: 1.2, colorKey: 'statutColor' },
+                { key: 'motif', label: 'Motif', weight: 2.6 }
+            ],
+            rows
+        });
+    } catch (error) {
+        console.error('Erreur getAbsencesPdf:', error.message);
+        res.status(500).json({ message: 'Erreur lors de la génération du PDF.' });
+    }
+};
+
 // ============== GESTION DES CONVOCATIONS ==============
 exports.createConvocation = async (req, res) => {
     const role = req.user?.role;
@@ -315,6 +357,44 @@ exports.getConvocations = async (req, res) => {
     } catch (error) {
         console.error('Erreur consultation convocations:', error);
         res.status(500).json({ message: 'Erreur lors de la consultation des convocations' });
+    }
+};
+
+// ✅ Remplace window.print() — voir le commentaire sur getAbsencesPdf pour
+// le choix d'utiliser les lignes déjà filtrées côté client.
+exports.getConvocationsPdf = async (req, res) => {
+    const role = req.user?.role;
+    if (!['SURVEILLANT', 'DIRECTION'].includes(role?.toUpperCase())) {
+        return res.status(403).json({ message: 'Accès refusé' });
+    }
+    try {
+        const convocations = Array.isArray(req.body.convocations) ? req.body.convocations : [];
+        const rows = convocations.map(c => ({
+            matricule: c.code_unique || '',
+            eleve: `${c.prenom || ''} ${c.nom || ''}`.trim(),
+            classe: c.classe_actuelle || c.classe || '',
+            motif: c.sujet || c.motif || '',
+            date: c.date_convocation ? new Date(c.date_convocation).toLocaleDateString('fr-FR') : '',
+            statut: (c.statut_accuse_reception || c.statut_accusé_reception) ? 'Vu' : 'En attente',
+            statutColor: (c.statut_accuse_reception || c.statut_accusé_reception) ? '#1F7A3D' : '#A87A20'
+        }));
+        pdfService.streamTablePdf(res, {
+            title: 'Historique des convocations',
+            subtitle: 'Campus Numérique FASO',
+            filename: 'convocations.pdf',
+            columns: [
+                { key: 'matricule', label: 'Matricule', weight: 1.2 },
+                { key: 'eleve', label: 'Élève', weight: 2 },
+                { key: 'classe', label: 'Classe', weight: 1 },
+                { key: 'motif', label: 'Motif', weight: 2.4 },
+                { key: 'date', label: 'Date', weight: 1.2 },
+                { key: 'statut', label: 'Statut', weight: 1, colorKey: 'statutColor' }
+            ],
+            rows
+        });
+    } catch (error) {
+        console.error('Erreur getConvocationsPdf:', error.message);
+        res.status(500).json({ message: 'Erreur lors de la génération du PDF.' });
     }
 };
 

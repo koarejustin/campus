@@ -30,6 +30,13 @@ router.get('/bulletin-enfant', authMiddleware, (req, res, next) => {
     parentController.getBulletinEnfant(req, res, next);
 });
 
+router.get('/bulletin-pdf', authMiddleware, (req, res, next) => {
+    if (typeof parentController.getBulletinEnfantPdf !== 'function') {
+        return res.status(500).json({ error: 'getBulletinEnfantPdf is not a function' });
+    }
+    parentController.getBulletinEnfantPdf(req, res, next);
+});
+
 router.get('/convocations-enfant', authMiddleware, (req, res, next) => {
     if (typeof parentController.getConvocationsEnfant !== 'function') {
         return res.status(500).json({ error: 'getConvocationsEnfant is not a function' });
