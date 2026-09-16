@@ -1409,8 +1409,13 @@ exports.getMoyennesAvancees = async (req, res) => {
         // 2. Migration auto — ajouter type_evaluation si absent (sans CHECK pour éviter erreur)
         await db.query("ALTER TABLE pedagogie.notes_evaluations ADD COLUMN IF NOT EXISTS type_evaluation VARCHAR(20) DEFAULT 'DEVOIR'").catch(() => {});
 
-        // 3. Récupérer toutes les notes (tous trimestres)
+        // 3. Récupérer toutes les notes (tous trimestres) — d'une seule
+        //    année scolaire à la fois. Avant, aucun filtre n'existait ici :
+        //    un élève qui redouble se retrouvait avec les notes de
+        //    l'année répétée mélangées à celles de l'année en cours dans
+        //    le même "Trimestre 1".
         //    ATTENTION : libelle_matiere dans pedagogie.matieres (pas nom_matiere)
+        const anneeScolaire = req.query.annee_scolaire || engine.getAnneeScolaireActive();
         const notesRes = await db.query(`
       SELECT
         n.note,
@@ -1421,9 +1426,9 @@ exports.getMoyennesAvancees = async (req, res) => {
         COALESCE(m.coefficient, 1)                   AS coefficient
       FROM pedagogie.notes_evaluations n
       LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
-      WHERE n.id_eleve = $1
+      WHERE n.id_eleve = $1 AND n.annee_scolaire = $2
       ORDER BY n.trimestre, n.date_evaluation
-    `, [eleveId]);
+    `, [eleveId, anneeScolaire]);
 
         const toutesNotes = notesRes.rows;
 
@@ -1505,8 +1510,8 @@ exports.getMoyennesAvancees = async (req, res) => {
                            COALESCE(m.nom_matiere, 'Matière inconnue') AS nom_matiere
                     FROM pedagogie.notes_evaluations n
                     LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
-                    WHERE n.id_eleve = ANY($1::uuid[])
-                `, [idsClasse]);
+                    WHERE n.id_eleve = ANY($1::uuid[]) AND n.annee_scolaire = $2
+                `, [idsClasse, anneeScolaire]);
                 const parEleve = {};
                 for (const id of idsClasse) parEleve[id] = [];
                 for (const n of notesClasseRes.rows) {

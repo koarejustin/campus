@@ -81,6 +81,10 @@ exports.getBulletinEnfant = async (req, res) => {
         const { classe_actuelle, nom, prenom, code_unique } = classeRes.rows[0];
 
         const trimestreDemande = req.query.trimestre ? parseInt(req.query.trimestre) : null;
+        // Une seule année scolaire à la fois — avant, un enfant qui
+        // redouble aurait vu les notes de l'année répétée mélangées à
+        // celles de l'année en cours dans le même "Trimestre 1".
+        const anneeScolaire = req.query.annee_scolaire || engine.getAnneeScolaireActive();
 
         const notesRes = await db.query(`
             SELECT
@@ -91,9 +95,9 @@ exports.getBulletinEnfant = async (req, res) => {
                 COALESCE(m.coefficient, 1) AS coefficient
             FROM pedagogie.notes_evaluations n
             LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
-            WHERE n.id_eleve = $1
+            WHERE n.id_eleve = $1 AND n.annee_scolaire = $2
             ORDER BY n.trimestre, n.date_evaluation
-        `, [enfantId]);
+        `, [enfantId, anneeScolaire]);
 
         const toutesNotes = notesRes.rows;
         const notesFiltrees = trimestreDemande
@@ -162,8 +166,8 @@ exports.getBulletinEnfant = async (req, res) => {
                            COALESCE(m.nom_matiere, 'Matière inconnue') AS nom_matiere
                     FROM pedagogie.notes_evaluations n
                     LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
-                    WHERE n.id_eleve = ANY($1::uuid[])
-                `, [idsClasse]);
+                    WHERE n.id_eleve = ANY($1::uuid[]) AND n.annee_scolaire = $2
+                `, [idsClasse, anneeScolaire]);
                 const parEleve = {};
                 for (const id of idsClasse) parEleve[id] = [];
                 for (const n of notesClasseRes.rows) {

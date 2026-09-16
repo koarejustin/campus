@@ -4169,35 +4169,10 @@
           + 'background:' + mgColor + '18;color:' + mgColor + ';">' + mention + '</span></td>'
           + '</tr>';
 
-        // Analyse predictive
-        var pred = data.predictif || {};
-        var predHtml = '';
-        var predTitre = 'Analyse Prédictive';
-        if (pred.trimestre_complet) {
-          predTitre += ' — Programme du trimestre déjà entièrement couvert, projection sur une évaluation supplémentaire (coef ' + (pred.coef_restant || 2) + ')';
-        } else {
-          predTitre += ' — Note min. sur les évaluations restantes (coef réel restant : ' + (pred.coef_restant || 2) + ')';
-        }
-        [{label:'Pour avoir 10/20',val:pred.pour_avoir_10,clr:'#C0392B'},
-         {label:'Pour atteindre 12',val:pred.pour_avoir_12,clr:'#C08A28'},
-         {label:'Pour viser 14',val:pred.pour_avoir_14,clr:'#6B8E3D'},
-         {label:'Pour maintenir',val:pred.pour_maintenir,clr:'#2F6B3F'}
-        ].forEach(function(p) {
-          var vt = p.val === null ? 'Impossible' : (p.val === undefined ? '-' : p.val + '/20');
-          predHtml += '<div style="display:flex;justify-content:space-between;align-items:center;'
-            + 'padding:8px 12px;background:#fff;border-radius:10px;border:1px solid #DCE9D2;margin-bottom:6px;">'
-            + '<span style="font-size:.75rem;font-weight:600;color:#2E2718;">' + p.label + '</span>'
-            + '<span style="font-size:.88rem;font-weight:900;color:' + p.clr + ';">' + vt + '</span></div>';
-        });
-
         if (bulContent) {
           bulContent.innerHTML =
             '<div style="overflow-x:auto;margin-bottom:20px;">'
-            + '<table class="tbl" style="min-width:700px;">' + thead + '<tbody>' + tbody + '</tbody></table></div>'
-            + '<div style="padding:16px;background:#FDFAF2;border-radius:14px;border:1px solid #DCE9D2;">'
-            + '<div style="font-size:.65rem;font-weight:800;text-transform:uppercase;color:#4C8C5C;margin-bottom:12px;">'
-            + predTitre + '</div>'
-            + predHtml + '</div>';
+            + '<table class="tbl" style="min-width:700px;">' + thead + '<tbody>' + tbody + '</tbody></table></div>';
         }
 
       } catch(e) {
