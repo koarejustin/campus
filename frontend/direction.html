@@ -2773,62 +2773,56 @@
         </div>
       </div>
 
-      <!-- STATS CARDS STYLE MODERNE -->
-      <div class="abs-stats-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;">
+      <!-- STATS CARDS — même style que Convocations (fond pastel, icône
+           40×40 dans un carré arrondi, bordure fine) au lieu des grosses
+           icônes 48px d'avant. -->
+      <div class="abs-stats-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;">
         <div class="stat-card"
-          style="background:linear-gradient(135deg,#FBF3DE,#F2E2B8); border-radius:20px; padding:20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-size:2rem; font-weight:900; color:#6B4E14;" id="stat-total">0</div>
-              <div style="font-size:.7rem; font-weight:700; color:#A87A20; text-transform:uppercase; margin-top:4px;">
-                Total absences</div>
-            </div>
-            <div
-              style="width:48px; height:48px; background:#C9932A; border-radius:16px; display:flex; align-items:center; justify-content:center;">
-              <i data-lucide="calendar-x" style="width:24px; height:24px; color:#fff;"></i>
-            </div>
+          style="background:linear-gradient(135deg,#FBF3DE,#F2E2B8); border:1px solid #E8C79A; border-radius:14px; padding:16px; display:flex; align-items:center; gap:12px;">
+          <div
+            style="width:40px; height:40px; background:#C9932A; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i data-lucide="calendar-x" style="width:17px; height:17px; color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem; font-weight:900; color:#6B4E14;" id="stat-total">0</div>
+            <div style="font-size:.65rem; font-weight:700; color:#A87A20; text-transform:uppercase; letter-spacing:.06em;">
+              Total absences</div>
           </div>
         </div>
         <div class="stat-card"
-          style="background:linear-gradient(135deg,#F9E8E1,#F5DED4); border-radius:20px; padding:20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-size:2rem; font-weight:900; color:#7A2418;" id="stat-nj">0</div>
-              <div style="font-size:.7rem; font-weight:700; color:#A93226; text-transform:uppercase; margin-top:4px;">
-                Non justifiées</div>
-            </div>
-            <div
-              style="width:48px; height:48px; background:#C0392B; border-radius:16px; display:flex; align-items:center; justify-content:center;">
-              <i data-lucide="x-circle" style="width:24px; height:24px; color:#fff;"></i>
-            </div>
+          style="background:linear-gradient(135deg,#F9E8E1,#F5DED4); border:1px solid #E8B8A8; border-radius:14px; padding:16px; display:flex; align-items:center; gap:12px;">
+          <div
+            style="width:40px; height:40px; background:#C0392B; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i data-lucide="x-circle" style="width:17px; height:17px; color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem; font-weight:900; color:#7A2418;" id="stat-nj">0</div>
+            <div style="font-size:.65rem; font-weight:700; color:#A93226; text-transform:uppercase; letter-spacing:.06em;">
+              Non justifiées</div>
           </div>
         </div>
         <div class="stat-card"
-          style="background:linear-gradient(135deg,#F2F0E2,#EDF1DE); border-radius:20px; padding:20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-size:2rem; font-weight:900; color:#35471C;" id="stat-j">0</div>
-              <div style="font-size:.7rem; font-weight:700; color:#6B8E3D; text-transform:uppercase; margin-top:4px;">
-                Justifiées</div>
-            </div>
-            <div
-              style="width:48px; height:48px; background:#6B8E3D; border-radius:16px; display:flex; align-items:center; justify-content:center;">
-              <i data-lucide="check-circle-2" style="width:24px; height:24px; color:#fff;"></i>
-            </div>
+          style="background:linear-gradient(135deg,#F2F0E2,#EDF1DE); border:1px solid #D4DFC0; border-radius:14px; padding:16px; display:flex; align-items:center; gap:12px;">
+          <div
+            style="width:40px; height:40px; background:#6B8E3D; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i data-lucide="check-circle-2" style="width:17px; height:17px; color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem; font-weight:900; color:#35471C;" id="stat-j">0</div>
+            <div style="font-size:.65rem; font-weight:700; color:#6B8E3D; text-transform:uppercase; letter-spacing:.06em;">
+              Justifiées</div>
           </div>
         </div>
         <div class="stat-card"
-          style="background:linear-gradient(135deg,#F5EAD2,#EFDFC0); border-radius:20px; padding:20px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div>
-              <div style="font-size:2rem; font-weight:900; color:#7A5218;" id="stat-retard">0</div>
-              <div style="font-size:.7rem; font-weight:700; color:#C08A28; text-transform:uppercase; margin-top:4px;">
-                Retards</div>
-            </div>
-            <div
-              style="width:48px; height:48px; background:#C08A28; border-radius:16px; display:flex; align-items:center; justify-content:center;">
-              <i data-lucide="clock" style="width:24px; height:24px; color:#fff;"></i>
-            </div>
+          style="background:linear-gradient(135deg,#F5EAD2,#EFDFC0); border:1px solid #E8C79A; border-radius:14px; padding:16px; display:flex; align-items:center; gap:12px;">
+          <div
+            style="width:40px; height:40px; background:#C08A28; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <i data-lucide="clock" style="width:17px; height:17px; color:#fff;"></i>
+          </div>
+          <div>
+            <div style="font-size:1.5rem; font-weight:900; color:#7A5218;" id="stat-retard">0</div>
+            <div style="font-size:.65rem; font-weight:700; color:#C08A28; text-transform:uppercase; letter-spacing:.06em;">
+              Retards</div>
           </div>
         </div>
       </div>
