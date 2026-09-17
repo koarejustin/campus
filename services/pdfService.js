@@ -1,4 +1,5 @@
 const PDFDocument = require('pdfkit');
+const QRCode = require('qrcode');
 
 // Palette "Arbre à Palabres" — la même identité que le web et les autres
 // documents (guide Flutter, etc.), pour que tout ce qui sort de l'appli
@@ -173,7 +174,20 @@ function streamTablePdf(res, { title, subtitle, filename, columns, rows }) {
 // BULLETIN DE NOTES — calé sur le modèle papier de l'établissement.
 // data vient de services/bulletinService.calculerBulletinComplet().
 // ══════════════════════════════════════
-function streamBulletinPdf(res, data) {
+async function streamBulletinPdf(res, data, baseUrl) {
+    // Le QR de vérification doit être généré AVANT de commencer à écrire
+    // dans le flux PDF (doc.pipe(res)) — QRCode.toBuffer est asynchrone,
+    // et pdfkit ne permet pas d'attendre au milieu d'un flux déjà démarré.
+    let qrBuffer = null;
+    if (data.signature && data.signature.code_verification && baseUrl) {
+        try {
+            const url = `${baseUrl}/verifier-bulletin.html?code=${data.signature.code_verification}`;
+            qrBuffer = await QRCode.toBuffer(url, { width: 300, margin: 1, color: { dark: '#1E2818', light: '#FFFFFF' } });
+        } catch (e) {
+            console.error('QRCode.toBuffer:', e.message);
+        }
+    }
+
     const doc = new PDFDocument({ size: 'A4', margin: 32, bufferPages: true });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="bulletin_T${data.trimestre}_${(data.eleve.code_unique || '').replace(/[^a-zA-Z0-9]/g, '')}.pdf"`);
@@ -321,10 +335,28 @@ function streamBulletinPdf(res, data) {
     }
 
     // Signature
-    if (y + 50 > pageH - marginY) { doc.addPage(); y = marginY; }
+    const sigBlockH = qrBuffer ? 118 : 50;
+    if (y + sigBlockH > pageH - marginY) { doc.addPage(); y = marginY; }
     doc.fillColor(MUTED).fontSize(8).font('Helvetica').text(`Bulletin généré le ${today()}`, marginX, y);
-    doc.fillColor(TEXT).fontSize(9).font('Helvetica-Bold').text('La Direction', marginX + totalW - 160, y, { width: 160, align: 'center' });
-    doc.fillColor(MUTED).fontSize(7.5).font('Helvetica').text(data.etablissement, marginX + totalW - 160, y + 26, { width: 160, align: 'center' });
+
+    const sigX = marginX + totalW - 160;
+    if (data.signature) {
+        const dateSign = new Date(data.signature.date_signature).toLocaleDateString('fr-FR');
+        doc.fillColor(GREEN_DARK).fontSize(9).font('Helvetica-Bold').text('Signé électroniquement', sigX, y, { width: 160, align: 'center' });
+        doc.fillColor(TEXT).fontSize(7.5).font('Helvetica').text(`Par ${data.signature.signataire}`, sigX, y + 13, { width: 160, align: 'center' });
+        doc.fillColor(MUTED).fontSize(7).font('Helvetica').text(`Le ${dateSign}`, sigX, y + 24, { width: 160, align: 'center' });
+        if (qrBuffer) {
+            doc.image(qrBuffer, sigX + 55, y + 36, { width: 50, height: 50 });
+            doc.fillColor(MUTED).fontSize(5.6).font('Helvetica').text('Scanner pour vérifier l\'authenticité', sigX, y + 88, { width: 160, align: 'center' });
+        }
+        if (data.signature.modifie) {
+            doc.fillColor('#A93226').fontSize(6.8).font('Helvetica-Bold')
+                .text('⚠ Notes modifiées depuis la signature', sigX, y + (qrBuffer ? 100 : 36), { width: 160, align: 'center' });
+        }
+    } else {
+        doc.fillColor(TEXT).fontSize(9).font('Helvetica-Bold').text('La Direction', sigX, y, { width: 160, align: 'center' });
+        doc.fillColor(MUTED).fontSize(7.5).font('Helvetica').text(data.etablissement, sigX, y + 26, { width: 160, align: 'center' });
+    }
 
     const range = doc.bufferedPageRange();
     for (let i = 0; i < range.count; i++) {

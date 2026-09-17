@@ -125,6 +125,18 @@ async function calculerBulletinComplet(idEleve, trimestre, anneeScolaire) {
     const configRes = await db.query(`SELECT nom_etablissement FROM gestion.configuration LIMIT 1`);
     const nomEtablissement = configRes.rows[0]?.nom_etablissement || 'Établissement';
 
+    // Signature électronique de ce bulletin (si la Direction l'a déjà
+    // signé) — permet au PDF d'imprimer un QR code de vérification et
+    // de détecter si les notes ont changé depuis la signature.
+    const sigRes = await db.query(`
+        SELECT bs.code_verification, bs.date_signature, bs.moyenne_signee, bs.decision_signee,
+               s.nom AS signataire_nom, s.prenom AS signataire_prenom
+        FROM pedagogie.bulletins_signes bs
+        JOIN authentification.comptes s ON s.id_user = bs.id_signataire
+        WHERE bs.id_eleve = $1 AND bs.trimestre = $2 AND bs.annee_scolaire = $3
+    `, [idEleve, trimestre, anneeScolaire]);
+    const sig = sigRes.rows[0] || null;
+
     // Moyenne et rang annuels — moyenne des trimestres où l'élève a des
     // notes (1, 2 ou 3 selon l'avancement de l'année), pas seulement le
     // trimestre demandé pour ce bulletin précis.
@@ -173,6 +185,20 @@ async function calculerBulletinComplet(idEleve, trimestre, anneeScolaire) {
         moyenne_annuelle: moyenneAnnuelle,
         rang_annuel: monRangAnnuel ? monRangAnnuel.rang : null,
         decision,
+        signature: sig ? {
+            code_verification: sig.code_verification,
+            date_signature: sig.date_signature,
+            signataire: `${sig.signataire_prenom} ${sig.signataire_nom}`,
+            // "modifié depuis la signature" — les notes ou la décision ont
+            // changé après coup (correction, ressaisie...), donc le PDF
+            // généré maintenant ne correspond plus exactement à ce qui a
+            // été signé. Tolérance de 0.01 pour l'arrondi flottant.
+            modifie: (
+                (sig.moyenne_signee !== null && moi.moyenne_generale !== null && Math.abs(parseFloat(sig.moyenne_signee) - moi.moyenne_generale) > 0.01) ||
+                (sig.moyenne_signee === null) !== (moi.moyenne_generale === null) ||
+                (sig.decision_signee || null) !== (decision || null)
+            ),
+        } : null,
         matieres: moi.detail_matieres.map(m => ({
             nom: m.nom, domaine: m.domaine, coefficient: m.coefficient, moyenne: m.moyenne,
             note_ponderee: m.moyenne !== null ? Math.round(m.moyenne * m.coefficient * 100) / 100 : null,

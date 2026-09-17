@@ -394,7 +394,8 @@ exports.getBulletinElevePdf = async (req, res) => {
         const pdfService = require('../services/pdfService');
         const data = await bulletinService.calculerBulletinComplet(eleveId, trimestre, anneeScolaire);
         if (!data) return res.status(404).json({ message: 'Élève introuvable' });
-        pdfService.streamBulletinPdf(res, data);
+        const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        await pdfService.streamBulletinPdf(res, data, baseUrl);
     } catch (err) {
         console.error('getBulletinElevePdf:', err.message);
         res.status(500).json({ message: 'Erreur lors de la génération du bulletin' });
@@ -996,6 +997,26 @@ exports.getBulletins = async (req, res) => {
 // SIGNATURE ÉLECTRONIQUE DES BULLETINS (réelle)
 // Vérifie le mot de passe du signataire, puis persiste en base.
 // ═══════════════════════════════════════════
+// Génère un code de vérification aléatoire (12 caractères hexa, 48 bits
+// d'entropie — impossible à deviner par force brute) pour le QR code du
+// bulletin, et capture un instantané (moyenne + décision) au moment de
+// la signature, pour pouvoir détecter plus tard une modification.
+async function _signerUnBulletin(idEleve, trimestre, anneeScolaire, signataireId) {
+    const crypto = require('crypto');
+    const bulletinService = require('../services/bulletinService');
+    const data = await bulletinService.calculerBulletinComplet(idEleve, trimestre, anneeScolaire);
+    if (!data) return null;
+    const codeVerification = crypto.randomBytes(6).toString('hex');
+    const r = await db.query(`
+        INSERT INTO pedagogie.bulletins_signes
+            (id_eleve, trimestre, annee_scolaire, id_signataire, code_verification, moyenne_signee, decision_signee)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (id_eleve, trimestre, annee_scolaire) DO NOTHING
+        RETURNING code_verification
+    `, [idEleve, trimestre, anneeScolaire, signataireId, codeVerification, data.moyenne_generale, data.decision]);
+    return r.rows[0]?.code_verification || null;
+}
+
 exports.signerBulletin = async (req, res) => {
     try {
         const signataireId = req.user?.id;
@@ -1015,11 +1036,8 @@ exports.signerBulletin = async (req, res) => {
         const ok = await bcrypt.compare(mot_de_passe, compte.rows[0].mot_de_passe);
         if (!ok) return res.status(403).json({ message: 'Mot de passe incorrect' });
 
-        await db.query(`
-            INSERT INTO pedagogie.bulletins_signes (id_eleve, trimestre, id_signataire)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (id_eleve, trimestre, annee_scolaire) DO NOTHING
-        `, [id_eleve, parseInt(trimestre), signataireId]);
+        const anneeScolaire = require('../services/moyennesEngine').getAnneeScolaireActive();
+        await _signerUnBulletin(id_eleve, parseInt(trimestre), anneeScolaire, signataireId);
 
         res.json({ success: true, message: 'Bulletin signé électroniquement' });
     } catch (e) {
@@ -1047,18 +1065,71 @@ exports.signerBulletinsLot = async (req, res) => {
         const ok = await bcrypt.compare(mot_de_passe, compte.rows[0].mot_de_passe);
         if (!ok) return res.status(403).json({ message: 'Mot de passe incorrect' });
 
+        const anneeScolaire = require('../services/moyennesEngine').getAnneeScolaireActive();
         for (const idEleve of ids_eleves) {
-            await db.query(`
-                INSERT INTO pedagogie.bulletins_signes (id_eleve, trimestre, id_signataire)
-                VALUES ($1, $2, $3)
-                ON CONFLICT (id_eleve, trimestre, annee_scolaire) DO NOTHING
-            `, [idEleve, parseInt(trimestre), signataireId]);
+            await _signerUnBulletin(idEleve, parseInt(trimestre), anneeScolaire, signataireId);
         }
 
         res.json({ success: true, message: `${ids_eleves.length} bulletin(s) signé(s)` });
     } catch (e) {
         console.error('signerBulletinsLot:', e.message);
         res.status(500).json({ message: 'Erreur: ' + e.message });
+    }
+};
+
+// ✅ Vérification publique d'un bulletin via son code QR — accessible sans
+// authentification (un employeur, une autre école... n'a pas de compte
+// sur la plateforme) mais uniquement par le code exact (48 bits, pas
+// énumérable), affichée sur frontend/verifier-bulletin.html.
+exports.verifierBulletin = async (req, res) => {
+    try {
+        const { code } = req.params;
+        if (!code || !/^[a-f0-9]{12}$/i.test(code)) {
+            return res.status(400).json({ success: false, message: 'Code invalide' });
+        }
+        const r = await db.query(`
+            SELECT bs.id_eleve, bs.trimestre, bs.annee_scolaire, bs.date_signature,
+                   bs.moyenne_signee, bs.decision_signee,
+                   e.nom AS eleve_nom, e.prenom AS eleve_prenom, e.code_unique,
+                   pe.classe_actuelle,
+                   s.nom AS signataire_nom, s.prenom AS signataire_prenom
+            FROM pedagogie.bulletins_signes bs
+            JOIN authentification.comptes e ON e.id_user = bs.id_eleve
+            JOIN vie_scolaire.profils_eleves pe ON pe.id_user = bs.id_eleve
+            JOIN authentification.comptes s ON s.id_user = bs.id_signataire
+            WHERE bs.code_verification = $1
+        `, [code]);
+
+        if (!r.rows.length) return res.json({ success: true, trouve: false });
+        const b = r.rows[0];
+
+        const configRes = await db.query(`SELECT nom_etablissement FROM gestion.configuration LIMIT 1`);
+        const etablissement = configRes.rows[0]?.nom_etablissement || 'Établissement';
+
+        // Recalcul en direct pour détecter une modification des notes
+        // après la signature (correction, ressaisie...).
+        const bulletinService = require('../services/bulletinService');
+        const actuel = await bulletinService.calculerBulletinComplet(b.id_eleve, b.trimestre, b.annee_scolaire);
+        const modifie = !!(actuel && actuel.signature && actuel.signature.modifie);
+
+        res.json({
+            success: true,
+            trouve: true,
+            etablissement,
+            eleve: `${b.eleve_prenom} ${b.eleve_nom}`,
+            code_unique: b.code_unique,
+            classe: b.classe_actuelle,
+            trimestre: b.trimestre,
+            annee_scolaire: b.annee_scolaire,
+            moyenne: b.moyenne_signee !== null ? parseFloat(b.moyenne_signee) : null,
+            decision: b.decision_signee,
+            signataire: `${b.signataire_prenom} ${b.signataire_nom}`,
+            date_signature: b.date_signature,
+            modifie,
+        });
+    } catch (e) {
+        console.error('verifierBulletin:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
 

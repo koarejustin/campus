@@ -1656,7 +1656,8 @@ exports.getBulletinPdf = async (req, res) => {
         const pdfService = require('../services/pdfService');
         const data = await bulletinService.calculerBulletinComplet(eleveId, trimestre, anneeScolaire);
         if (!data) return res.status(404).json({ message: 'Profil introuvable' });
-        pdfService.streamBulletinPdf(res, data);
+        const baseUrl = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get('host')}`;
+        await pdfService.streamBulletinPdf(res, data, baseUrl);
     } catch (error) {
         console.error('getBulletinPdf:', error.message);
         res.status(500).json({ message: 'Erreur lors de la génération du bulletin' });

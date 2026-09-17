@@ -16,6 +16,10 @@ try {
 
 const db = require('./config/db');
 const app = express();
+// Render (et la plupart des hébergeurs) placent l'appli derrière un proxy
+// TLS — sans ça, req.protocol renvoie toujours "http", ce qui casserait
+// l'URL générée dans les QR codes de vérification des bulletins.
+app.set('trust proxy', 1);
 const server = http.createServer(app);
 
 // ================================================================
@@ -283,6 +287,18 @@ if (rateLimit) {
         skipSuccessfulRequests: true, // une connexion réussie ne compte pas dans la limite
     });
     app.use('/api/auth/login', loginLimiter);
+
+    // ✅ Endpoint public (sans compte) de vérification des bulletins par QR
+    // code — limite le scraping/l'essai en boucle de codes, même si le code
+    // (48 bits) n'est de toute façon pas devinable par force brute.
+    const verifBulletinLimiter = rateLimit({
+        windowMs: 15 * 60 * 1000,
+        max: 30,
+        message: { success: false, message: 'Trop de vérifications. Réessaie dans quelques minutes.' },
+        standardHeaders: true,
+        legacyHeaders: false,
+    });
+    app.use('/api/admin/verifier-bulletin', verifBulletinLimiter);
 }
 
 app.use('/api/auth', authRoutes);

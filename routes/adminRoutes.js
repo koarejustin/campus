@@ -97,6 +97,8 @@ router.get('/cahier-texte/:prof_id', auth, dirOuSurv, ctrl.getCahierProf);
 router.get('/bulletins', auth, dirSeule, ctrl.getBulletins);
 router.post('/bulletins/signer', auth, dirSeule, ctrl.signerBulletin);
 router.post('/bulletins/signer-lot', auth, dirSeule, ctrl.signerBulletinsLot);
+// Publique (sans auth) : vérification d'un bulletin via son code QR imprimé
+router.get('/verifier-bulletin/:code', ctrl.verifierBulletin);
 
 // ── Agenda ──
 router.get('/agenda', auth, dirOuSurv, ctrl.getAgenda);
