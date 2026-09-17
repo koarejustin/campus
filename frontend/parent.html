@@ -1658,7 +1658,7 @@
 
         const ap = moyF === null ? '' : (moyF >= 16 ? 'Très Bien' : moyF >= 14 ? 'Bien' : moyF >= 12 ? 'Assez Bien' : moyF >= 10 ? 'Passable' : 'Insuffisant');
         const tdAp = ap
-          ? `<td style="text-align:center;padding:14px 16px;"><span style="padding:4px 10px;border-radius:20px;font-size:.66rem;font-weight:700;background:${nCol(moyF)}18;color:${nCol(moyF)};">${ap}</span></td>`
+          ? `<td style="text-align:center;padding:14px 16px;"><span style="padding:4px 10px;border-radius:20px;font-size:.66rem;font-weight:700;background:${nCol(moyF)}33;color:${nCol(moyF)};">${ap}</span></td>`
           : '<td style="padding:14px 16px;"></td>';
 
         tbody += `<tr style="border-bottom:1px solid #FBF3DE;${!hasNote ? 'opacity:.5;' : ''}">
@@ -1676,7 +1676,7 @@
         <td style="font-weight:900;padding:16px;font-size:.84rem;color:#23301C;">MOYENNE GÉNÉRALE <span style="font-size:.64rem;font-weight:400;color:#6B5D42">(calcul progressif sur matières notées)</span></td>
         <td></td>${emptyD}<td></td><td></td>
         <td style="text-align:center;padding:16px 12px;"><div style="font-size:1.15rem;font-weight:900;color:${mgColor};">${mg !== null && mg !== undefined ? mg.toFixed(2) + '/20' : '-'}</div></td>
-        <td style="text-align:center;padding:16px;"><span style="padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:700;background:${mgColor}18;color:${mgColor};">${data.mention || '—'}</span></td>
+        <td style="text-align:center;padding:16px;"><span style="padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:700;background:${mgColor}33;color:${mgColor};">${data.mention || '—'}</span></td>
       </tr>`;
 
       rowsEl.innerHTML = `<table class="tbl" style="min-width:820px;border-collapse:separate;border-spacing:0;">${thead}<tbody>${tbody}</tbody></table>`;

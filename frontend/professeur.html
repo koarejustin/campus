@@ -3681,6 +3681,11 @@
       if (page === 'devoirs') loadDevoirs();  // ← AJOUT
       if (page === 'qcm') loadQcmList();
       if (page === 'annonces') { loadAnnonces(); refreshSmsBadgeCount(); }
+      // ✅ Le tableau de bord n'était chargé qu'une seule fois au login
+      // (initUI → loadDash), jamais réactualisé ensuite — un prof qui
+      // saisissait des notes puis revenait sur "Tableau de Bord" voyait
+      // encore "0% saisi", même avec les notes réellement enregistrées.
+      if (page === 'dash') loadDash();
     }
 
     // ══════════════════════════════════════════
