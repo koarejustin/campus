@@ -25,12 +25,14 @@ function _fichierEstValide(buffer) {
     return false;
 }
 
-function _normMat(s) {
-    return String(s || '').toLowerCase()
-        .replace(/[éèê]/g, 'e').replace(/[àâ]/g, 'a').replace(/[îï]/g, 'i')
-        .replace(/[ôö]/g, 'o').replace(/[ùûü]/g, 'u').replace(/[ç]/g, 'c')
-        .replace(/\s*\/\s*/g, ' ').replace(/\s+/g, ' ').trim();
-}
+// ⚠️ Ne PAS remettre une normalisation "accents/casse" seule ici : un prof
+// dont profils_profs.matieres contient une abréviation (ex. "SVT") ne
+// matcherait alors jamais le nom officiel en base ("Sciences de la Vie et
+// de la Terre") et TOUTES ses notes seraient refusées en silence (bug
+// réel constaté : 0 note SVT enregistrée pour un prof assigné "SVT",
+// alors que l'appli affichait un message de succès). normaliserNomMatiereAvecAlias
+// connaît ces abréviations — c'est elle qui doit servir de référence unique.
+const _normMat = require('../services/moyennesEngine').normaliserNomMatiereAvecAlias;
 
 // ═══════════════════════════════════════════
 // PROFIL PROFESSEUR

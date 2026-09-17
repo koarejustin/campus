@@ -281,6 +281,22 @@ function getMention(m) {
 // Mention d'honneur (distincte de la mention Très Bien/Bien/... —
 // celle-ci décide qui apparaît sur le tableau d'honneur/encouragements/
 // félicitations affichés en conseil de classe), réglable par la Direction.
+// Appréciation par défaut basée sur la note, affichée sur le bulletin
+// uniquement quand le professeur n'a saisi aucun commentaire pour cette
+// matière (voir bulletinService.js) — jamais stockée, purement calculée
+// à l'affichage, donc n'écrase jamais un texte réellement tapé par un prof.
+function getAppreciationAuto(m) {
+  if (m === null || m === undefined) return null;
+  if (m >= 20) return 'Formidable';
+  if (m >= 18) return 'Excellent';
+  if (m >= SEUILS.tres_bien) return 'Très bien';
+  if (m >= SEUILS.bien) return 'Bien';
+  if (m >= SEUILS.assez_bien) return 'Assez bien';
+  if (m >= SEUILS.passable) return 'Passable';
+  if (m >= 5) return 'Insuffisant';
+  return 'Très insuffisant';
+}
+
 function getMentionHonneur(m) {
   if (m === null || m === undefined) return null;
   if (m >= SEUILS_HONNEUR.felicitations) return 'Félicitations';
@@ -317,7 +333,12 @@ function calculerMoyenneGenerale(classe, notesParMatiere) {
     const found = notesParMatiere.find(n =>
       normaliserNomMatiereAvecAlias(n.nom_matiere) === normaliserNomMatiereAvecAlias(mat.nom)
     );
-    const moy = found ? calculerMoyenneMatiere(found.notes) : null;
+    // Une matière du programme obligatoire sans aucune note compte pour 0
+    // (pas exclue du calcul) — sinon un élève pourrait ne composer que les
+    // matières qui l'arrangent et laisser les autres de côté sans que ça
+    // ne pèse sur sa moyenne. Une matière optionnelle (ex. Allemand) reste
+    // exclue si elle n'est simplement pas suivie par l'élève.
+    const moy = found ? calculerMoyenneMatiere(found.notes) : (mat.optionnel ? null : 0);
     if (moy !== null) { sommePond += moy * mat.coef; sommeCoefs += mat.coef; }
     detail.push({ nom: mat.nom, domaine: mat.domaine, coefficient: mat.coef,
                   moyenne: moy, optionnel: !!mat.optionnel, mention: getMention(moy) });
@@ -417,7 +438,7 @@ function calculerRangs(items) {
 module.exports = {
   chargerConfiguration, calculerMoyenneGenerale, calculerMoyenneMatiere,
   calculerEvolution, noteMinimalePourCible, detecterBaisses, calculerRangs,
-  getMention, getMentionHonneur, normaliserClasse, getProgramme, normaliserNomMatiereAvecAlias,
+  getMention, getMentionHonneur, getAppreciationAuto, normaliserClasse, getProgramme, normaliserNomMatiereAvecAlias,
   getProgrammes: () => PROGRAMMES, getPonderation: () => PONDERATION, getSeuils: () => SEUILS,
   getSeuilsHonneur: () => SEUILS_HONNEUR, getAnneeScolaireActive: () => ANNEE_SCOLAIRE_ACTIVE,
 };

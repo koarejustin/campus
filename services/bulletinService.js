@@ -203,7 +203,10 @@ async function calculerBulletinComplet(idEleve, trimestre, anneeScolaire) {
             nom: m.nom, domaine: m.domaine, coefficient: m.coefficient, moyenne: m.moyenne,
             note_ponderee: m.moyenne !== null ? Math.round(m.moyenne * m.coefficient * 100) / 100 : null,
             rang: rangsParMatiere[m.nom] || null,
-            appreciation: apprecParMatiere[m.nom] || apprecParMatiere[_norm(m.nom)] || null,
+            // Si le prof n'a saisi aucun commentaire, on affiche une
+            // appréciation par défaut basée sur la note plutôt qu'un tiret —
+            // le prof garde toujours la main : son texte, s'il existe, prime.
+            appreciation: apprecParMatiere[m.nom] || apprecParMatiere[_norm(m.nom)] || engine.getAppreciationAuto(m.moyenne),
             devoirs: (detailDevoirsCompos[m.nom] || detailDevoirsCompos[_norm(m.nom)] || {}).devoirs || [],
             compos: (detailDevoirsCompos[m.nom] || detailDevoirsCompos[_norm(m.nom)] || {}).compos || [],
         })),
