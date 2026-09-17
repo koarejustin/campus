@@ -4104,6 +4104,21 @@
     </div>
   </div>
 
+  <!-- Modal confirmation (remplace les confirm() natifs du navigateur) -->
+  <div class="ov" id="ov-confirm" style="z-index:9500;">
+    <div class="modal" style="width:400px;">
+      <div class="mhd">
+        <span id="cf-title" style="font-size:.92rem;font-weight:800;color:#1E2818;">Confirmer</span>
+        <button class="xbtn" onclick="_confirmResolve(false)">✕</button>
+      </div>
+      <div class="mbd" id="cf-msg" style="font-size:.82rem;color:#5A4D36;line-height:1.5;"></div>
+      <div class="mft">
+        <button class="btn-g" onclick="_confirmResolve(false)">Annuler</button>
+        <button class="btn-p" id="cf-ok-btn" onclick="_confirmResolve(true)">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ══════════════════════════════════════
     // CONFIG & SESSION
@@ -4241,7 +4256,7 @@
     }
 
     async function retirerCoefficient(id, nom) {
-      if (!confirm(`Retirer "${nom}" du programme de cette classe ? Les notes déjà saisies dans cette matière restent conservées, mais elle ne comptera plus dans les nouvelles moyennes.`)) return;
+      if (!(await customConfirm(`Retirer "${nom}" du programme de cette classe ? Les notes déjà saisies dans cette matière restent conservées, mais elle ne comptera plus dans les nouvelles moyennes.`, { danger: true, okLabel: 'Retirer' }))) return;
       try {
         const d = await api('/admin/coefficients/' + id, { method: 'DELETE' });
         if (d.success) { toast('Matière retirée', 'ok'); loadCoefficientsClasse(); }
@@ -4352,7 +4367,7 @@
         return { id_eleve: e.id_eleve, decision, classe_arrivee, moyenne_annuelle: e.moyenne_annuelle };
       });
       const msgEl = $('passage-msg');
-      if (!confirm(`Confirmer le passage pour ${decisions.length} élève(s) ? Cette action change leur classe/statut immédiatement.`)) return;
+      if (!(await customConfirm(`Confirmer le passage pour ${decisions.length} élève(s) ? Cette action change leur classe/statut immédiatement.`, { okLabel: 'Confirmer' }))) return;
       try {
         const d = await api('/admin/passage/executer', { method: 'POST', body: JSON.stringify({ decisions }) });
         if (d.success) {
@@ -4367,7 +4382,7 @@
 
     async function confirmerAvancerAnnee() {
       const active = $('passage-annee-active')?.textContent || '';
-      if (!confirm(`Démarrer une nouvelle année scolaire après ${active} ? Fais ça uniquement une fois toutes les classes traitées — les nouvelles notes saisies par les profs seront alors rattachées à la nouvelle année.`)) return;
+      if (!(await customConfirm(`Démarrer une nouvelle année scolaire après ${active} ? Fais ça uniquement une fois toutes les classes traitées — les nouvelles notes saisies par les profs seront alors rattachées à la nouvelle année.`, { danger: true, okLabel: 'Démarrer' }))) return;
       try {
         const d = await api('/admin/annee-scolaire/avancer', { method: 'POST' });
         if (d.success) {
@@ -5584,8 +5599,8 @@
       toast('Formulaire pré-rempli — modifiez et renvoyez', 'info');
     }
 
-    function suppConv(id) {
-      if (!confirm('Supprimer cette convocation ?')) return;
+    async function suppConv(id) {
+      if (!(await customConfirm('Supprimer cette convocation ?', { danger: true, okLabel: 'Supprimer' }))) return;
       convData = convData.filter(x => x.id_convocation !== id);
       updateConvStats(); renderConvList(); toast('Convocation supprimée', 'ok');
     }
@@ -5758,7 +5773,7 @@
     }
 
     async function deleteSeance(id) {
-      if (!confirm('Supprimer cette séance ?')) return;
+      if (!(await customConfirm('Supprimer cette séance ?', { danger: true, okLabel: 'Supprimer' }))) return;
       const cls = $('edt-cls')?.value || '';
       try {
         const d = await api(`/admin/emploi-du-temps/${id}`, { method: 'DELETE' });
@@ -7069,7 +7084,7 @@
     }
     function filtCompta() { if (compData.length) renderCompta(); }
     async function marquerPaye(i) {
-      if (!confirm('Marquer ce paiement comme reçu ?')) return;
+      if (!(await customConfirm('Marquer ce paiement comme reçu ?', { okLabel: 'Marquer reçu' }))) return;
       // Met à jour la cotisation existante (avant : créait une nouvelle
       // ligne via /admin/paiement, laissant l'originale "en attente" en base).
       try {
@@ -7231,14 +7246,14 @@
     async function removeElection() {
       const code = ($('el-code')?.value || '').trim();
       if (!code) { showElMsg('Saisissez le matricule', 'err'); return; }
-      if (!confirm('Retirer le poste de cet élève ?')) return;
+      if (!(await customConfirm('Retirer le poste de cet élève ?', { danger: true, okLabel: 'Retirer' }))) return;
       const d = await api('/admin/elections', { method: 'DELETE', body: JSON.stringify({ eleve_code: code }) });
       if (d.success) { toast('Poste retiré', 'ok'); loadElections(); }
       else showElMsg('' + (d.message || 'Erreur'), 'err');
     }
 
     async function quickRemoveEl(code) {
-      if (!confirm('Retirer le poste de ' + code + ' ?')) return;
+      if (!(await customConfirm('Retirer le poste de ' + code + ' ?', { danger: true, okLabel: 'Retirer' }))) return;
       const d = await api('/admin/elections', { method: 'DELETE', body: JSON.stringify({ eleve_code: code }) });
       if (d.success) { toast('Poste retiré', 'ok'); loadElections(); }
     }
@@ -7426,7 +7441,7 @@
     }
 
     async function deleteCompo(id) {
-      if (!confirm('Supprimer définitivement cette épreuve ?')) return;
+      if (!(await customConfirm('Supprimer définitivement cette épreuve ?', { danger: true, okLabel: 'Supprimer' }))) return;
       try {
         const d = await api('/admin/compositions/' + id, { method: 'DELETE' });
         toast('Épreuve supprimée', 'ok');
@@ -7494,6 +7509,28 @@
         // Fermeture du modal générique #ov
         const ov = $('ov'); if (ov) ov.classList.remove('open');
       }
+    }
+
+    // ── Confirmation en modale (remplace les confirm() natifs du navigateur,
+    // qui s'affichent mal / de façon incohérente sur mobile) ──
+    let _confirmResolver = null;
+    function customConfirm(message, { title = 'Confirmer', danger = false, okLabel = 'Confirmer' } = {}) {
+      const ov = $('ov-confirm');
+      $('cf-title').textContent = title;
+      $('cf-msg').textContent = message;
+      const okBtn = $('cf-ok-btn');
+      okBtn.textContent = okLabel;
+      okBtn.style.background = danger ? '#C0392B' : '';
+      okBtn.style.borderColor = danger ? '#C0392B' : '';
+      ov.style.display = 'flex';
+      setTimeout(() => ov.classList.add('open'), 10);
+      return new Promise((resolve) => { _confirmResolver = resolve; });
+    }
+    function _confirmResolve(val) {
+      const ov = $('ov-confirm');
+      ov.classList.remove('open');
+      setTimeout(() => { ov.style.display = 'none'; }, 250);
+      if (_confirmResolver) { _confirmResolver(val); _confirmResolver = null; }
     }
 
     // ══ LOGIN FUNCTIONS ══
@@ -8096,7 +8133,7 @@
     }
 
     async function justifierAbsence(id) {
-      if (!confirm('Voulez-vous marquer cette absence comme justifiée ?')) return;
+      if (!(await customConfirm('Voulez-vous marquer cette absence comme justifiée ?', { okLabel: 'Marquer justifiée' }))) return;
 
       try {
         const response = await fetch('/api/surveillants/absences/justification', {
@@ -8117,7 +8154,7 @@
     }
 
     async function deleteAbsence(id) {
-      if (!confirm('Supprimer définitivement cette absence ?')) return;
+      if (!(await customConfirm('Supprimer définitivement cette absence ?', { danger: true, okLabel: 'Supprimer' }))) return;
 
       try {
         // Direction utilise l'API admin, surveillant utilise surveillants
@@ -8556,11 +8593,11 @@
       const motif = document.getElementById('af-motif-m')?.value;
 
       if (!matricule) {
-        alert('Matricule requis');
+        toast('Matricule requis', 'err');
         return;
       }
       if (!dateAbs) {
-        alert('Date requise');
+        toast('Date requise', 'err');
         return;
       }
 
@@ -8592,7 +8629,7 @@
           document.getElementById('af-motif-m').value = '';
           if (typeof loadAbsences === 'function') loadAbsences();
         } else {
-          alert('Erreur: ' + (data.message || 'Vérifier le matricule'));
+          toast('Erreur: ' + (data.message || 'Vérifier le matricule'), 'err');
         }
       } catch (error) {
         console.error('Erreur:', error);
