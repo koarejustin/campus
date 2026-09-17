@@ -841,14 +841,17 @@ exports.getEleveDetail = async (req, res) => {
     try {
         const { id } = req.params;
         // Accepter UUID ou code_unique
+        // ⚠️ La photo d'un élève vit dans vie_scolaire.profils_eleves —
+        // ceci joignait par erreur pedagogie.profils_profs (table des
+        // PROFS), donc photo_url restait toujours vide pour un élève
+        // même après upload, puisqu'il n'y a jamais de ligne prof pour lui.
         const eleve = await db.query(`
             SELECT c.id_user, c.code_unique, c.nom, c.prenom,
                    c.email, c.telephone,
                    pe.classe_actuelle, pe.date_naissance, pe.sexe, pe.lieu_naissance,
-                   COALESCE(pp.photo_url,'') AS photo_url
+                   COALESCE(pe.photo_url,'') AS photo_url
             FROM authentification.comptes c
             JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
-            LEFT JOIN pedagogie.profils_profs pp ON pp.id_user = c.id_user
             WHERE c.id_user::text = $1 OR c.code_unique = $1
         `, [id]);
         if (!eleve.rows.length) return res.status(404).json({ message: 'Élève introuvable' });

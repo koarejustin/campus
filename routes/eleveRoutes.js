@@ -7,6 +7,31 @@ const professeurController = require('../controller/professeurController');
 
 const eleveAuth = [authMiddleware, ensureRole('ELEVE')];
 
+// ── Upload photo de profil ──
+let uploadPhoto;
+try {
+    const multer = require('multer');
+    uploadPhoto = multer({
+        storage: multer.memoryStorage(),
+        limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo max
+        fileFilter: (req, file, cb) => {
+            if (file.mimetype.startsWith('image/')) cb(null, true);
+            else cb(new Error('Seules les images sont acceptées pour la photo'), false);
+        }
+    });
+} catch (e) {
+    console.error('Multer non disponible (eleveRoutes):', e.message);
+    uploadPhoto = { single: () => (req, res, next) => next() };
+}
+function handleUpload(uploadMiddleware) {
+    return (req, res, next) => {
+        uploadMiddleware(req, res, (err) => {
+            if (err) return res.status(400).json({ success: false, message: 'Erreur upload: ' + err.message });
+            next();
+        });
+    };
+}
+
 // Bulletin et notes
 router.get('/bulletin', eleveAuth, eleveController.getBulletin);
 
@@ -53,7 +78,7 @@ router.get('/devoirs', eleveAuth, eleveController.getDevoirs);
 
 // Profil élève
 router.get('/mon-profil', eleveAuth, eleveController.getMonProfil);
-router.put('/mon-profil', eleveAuth, eleveController.updateMonProfil);
+router.put('/mon-profil', eleveAuth, handleUpload(uploadPhoto.single('photo')), eleveController.updateMonProfil);
 
 // Professeurs accessibles par classe
 router.get('/professeurs', eleveAuth, eleveController.getProfesseurs);

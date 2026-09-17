@@ -1254,7 +1254,8 @@ exports.getMonProfil = async (req, res) => {
         const eleveId = req.user?.id;
         if (!eleveId) return res.status(401).json({ success: false });
         await db.query(`ALTER TABLE vie_scolaire.profils_eleves ADD COLUMN IF NOT EXISTS role_special VARCHAR(50) DEFAULT NULL`).catch(() => { });
-        const r = await db.query(`SELECT p.classe_actuelle, p.role_special, c.nom, c.prenom, c.code_unique, c.email, c.telephone FROM vie_scolaire.profils_eleves p JOIN authentification.comptes c ON c.id_user = p.id_user WHERE p.id_user = $1`, [eleveId]);
+        await db.query(`ALTER TABLE vie_scolaire.profils_eleves ADD COLUMN IF NOT EXISTS photo_url TEXT`).catch(() => { });
+        const r = await db.query(`SELECT p.classe_actuelle, p.role_special, p.photo_url, c.nom, c.prenom, c.code_unique, c.email, c.telephone FROM vie_scolaire.profils_eleves p JOIN authentification.comptes c ON c.id_user = p.id_user WHERE p.id_user = $1`, [eleveId]);
         if (!r.rows.length) return res.status(404).json({ success: false });
         const row = r.rows[0];
 
@@ -1278,7 +1279,7 @@ exports.getMonProfil = async (req, res) => {
             effectif_classe = parseInt(eff.rows[0].count);
         }
 
-        res.json({ success: true, profil: { nom: row.nom, prenom: row.prenom, code_unique: row.code_unique, classe: row.classe_actuelle, effectif_classe, email: row.email || null, telephone: row.telephone || null, role_special: row.role_special || null, poste_elu } });
+        res.json({ success: true, profil: { nom: row.nom, prenom: row.prenom, code_unique: row.code_unique, classe: row.classe_actuelle, effectif_classe, email: row.email || null, telephone: row.telephone || null, photo_url: row.photo_url || null, role_special: row.role_special || null, poste_elu } });
     } catch (e) { res.status(500).json({ success: false }); }
 };
 
@@ -1293,7 +1294,19 @@ exports.updateMonProfil = async (req, res) => {
             `UPDATE authentification.comptes SET email = COALESCE($1, email), telephone = COALESCE($2, telephone) WHERE id_user = $3 AND role_actuel = 'ELEVE'`,
             [email || null, telephone || null, eleveId]
         );
-        res.json({ success: true });
+
+        let photo_url = null;
+        if (req.file) {
+            const fileStorage = require('../services/fileStorage');
+            photo_url = await fileStorage.saveUploadedFile(req.file, { prefix: 'photo-eleve', keyed: eleveId });
+            await db.query(`ALTER TABLE vie_scolaire.profils_eleves ADD COLUMN IF NOT EXISTS photo_url TEXT`);
+            await db.query(
+                `UPDATE vie_scolaire.profils_eleves SET photo_url = $1 WHERE id_user = $2`,
+                [photo_url, eleveId]
+            );
+        }
+
+        res.json({ success: true, photo_url });
     } catch (e) {
         console.error('updateMonProfil:', e.message);
         res.status(500).json({ success: false, message: 'Erreur serveur' });
