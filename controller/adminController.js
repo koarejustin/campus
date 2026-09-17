@@ -844,7 +844,7 @@ exports.getEleveDetail = async (req, res) => {
         const eleve = await db.query(`
             SELECT c.id_user, c.code_unique, c.nom, c.prenom,
                    c.email, c.telephone,
-                   pe.classe_actuelle, pe.date_naissance,
+                   pe.classe_actuelle, pe.date_naissance, pe.sexe, pe.lieu_naissance,
                    COALESCE(pp.photo_url,'') AS photo_url
             FROM authentification.comptes c
             JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
@@ -2192,6 +2192,13 @@ exports.importElevesExcel = async (req, res) => {
             const classe = get(ligne, ['classe']);
             const email = get(ligne, ['email', 'e-mail']) || null;
             const telephone = get(ligne, ['telephone', 'téléphone', 'tel']) || null;
+            // ✅ Optionnelles : indispensables sur le bulletin officiel
+            // (SEXE / DATE ET LIEU DE NAISSANCE) mais absentes avant de cet
+            // import — restaient vides pour tout élève importé en masse.
+            const sexeRaw = get(ligne, ['sexe']).toUpperCase();
+            const sexe = ['M', 'F'].includes(sexeRaw) ? sexeRaw : null;
+            const dateNaissance = get(ligne, ['datenaissance', 'date de naissance', 'date_naissance']) || null;
+            const lieuNaissance = get(ligne, ['lieunaissance', 'lieu de naissance', 'lieu_naissance']) || null;
 
             if (!nom || !prenom || !classe) {
                 resultats.push({ ligne: i + 2, nom, prenom, classe, statut: 'ERREUR', message: 'Nom, prénom et classe sont obligatoires' });
@@ -2201,7 +2208,7 @@ exports.importElevesExcel = async (req, res) => {
             if (dryRun) {
                 compteur++;
                 const codePrevisionnel = 'CN-2026-' + String(2000 + compteur).padStart(4, '0');
-                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, classe, email, telephone, code_previsionnel: codePrevisionnel, statut: 'OK' });
+                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, classe, email, telephone, sexe, date_naissance: dateNaissance, lieu_naissance: lieuNaissance, code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
 
@@ -2221,8 +2228,8 @@ exports.importElevesExcel = async (req, res) => {
                     `, [code, nom.toUpperCase(), prenom, email, telephone, hash])
                 );
                 await db.query(
-                    `INSERT INTO vie_scolaire.profils_eleves (id_user, classe_actuelle) VALUES ($1, $2)`,
-                    [r.rows[0].id_user, classe]
+                    `INSERT INTO vie_scolaire.profils_eleves (id_user, classe_actuelle, sexe, date_naissance, lieu_naissance) VALUES ($1, $2, $3, $4, $5)`,
+                    [r.rows[0].id_user, classe, sexe, dateNaissance, lieuNaissance]
                 );
                 resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, classe, code_unique: code, mot_de_passe_temporaire: motDePasseTemp, statut: 'CREE', note: '🔒 En attente d\'un parent lié pour être activé' });
             } catch (err) {

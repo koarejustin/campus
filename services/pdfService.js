@@ -302,7 +302,10 @@ async function streamBulletinPdf(res, data, baseUrl) {
     doc.text(sommePond.toFixed(2), cols[5]._x + 4, y + 6, { width: cols[5]._w - 8, align: 'center' });
     y += 20 + 12;
 
-    // Synthèse — cartes
+    // Synthèse — cartes. Moyenne annuelle / rang annuel / décision de
+    // passage n'ont de sens qu'au 3e trimestre (l'année n'est pas finie
+    // avant) — bulletinService ne les renseigne que dans ce cas. Le 2e
+    // trimestre affiche à la place un simple rappel de la moyenne du 1er.
     const cartes = [
         ['Moyenne du trimestre', data.moyenne_generale !== null ? data.moyenne_generale.toFixed(2) + '/20' : '—'],
         ['Mention', data.mention || '—'],
@@ -310,10 +313,15 @@ async function streamBulletinPdf(res, data, baseUrl) {
         ['Moyenne de la classe', data.moyenne_classe !== null ? data.moyenne_classe.toFixed(2) : '—'],
         ['Meilleure moyenne', data.meilleure_moyenne !== null ? data.meilleure_moyenne.toFixed(2) : '—'],
         ['Plus faible moyenne', data.plus_faible_moyenne !== null ? data.plus_faible_moyenne.toFixed(2) : '—'],
-        ['Moyenne annuelle', data.moyenne_annuelle !== null ? data.moyenne_annuelle.toFixed(2) + '/20' : '—'],
-        ['Rang annuel', data.rang_annuel ? `${data.rang_annuel}e / ${data.effectif_classe}` : '—'],
-        ['Décision', data.decision || '—'],
     ];
+    if (data.moyenne_trimestre_precedent !== null && data.moyenne_trimestre_precedent !== undefined) {
+        cartes.push(['Moyenne du trimestre précédent', data.moyenne_trimestre_precedent.toFixed(2) + '/20']);
+    }
+    if (data.moyenne_annuelle !== null && data.moyenne_annuelle !== undefined) {
+        cartes.push(['Moyenne annuelle', data.moyenne_annuelle.toFixed(2) + '/20']);
+        cartes.push(['Rang annuel', data.rang_annuel ? `${data.rang_annuel}e / ${data.effectif_classe}` : '—']);
+        cartes.push(['Décision', data.decision || '—']);
+    }
     const carteW = totalW / 3, carteH = 42;
     const carteRows = Math.ceil(cartes.length / 3);
     if (y + carteRows * (carteH + 8) > pageH - marginY - 50) { doc.addPage(); y = marginY; }

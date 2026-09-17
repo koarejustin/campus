@@ -137,9 +137,12 @@ async function calculerBulletinComplet(idEleve, trimestre, anneeScolaire) {
     `, [idEleve, trimestre, anneeScolaire]);
     const sig = sigRes.rows[0] || null;
 
-    // Moyenne et rang annuels — moyenne des trimestres où l'élève a des
-    // notes (1, 2 ou 3 selon l'avancement de l'année), pas seulement le
-    // trimestre demandé pour ce bulletin précis.
+    // Moyenne annuelle, rang annuel et décision de passage n'ont de sens
+    // qu'une fois l'année terminée — un bulletin de 1er ou 2e trimestre
+    // n'affiche donc ni l'un ni l'autre (voir plus bas, "trimestreNum").
+    // Moyenne des trimestres où l'élève a des notes (1, 2 ou 3 selon
+    // l'avancement de l'année), pas seulement le trimestre de ce bulletin.
+    const trimestreNum = parseInt(trimestre);
     const moyenneAnnuelleParEleve = await calculerMoyennesAnnuellesClasse(classe_actuelle, idsClasse, anneeScolaire);
     const rangsAnnuels = engine.calculerRangs(idsClasse.map(id => ({ id, moyenne: moyenneAnnuelleParEleve[id] })));
     const monRangAnnuel = rangsAnnuels.find(r => r.id === idEleve);
@@ -151,6 +154,23 @@ async function calculerBulletinComplet(idEleve, trimestre, anneeScolaire) {
     const seuilPassage = engine.getSeuils().passable;
     const moyennePourDecision = moyenneAnnuelle !== null ? moyenneAnnuelle : moi.moyenne_generale;
     const decision = moyennePourDecision === null ? null : (moyennePourDecision >= seuilPassage ? 'Passe en classe supérieure' : "À revoir en conseil de classe");
+    const decisionExposee = trimestreNum === 3 ? decision : null;
+
+    // Au 2e trimestre, le bulletin rappelle la moyenne du 1er trimestre
+    // (simple repère pour le lecteur, pas une moyenne annuelle calculée).
+    let moyenneTrimestrePrecedent = null;
+    if (trimestreNum === 2) {
+        const notesT1Res = await db.query(`
+            SELECT n.note, COALESCE(n.type_evaluation, 'DEVOIR') AS type_evaluation,
+                   COALESCE(m.nom_matiere, 'Matière inconnue') AS nom_matiere
+            FROM pedagogie.notes_evaluations n
+            LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
+            WHERE n.id_eleve = $1 AND n.trimestre = 1 AND n.annee_scolaire = $2
+        `, [idEleve, anneeScolaire]);
+        const parMatT1 = notesT1Res.rows.reduce((acc, n) => { (acc[n.nom_matiere] = acc[n.nom_matiere] || []).push(n); return acc; }, {});
+        const npmT1 = Object.entries(parMatT1).map(([nom_matiere, notes]) => ({ nom_matiere, notes }));
+        moyenneTrimestrePrecedent = engine.calculerMoyenneGenerale(classe_actuelle, npmT1).moyenne_generale;
+    }
 
     const mentionHonneur = engine.getMentionHonneur(moi.moyenne_generale);
 
@@ -182,9 +202,11 @@ async function calculerBulletinComplet(idEleve, trimestre, anneeScolaire) {
         moyenne_classe: moyennesValides.length ? Math.round((moyennesValides.reduce((a, b) => a + b, 0) / moyennesValides.length) * 100) / 100 : null,
         meilleure_moyenne: moyennesValides.length ? Math.max(...moyennesValides) : null,
         plus_faible_moyenne: moyennesValides.length ? Math.min(...moyennesValides) : null,
-        moyenne_annuelle: moyenneAnnuelle,
-        rang_annuel: monRangAnnuel ? monRangAnnuel.rang : null,
-        decision,
+        // Réservés au bulletin du 3e trimestre — voir commentaire plus haut.
+        moyenne_annuelle: trimestreNum === 3 ? moyenneAnnuelle : null,
+        rang_annuel: trimestreNum === 3 ? (monRangAnnuel ? monRangAnnuel.rang : null) : null,
+        decision: decisionExposee,
+        moyenne_trimestre_precedent: moyenneTrimestrePrecedent,
         signature: sig ? {
             code_verification: sig.code_verification,
             date_signature: sig.date_signature,
@@ -196,7 +218,7 @@ async function calculerBulletinComplet(idEleve, trimestre, anneeScolaire) {
             modifie: (
                 (sig.moyenne_signee !== null && moi.moyenne_generale !== null && Math.abs(parseFloat(sig.moyenne_signee) - moi.moyenne_generale) > 0.01) ||
                 (sig.moyenne_signee === null) !== (moi.moyenne_generale === null) ||
-                (sig.decision_signee || null) !== (decision || null)
+                (sig.decision_signee || null) !== (decisionExposee || null)
             ),
         } : null,
         matieres: moi.detail_matieres.map(m => ({

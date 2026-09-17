@@ -5017,7 +5017,7 @@
               </button>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
             <div style="background:#FDFAF2;border-radius:10px;padding:12px;">
               <div style="font-size:.65rem;font-weight:700;color:#6B5D42;margin-bottom:4px;">EMAIL</div>
               <div style="font-size:.78rem;color:#1E2818;">${esc(e.email || '—')}</div>
@@ -5026,6 +5026,27 @@
               <div style="font-size:.65rem;font-weight:700;color:#6B5D42;margin-bottom:4px;">TÉLÉPHONE</div>
               <div style="font-size:.78rem;color:#1E2818;">${esc(e.telephone || '—')}</div>
             </div>
+          </div>
+          <!-- ✅ Sexe / date / lieu de naissance — indispensables sur le
+          bulletin officiel mais absents de l'import Excel en masse, donc
+          souvent vides pour un élève importé. Modifiables ici directement,
+          plutôt que de forcer une correction via un ré-import. -->
+          <div style="background:#FDFAF2;border:1px solid #EAD497;border-radius:10px;padding:12px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <div style="font-size:.65rem;font-weight:700;color:#6B5D42;">SEXE · DATE ET LIEU DE NAISSANCE</div>
+              <div style="font-size:.68rem;color:#6F5216;">Affiché sur le bulletin officiel</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+              <select id="fe-sexe" style="padding:8px 10px;border:1.5px solid #DCD3B8;border-radius:8px;font-size:.76rem;font-family:inherit;">
+                <option value="">Sexe —</option>
+                <option value="M" ${e.sexe === 'M' ? 'selected' : ''}>M</option>
+                <option value="F" ${e.sexe === 'F' ? 'selected' : ''}>F</option>
+              </select>
+              <input id="fe-date-naissance" type="date" value="${e.date_naissance ? new Date(e.date_naissance).toISOString().split('T')[0] : ''}" style="padding:8px 10px;border:1.5px solid #DCD3B8;border-radius:8px;font-size:.76rem;font-family:inherit;">
+              <input id="fe-lieu-naissance" type="text" placeholder="Lieu de naissance" value="${esc(e.lieu_naissance || '')}" style="padding:8px 10px;border:1.5px solid #DCD3B8;border-radius:8px;font-size:.76rem;font-family:inherit;">
+            </div>
+            <button class="btn-p" style="width:100%;justify-content:center;padding:8px;font-size:.74rem;" onclick="enregistrerInfosEleve('${e.id_user || id}')">Enregistrer</button>
+            <div id="fe-msg" style="display:none;font-size:.72rem;margin-top:6px;text-align:center;"></div>
           </div>
           ${notes.length ? `
           <div style="font-size:.78rem;font-weight:800;color:#1E2818;margin-bottom:8px;">Notes (${notes.length})</div>
@@ -5049,6 +5070,28 @@
         if (body) body.innerHTML = '<div style="text-align:center;padding:30px;color:#C0392B;">' + e2.message + '</div>';
       }
     }
+
+    async function enregistrerInfosEleve(id) {
+      const sexe = document.getElementById('fe-sexe')?.value || null;
+      const date_naissance = document.getElementById('fe-date-naissance')?.value || null;
+      const lieu_naissance = document.getElementById('fe-lieu-naissance')?.value?.trim() || null;
+      const msgEl = document.getElementById('fe-msg');
+      try {
+        const d = await api('/admin/eleves/' + encodeURIComponent(id), {
+          method: 'PUT',
+          body: JSON.stringify({ sexe, date_naissance, lieu_naissance })
+        });
+        if (msgEl) {
+          msgEl.style.display = 'block';
+          msgEl.style.color = d.success ? '#4A6329' : '#C0392B';
+          msgEl.textContent = d.success ? 'Enregistré ✓' : (d.message || 'Erreur');
+        }
+        if (d.success) toast('Informations mises à jour', 'ok');
+      } catch (e3) {
+        if (msgEl) { msgEl.style.display = 'block'; msgEl.style.color = '#C0392B'; msgEl.textContent = e3.message; }
+      }
+    }
+
     function openAddEleve() {
       // Créer modal ajout élève
       let m = document.getElementById('m-add-eleve');
@@ -5165,7 +5208,7 @@
           + '<button onclick="closeImportExcel()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6B5D42;">✕</button>'
           + '</div>'
           + '<div style="background:#FCF7E8;border:1px solid #EAD497;border-radius:10px;padding:10px 12px;font-size:.72rem;color:#6F5216;margin-bottom:14px;">'
-          + 'Colonnes attendues dans le fichier (1ère ligne = en-têtes) : <strong>Nom, Prenom, Classe</strong>, et en option <strong>Email, Telephone</strong>.'
+          + 'Colonnes attendues dans le fichier (1ère ligne = en-têtes) : <strong>Nom, Prenom, Classe</strong>, et en option <strong>Email, Telephone, Sexe (M/F), DateNaissance (AAAA-MM-JJ), LieuNaissance</strong> — ces 3 dernières sont affichées sur le bulletin officiel.'
           + '</div>'
           + '<input type="file" id="ie-fichier" accept=".xlsx,.xls" style="margin-bottom:12px;" onchange="chargerApercuExcel(this)">'
           + '<div id="ie-apercu" style="display:none;">'
