@@ -2681,6 +2681,10 @@
                 style="width:220px; padding:8px 12px 8px 32px; border:1.5px solid #DCD3B8; border-radius:10px; font-size:.8rem; outline:none;"
                 oninput="filtEl()" onfocus="this.style.borderColor='#2F6B3F'" onblur="this.style.borderColor='#DCD3B8'">
             </div>
+            <button class="btn-p" style="font-size:.72rem; background:#5A4D36;white-space:nowrap;"
+              onclick="reinitialiserEtImprimerLotEleves()" title="Réinitialise et imprime les fiches de tous les élèves affichés (respecte le filtre classe/recherche actuel)">
+              <i data-lucide="printer" style="width:14px;height:14px;"></i> Réinit. + imprimer
+            </button>
             <button class="btn-p" style="font-size:.72rem; background:#D4A94A;"
               id="btn-import-excel" onclick="openImportExcel()">
               <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer depuis Excel
@@ -3335,6 +3339,9 @@
             <input type="text" id="corps-srch" placeholder="Rechercher un professeur…" style="width:180px;"
               oninput="filtCorps()">
             <div id="corps-actions-profs" style="display:flex;gap:8px;">
+              <button class="btn-p" style="font-size:.72rem;background:#5A4D36;white-space:nowrap;" onclick="reinitialiserEtImprimerLotCorps()" title="Réinitialise et imprime les fiches de tous les professeurs affichés">
+                <i data-lucide="printer" style="width:14px;height:14px;"></i> Réinit. + imprimer
+              </button>
               <button class="btn-p" style="font-size:.72rem;background:#D4A94A;white-space:nowrap;" onclick="openImportGenerique('professeurs')">
                 <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer (Excel)
               </button>
@@ -3343,6 +3350,9 @@
               </button>
             </div>
             <div id="corps-actions-survs" style="display:none;gap:8px;">
+              <button class="btn-p" style="font-size:.72rem;background:#5A4D36;white-space:nowrap;" onclick="reinitialiserEtImprimerLotCorps()" title="Réinitialise et imprime les fiches de tous les surveillants affichés">
+                <i data-lucide="printer" style="width:14px;height:14px;"></i> Réinit. + imprimer
+              </button>
               <button class="btn-p" style="font-size:.72rem;background:#D4A94A;white-space:nowrap;" onclick="openImportGenerique('surveillants')">
                 <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer (Excel)
               </button>
@@ -3526,6 +3536,9 @@
           <div style="display:flex;gap:8px;">
             <input type="text" id="parents-srch" placeholder="Rechercher un parent…" style="width:220px;"
               oninput="filtParents()">
+            <button class="btn-p" style="font-size:.72rem;background:#5A4D36;white-space:nowrap;" onclick="reinitialiserEtImprimerLotParents()" title="Réinitialise et imprime les fiches de tous les parents affichés">
+              <i data-lucide="printer" style="width:14px;height:14px;"></i> Réinit. + imprimer
+            </button>
             <button class="btn-p" style="font-size:.72rem;background:#D4A94A;white-space:nowrap;" onclick="openImportGenerique('parents')">
               <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer (Excel)
             </button>
@@ -3548,6 +3561,9 @@
           <div style="display:flex;gap:8px;">
             <input type="text" id="alumni-srch" placeholder="Rechercher un ancien élève…" style="width:220px;"
               oninput="filtAlumniDir()">
+            <button class="btn-p" style="font-size:.72rem;background:#5A4D36;white-space:nowrap;" onclick="reinitialiserEtImprimerLotAlumni()" title="Réinitialise et imprime les fiches de tous les anciens élèves affichés">
+              <i data-lucide="printer" style="width:14px;height:14px;"></i> Réinit. + imprimer
+            </button>
             <button class="btn-p" style="font-size:.72rem;background:#D4A94A;white-space:nowrap;" onclick="openImportGenerique('alumni')">
               <i data-lucide="upload" style="width:14px;height:14px;"></i> Importer (Excel)
             </button>
@@ -5358,6 +5374,80 @@
       m.style.display = 'flex';
       setTimeout(() => m.classList.add('open'), 10);
       if (window.lucide) lucide.createIcons();
+    }
+
+    // ═══════════════════════════════════════════
+    // RÉINITIALISER + IMPRIMER EN LOT — pour retrouver des identifiants
+    // après coup (ex: import fait par script, ou fiches perdues), sans
+    // devoir cliquer compte par compte. Réutilise le vrai endpoint de
+    // reset (donc rien d'inhabituel côté sécurité) et le même PDF que
+    // l'impression après import Excel.
+    // ═══════════════════════════════════════════
+    function reinitialiserEtImprimerLot(items, labelPluriel) {
+      if (!items || !items.length) { toast('Aucun compte à traiter', 'err'); return; }
+      let m = document.getElementById('m-confirm-reset-lot');
+      if (m) m.remove();
+      m = document.createElement('div');
+      m.id = 'm-confirm-reset-lot';
+      m.className = 'dir-modal-overlay';
+      m.onclick = e => { if (e.target === m) m.remove(); };
+      m.innerHTML = '<div class="dir-modal" style="max-width:420px;">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+        + '<div style="width:38px;height:38px;border-radius:10px;background:#F2E6C5;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="key-round" style="width:18px;height:18px;color:#7A5218;"></i></div>'
+        + '<div style="font-size:.92rem;font-weight:800;color:#1E2818;">Réinitialiser ' + items.length + ' ' + esc(labelPluriel) + ' ?</div>'
+        + '</div>'
+        + '<div style="font-size:.8rem;color:#3D3524;margin-bottom:18px;">Un nouveau mot de passe sera généré pour chacun des <strong>' + items.length + '</strong> comptes actuellement affichés (filtre/recherche pris en compte). Les anciens mots de passe ne fonctionneront plus, et les nouvelles fiches s\'imprimeront automatiquement à la fin.</div>'
+        + '<div style="display:flex;gap:8px;">'
+        + '<button onclick="document.getElementById(\'m-confirm-reset-lot\').remove()" style="flex:1;padding:10px;background:#F2ECDE;border:none;border-radius:9px;font-size:.8rem;font-weight:700;color:#3D3524;cursor:pointer;font-family:inherit;">Annuler</button>'
+        + '<button id="btn-confirm-reset-lot" onclick="_confirmerResetLot()" style="flex:1;padding:10px;background:linear-gradient(135deg,#2F6B3F,#1F4A2C);color:#fff;border:none;border-radius:9px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:inherit;">Réinitialiser tout</button>'
+        + '</div></div>';
+      document.body.appendChild(m);
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+      if (window.lucide) lucide.createIcons();
+      window._lotAReinitialiser = items;
+    }
+    async function _confirmerResetLot() {
+      const items = window._lotAReinitialiser || [];
+      document.getElementById('m-confirm-reset-lot')?.remove();
+      if (!items.length) return;
+      toast(`Réinitialisation de ${items.length} mot(s) de passe en cours…`, 'ok');
+      const resultats = [];
+      for (const item of items) {
+        try {
+          const d = await api(`/admin/comptes/${item.id}/reset-password`, { method: 'PUT' });
+          if (d.success) {
+            resultats.push({ prenom: d.prenom, nom: d.nom, classe: item.classe || '', code_unique: d.code_unique, mot_de_passe_temporaire: d.mot_de_passe_temporaire });
+          }
+        } catch (e) { /* on continue malgré l'échec d'un compte isolé */ }
+      }
+      if (!resultats.length) { toast('Échec : aucun mot de passe réinitialisé', 'err'); return; }
+      imprimerFichesIdentifiants(resultats);
+      toast(resultats.length + ' fiche(s) prête(s), impression lancée', 'ok');
+    }
+    function reinitialiserEtImprimerLotEleves() {
+      const q = ($('el-srch')?.value || '').toLowerCase();
+      const r = eleveData.filter(e => {
+        const ok = !clsFil || normCls(e.classe) === normCls(clsFil);
+        return ok && (!q || (e.nom + e.prenom + e.code).toLowerCase().includes(q));
+      });
+      reinitialiserEtImprimerLot(r.map(e => ({ id: e.id, classe: e.classe })), 'élève(s)');
+    }
+    function reinitialiserEtImprimerLotParents() {
+      const q = ($('parents-srch')?.value || '').toLowerCase();
+      const r = parentsData.filter(p => !q || `${p.nom} ${p.prenom}`.toLowerCase().includes(q));
+      reinitialiserEtImprimerLot(r.map(p => ({ id: p.id_user || p.id })), 'parent(s)');
+    }
+    function reinitialiserEtImprimerLotAlumni() {
+      const q = ($('alumni-srch')?.value || '').toLowerCase();
+      const r = alumniDirData.filter(a => !q || `${a.nom} ${a.prenom}`.toLowerCase().includes(q));
+      reinitialiserEtImprimerLot(r.map(a => ({ id: a.id_user || a.id })), 'ancien(ne) élève(s)');
+    }
+    function reinitialiserEtImprimerLotCorps() {
+      const q = ($('corps-srch')?.value || '').toLowerCase();
+      const wantRole = corpsRoleTab === 'profs' ? 'PROFESSEUR' : 'SURVEILLANT';
+      const r = corpsData.filter(p => p.role === wantRole && (!q || (p.nom + p.mat).toLowerCase().includes(q)));
+      reinitialiserEtImprimerLot(r.map(p => ({ id: p.id })), corpsRoleTab === 'profs' ? 'professeur(s)' : 'surveillant(s)');
     }
 
     async function _confirmerResetMotDePasse(id) {
