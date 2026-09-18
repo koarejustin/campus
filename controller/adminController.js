@@ -1392,6 +1392,29 @@ function _parseListeAdmin(valeur) {
     return arr.length ? arr : null;
 }
 
+// ✅ Convertit une date de naissance saisie en Excel (format JJ/MM/AAAA
+// attendu) vers le format ISO (AAAA-MM-JJ) que Postgres exige — voir
+// l'avertissement dans importElevesExcel pour le bug que ça corrige.
+// Accepte aussi un objet Date JS (cellule Excel mise en forme "Date") et
+// une valeur déjà en ISO. Retourne null si vide ou illisible plutôt que
+// de planter l'insertion.
+function _parseDateFrAdmin(valeur) {
+    if (!valeur && valeur !== 0) return null;
+    if (valeur instanceof Date && !isNaN(valeur)) {
+        return valeur.toISOString().slice(0, 10);
+    }
+    const str = String(valeur).trim();
+    if (!str) return null;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+    const m = str.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+    if (!m) return null;
+    const jour = parseInt(m[1], 10);
+    const mois = parseInt(m[2], 10);
+    const annee = m[3];
+    if (jour < 1 || jour > 31 || mois < 1 || mois > 12) return null;
+    return `${annee}-${String(mois).padStart(2, '0')}-${String(jour).padStart(2, '0')}`;
+}
+
 exports.createProfesseur = async (req, res) => {
     try {
         const { prenom, nom, specialite, email, telephone, classes, matieres } = req.body;
@@ -2190,6 +2213,18 @@ exports.importElevesExcel = async (req, res) => {
                 }
                 return '';
             };
+            // ✅ Valeur BRUTE (sans String()) — nécessaire pour les dates :
+            // Excel peut renvoyer soit du texte ("21/02/2008"), soit un objet
+            // Date JS si la cellule est mise en forme "Date", et String(Date)
+            // donnerait un texte inexploitable ("Thu Feb 21 2008...").
+            const getRaw = (obj, keys) => {
+                for (const k of keys) {
+                    for (const realKey of Object.keys(obj)) {
+                        if (realKey.trim().toLowerCase() === k) return obj[realKey];
+                    }
+                }
+                return null;
+            };
             const nom = get(ligne, ['nom']);
             const prenom = get(ligne, ['prenom', 'prénom']);
             const classe = get(ligne, ['classe']);
@@ -2200,7 +2235,13 @@ exports.importElevesExcel = async (req, res) => {
             // import — restaient vides pour tout élève importé en masse.
             const sexeRaw = get(ligne, ['sexe']).toUpperCase();
             const sexe = ['M', 'F'].includes(sexeRaw) ? sexeRaw : null;
-            const dateNaissance = get(ligne, ['datenaissance', 'date de naissance', 'date_naissance']) || null;
+            // ⚠️ Le format saisi est JJ/MM/AAAA (convention française/burkinabè).
+            // Sans conversion, Postgres l'interprète en MM/JJ/AAAA : les dates
+            // avec jour ≤ 12 étaient silencieusement inversées (12/05/2013 →
+            // stocké comme le 5 décembre au lieu du 12 mai) et celles avec
+            // jour > 12 faisaient planter l'insertion (compte élève créé mais
+            // sans fiche, "orphelin" — repéré avec CN-2026-2003 le 18/09/2026).
+            const dateNaissance = _parseDateFrAdmin(getRaw(ligne, ['datenaissance', 'date de naissance', 'date_naissance']));
             const lieuNaissance = get(ligne, ['lieunaissance', 'lieu de naissance', 'lieu_naissance']) || null;
 
             if (!nom || !prenom || !classe) {
