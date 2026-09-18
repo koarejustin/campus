@@ -2875,3 +2875,54 @@ exports.updateImageEspace = async (req, res) => {
     }
 };
 
+
+// ═══════════════════════════════════════════
+// RÉINITIALISATION COMPLÈTE ("Zone dangereuse") — vide tous les
+// comptes/données de test et remet une base prête pour un vrai
+// déploiement. Triple protection avant toute action destructive :
+// rôle DIRECTION (route), phrase de confirmation exacte tapée par
+// l'utilisateur, ET son propre mot de passe actuel revérifié (une
+// session ouverte ne suffit pas — voir aussi resetMotDePasse pour le
+// même principe appliqué à un seul compte).
+// ═══════════════════════════════════════════
+exports.reinitialisationComplete = async (req, res) => {
+    try {
+        const { confirmation, mot_de_passe } = req.body;
+        if (confirmation !== 'SUPPRIMER TOUT') {
+            return res.status(400).json({ success: false, message: 'Phrase de confirmation incorrecte.' });
+        }
+        if (!mot_de_passe) {
+            return res.status(400).json({ success: false, message: 'Mot de passe requis.' });
+        }
+        const bcrypt = require('bcryptjs');
+        const compte = await db.query(`SELECT mot_de_passe FROM authentification.comptes WHERE id_user = $1`, [req.user.id]);
+        if (!compte.rows.length || !(await bcrypt.compare(mot_de_passe, compte.rows[0].mot_de_passe))) {
+            return res.status(403).json({ success: false, message: 'Mot de passe incorrect.' });
+        }
+
+        const resetService = require('../services/resetService');
+
+        // 1) Archive AVANT toute destruction — lecture seule. Si ça
+        // échoue, on s'arrête ici et rien n'est détruit.
+        const archive = await resetService.construireArchive();
+
+        // 2) Base + stockage — dans cet ordre uniquement parce que
+        // l'archive (étape 1) a déjà réussi.
+        await resetService.executerResetComplet();
+        let stockage;
+        try {
+            stockage = await resetService.nettoyerStockage();
+        } catch (e) {
+            console.error('nettoyerStockage (après reset DB réussi):', e.message);
+            stockage = { supabase_configure: false, erreur: e.message };
+        }
+
+        const nomFichier = `archive_avant_reset_${new Date().toISOString().slice(0, 10)}.json`;
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="${nomFichier}"`);
+        res.json({ ...archive, stockage });
+    } catch (error) {
+        console.error('reinitialisationComplete:', error.message);
+        res.status(500).json({ success: false, message: 'Erreur: ' + error.message });
+    }
+};

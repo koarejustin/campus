@@ -4105,6 +4105,19 @@
         <div style="font-size:.72rem;color:#6B5D42;margin-bottom:14px;">Photo affichée en fond de chaque carte d'espace sur la page de connexion.</div>
         <div id="params-images-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
       </div>
+
+      <div class="card" style="width:100%;box-sizing:border-box;margin-top:16px;border:1.5px solid #E0A0A0;background:#FDF6F6;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <i data-lucide="triangle-alert" style="width:16px;height:16px;color:#A93226;"></i>
+          <div style="font-size:.9rem;font-weight:800;color:#A93226;">Zone dangereuse</div>
+        </div>
+        <div style="font-size:.72rem;color:#6B5D42;margin-bottom:14px;">
+          Vide TOUS les comptes (élèves, profs, parents, surveillants, alumni) et tout leur contenu (notes, messages, devoirs, absences, fichiers uploadés...) pour repartir de zéro — par exemple juste avant un vrai déploiement d'école, pour retirer les données de test. Une archive complète de tout ce qui va être supprimé se télécharge automatiquement juste avant, dans ton navigateur.
+        </div>
+        <button class="btn-p" style="background:linear-gradient(135deg,#A93226,#7B241C);" onclick="openReinitialisationComplete()">
+          <i data-lucide="trash-2" style="width:14px;height:14px;"></i> Réinitialisation complète
+        </button>
+      </div>
     </div>
 
   </main>
@@ -6295,6 +6308,87 @@
           if (msgEl) { msgEl.textContent = '' + (d.message || 'Erreur'); msgEl.style.color = '#C0392B'; }
         }
       } catch (e) {
+        if (msgEl) { msgEl.textContent = '' + e.message; msgEl.style.color = '#C0392B'; }
+      }
+    }
+
+    // ══════════════════════════════════════
+    // ZONE DANGEREUSE — RÉINITIALISATION COMPLÈTE
+    // Triple protection : phrase exacte + mot de passe (revérifiés
+    // côté serveur, voir adminController.reinitialisationComplete) +
+    // ce texte d'avertissement. Une archive complète se télécharge
+    // automatiquement dans la même réponse, avant que rien ne soit
+    // irrécupérable.
+    // ══════════════════════════════════════
+    const PHRASE_CONFIRMATION_RESET = 'SUPPRIMER TOUT';
+    function openReinitialisationComplete() {
+      let m = document.getElementById('m-reset-complet');
+      if (!m) {
+        m = document.createElement('div');
+        m.id = 'm-reset-complet';
+        m.className = 'dir-modal-overlay';
+        m.onclick = e => { if (e.target === m) m.remove(); };
+        document.body.appendChild(m);
+      }
+      m.innerHTML = '<div class="dir-modal" style="max-width:460px;">'
+        + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">'
+        + '<div style="width:38px;height:38px;border-radius:10px;background:#FDF6F6;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i data-lucide="triangle-alert" style="width:18px;height:18px;color:#A93226;"></i></div>'
+        + '<div style="font-size:.92rem;font-weight:800;color:#A93226;">Réinitialisation complète</div>'
+        + '</div>'
+        + '<div style="font-size:.8rem;color:#3D3524;margin-bottom:14px;line-height:1.5;">Ceci va <strong>supprimer définitivement</strong> tous les élèves, profs, parents, surveillants, alumni et tout leur contenu. Une archive de sauvegarde va se télécharger automatiquement juste avant, dans ce navigateur — garde-la en lieu sûr si tu veux pouvoir revenir en arrière.</div>'
+        + '<div style="margin-bottom:10px;"><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Tape exactement <span style="font-family:monospace;background:#F2ECDE;padding:1px 5px;border-radius:4px;">' + PHRASE_CONFIRMATION_RESET + '</span> pour confirmer</label>'
+        + '<input id="rc-phrase" type="text" autocomplete="off" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+        + '<div style="margin-bottom:14px;"><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Ton mot de passe actuel</label>'
+        + '<input id="rc-password" type="password" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+        + '<div id="rc-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;margin-bottom:10px;"></div>'
+        + '<div style="display:flex;gap:8px;">'
+        + '<button onclick="document.getElementById(\'m-reset-complet\').remove()" style="flex:1;padding:10px;background:#F2ECDE;border:none;border-radius:9px;font-size:.8rem;font-weight:700;color:#3D3524;cursor:pointer;font-family:inherit;">Annuler</button>'
+        + '<button id="rc-btn-confirm" onclick="submitReinitialisationComplete()" style="flex:1;padding:10px;background:linear-gradient(135deg,#A93226,#7B241C);color:#fff;border:none;border-radius:9px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:inherit;">Tout supprimer</button>'
+        + '</div></div>';
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function submitReinitialisationComplete() {
+      const phrase = document.getElementById('rc-phrase')?.value;
+      const mot_de_passe = document.getElementById('rc-password')?.value;
+      const msgEl = document.getElementById('rc-msg');
+      const btn = document.getElementById('rc-btn-confirm');
+      if (phrase !== PHRASE_CONFIRMATION_RESET) {
+        toast('La phrase tapée ne correspond pas exactement', 'err');
+        return;
+      }
+      if (!mot_de_passe) { toast('Mot de passe requis', 'err'); return; }
+      if (btn) { btn.disabled = true; btn.textContent = 'Suppression en cours…'; }
+      if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Archivage puis suppression en cours, ne ferme pas cette page…'; msgEl.style.color = '#5A4D36'; }
+      try {
+        const res = await fetch('/api/admin/reinitialisation-complete', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + TOK, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ confirmation: phrase, mot_de_passe })
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.message || ('Erreur ' + res.status));
+        }
+        // Déclenche le téléchargement de l'archive (réponse JSON servie
+        // en pièce jointe par le serveur, voir Content-Disposition).
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `archive_avant_reset_${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        document.getElementById('m-reset-complet')?.remove();
+        toast('Base réinitialisée — archive téléchargée. Reconnecte-toi.', 'ok');
+        setTimeout(logout, 2500);
+      } catch (e) {
+        if (btn) { btn.disabled = false; btn.textContent = 'Tout supprimer'; }
         if (msgEl) { msgEl.textContent = '' + e.message; msgEl.style.color = '#C0392B'; }
       }
     }

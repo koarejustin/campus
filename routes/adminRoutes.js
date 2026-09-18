@@ -54,6 +54,10 @@ router.post('/passage/executer', auth, dirSeule, ctrl.executerPassage);
 // ── Réinitialiser le mot de passe d'un compte (tous rôles) ──
 router.put('/comptes/:id/reset-password', auth, dirSeule, ctrl.resetMotDePasse);
 
+// ── Zone dangereuse : réinitialisation complète (vide toute la base +
+// le stockage, télécharge une archive automatiquement avant) ──
+router.post('/reinitialisation-complete', auth, dirSeule, ctrl.reinitialisationComplete);
+
 // ── Élèves ──
 router.get('/eleves', auth, dirOuSurv, ctrl.getElevesDir);
 router.put('/eleves/:id', auth, dirSeule, ctrl.updateEleve);
