@@ -188,6 +188,24 @@ async function streamBulletinPdf(res, data, baseUrl) {
         }
     }
 
+    // ✅ Logo de l'école dans l'en-tête — comme le QR code, doit être
+    // récupéré AVANT de démarrer le flux PDF. logo_url peut être une URL
+    // Supabase absolue (persistant) ou un chemin local relatif hérité
+    // (/uploads/..., avant la migration Supabase) — dans ce cas on le
+    // résout via baseUrl. Si le logo est absent ou injoignable, le
+    // bulletin reste utilisable sans (dégradation silencieuse, comme
+    // pour le QR).
+    let logoBuffer = null;
+    if (data.logo_url) {
+        try {
+            const logoAbsUrl = /^https?:\/\//i.test(data.logo_url) ? data.logo_url : `${baseUrl}${data.logo_url}`;
+            const logoResp = await fetch(logoAbsUrl);
+            if (logoResp.ok) logoBuffer = Buffer.from(await logoResp.arrayBuffer());
+        } catch (e) {
+            console.error('Téléchargement logo bulletin:', e.message);
+        }
+    }
+
     const doc = new PDFDocument({ size: 'A4', margin: 32, bufferPages: true });
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="bulletin_T${data.trimestre}_${(data.eleve.code_unique || '').replace(/[^a-zA-Z0-9]/g, '')}.pdf"`);
@@ -200,6 +218,16 @@ async function streamBulletinPdf(res, data, baseUrl) {
 
     // En-tête
     doc.roundedRect(marginX, y, totalW, 46, 8).fill(GREEN_DARK);
+    if (logoBuffer) {
+        try {
+            doc.save();
+            doc.circle(marginX + 5 + 18, y + 23, 18).clip();
+            doc.image(logoBuffer, marginX + 5, y + 5, { width: 36, height: 36 });
+            doc.restore();
+        } catch (e) {
+            console.error('Rendu logo bulletin:', e.message);
+        }
+    }
     doc.fillColor('#fff').fontSize(15).font('Helvetica-Bold').text(data.etablissement.toUpperCase(), marginX, y + 9, { width: totalW, align: 'center' });
     doc.fontSize(9.5).font('Helvetica').text(
         `BULLETIN DE NOTES — ${data.trimestre}${data.trimestre === 1 ? 'ER' : 'ÈME'} TRIMESTRE — ANNÉE SCOLAIRE ${data.annee_scolaire}`,

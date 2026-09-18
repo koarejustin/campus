@@ -122,8 +122,9 @@ async function calculerBulletinComplet(idEleve, trimestre, anneeScolaire) {
         apprecParMatiere[_norm(a.nom_matiere)] = a.texte;
     }
 
-    const configRes = await db.query(`SELECT nom_etablissement FROM gestion.configuration LIMIT 1`);
+    const configRes = await db.query(`SELECT nom_etablissement, logo_url FROM gestion.configuration LIMIT 1`);
     const nomEtablissement = configRes.rows[0]?.nom_etablissement || 'Établissement';
+    const logoUrl = configRes.rows[0]?.logo_url || null;
 
     // Signature électronique de ce bulletin (si la Direction l'a déjà
     // signé) — permet au PDF d'imprimer un QR code de vérification et
@@ -192,6 +193,7 @@ async function calculerBulletinComplet(idEleve, trimestre, anneeScolaire) {
 
     return {
         etablissement: nomEtablissement,
+        logo_url: logoUrl,
         eleve: { nom, prenom, code_unique, classe: classe_actuelle, date_naissance, sexe, lieu_naissance },
         trimestre, annee_scolaire: anneeScolaire,
         effectif_classe: idsClasse.length,
