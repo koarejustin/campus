@@ -12,13 +12,19 @@ class _RoleMeta {
   const _RoleMeta(this.label, this.icon, this.hint);
 }
 
+// ⚠️ Les indices affichaient auparavant le format exact des identifiants
+// (ex: "DIR-2026-XXX") — ça révèle gratuitement le schéma des matricules
+// de chaque rôle (et notamment celui de Direction, le compte le plus
+// sensible) à quiconque ouvre l'écran de connexion, sans même être
+// connecté. Un identifiant n'est pas un secret en soi, mais autant ne
+// pas faciliter son énumération pour rien.
 const Map<String, _RoleMeta> _roleMeta = {
-  'ELEVE': _RoleMeta('Espace Élève', Icons.school_rounded, 'CN-2026-XXXX'),
-  'PROFESSEUR': _RoleMeta('Espace Professeur', Icons.co_present_rounded, 'PROF-2026-XXX'),
-  'PARENT': _RoleMeta('Espace Parent', Icons.family_restroom_rounded, 'PAR-2026-XXXX'),
-  'SURVEILLANT': _RoleMeta('Espace Surveillant', Icons.shield_rounded, 'SURV-2026-XXX'),
-  'DIRECTION': _RoleMeta('Espace Direction', Icons.admin_panel_settings_rounded, 'DIR-2026-XXX'),
-  'ALUMNI': _RoleMeta('Espace Alumni', Icons.workspace_premium_rounded, 'ALUMNI-2026-XXX'),
+  'ELEVE': _RoleMeta('Espace Élève', Icons.school_rounded, 'Votre identifiant'),
+  'PROFESSEUR': _RoleMeta('Espace Professeur', Icons.co_present_rounded, 'Votre identifiant'),
+  'PARENT': _RoleMeta('Espace Parent', Icons.family_restroom_rounded, 'Votre identifiant'),
+  'SURVEILLANT': _RoleMeta('Espace Surveillant', Icons.shield_rounded, 'Votre identifiant'),
+  'DIRECTION': _RoleMeta('Espace Direction', Icons.admin_panel_settings_rounded, 'Votre identifiant'),
+  'ALUMNI': _RoleMeta('Espace Alumni', Icons.workspace_premium_rounded, 'Votre identifiant'),
 };
 
 class LoginScreen extends StatefulWidget {
