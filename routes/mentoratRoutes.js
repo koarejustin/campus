@@ -25,11 +25,6 @@ router.post('/objectif/create', mentoratController.createObjectifMentorat);
 router.get('/objectifs/:id_relation', mentoratController.getObjectifsMentorat);
 router.put('/objectif/:id_objectif', mentoratController.updateObjectifMentorat);
 
-// ========== ORIENTATIONS LITTÉRATURE / SCIENCE ==========
-router.post('/orientation/set', mentoratController.setOrientationEleve);
-router.get('/orientation/:id_relation', mentoratController.getOrientationEleve);
-router.get('/orientations/all', mentoratController.getElevesAvecOrientations);
-
 // ========== TABLEAU DE BORD ==========
 router.get('/dashboard', mentoratController.getDashboardMentorat);
 router.get('/resultats-eleve/:id_eleve', mentoratController.getResultatsEleveMentorat);

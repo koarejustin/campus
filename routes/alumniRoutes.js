@@ -37,10 +37,12 @@ router.put('/profil', alumniController.updateProfilAlumni);
 router.get('/mentorats', alumniController.getMentorats);
 router.post('/mentorats', alumniController.createMentorat);
 
-// ========== ORIENTATION ==========
+// ========== RECHERCHE D'ÉLÈVES À MENTORER ==========
+// (le nom de la route garde "orientation" pour ne pas casser les appels
+// existants côté frontend, mais sert uniquement à trouver des élèves de
+// Terminale disponibles pour démarrer un mentorat — rien à voir avec la
+// fonctionnalité "avis d'orientation" retirée le 18/09/2026)
 router.get('/orientation/eleves', alumniController.getOrientationEleves);
-router.get('/orientation/:eleveId', alumniController.getAvisOrientation);
-router.post('/orientation/commentaire', alumniController.createAvisOrientation);
 
 // ========== OFFRES (commentées pour le moment) ==========
 // router.get('/offres', alumniController.getOffres);

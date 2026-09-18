@@ -1310,8 +1310,7 @@
           : n.type === 'CONVOCATION' ? ''
             : n.type === 'ANNONCE' ? ''
               : n.type === 'DEVOIR' ? ''
-                : n.type === 'ORIENTATION' ? ''
-                  : '';
+                : '';
         return `
           <div class="notif-item ${!n.lu ? 'unread' : ''}" data-id="${n.id}" data-link="${n.lien || ''}" data-type="${n.type}">
             <div class="notif-item-icon">${icon}</div>

@@ -519,85 +519,9 @@ exports.getStatistiques = async (req, res) => {
     }
 };
 
-exports.getOrientation = async (req, res) => {
-    try {
-        const eleveId = req.user?.id;
-        if (!eleveId) return res.status(401).json({ success: false, profAvis: [], parentAvis: [], alumniAvis: [], mentorOrientations: [] });
-
-        await db.query(`CREATE TABLE IF NOT EXISTS pedagogie.avis_orientation (
-            id SERIAL PRIMARY KEY,
-            id_prof UUID NOT NULL,
-            id_eleve UUID NOT NULL,
-            id_alumni UUID,
-            points_forts TEXT,
-            points_faibles TEXT,
-            serie_recommandee VARCHAR(100),
-            commentaire TEXT,
-            source VARCHAR(20) DEFAULT 'PROF',
-            updated_at TIMESTAMP DEFAULT NOW(),
-            UNIQUE(id_prof, id_eleve)
-        )`).catch(() => { });
-        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS id_alumni UUID`).catch(() => { });
-        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'PROF'`).catch(() => { });
-
-        const profResult = await db.query(`
-            SELECT ao.id, ao.points_forts, ao.points_faibles,
-                   ao.serie_recommandee, ao.commentaire,
-                   COALESCE(ao.updated_at, NOW()) AS updated_at,
-                   c.nom AS auteur_nom, c.prenom AS auteur_prenom,
-                   COALESCE(ao.source,'PROF') AS source
-            FROM pedagogie.avis_orientation ao
-            JOIN authentification.comptes c ON c.id_user = ao.id_prof
-            WHERE ao.id_eleve = $1 AND COALESCE(ao.source,'PROF') = 'PROF'
-            ORDER BY COALESCE(ao.updated_at, NOW()) DESC
-        `, [eleveId]);
-
-        const parentResult = await db.query(`
-            SELECT ao.id, ao.points_forts, ao.points_faibles,
-                   ao.serie_recommandee, ao.commentaire,
-                   COALESCE(ao.updated_at, NOW()) AS updated_at,
-                   c.nom AS auteur_nom, c.prenom AS auteur_prenom,
-                   COALESCE(ao.source,'PARENT') AS source
-            FROM pedagogie.avis_orientation ao
-            JOIN authentification.comptes c ON c.id_user = ao.id_prof
-            WHERE ao.id_eleve = $1 AND COALESCE(ao.source,'PARENT') = 'PARENT'
-            ORDER BY COALESCE(ao.updated_at, NOW()) DESC
-        `, [eleveId]);
-
-        const alumniResult = await db.query(`
-            SELECT ao.id, ao.points_forts, ao.points_faibles,
-                   ao.serie_recommandee, ao.commentaire,
-                   COALESCE(ao.updated_at, NOW()) AS updated_at,
-                   c.nom AS auteur_nom, c.prenom AS auteur_prenom,
-                   COALESCE(ao.source,'ALUMNI') AS source
-            FROM pedagogie.avis_orientation ao
-            JOIN authentification.comptes c ON c.id_user = COALESCE(ao.id_alumni, ao.id_prof)
-            WHERE ao.id_eleve = $1 AND (ao.id_alumni IS NOT NULL OR COALESCE(ao.source,'ALUMNI') = 'ALUMNI')
-            ORDER BY COALESCE(ao.updated_at, NOW()) DESC
-        `, [eleveId]);
-
-        const mentorResult = await db.query(`
-            SELECT rm.id_relation, rm.orientation_suggeree, rm.justification_orientation,
-                   COALESCE(rm.date_orientation_suggeree, NOW()) AS updated_at,
-                   c.nom AS mentor_nom, c.prenom AS mentor_prenom
-            FROM gestion_ape.relations_mentorat rm
-            JOIN authentification.comptes c ON c.id_user = rm.id_alumni
-            WHERE rm.id_eleve = $1 AND rm.statut = 'actif' AND rm.orientation_suggeree IS NOT NULL
-            ORDER BY rm.date_orientation_suggeree DESC
-        `, [eleveId]);
-
-        res.json({
-            success: true,
-            profAvis: profResult.rows,
-            parentAvis: parentResult.rows,
-            alumniAvis: alumniResult.rows,
-            mentorOrientations: mentorResult.rows
-        });
-    } catch (e) {
-        console.error('getOrientation:', e.message);
-        res.json({ success: true, profAvis: [], parentAvis: [], alumniAvis: [], mentorOrientations: [] });
-    }
-};
+// ✅ Fonctionnalité "Orientation" retirée le 18/09/2026 (prévue pour être
+// enlevée depuis le début) — cette fonction n'était de toute façon reliée
+// à aucune route (code mort, jamais appelable depuis le frontend).
 
 
 // ========== FORUM DE CLASSE ==========

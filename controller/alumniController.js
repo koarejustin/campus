@@ -329,95 +329,12 @@ exports.getOrientationEleves = async (req, res) => {
     }
 };
 
-exports.getAvisOrientation = async (req, res) => {
-    try {
-        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS id_alumni UUID REFERENCES authentification.comptes(id_user)`).catch(() => {});
-        const { eleveId } = req.params;
-        const result = await db.query(`
-            SELECT ao.*, c.prenom, c.nom
-            FROM pedagogie.avis_orientation ao
-            JOIN authentification.comptes c ON ao.id_alumni = c.id_user
-            WHERE ao.id_eleve = $1 AND ao.id_alumni IS NOT NULL
-            ORDER BY ao.updated_at DESC
-        `, [eleveId]);
-
-        res.json({
-            success: true,
-            avis: result.rows
-        });
-    } catch (error) {
-        console.error('getAvisOrientation:', error);
-        res.status(500).json({ message: 'Erreur récupération avis' });
-    }
-};
-
-exports.createAvisOrientation = async (req, res) => {
-    try {
-        const alumniId = req.user?.id;
-        if (!alumniId) return res.status(401).json({ message: 'Non authentifié' });
-
-        // ✅ La vraie table pedagogie.avis_orientation n'a jamais eu de colonne
-        // id_alumni (conçue uniquement pour les profs, id_prof obligatoire) —
-        // le code insérait l'id de l'alumni dans une colonne id_alumni
-        // inexistante, ce qui devait échouer à chaque tentative. On ajoute
-        // la colonne et on rend id_prof optionnel (il ne s'applique pas
-        // quand l'auteur est un alumni).
-        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS id_alumni UUID REFERENCES authentification.comptes(id_user)`).catch(() => {});
-        await db.query(`ALTER TABLE pedagogie.avis_orientation ALTER COLUMN id_prof DROP NOT NULL`).catch(() => {});
-
-        const { eleveId, classe, commentaire, serie_recommandee } = req.body;
-        if (!commentaire || (!eleveId && !classe)) {
-            return res.status(400).json({ message: 'Données manquantes (commentaire + élève ou classe requis)' });
-        }
-
-        // Déterminer la liste des élèves cibles
-        let cibles = [];
-        if (eleveId) {
-            cibles = [eleveId];
-        } else {
-            const r = await db.query(`
-                SELECT c.id_user FROM authentification.comptes c
-                JOIN vie_scolaire.profils_eleves pe ON pe.id_user = c.id_user
-                WHERE c.role_actuel = 'ELEVE' AND c.est_actif = true AND pe.classe_actuelle = $1
-            `, [classe]);
-            cibles = r.rows.map(row => row.id_user);
-        }
-
-        if (!cibles.length) {
-            return res.status(404).json({ message: 'Aucun élève trouvé pour cette classe' });
-        }
-
-        for (const idEleve of cibles) {
-            const existing = await db.query(
-                `SELECT id FROM pedagogie.avis_orientation WHERE id_alumni = $1 AND id_eleve = $2`,
-                [alumniId, idEleve]
-            );
-            if (existing.rows.length > 0) {
-                await db.query(`
-                    UPDATE pedagogie.avis_orientation
-                    SET commentaire = $3, serie_recommandee = $4, updated_at = NOW()
-                    WHERE id_alumni = $1 AND id_eleve = $2
-                `, [alumniId, idEleve, commentaire, serie_recommandee || null]);
-            } else {
-                await db.query(`
-                    INSERT INTO pedagogie.avis_orientation
-                        (id_prof, id_eleve, id_alumni, commentaire, serie_recommandee, updated_at)
-                    VALUES (NULL, $1, $2, $3, $4, NOW())
-                `, [idEleve, alumniId, commentaire, serie_recommandee || null]);
-            }
-        }
-
-        res.json({
-            success: true,
-            message: eleveId
-                ? 'Avis d\'orientation publié'
-                : `Avis publié pour ${cibles.length} élève(s) de la classe ${classe}`
-        });
-    } catch (error) {
-        console.error('createAvisOrientation:', error);
-        res.status(500).json({ message: 'Erreur création avis' });
-    }
-};
+// ✅ Fonctionnalité "avis d'orientation" (getAvisOrientation,
+// createAvisOrientation) retirée le 18/09/2026 — prévue pour être
+// enlevée depuis le début, trop de fonctionnalités à gérer en
+// parallèle. getOrientationEleves (juste au-dessus) reste : c'est la
+// recherche d'élèves disponibles pour démarrer un mentorat, pas la
+// même chose malgré le nom de route partagé.
 
 // ========== PROFIL PUBLIC D'UN MENTOR (vu par un élève) ==========
 exports.getProfilAlumniById = async (req, res) => {

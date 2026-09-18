@@ -528,7 +528,7 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-val" id="stat-avis">—</div>
-                    <div class="stat-lbl">Avis d'orientation</div>
+                    <div class="stat-lbl">Entrées de journal</div>
                 </div>
             </div>
 
@@ -548,8 +548,8 @@
         <div id="pg-mentorats" class="pg">
             <div class="pg-hd">
                 <div>
-                    <div class="pg-title">Mentorats & Orientations</div>
-                    <div class="pg-sub">Partagez votre expérience et orientez les élèves</div>
+                    <div class="pg-title">Mentorats</div>
+                    <div class="pg-sub">Partagez votre expérience et accompagnez les élèves</div>
                 </div>
             </div>
 
@@ -678,75 +678,6 @@
                         </button>
                         <button onclick="finaliserMentoratAvecConseil()" class="btn-p">Enregistrer le conseil</button>
                     </div>
-                </div>
-            </div>
-            <div class="card" style="margin-bottom:20px;">
-                <div style="margin-bottom:14px;">
-                    <h3 style="font-size:1rem; font-weight:700; color:var(--ink); margin:0 0 4px 0;">Orientations de
-                        Mes Élèves Mentorés</h3>
-                    <p style="font-size:0.75rem; color:var(--muted); margin:0;">Définissez une orientation (Littérature
-                        ou Science) pour chaque élève mentoré</p>
-                </div>
-                <div id="liste-eleves-orientations">
-                    <div class="empty">
-                        <div class="spinner"></div>Chargement…
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modale orientation (hors des pages .pg pour rester utilisable depuis n'importe quel onglet) -->
-        <div id="modal-orientation" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0;
-            background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
-            <div style="background:#fff; border-radius:16px; padding:28px; max-width:500px; width:90%;
-                box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-                <div style="font-size:1.1rem; font-weight:700; color:var(--ink); margin-bottom:8px;">
-                    Orientation pour <span id="orientation-eleve-nom"></span>
-                </div>
-                <div style="font-size:0.85rem; color:#1F4A2C; margin-bottom:20px;">Littérature ou Science ?</div>
-                <input type="hidden" id="orientation-relation-id">
-                <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:18px;">
-                    <label
-                        style="display:flex; align-items:center; gap:10px; padding:14px; border:1.5px solid var(--border); border-radius:10px; cursor:pointer;">
-                        <input type="radio" name="orientation" value="Littérature"
-                            style="width:18px; height:18px; cursor:pointer;">
-                        <div>
-                            <span style="font-size:0.9rem; font-weight:700; color:var(--ink); display:block;">
-                                Littérature</span>
-                            <span style="font-size:0.75rem; color:var(--muted); display:block;">Langues,
-                                Philosophie, Histoire, Littérature</span>
-                        </div>
-                    </label>
-                    <label
-                        style="display:flex; align-items:center; gap:10px; padding:14px; border:1.5px solid var(--border); border-radius:10px; cursor:pointer;">
-                        <input type="radio" name="orientation" value="Science"
-                            style="width:18px; height:18px; cursor:pointer;">
-                        <div>
-                            <span style="font-size:0.9rem; font-weight:700; color:var(--ink); display:block;">
-                                Science</span>
-                            <span style="font-size:0.75rem; color:var(--muted); display:block;">Mathématiques,
-                                Physique, Chimie, SVT</span>
-                        </div>
-                    </label>
-                </div>
-                <div style="margin-bottom:18px;">
-                    <label
-                        style="display:block; font-size:0.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">
-                        Justification (optionnelle)
-                    </label>
-                    <textarea id="orientation-justification"
-                        placeholder="Expliquez pourquoi vous recommandez cette orientation…"
-                        style="width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; font-size:0.8rem; resize:vertical; min-height:80px;"></textarea>
-                </div>
-                <div style="display:flex; gap:10px; justify-content:flex-end;">
-                    <button onclick="fermerModalOrientation()"
-                        style="padding:10px 16px; background:#F0F4F8; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:var(--muted);">
-                        Annuler
-                    </button>
-                    <button onclick="submitOrientation()"
-                        style="padding:10px 20px; background:linear-gradient(135deg,#2F6B3F,#1F4A2C); color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
-                        Confirmer l'orientation
-                    </button>
                 </div>
             </div>
         </div>
@@ -1097,7 +1028,7 @@
             if (activeNi) activeNi.classList.add('on');
 
             if (page === 'accueil') loadAccueil();
-            else if (page === 'mentorats') { loadMentorats(); loadElevesDisponibles(); loadListeElevesOrientations(); }
+            else if (page === 'mentorats') { loadMentorats(); loadElevesDisponibles(); }
             else if (page === 'demandes') loadDemandes();
             else if (page === 'journal') loadElevesMentorat();
             else if (page === 'profil') loadProfil();
@@ -1125,10 +1056,6 @@
         /* ─── Modales ───────────────────────────────────────────── */
         function fermerModal(id) {
             document.getElementById(id).style.display = 'none';
-        }
-
-        function fermerModalOrientation() {
-            fermerModal('modal-orientation');
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -1350,7 +1277,6 @@
                 toast('Mentorat démarré et conseil enregistré dans le journal partagé.', 'ok');
                 fermerModal('modal-mentorat-eleve');
                 loadElevesDisponibles();
-                loadListeElevesOrientations();
             } catch (e) {
                 toast('' + (e.message || 'Erreur réseau'), 'err');
             } finally {
@@ -1442,78 +1368,6 @@
                         toast(accepter ? 'Demande acceptée !' : 'Demande refusée', 'ok');
                         loadDemandes();
                     }
-                } else {
-                    toast('' + (d.message || 'Erreur'), 'err');
-                }
-            } catch (e) {
-                toast('Erreur réseau', 'err');
-            }
-        }
-
-        async function loadListeElevesOrientations() {
-            document.getElementById('liste-eleves-orientations').innerHTML =
-                '<div class="empty"><div class="spinner"></div>Chargement…</div>';
-            try {
-                const r = await fetch(`${API}/mentorat/eleves`, { headers: authH() });
-                const d = await r.json();
-                const eleves = d.eleves || [];
-
-                document.getElementById('liste-eleves-orientations').innerHTML =
-                    eleves.length
-                        ? eleves.map(e => `
-                            <div style="display:flex; align-items:center; justify-content:space-between;
-                                padding:10px 12px; border-radius:10px; background:#FDFAF2;
-                                border:1px solid var(--border); margin-bottom:8px;">
-                                <div>
-                                    <strong>${esc(e.prenom)} ${esc(e.nom)}</strong>
-                                    <div style="font-size:.72rem; color:var(--muted);">
-                                        ${esc(e.classe_actuelle || '')}
-                                        ${e.orientation
-                                ? ` · <span style="color:#1F4A2C; font-weight:700;">${esc(e.orientation)}</span>`
-                                : ' · <span style="color:#C08A28;">Non définie</span>'}
-                                    </div>
-                                </div>
-                                <button class="btn-p" onclick="ouvrirModalOrientation(${e.id_relation},'${esc(e.prenom)} ${esc(e.nom)}')">
-                                    Orienter
-                                </button>
-                            </div>`).join('')
-                        : '<div class="empty">Aucun élève mentoré pour le moment</div>';
-            } catch (e) {
-                document.getElementById('liste-eleves-orientations').innerHTML =
-                    '<div class="empty">Erreur de chargement</div>';
-            }
-        }
-
-        function ouvrirModalOrientation(idRelation, nom) {
-            document.getElementById('orientation-eleve-nom').textContent = nom;
-            document.getElementById('orientation-relation-id').value = idRelation;
-            document.querySelectorAll('input[name="orientation"]').forEach(r => r.checked = false);
-            document.getElementById('orientation-justification').value = '';
-            const m = document.getElementById('modal-orientation');
-            m.style.display = 'flex';
-        }
-
-        async function submitOrientation() {
-            const idRelation = document.getElementById('orientation-relation-id').value;
-            const orientation = document.querySelector('input[name="orientation"]:checked')?.value;
-            const justification = document.getElementById('orientation-justification').value.trim();
-
-            if (!orientation) {
-                toast('Veuillez choisir une orientation', 'err');
-                return;
-            }
-
-            try {
-                const r = await fetch(`${API}/mentorat/orientation/set`, {
-                    method: 'POST',
-                    headers: authH(),
-                    body: JSON.stringify({ id_relation: idRelation, orientation, justification })
-                });
-                const d = await r.json();
-                if (d.success) {
-                    toast('Orientation enregistrée !', 'ok');
-                    fermerModalOrientation();
-                    loadListeElevesOrientations();
                 } else {
                     toast('' + (d.message || 'Erreur'), 'err');
                 }

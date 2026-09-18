@@ -15,7 +15,6 @@ class _AlumniMentoratsScreenState extends State<AlumniMentoratsScreen> {
   bool _loading = true;
   List<dynamic> _mesConseils = [];
   List<dynamic> _elevesDisponibles = [];
-  List<dynamic> _orientations = [];
   final _searchCtrl = TextEditingController();
 
   @override
@@ -31,12 +30,10 @@ class _AlumniMentoratsScreenState extends State<AlumniMentoratsScreen> {
       final results = await Future.wait([
         ApiClient.instance.get('/alumni/mentorats?mine=true'),
         ApiClient.instance.get('/alumni/orientation/eleves'),
-        ApiClient.instance.get('/mentorat/orientations/all'),
       ]);
       setState(() {
         _mesConseils = results[0]['mentorats'] ?? [];
         _elevesDisponibles = results[1]['eleves'] ?? [];
-        _orientations = results[2]['eleves'] ?? [];
       });
     } catch (_) {
     } finally {
@@ -68,16 +65,6 @@ class _AlumniMentoratsScreenState extends State<AlumniMentoratsScreen> {
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) => _MentorerForm(eleve: eleve, onSaved: _load),
-    );
-  }
-
-  void _openOrientationForm(Map eleve) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (context) => _OrientationForm(idRelation: eleve['id_relation'], onSaved: _load),
     );
   }
 
@@ -152,21 +139,6 @@ class _AlumniMentoratsScreenState extends State<AlumniMentoratsScreen> {
                         ),
                       ),
                     ).animate().fadeIn(delay: (indexed.key * 40).ms, duration: 220.ms).slideX(begin: 0.06, end: 0, curve: Curves.easeOutCubic),
-                  if (_orientations.isNotEmpty) ...[
-                    const SizedBox(height: 22),
-                    const Text('Orientations de mes élèves mentorés', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: kTextDark)),
-                    const SizedBox(height: 10),
-                    for (final indexed in _orientations.asMap().entries)
-                      Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          dense: true,
-                          title: Text('${indexed.value['prenom'] ?? ''} ${indexed.value['nom'] ?? ''}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-                          subtitle: Text(indexed.value['orientation_suggeree'] != null ? '· ${indexed.value['orientation_suggeree']}' : '· Non définie', style: TextStyle(fontSize: 11.5, color: indexed.value['orientation_suggeree'] != null ? kAlumniGradient.colors.first : kAmber)),
-                          trailing: OutlinedButton(onPressed: () => _openOrientationForm(indexed.value), child: const Text('🎯 Orienter', style: TextStyle(fontSize: 11))),
-                        ),
-                      ).animate().fadeIn(delay: (indexed.key * 40).ms, duration: 220.ms).slideX(begin: 0.06, end: 0, curve: Curves.easeOutCubic),
-                  ],
                 ],
               ),
             ),
@@ -375,74 +347,8 @@ class _MentorerFormState extends State<_MentorerForm> {
   }
 }
 
-class _OrientationForm extends StatefulWidget {
-  final int? idRelation;
-  final VoidCallback onSaved;
-  const _OrientationForm({required this.idRelation, required this.onSaved});
-  @override
-  State<_OrientationForm> createState() => _OrientationFormState();
-}
-
-class _OrientationFormState extends State<_OrientationForm> {
-  String _orientation = 'Littérature';
-  final _justifCtrl = TextEditingController();
-  bool _saving = false;
-  String? _error;
-
-  Future<void> _submit() async {
-    setState(() { _saving = true; _error = null; });
-    try {
-      final r = await ApiClient.instance.post('/mentorat/orientation/set', {
-        'id_relation': widget.idRelation,
-        'orientation': _orientation,
-        'justification': _justifCtrl.text.trim(),
-      });
-      if (r['success'] == true) {
-        widget.onSaved();
-        if (mounted) Navigator.pop(context);
-      } else {
-        setState(() => _error = r['message'] ?? 'Erreur');
-      }
-    } catch (_) {
-      setState(() => _error = 'Erreur réseau');
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 20, right: 20, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom + 20),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: kBorder, borderRadius: BorderRadius.circular(2)))),
-            const SizedBox(height: 16),
-            const Text('Définir l\'orientation suggérée', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 16),
-            RadioListTile<String>(value: 'Littérature', groupValue: _orientation, title: const Text('Littérature'), onChanged: (v) => setState(() => _orientation = v!)),
-            RadioListTile<String>(value: 'Science', groupValue: _orientation, title: const Text('Science'), onChanged: (v) => setState(() => _orientation = v!)),
-            const SizedBox(height: 10),
-            TextField(controller: _justifCtrl, maxLines: 3, decoration: const InputDecoration(labelText: 'Justification (optionnel)', border: OutlineInputBorder())),
-            if (_error != null) ...[
-              const SizedBox(height: 10),
-              Text(_error!, style: const TextStyle(color: kRed, fontSize: 12.5)),
-            ],
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity, height: 48,
-              child: ElevatedButton(
-                onPressed: _saving ? null : _submit,
-                style: ElevatedButton.styleFrom(backgroundColor: kAlumniGradient.colors.first, foregroundColor: Colors.white),
-                child: _saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Valider', style: TextStyle(fontWeight: FontWeight.w800)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// ✅ Fonctionnalité "Orientation Littérature/Science" (_OrientationForm,
+// _openOrientationForm) retirée le 18/09/2026 — prévue pour être enlevée
+// depuis le début, trop de fonctionnalités à gérer en parallèle. Les
+// routes backend correspondantes (/mentorat/orientation/set,
+// /mentorat/orientations/all) n'existent plus.

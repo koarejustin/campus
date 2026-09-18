@@ -590,71 +590,9 @@ exports.updateProfilParent = async (req, res) => {
     }
 };
 
-// ========== AVIS D'ORIENTATION DU PARENT ==========
-exports.getOrientationEnfant = async (req, res) => {
-    try {
-        const parentId = req.user?.id;
-        const enfantId = req.query.enfant_id;
-        if (!parentId || !enfantId) return res.json({ success: true, avis: [] });
-
-        await db.query(`CREATE TABLE IF NOT EXISTS pedagogie.avis_orientation (
-            id SERIAL PRIMARY KEY, id_prof UUID NOT NULL, id_eleve UUID NOT NULL,
-            points_forts TEXT, points_faibles TEXT, serie_recommandee VARCHAR(100),
-            commentaire TEXT, updated_at TIMESTAMP DEFAULT NOW(),
-            source VARCHAR(20) DEFAULT 'PROF',
-            UNIQUE(id_prof, id_eleve)
-        )`).catch(() => { });
-        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'PROF'`).catch(() => { });
-
-        const r = await db.query(`
-            SELECT ao.id, ao.points_forts, ao.points_faibles, ao.serie_recommandee,
-                   ao.commentaire, COALESCE(ao.updated_at, NOW()) AS updated_at,
-                   c.nom AS auteur_nom, c.prenom AS auteur_prenom,
-                   COALESCE(ao.source, 'PROF') AS source
-            FROM pedagogie.avis_orientation ao
-            JOIN authentification.comptes c ON c.id_user = ao.id_prof
-            WHERE ao.id_eleve = $1
-            ORDER BY COALESCE(ao.updated_at, NOW()) DESC
-        `, [enfantId]);
-        res.json({ success: true, avis: r.rows });
-    } catch (e) {
-        console.error('getOrientationEnfant:', e.message);
-        res.json({ success: true, avis: [] });
-    }
-};
-
-exports.addOrientationAvis = async (req, res) => {
-    try {
-        const parentId = req.user?.id;
-        const { enfant_id, serie_recommandee, commentaire } = req.body;
-        if (!parentId || !enfant_id) return res.status(400).json({ message: 'Données manquantes' });
-
-        await db.query(`CREATE TABLE IF NOT EXISTS pedagogie.avis_orientation (
-            id SERIAL PRIMARY KEY, id_prof UUID NOT NULL, id_eleve UUID NOT NULL,
-            points_forts TEXT, points_faibles TEXT, serie_recommandee VARCHAR(100),
-            commentaire TEXT, updated_at TIMESTAMP DEFAULT NOW(),
-            source VARCHAR(20) DEFAULT 'PROF',
-            UNIQUE(id_prof, id_eleve)
-        )`).catch(() => { });
-        await db.query(`ALTER TABLE pedagogie.avis_orientation ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'PROF'`).catch(() => { });
-
-        await db.query(`
-            INSERT INTO pedagogie.avis_orientation
-                (id_prof, id_eleve, serie_recommandee, commentaire, updated_at, source)
-            VALUES ($1, $2, $3, $4, NOW(), 'PARENT')
-            ON CONFLICT (id_prof, id_eleve) DO UPDATE SET
-                serie_recommandee = EXCLUDED.serie_recommandee,
-                commentaire       = EXCLUDED.commentaire,
-                updated_at        = NOW(),
-                source            = 'PARENT'
-        `, [parentId, enfant_id, serie_recommandee || null, commentaire || null]);
-
-        res.json({ success: true, message: "Avis d'orientation enregistré" });
-    } catch (e) {
-        console.error('addOrientationAvis:', e.message);
-        res.status(500).json({ message: e.message });
-    }
-};
+// ✅ Fonctionnalité "avis d'orientation du parent" retirée le 18/09/2026
+// (prévue pour être enlevée depuis le début, trop de fonctionnalités à
+// gérer en parallèle).
 
 // ========== ACTIVITÉS & ÉVÉNEMENTS ==========
 exports.getActivites = async (req, res) => {
