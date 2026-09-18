@@ -32,73 +32,53 @@ async function ensureMessageColumns() {
 ensureMessageColumns().catch(console.warn);
 
 // ========== BULLETIN & NOTES ==========
+// ⚠️ Recalculait tout lui-même (AVG brut, coefficient générique de
+// pedagogie.matieres au lieu du vrai barème par classe, pas de règle
+// "matière non composée = 0", pas d'appréciations) — complètement
+// indépendant de bulletinService.js, donc la moyenne pouvait afficher
+// un chiffre différent de celui du vrai bulletin/PDF officiel. Utilisé
+// par l'appli mobile Flutter (web utilise directement /bulletin-pdf).
+// Repose maintenant sur la même source de vérité que le PDF.
 exports.getBulletin = async (req, res) => {
     try {
         const eleveId = req.user?.id;
-        const trimestre = req.query.trimestre || 1;
+        const trimestre = parseInt(req.query.trimestre) || 1;
+        const anneeScolaire = req.query.annee_scolaire || engine.getAnneeScolaireActive();
 
         if (!eleveId) {
             return res.status(401).json({ message: 'Non authentifié' });
         }
 
-        const query = `
-            SELECT 
-                p.*, 
-                c.nom, 
-                c.prenom,
-                c.code_unique
-            FROM vie_scolaire.profils_eleves p
-            JOIN authentification.comptes c ON p.id_user = c.id_user
-            WHERE p.id_user = $1
-        `;
-
-        const result = await db.query(query, [eleveId]);
-
-        if (result.rows.length === 0) {
-            return res.status(404).json({ message: 'Profil élève non trouvé' });
-        }
-
-        const eleve = result.rows[0];
-
-        const notesQuery = `
-            SELECT 
-                COALESCE(m.nom_matiere, 'Matiere') as matiere,
-                AVG(n.note) as note_moyenne,
-                COUNT(n.id_evaluation) as nb_evaluations,
-                MAX(n.note) as meilleure_note,
-                MIN(n.note) as plus_basse_note,
-                COALESCE(m.coefficient, 1) as coefficient
-            FROM pedagogie.notes_evaluations n
-            LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
-            WHERE n.id_eleve = $1 AND n.trimestre = $2
-            GROUP BY m.nom_matiere, m.coefficient
-            ORDER BY note_moyenne DESC
-        `;
-
-        const notesResult = await db.query(notesQuery, [eleveId, trimestre]);
-
-        const weightedQuery = `
-            SELECT
-                CASE WHEN SUM(COALESCE(m.coefficient, 1)) = 0 THEN 0
-                     ELSE ROUND(SUM(n.note * COALESCE(m.coefficient, 1)) / SUM(COALESCE(m.coefficient, 1))::numeric, 2)
-                END AS moyenne_generale
-            FROM pedagogie.notes_evaluations n
-            LEFT JOIN pedagogie.matieres m ON n.id_matiere = m.id_matiere
-            WHERE n.id_eleve = $1 AND n.trimestre = $2
-        `;
-        const weightedResult = await db.query(weightedQuery, [eleveId, trimestre]);
-        const moyenne_generale = parseFloat(weightedResult.rows[0]?.moyenne_generale) || 0;
+        const bulletinService = require('../services/bulletinService');
+        const data = await bulletinService.calculerBulletinComplet(eleveId, trimestre, anneeScolaire);
+        if (!data) return res.status(404).json({ message: 'Profil élève non trouvé' });
 
         res.json({
             success: true,
             eleve: {
-                nom_complet: `${eleve.prenom} ${eleve.nom}`,
-                code_unique: eleve.code_unique,
-                classe: eleve.classe_actuelle,
-                moyenne_generale: moyenne_generale
+                nom_complet: `${data.eleve.prenom} ${data.eleve.nom}`,
+                code_unique: data.eleve.code_unique,
+                classe: data.eleve.classe,
+                moyenne_generale: data.moyenne_generale ?? 0,
             },
-            notes_par_matiere: notesResult.rows || [],
-            trimestre: trimestre
+            notes_par_matiere: data.matieres.map(m => ({
+                matiere: m.nom,
+                note_moyenne: m.moyenne ?? 0,
+                nb_evaluations: (m.devoirs?.length || 0) + (m.compos?.length || 0),
+                meilleure_note: [...(m.devoirs || []), ...(m.compos || [])].reduce((max, n) => Math.max(max, n), 0) || null,
+                plus_basse_note: (m.devoirs?.length || m.compos?.length)
+                    ? Math.min(...(m.devoirs || []), ...(m.compos || []))
+                    : null,
+                coefficient: m.coefficient,
+            })),
+            trimestre,
+            // Champs supplémentaires (le web les utilise déjà) — présents ici
+            // pour que Flutter puisse s'aligner plus tard sans nouvel appel :
+            mention: data.mention,
+            mention_honneur: data.mention_honneur,
+            decision: data.decision,
+            moyenne_annuelle: data.moyenne_annuelle,
+            moyenne_trimestre_precedent: data.moyenne_trimestre_precedent,
         });
 
     } catch (error) {
