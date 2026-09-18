@@ -42,9 +42,12 @@ try {
         }
     };
 
+    // ⚠️ "startsWith('image/')" laissait passer image/svg+xml — un SVG
+    // peut contenir du <script> exécutable, contrairement à jpeg/png/webp/gif.
+    const IMAGE_MIME_AUTORISES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     const photoFilter = (req, file, cb) => {
-        if (file.mimetype.startsWith('image/')) cb(null, true);
-        else cb(new Error('Seules les images sont acceptées pour la photo'), false);
+        if (IMAGE_MIME_AUTORISES.includes(file.mimetype)) cb(null, true);
+        else cb(new Error('Seules les images (JPEG, PNG, WEBP, GIF) sont acceptées pour la photo'), false);
     };
 
     // ✅ Filtre dédié et strict pour les copies scannées : PDF ou image

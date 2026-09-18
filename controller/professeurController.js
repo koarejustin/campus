@@ -33,6 +33,7 @@ function _fichierEstValide(buffer) {
 // alors que l'appli affichait un message de succès). normaliserNomMatiereAvecAlias
 // connaît ces abréviations — c'est elle qui doit servir de référence unique.
 const _normMat = require('../services/moyennesEngine').normaliserNomMatiereAvecAlias;
+const _normClasse = require('../services/moyennesEngine').normaliserClasse;
 
 // ═══════════════════════════════════════════
 // PROFIL PROFESSEUR
@@ -279,6 +280,16 @@ exports.getEleves = async (req, res) => {
         const profId = req.user?.id;
         if (!classe) return res.status(400).json({ message: 'Classe requise' });
 
+        // 🔒 Un prof ne doit voir la liste d'élèves que d'une classe qui lui
+        // est réellement assignée — avant, n'importe quelle classe passée
+        // en paramètre renvoyait la liste (noms + matricules) de cette
+        // classe, même sans lien avec ce prof.
+        const profRes = await db.query(`SELECT classes FROM pedagogie.profils_profs WHERE id_user = $1`, [profId]);
+        const mesClasses = new Set((profRes.rows[0]?.classes || []).map(c => _normClasse(c)));
+        if (!mesClasses.has(_normClasse(classe))) {
+            return res.status(403).json({ message: "Vous n'enseignez pas dans cette classe" });
+        }
+
         const r = await db.query(`
             SELECT c.id_user, c.nom, c.prenom, c.code_unique,
                    ROUND(AVG(n.note)::numeric, 2) as moyenne
@@ -377,16 +388,32 @@ exports.saveNotes = async (req, res) => {
 
         // 🔒 Sécurité : construire l'ensemble des id_matiere réellement enseignés par ce prof
         const profRes = await db.query(
-            `SELECT matieres FROM pedagogie.profils_profs WHERE id_user = $1`,
+            `SELECT matieres, classes FROM pedagogie.profils_profs WHERE id_user = $1`,
             [profId]
         );
         const mesMatieresNoms = profRes.rows[0]?.matieres || [];
+        const mesClasses = new Set((profRes.rows[0]?.classes || []).map(c => _normClasse(c)));
         const toutesMatieres = await db.query(`SELECT id_matiere, nom_matiere FROM pedagogie.matieres`);
         const idsAutorises = new Set(
             toutesMatieres.rows
                 .filter(m => mesMatieresNoms.some(nm => _normMat(nm) === _normMat(m.nom_matiere)))
                 .map(m => m.id_matiere)
         );
+
+        // 🔒 Sécurité : la matière ne suffit pas — l'élève noté doit aussi être
+        // dans une classe réellement assignée à ce prof (audit du 18/09/2026 :
+        // rien n'empêchait un prof de noter n'importe quel élève de l'école
+        // dans sa matière, même hors de ses propres classes). Une seule
+        // requête groupée plutôt qu'une par note.
+        const idsEleves = [...new Set(notes.map(n => n.id_eleve).filter(Boolean))];
+        const classesParEleve = {};
+        if (idsEleves.length) {
+            const r = await db.query(
+                `SELECT id_user, classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user = ANY($1::uuid[])`,
+                [idsEleves]
+            );
+            for (const row of r.rows) classesParEleve[row.id_user] = _normClasse(row.classe_actuelle);
+        }
 
         let saved = 0;
         let refusees = 0;
@@ -396,6 +423,13 @@ exports.saveNotes = async (req, res) => {
             // 🔒 Refuser toute note sur une matière que ce prof n'enseigne pas
             if (!idsAutorises.has(parseInt(n.id_matiere))) {
                 console.warn(`⚠️ Note refusée : prof ${profId} n'enseigne pas la matière id=${n.id_matiere}`);
+                refusees++;
+                continue;
+            }
+
+            // 🔒 Refuser toute note sur un élève hors des classes assignées à ce prof
+            if (!mesClasses.has(classesParEleve[n.id_eleve])) {
+                console.warn(`⚠️ Note refusée : prof ${profId} n'a pas la classe de l'élève ${n.id_eleve}`);
                 refusees++;
                 continue;
             }
@@ -487,7 +521,7 @@ exports.saveNotes = async (req, res) => {
 
         res.json({
             success: true,
-            message: `${saved} note(s) enregistrée(s)` + (refusees ? ` — ${refusees} refusée(s) (matière non autorisée)` : '')
+            message: `${saved} note(s) enregistrée(s)` + (refusees ? ` — ${refusees} refusée(s) (matière ou classe non autorisée)` : '')
         });
     } catch (e) {
         console.error('Erreur saveNotes:', e);
@@ -571,14 +605,21 @@ exports.creerQcm = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Classe, matière, titre, trimestre et grille de réponses requis' });
         }
 
-        // 🔒 Le prof ne peut créer un QCM que pour une matière qu'il enseigne réellement
-        const profRes = await db.query(`SELECT matieres FROM pedagogie.profils_profs WHERE id_user = $1`, [profId]);
+        // 🔒 Le prof ne peut créer un QCM que pour une matière ET une classe
+        // qu'il enseigne réellement (avant : seule la matière était vérifiée,
+        // n'importe quel prof pouvait créer un QCM pour n'importe quelle
+        // classe de l'école tant que le nom de matière correspondait).
+        const profRes = await db.query(`SELECT matieres, classes FROM pedagogie.profils_profs WHERE id_user = $1`, [profId]);
         const mesMatieresNoms = profRes.rows[0]?.matieres || [];
+        const mesClasses = new Set((profRes.rows[0]?.classes || []).map(c => _normClasse(c)));
         const matiereRow = await db.query(`SELECT nom_matiere FROM pedagogie.matieres WHERE id_matiere = $1`, [id_matiere]);
         const nomMatiere = matiereRow.rows[0]?.nom_matiere;
         const autorise = nomMatiere && mesMatieresNoms.some(nm => _normMat(nm) === _normMat(nomMatiere));
         if (!autorise) {
             return res.status(403).json({ success: false, message: "Vous n'enseignez pas cette matière" });
+        }
+        if (!mesClasses.has(_normClasse(classe))) {
+            return res.status(403).json({ success: false, message: "Vous n'enseignez pas dans cette classe" });
         }
 
         // ✅ Empêche de créer deux fois le même QCM (même titre, classe,

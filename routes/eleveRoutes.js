@@ -11,12 +11,15 @@ const eleveAuth = [authMiddleware, ensureRole('ELEVE')];
 let uploadPhoto;
 try {
     const multer = require('multer');
+    // ⚠️ "startsWith('image/')" laissait passer image/svg+xml — un SVG
+    // peut contenir du <script> exécutable. Liste explicite.
+    const IMAGE_MIME_AUTORISES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
     uploadPhoto = multer({
         storage: multer.memoryStorage(),
         limits: { fileSize: 5 * 1024 * 1024 }, // 5 Mo max
         fileFilter: (req, file, cb) => {
-            if (file.mimetype.startsWith('image/')) cb(null, true);
-            else cb(new Error('Seules les images sont acceptées pour la photo'), false);
+            if (IMAGE_MIME_AUTORISES.includes(file.mimetype)) cb(null, true);
+            else cb(new Error('Seules les images (JPEG, PNG, WEBP, GIF) sont acceptées pour la photo'), false);
         }
     });
 } catch (e) {

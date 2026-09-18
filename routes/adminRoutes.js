@@ -6,12 +6,16 @@ const { ensureRoleIn } = require('../middleware/authMiddleware');
 const db = require('../config/db');
 const multer = require('multer');
 const uploadExcel = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+// ⚠️ "startsWith('image/')" laissait passer image/svg+xml — un SVG peut
+// contenir du <script> exécutable, contrairement à un vrai fichier
+// image (jpeg/png/webp/gif). Liste explicite plutôt qu'un préfixe.
+const IMAGE_MIME_AUTORISES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const uploadImage = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-        if (file.mimetype.startsWith('image/')) cb(null, true);
-        else cb(new Error('Seules les images sont acceptées'), false);
+        if (IMAGE_MIME_AUTORISES.includes(file.mimetype)) cb(null, true);
+        else cb(new Error('Seules les images (JPEG, PNG, WEBP, GIF) sont acceptées'), false);
     }
 });
 
