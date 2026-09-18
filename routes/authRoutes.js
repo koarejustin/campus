@@ -7,6 +7,7 @@ router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/logout', authGuard, authController.logout);
 router.put('/changer-mot-de-passe', authGuard, authController.changerMotDePasse);
+router.put('/mon-identite', authGuard, authController.modifierMonIdentite);
 
 router.get('/me', authGuard, (req, res) => {
     res.json({

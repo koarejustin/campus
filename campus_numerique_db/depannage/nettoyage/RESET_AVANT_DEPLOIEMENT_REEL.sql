@@ -138,14 +138,17 @@ CASCADE;
 -- PAS NULL — la colonne est NOT NULL en base réelle) déclenche
 -- l'écran "premier mot de passe" au premier login, comme pour tout
 -- compte fraîchement importé.
--- ⚠️ Déjà exécuté une première fois le 05/09/2026 avec ces valeurs —
--- si tu relances un jour ce script pour une AUTRE école/déploiement,
--- remplace le code_unique / nom / prénom / email ci-dessous.
+-- ✅ Identité volontairement générique (pas le nom d'une personne en
+-- particulier) — quel que soit qui se connecte en premier avec
+-- DIR-2027-001, il/elle renomme le compte à son propre nom depuis
+-- Direction → Mon Profil juste après le premier login, comme pour
+-- n'importe quel compte importé. Pas besoin de modifier ce fichier
+-- avant de le relancer, même pour une autre école.
 -- ================================================================
 INSERT INTO authentification.comptes
     (code_unique, nom, prenom, email, role_actuel, mot_de_passe, est_actif)
 VALUES
-    ('DIR-2027-001', 'KOARE', 'Justin', 'Koarejustin3@gmail.com', 'DIRECTION', 'NON_ACTIVE', true);
+    ('DIR-2027-001', 'DIRECTION', 'Administrateur', NULL, 'DIRECTION', 'NON_ACTIVE', true);
 
 COMMIT;
 

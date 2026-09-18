@@ -2396,6 +2396,10 @@
           <div style="font-size:.78rem;font-weight:800;color:#fff;" id="sb-name">Chargement…</div>
           <div id="sb-role-tag" style="font-size:.65rem;font-weight:700;margin-top:2px;" class="role-dir">DIRECTION</div>
         </div>
+        <button onclick="openEditIdentite()" title="Modifier mon nom"
+          style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px;cursor:pointer;color:#fff;flex-shrink:0;">
+          <i data-lucide="pencil" style="width:14px;height:14px;"></i>
+        </button>
         <button onclick="openChangePassword()" title="Changer mon mot de passe"
           style="background:rgba(255,255,255,.1);border:none;border-radius:8px;padding:6px;cursor:pointer;color:#fff;flex-shrink:0;">
           <i data-lucide="lock" style="width:14px;height:14px;"></i>
@@ -6227,6 +6231,66 @@
         if (d.success) {
           document.getElementById('m-chg-pwd')?.remove();
           toast('Mot de passe changé avec succès', 'ok');
+        } else {
+          if (msgEl) { msgEl.textContent = '' + (d.message || 'Erreur'); msgEl.style.color = '#C0392B'; }
+        }
+      } catch (e) {
+        if (msgEl) { msgEl.textContent = '' + e.message; msgEl.style.color = '#C0392B'; }
+      }
+    }
+
+    // ✅ Modifier mon propre nom/prénom/email — utile en particulier
+    // juste après un reset complet, où le compte Direction est recréé
+    // avec une identité générique ("DIRECTION Administrateur") que la
+    // vraie personne personnalise elle-même, sans éditer la base.
+    function openEditIdentite() {
+      let m = document.getElementById('m-edit-identite');
+      if (!m) {
+        m = document.createElement('div');
+        m.id = 'm-edit-identite';
+        m.className = 'dir-modal-overlay';
+        m.onclick = e => { if (e.target === m) m.remove(); };
+        document.body.appendChild(m);
+      }
+      m.innerHTML = '<div class="dir-modal" style="max-width:420px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+        + '<div style="font-size:.95rem;font-weight:800;">Modifier mon identité</div>'
+        + '<button onclick="document.getElementById(\'m-edit-identite\')?.remove();" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#6B5D42;">✕</button>'
+        + '</div>'
+        + '<div style="display:flex;flex-direction:column;gap:10px;">'
+        + '<div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Prénom *</label>'
+        + '<input id="idn-prenom" type="text" value="' + esc(SESS.prenom || '') + '" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+        + '<div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Nom *</label>'
+        + '<input id="idn-nom" type="text" value="' + esc(SESS.nom || '') + '" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+        + '<div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Email</label>'
+        + '<input id="idn-email" type="email" value="' + esc(SESS.email || '') + '" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+        + '<div id="idn-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;"></div>'
+        + '<button onclick="submitEditIdentite()" style="background:linear-gradient(135deg,#2F6B3F,#1F4A2C);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">Enregistrer</button>'
+        + '</div></div>';
+      m.style.display = 'flex';
+      setTimeout(() => m.classList.add('open'), 10);
+    }
+
+    async function submitEditIdentite() {
+      const prenom = document.getElementById('idn-prenom')?.value?.trim();
+      const nom = document.getElementById('idn-nom')?.value?.trim();
+      const email = document.getElementById('idn-email')?.value?.trim();
+      const msgEl = document.getElementById('idn-msg');
+      if (!nom || !prenom) { toast('Nom et prénom requis', 'err'); return; }
+      if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Enregistrement...'; msgEl.style.color = '#5A4D36'; }
+      try {
+        const d = await api('/auth/mon-identite', {
+          method: 'PUT',
+          body: JSON.stringify({ nom, prenom, email: email || null })
+        });
+        if (d.success) {
+          SESS.nom = nom.toUpperCase();
+          SESS.prenom = prenom;
+          SESS.email = email || null;
+          localStorage.setItem('user_session', JSON.stringify(SESS));
+          applyRole();
+          document.getElementById('m-edit-identite')?.remove();
+          toast('Identité mise à jour', 'ok');
         } else {
           if (msgEl) { msgEl.textContent = '' + (d.message || 'Erreur'); msgEl.style.color = '#C0392B'; }
         }

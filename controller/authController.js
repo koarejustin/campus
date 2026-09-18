@@ -208,3 +208,28 @@ exports.changerMotDePasse = async (req, res) => {
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
+
+// ✅ Modifier son propre nom/prénom/email — jusqu'ici aucun rôle ne
+// pouvait se renommer soi-même (seul le mot de passe l'était), utile
+// en particulier pour le compte Direction recréé par le script de
+// reset avec une identité volontairement générique ("DIRECTION
+// Administrateur") : la vraie personne le personnalise elle-même au
+// premier login, sans avoir besoin d'éditer la base à la main.
+exports.modifierMonIdentite = async (req, res) => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) return res.status(401).json({ success: false, message: 'Non authentifié' });
+        const { nom, prenom, email } = req.body;
+        if (!nom || !prenom) {
+            return res.status(400).json({ success: false, message: 'Nom et prénom requis' });
+        }
+        await db.query(
+            `UPDATE authentification.comptes SET nom = $1, prenom = $2, email = $3 WHERE id_user = $4`,
+            [nom.toUpperCase().trim(), prenom.trim(), email || null, userId]
+        );
+        res.json({ success: true, message: 'Identité mise à jour' });
+    } catch (err) {
+        console.error('modifierMonIdentite:', err.message);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
