@@ -35,6 +35,35 @@ function _fichierEstValide(buffer) {
 const _normMat = require('../services/moyennesEngine').normaliserNomMatiereAvecAlias;
 const _normClasse = require('../services/moyennesEngine').normaliserClasse;
 
+// 🔒 Vérifie qu'un prof enseigne bien une matière et/ou une classe donnée
+// (profils_profs.matieres/classes) — accepte soit le nom direct (matiere,
+// classe), soit un id à résoudre (id_matiere, id_eleve). Sert de garde
+// partagée partout où un prof agit sur des données d'élève (audit du
+// 18/09/2026 : plusieurs endpoints ne vérifiaient que la matière, jamais
+// la classe — un prof pouvait ainsi toucher des élèves hors de ses
+// propres classes tant que le nom de matière correspondait).
+async function _profAutorise(profId, { matiere, id_matiere, classe, id_eleve } = {}) {
+    const r = await db.query(`SELECT matieres, classes FROM pedagogie.profils_profs WHERE id_user = $1`, [profId]);
+    const mesMatieres = r.rows[0]?.matieres || [];
+    const mesClasses = new Set((r.rows[0]?.classes || []).map(c => _normClasse(c)));
+
+    let nomMatiere = matiere;
+    if (!nomMatiere && id_matiere) {
+        const m = await db.query(`SELECT nom_matiere FROM pedagogie.matieres WHERE id_matiere = $1`, [id_matiere]);
+        nomMatiere = m.rows[0]?.nom_matiere;
+    }
+    if (nomMatiere && !mesMatieres.some(nm => _normMat(nm) === _normMat(nomMatiere))) return false;
+
+    let classeCible = classe;
+    if (!classeCible && id_eleve) {
+        const e = await db.query(`SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user = $1`, [id_eleve]);
+        classeCible = e.rows[0]?.classe_actuelle;
+    }
+    if (classeCible && !mesClasses.has(_normClasse(classeCible))) return false;
+
+    return true;
+}
+
 // ═══════════════════════════════════════════
 // PROFIL PROFESSEUR
 // ═══════════════════════════════════════════
@@ -533,8 +562,17 @@ exports.saveNotes = async (req, res) => {
 // champ côté prof plutôt que de toujours repartir d'un champ vide.
 exports.getAppreciation = async (req, res) => {
     try {
+        const profId = req.user?.id;
         const { id_eleve, id_matiere, trimestre, annee_scolaire } = req.query;
         if (!id_eleve || !id_matiere || !trimestre) return res.status(400).json({ message: 'Paramètres manquants' });
+
+        // 🔒 Aucune matière/classe n'était vérifiée — n'importe quel prof
+        // authentifié pouvait relire l'appréciation d'un autre prof sur
+        // n'importe quel élève, en fournissant juste les bons id.
+        if (!(await _profAutorise(profId, { id_matiere, id_eleve }))) {
+            return res.status(403).json({ message: "Vous n'êtes pas autorisé à consulter cette appréciation" });
+        }
+
         const r = await db.query(
             `SELECT texte FROM pedagogie.appreciations WHERE id_eleve = $1 AND id_matiere = $2 AND trimestre = $3 AND annee_scolaire = $4`,
             [id_eleve, id_matiere, trimestre, annee_scolaire || '2025-2026']
@@ -825,6 +863,15 @@ exports.ajouterRessource = async (req, res) => {
 
         if (!titre) return res.status(400).json({ message: 'Titre requis' });
 
+        // 🔒 "TOUTES" notifiait littéralement TOUS les élèves actifs de
+        // l'école, même pour un prof qui n'enseigne qu'une seule petite
+        // classe — jamais vérifié non plus qu'une classe précise choisie
+        // lui soit réellement assignée. "TOUTES" veut maintenant dire
+        // "toutes MES classes", pas "toute l'école".
+        if (classeDoc !== 'TOUTES' && !(await _profAutorise(profId, { classe: classeDoc }))) {
+            return res.status(403).json({ message: "Vous n'enseignez pas dans cette classe" });
+        }
+
         const pp = await db.query(
             `SELECT id_prof FROM pedagogie.profils_profs WHERE id_user=$1`, [profId]
         );
@@ -850,10 +897,15 @@ exports.ajouterRessource = async (req, res) => {
 
                 let elevesIds = [];
                 if (classeDoc === 'TOUTES') {
-                    const eleves = await db.query(`
-                        SELECT id_user FROM authentification.comptes 
-                        WHERE role_actuel = 'ELEVE' AND est_actif = true
-                    `);
+                    const mesClassesRes = await db.query(`SELECT classes FROM pedagogie.profils_profs WHERE id_user = $1`, [profId]);
+                    const mesClasses = mesClassesRes.rows[0]?.classes || [];
+                    const eleves = mesClasses.length
+                        ? await db.query(`
+                            SELECT id_user FROM authentification.comptes c
+                            JOIN vie_scolaire.profils_eleves p ON c.id_user = p.id_user
+                            WHERE c.role_actuel = 'ELEVE' AND c.est_actif = true AND p.classe_actuelle = ANY($1::text[])
+                        `, [mesClasses])
+                        : { rows: [] };
                     elevesIds = eleves.rows.map(e => e.id_user);
                 } else {
                     const eleves = await db.query(`
@@ -1067,6 +1119,13 @@ exports.saveCT = async (req, res) => {
         if (!titre || !matiere || !classe) {
             return res.status(400).json({ message: 'Titre, matière et classe requis' });
         }
+
+        // 🔒 N'importe quel prof pouvait écrire une séance de cahier de texte
+        // pour une classe/matière qu'il n'enseigne pas.
+        if (!(await _profAutorise(profId, { matiere, classe }))) {
+            return res.status(403).json({ message: "Vous n'enseignez pas cette matière dans cette classe" });
+        }
+
         const r = await db.query(`
             INSERT INTO pedagogie.cahiers_texte
                 (id_prof, classe, matiere, titre_seance, contenu, travail_faire,
@@ -1155,6 +1214,12 @@ exports.createDevoir = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Titre, matière, classe et date limite requis' });
         }
 
+        // 🔒 N'importe quel prof pouvait publier un devoir (+ notification)
+        // pour une classe/matière qu'il n'enseigne pas.
+        if (!(await _profAutorise(profId, { matiere, classe }))) {
+            return res.status(403).json({ success: false, message: "Vous n'enseignez pas cette matière dans cette classe" });
+        }
+
         // ✅ Empêche de publier deux fois le même devoir (même titre, même
         // classe, même matière) — arrivait facilement par double-clic ou
         // par erreur de saisie, dupliquant la notification envoyée aux élèves.
@@ -1218,6 +1283,12 @@ exports.updateDevoir = async (req, res) => {
 
         if (check.rows.length === 0) {
             return res.status(403).json({ success: false, message: 'Non autorisé' });
+        }
+
+        // 🔒 Si la classe/matière est changée, vérifier que la nouvelle
+        // valeur reste bien dans ce que ce prof enseigne réellement.
+        if ((matiere || classe) && !(await _profAutorise(profId, { matiere, classe }))) {
+            return res.status(403).json({ success: false, message: "Vous n'enseignez pas cette matière dans cette classe" });
         }
 
         await db.query(`
@@ -1366,6 +1437,12 @@ exports.uploadCopieScannee = async (req, res) => {
         }
         if (!id_eleve || !id_matiere || !trimestre) {
             return res.status(400).json({ message: 'Élève, matière et trimestre requis' });
+        }
+
+        // 🔒 N'importe quel prof pouvait attacher une "copie corrigée" à
+        // n'importe quel élève, dans n'importe quelle matière.
+        if (!(await _profAutorise(profId, { id_matiere, id_eleve }))) {
+            return res.status(403).json({ message: "Vous n'êtes pas autorisé pour cette matière/cet élève" });
         }
 
         await db.query(`
