@@ -751,6 +751,18 @@ exports.noterQcmEleve = async (req, res) => {
         const qcmRes = await db.query(`SELECT * FROM pedagogie.qcm WHERE id_qcm = $1 AND id_prof = $2`, [id, profId]);
         if (!qcmRes.rows.length) return res.status(404).json({ success: false, message: 'QCM introuvable' });
         const qcm = qcmRes.rows[0];
+
+        // 🔒 Vérifie que l'élève noté appartient bien à la classe du QCM —
+        // sans ça, id_eleve n'était jamais recoupé avec qcm.classe et
+        // n'importe quel élève de l'école (même hors de cette classe)
+        // pouvait recevoir la note à la place du bon élève.
+        const eleveClasse = await db.query(
+            `SELECT classe_actuelle FROM vie_scolaire.profils_eleves WHERE id_user = $1`, [id_eleve]
+        );
+        if (!eleveClasse.rows.length || _normClasse(eleveClasse.rows[0].classe_actuelle) !== _normClasse(qcm.classe)) {
+            return res.status(403).json({ success: false, message: "Cet élève n'appartient pas à la classe de ce QCM" });
+        }
+
         const correctes = qcm.reponses_correctes;
 
         let nbCorrectes = 0;

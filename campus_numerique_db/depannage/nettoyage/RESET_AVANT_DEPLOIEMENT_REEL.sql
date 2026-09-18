@@ -24,6 +24,14 @@
 --   - gestion.images_espaces / gestion.photos_espaces (les visuels
 --     déjà en place — à changer manuellement si besoin)
 --
+-- ⚠️ coefficients et images_espaces avaient chacune une colonne
+-- updated_by en FK vers authentification.comptes : TRUNCATE ... CASCADE
+-- les vidait quand même malgré leur exclusion ci-dessus (vécu 2 fois,
+-- 18 et 19/09/2026, à chaque fois réparé depuis une sauvegarde). Les 2
+-- FK ont été retirées définitivement le 19/09/2026 — updated_by reste
+-- une donnée informative, plus une contrainte, donc ce risque ne peut
+-- plus se reproduire.
+--
 -- Relancé le 18/09/2026 : les données de test accumulées pendant les
 -- essais/audits doivent être remplacées par un vrai import d'école
 -- complet (élèves+parents, profs+classes, alumni, surveillants).
@@ -31,6 +39,13 @@
 -- CE QUI EST VIDÉ : absolument tous les comptes (élèves, profs,
 -- parents, direction, surveillants, alumni, APE) et tout leur
 -- contenu (notes, devoirs, messages, absences, notifications...).
+--
+-- ⚠️ Ce script ne touche QUE la base Postgres. Les fichiers déjà
+-- uploadés (photos, ressources, copies scannées, messages vocaux/
+-- vidéo) restent dans Supabase Storage même après ce TRUNCATE — lance
+-- aussi en plus (avant ou après, l'ordre n'a pas d'importance) :
+--   node campus_numerique_db/depannage/nettoyage/nettoyer_stockage_supabase.js
+-- sinon le bucket accumule des fichiers orphelins à chaque reset.
 -- ================================================================
 
 BEGIN;
