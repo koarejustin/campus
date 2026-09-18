@@ -17,11 +17,16 @@
 --
 -- CE QUI EST GARDÉ (pas touché par ce script) :
 --   - La structure de toutes les tables (rien n'est supprimé/cassé)
---   - pedagogie.matieres (la liste officielle des matières + coefficients)
+--   - pedagogie.matieres (la liste officielle des matières)
+--   - pedagogie.coefficients (le barème coefficients par classe/matière)
 --   - gestion.configuration (nom/logo de l'école — à modifier via
 --     l'interface Direction après le reset, pas ici)
 --   - gestion.images_espaces / gestion.photos_espaces (les visuels
 --     déjà en place — à changer manuellement si besoin)
+--
+-- Relancé le 18/09/2026 : les données de test accumulées pendant les
+-- essais/audits doivent être remplacées par un vrai import d'école
+-- complet (élèves+parents, profs+classes, alumni, surveillants).
 --
 -- CE QUI EST VIDÉ : absolument tous les comptes (élèves, profs,
 -- parents, direction, surveillants, alumni, APE) et tout leur
@@ -36,9 +41,12 @@ TRUNCATE TABLE
     authentification.comptes,
     authentification.fcm_tokens,
     authentification.profils_administratifs,
+    authentification.sessions_actives,
 
-    -- Pédagogie
-    pedagogie.avis_orientation,
+    -- Pédagogie (avis_orientation retirée le 18/09/2026 avec la
+    -- fonctionnalité Orientation — table supprimée, plus dans la base ;
+    -- appreciations ajoutée : texte d'appréciation par élève/matière)
+    pedagogie.appreciations,
     pedagogie.bulletins_signes,
     pedagogie.cahier_texte,
     pedagogie.cahiers_texte,
@@ -57,7 +65,8 @@ TRUNCATE TABLE
     pedagogie.ressources_pedagogiques,
     pedagogie.salle_des_profs_virtuelle,
 
-    -- Vie scolaire
+    -- Vie scolaire (historique_scolarite ajoutée : décisions de
+    -- passage/redoublement par élève et par année)
     vie_scolaire.annonces,
     vie_scolaire.annonces_officielles,
     vie_scolaire.elections,
@@ -69,6 +78,7 @@ TRUNCATE TABLE
     vie_scolaire.grand_eleves_posts,
     vie_scolaire.grand_flux,
     vie_scolaire.grand_flux_eleves,
+    vie_scolaire.historique_scolarite,
     vie_scolaire.inter_classes_msgs,
     vie_scolaire.mediation,
     vie_scolaire.profils_eleves,
