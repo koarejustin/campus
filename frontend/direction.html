@@ -4101,6 +4101,29 @@
       </div>
 
       <div class="card" style="width:100%;box-sizing:border-box;margin-top:16px;">
+        <div style="font-size:.9rem;font-weight:800;color:#1E2818;margin-bottom:4px;">Format des matricules</div>
+        <div style="font-size:.72rem;color:#6B5D42;margin-bottom:14px;">Préfixe utilisé pour chaque rôle (ex: "CN" → CN-2026-2001) et l'année à afficher. Change chaque année scolaire, ou pour personnaliser selon ton école.</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px 16px;">
+          <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Élèves</label>
+            <input id="params-mat-eleve" type="text" maxlength="20" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;text-transform:uppercase;"></div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Professeurs</label>
+            <input id="params-mat-prof" type="text" maxlength="20" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;text-transform:uppercase;"></div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Parents</label>
+            <input id="params-mat-parent" type="text" maxlength="20" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;text-transform:uppercase;"></div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Anciens élèves</label>
+            <input id="params-mat-alumni" type="text" maxlength="20" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;text-transform:uppercase;"></div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Surveillants</label>
+            <input id="params-mat-surveillant" type="text" maxlength="20" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;text-transform:uppercase;"></div>
+          <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Direction</label>
+            <input id="params-mat-direction" type="text" maxlength="20" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;text-transform:uppercase;"></div>
+          <div style="grid-column:1 / -1;"><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Année (ex: 2026)</label>
+            <input id="params-mat-annee" type="text" maxlength="10" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
+        </div>
+        <div style="font-size:.65rem;color:#A93226;margin:10px 0;">⚠️ Ne change que les prochains comptes créés — les matricules déjà attribués ne sont jamais modifiés.</div>
+        <button class="btn-p" style="width:100%;padding:11px;font-size:.82rem;font-weight:800;justify-content:center;" onclick="saveParametres()">Enregistrer</button>
+      </div>
+
+      <div class="card" style="width:100%;box-sizing:border-box;margin-top:16px;">
         <div style="font-size:.9rem;font-weight:800;color:#1E2818;margin-bottom:4px;">Images du portail d'accueil</div>
         <div style="font-size:.72rem;color:#6B5D42;margin-bottom:14px;">Photo affichée en fond de chaque carte d'espace sur la page de connexion.</div>
         <div id="params-images-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
@@ -4436,6 +4459,13 @@
           $('params-adresse').value = d.config.adresse || '';
           $('params-tel').value = d.config.telephone || '';
           $('params-email').value = d.config.email_contact || '';
+          $('params-mat-eleve').value = d.config.matricule_prefixe_eleve || 'CN';
+          $('params-mat-prof').value = d.config.matricule_prefixe_prof || 'PROF';
+          $('params-mat-parent').value = d.config.matricule_prefixe_parent || 'PAR';
+          $('params-mat-alumni').value = d.config.matricule_prefixe_alumni || 'ALUM';
+          $('params-mat-surveillant').value = d.config.matricule_prefixe_surveillant || 'SURV';
+          $('params-mat-direction').value = d.config.matricule_prefixe_direction || 'DIR';
+          $('params-mat-annee').value = d.config.matricule_annee || '2026';
           if (d.config.logo_url) {
             $('params-logo-preview').src = d.config.logo_url;
             $('params-logo-preview').classList.remove('hidden');
@@ -4484,6 +4514,13 @@
         fd.append('adresse', $('params-adresse').value.trim());
         fd.append('telephone', $('params-tel').value.trim());
         fd.append('email_contact', $('params-email').value.trim());
+        fd.append('matricule_prefixe_eleve', $('params-mat-eleve').value.trim().toUpperCase());
+        fd.append('matricule_prefixe_prof', $('params-mat-prof').value.trim().toUpperCase());
+        fd.append('matricule_prefixe_parent', $('params-mat-parent').value.trim().toUpperCase());
+        fd.append('matricule_prefixe_alumni', $('params-mat-alumni').value.trim().toUpperCase());
+        fd.append('matricule_prefixe_surveillant', $('params-mat-surveillant').value.trim().toUpperCase());
+        fd.append('matricule_prefixe_direction', $('params-mat-direction').value.trim().toUpperCase());
+        fd.append('matricule_annee', $('params-mat-annee').value.trim());
         if (paramsLogoFile) fd.append('logo', paramsLogoFile);
 
         const r = await fetch('/api/admin/config', {

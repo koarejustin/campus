@@ -175,7 +175,13 @@ router.get('/config-public', async (req, res) => {
 
 router.get('/config', auth, async (req, res) => {
     try {
-        const result = await db.query('SELECT nom_etablissement, slogan, logo_url FROM gestion.configuration LIMIT 1');
+        const result = await db.query(`
+            SELECT nom_etablissement, slogan, logo_url, adresse, telephone, email_contact,
+                   matricule_prefixe_eleve, matricule_prefixe_prof, matricule_prefixe_parent,
+                   matricule_prefixe_alumni, matricule_prefixe_surveillant, matricule_prefixe_direction,
+                   matricule_annee
+            FROM gestion.configuration LIMIT 1
+        `);
         if (result.rows.length > 0) {
             res.json({ success: true, config: result.rows[0] });
         } else {
