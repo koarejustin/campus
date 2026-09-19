@@ -45,5 +45,8 @@
     "socket.io-client": "^4.8.3",
     "tailwindcss": "^4.2.2",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "autocannon": "^8.0.0"
   }
 }

@@ -5355,6 +5355,7 @@
           const crees = (d.resultats || []).filter(r => r.statut === 'CREE')
             .sort((a, b) => (a.classe || '').localeCompare(b.classe || '') || (a.nom || '').localeCompare(b.nom || ''));
           window._dernierImportComptes = crees;
+          window._nomFichierImportEleves = nomFichierAvecClasse('eleves', crees);
           document.getElementById('ie-apercu').style.display = 'none';
           msgEl.style.display = 'block'; msgEl.style.color = '';
           msgEl.innerHTML = '<div style="font-size:.82rem;font-weight:800;color:#1E2818;margin-bottom:10px;">'
@@ -5365,7 +5366,7 @@
             + '<thead><tr style="background:#FDFAF2;font-family:inherit;"><th style="padding:6px 8px;text-align:left;">Nom complet</th><th style="padding:6px 8px;text-align:left;">Classe</th><th style="padding:6px 8px;text-align:left;">Identifiant</th><th style="padding:6px 8px;text-align:left;">Mot de passe</th></tr></thead>'
             + '<tbody>' + crees.map(r => `<tr style="border-top:1px solid #F2ECDE;"><td style="padding:6px 8px;font-family:inherit;">${esc(r.prenom)} ${esc(r.nom)}</td><td style="padding:6px 8px;font-family:inherit;">${esc(r.classe || '—')}</td><td style="padding:6px 8px;">${r.code_unique}</td><td style="padding:6px 8px;">${r.mot_de_passe_temporaire}</td></tr>`).join('')
             + '</tbody></table></div>'
-            + '<button onclick="imprimerFichesIdentifiants(window._dernierImportComptes)" style="margin-top:14px;background:#fff;color:#2F6B3F;border:1.5px solid #2F6B3F;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Imprimer les fiches</button>'
+            + '<button onclick="imprimerFichesIdentifiants(window._dernierImportComptes, window._nomFichierImportEleves)" style="margin-top:14px;background:#fff;color:#2F6B3F;border:1.5px solid #2F6B3F;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Imprimer les fiches</button>'
             + '<button onclick="closeImportExcel(); loadEleves();" style="margin-top:8px;background:linear-gradient(135deg,#2F6B3F,#1F4A2C);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Fermer</button>';
           btn.style.display = 'none';
         } else {
@@ -5384,14 +5385,28 @@
     // Les mots de passe ne sont disponibles qu'à cet instant précis (jamais
     // revisibles ensuite) — c'est pour ça que ça se déclenche juste après
     // l'import, pas plus tard.
-    function imprimerFichesIdentifiants(comptes) {
+    // Nom de fichier lisible : retire accents/espaces pour un nom de
+    // fichier propre sur tous les systèmes (Windows en particulier).
+    function slugFichier(s) {
+      return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '').toLowerCase();
+    }
+    // Si tous les comptes du lot partagent la même classe (ex: un import
+    // ou une réinitialisation filtrés sur "6ème"), on l'ajoute au nom du
+    // fichier — sinon on garde juste le nom de base (toutes classes).
+    function nomFichierAvecClasse(base, items) {
+      const classes = [...new Set((items || []).map(i => i.classe).filter(Boolean))];
+      return classes.length === 1 ? `${base}_${slugFichier(classes[0])}` : base;
+    }
+    function imprimerFichesIdentifiants(comptes, nomFichier) {
       if (!comptes || !comptes.length) return;
       const ecole = (window._ecoleConfig && window._ecoleConfig.nom_etablissement) || 'Établissement';
+      const nom = nomFichier ? slugFichier(nomFichier) : `fiches-identifiants_${new Date().toISOString().split('T')[0]}`;
       downloadPdf('/admin/fiches-identifiants/pdf', {
         comptes,
         ecole,
         siteUrl: window.location.origin
-      }, `fiches-identifiants_${new Date().toISOString().split('T')[0]}.pdf`);
+      }, `${nom}.pdf`);
     }
 
     // ═══════════════════════════════════════════
@@ -5430,7 +5445,7 @@
     // reset (donc rien d'inhabituel côté sécurité) et le même PDF que
     // l'impression après import Excel.
     // ═══════════════════════════════════════════
-    function reinitialiserEtImprimerLot(items, labelPluriel) {
+    function reinitialiserEtImprimerLot(items, labelPluriel, nomFichierBase) {
       if (!items || !items.length) { toast('Aucun compte à traiter', 'err'); return; }
       let m = document.getElementById('m-confirm-reset-lot');
       if (m) m.remove();
@@ -5453,24 +5468,34 @@
       setTimeout(() => m.classList.add('open'), 10);
       if (window.lucide) lucide.createIcons();
       window._lotAReinitialiser = items;
+      window._lotNomFichier = nomFichierAvecClasse(nomFichierBase || 'fiches', items);
     }
     async function _confirmerResetLot() {
       const items = window._lotAReinitialiser || [];
       document.getElementById('m-confirm-reset-lot')?.remove();
       if (!items.length) return;
-      toast(`Réinitialisation de ${items.length} mot(s) de passe en cours…`, 'ok');
-      const resultats = [];
-      for (const item of items) {
-        try {
-          const d = await api(`/admin/comptes/${item.id}/reset-password`, { method: 'PUT' });
-          if (d.success) {
-            resultats.push({ prenom: d.prenom, nom: d.nom, classe: item.classe || '', code_unique: d.code_unique, mot_de_passe_temporaire: d.mot_de_passe_temporaire });
-          }
-        } catch (e) { /* on continue malgré l'échec d'un compte isolé */ }
+      // ⚠️ Une seule requête pour tous les comptes (au lieu d'une boucle
+      // avec un appel par compte) — pour 420 élèves l'ancienne méthode
+      // prenait plusieurs minutes sans aucun retour visuel, et
+      // l'impression ne se déclenchait qu'à la toute fin : si on quittait
+      // la page avant, rien ne s'imprimait jamais.
+      toast(`Réinitialisation de ${items.length} mot(s) de passe en cours, patiente…`, 'ok');
+      const classeParId = {};
+      items.forEach(it => { if (it.classe) classeParId[it.id] = it.classe; });
+      let d;
+      try {
+        d = await api('/admin/comptes/reset-password-lot', { method: 'PUT', body: JSON.stringify({ ids: items.map(it => it.id) }) });
+      } catch (e) {
+        toast('Erreur réseau pendant la réinitialisation', 'err');
+        return;
       }
-      if (!resultats.length) { toast('Échec : aucun mot de passe réinitialisé', 'err'); return; }
-      imprimerFichesIdentifiants(resultats);
-      toast(resultats.length + ' fiche(s) prête(s), impression lancée', 'ok');
+      if (!d || !d.success || !d.resultats || !d.resultats.length) {
+        toast('Échec : aucun mot de passe réinitialisé', 'err');
+        return;
+      }
+      const resultats = d.resultats.map(r => ({ ...r, classe: classeParId[r.id_user] || '' }));
+      imprimerFichesIdentifiants(resultats, window._lotNomFichier);
+      toast(resultats.length + ' / ' + items.length + ' fiche(s) prête(s), impression lancée', 'ok');
     }
     function reinitialiserEtImprimerLotEleves() {
       const q = ($('el-srch')?.value || '').toLowerCase();
@@ -5478,23 +5503,23 @@
         const ok = !clsFil || normCls(e.classe) === normCls(clsFil);
         return ok && (!q || (e.nom + e.prenom + e.code).toLowerCase().includes(q));
       });
-      reinitialiserEtImprimerLot(r.map(e => ({ id: e.id, classe: e.classe })), 'élève(s)');
+      reinitialiserEtImprimerLot(r.map(e => ({ id: e.id, classe: e.classe })), 'élève(s)', 'eleves');
     }
     function reinitialiserEtImprimerLotParents() {
       const q = ($('parents-srch')?.value || '').toLowerCase();
       const r = parentsData.filter(p => !q || `${p.nom} ${p.prenom}`.toLowerCase().includes(q));
-      reinitialiserEtImprimerLot(r.map(p => ({ id: p.id_user || p.id })), 'parent(s)');
+      reinitialiserEtImprimerLot(r.map(p => ({ id: p.id_user || p.id })), 'parent(s)', 'parents');
     }
     function reinitialiserEtImprimerLotAlumni() {
       const q = ($('alumni-srch')?.value || '').toLowerCase();
       const r = alumniDirData.filter(a => !q || `${a.nom} ${a.prenom}`.toLowerCase().includes(q));
-      reinitialiserEtImprimerLot(r.map(a => ({ id: a.id_user || a.id })), 'ancien(ne) élève(s)');
+      reinitialiserEtImprimerLot(r.map(a => ({ id: a.id_user || a.id })), 'ancien(ne) élève(s)', 'anciens_eleves');
     }
     function reinitialiserEtImprimerLotCorps() {
       const q = ($('corps-srch')?.value || '').toLowerCase();
       const wantRole = corpsRoleTab === 'profs' ? 'PROFESSEUR' : 'SURVEILLANT';
       const r = corpsData.filter(p => p.role === wantRole && (!q || (p.nom + p.mat).toLowerCase().includes(q)));
-      reinitialiserEtImprimerLot(r.map(p => ({ id: p.id })), corpsRoleTab === 'profs' ? 'professeur(s)' : 'surveillant(s)');
+      reinitialiserEtImprimerLot(r.map(p => ({ id: p.id })), corpsRoleTab === 'profs' ? 'professeur(s)' : 'surveillant(s)', corpsRoleTab === 'profs' ? 'professeurs' : 'surveillants');
     }
 
     async function _confirmerResetMotDePasse(id) {
@@ -5532,7 +5557,7 @@
         + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.95rem;font-weight:900;color:#2F6B3F;">' + esc(d.mot_de_passe_temporaire) + '</div>'
         + '</div>'
         + '<div style="font-size:.7rem;color:#6B5D42;margin-bottom:14px;">Note-le maintenant — il ne sera plus jamais affiché. Communique-le à la personne concernée.</div>'
-        + '<button onclick="imprimerFichesIdentifiants([{prenom:' + JSON.stringify(d.prenom) + ',nom:' + JSON.stringify(d.nom) + ',classe:' + JSON.stringify(d.classe || '') + ',code_unique:' + JSON.stringify(d.code_unique) + ',mot_de_passe_temporaire:' + JSON.stringify(d.mot_de_passe_temporaire) + '}])" style="width:100%;background:#fff;color:#2F6B3F;border:1.5px solid #2F6B3F;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;">Imprimer la fiche</button>'
+        + '<button onclick="imprimerFichesIdentifiants([{prenom:' + JSON.stringify(d.prenom) + ',nom:' + JSON.stringify(d.nom) + ',classe:' + JSON.stringify(d.classe || '') + ',code_unique:' + JSON.stringify(d.code_unique) + ',mot_de_passe_temporaire:' + JSON.stringify(d.mot_de_passe_temporaire) + '}], ' + JSON.stringify((d.prenom || '') + '_' + (d.nom || '')) + ')" style="width:100%;background:#fff;color:#2F6B3F;border:1.5px solid #2F6B3F;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;">Imprimer la fiche</button>'
         + '<button onclick="document.getElementById(\'m-nouveau-mdp\').remove()" style="width:100%;background:linear-gradient(135deg,#2F6B3F,#1F4A2C);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">Fermer</button>'
         + '</div>';
       document.body.appendChild(m);
@@ -5556,7 +5581,7 @@
       parents: {
         titre: 'Importer des parents depuis Excel',
         endpoint: '/api/admin/parents/import-excel',
-        colonnesInfo: "Nom, Prenom, MatriculeEnfant (matricule d'un élève déjà existant dans l'appli), et en option Email, Telephone, Profession, LienParente.",
+        colonnesInfo: "Nom, Prenom, MatriculeEnfant (matricule d'un élève déjà existant dans l'appli), et en option Email, Telephone, Profession, LienParente, MatriculeParent. Pour un 2e/3e enfant du même parent : remplis MatriculeParent avec le matricule déjà attribué à ce parent sur une ligne précédente — aucun nouveau compte n'est créé, juste l'enfant en plus.",
         reloadFn: 'loadParents',
       },
       alumni: {
@@ -5666,6 +5691,8 @@
           const crees = (d.resultats || []).filter(r => r.statut === 'CREE')
             .sort((a, b) => (a.classe_enfant || '').localeCompare(b.classe_enfant || '') || (a.nom || '').localeCompare(b.nom || ''));
           window._dernierImportComptes = crees;
+          const BASE_FICHIER_ROLE_IMPORT = { professeurs: 'professeurs', parents: 'parents', alumni: 'anciens_eleves', surveillants: 'surveillants' };
+          window._nomFichierImportGenerique = BASE_FICHIER_ROLE_IMPORT[_roleImportGenerique] || _roleImportGenerique;
           document.getElementById('ig-apercu').style.display = 'none';
           msgEl.style.display = 'block'; msgEl.style.color = '';
           const estParents = _roleImportGenerique === 'parents';
@@ -5677,7 +5704,7 @@
             + '<thead><tr style="background:#FDFAF2;font-family:inherit;"><th style="padding:6px 8px;text-align:left;">Nom complet</th>' + (estParents ? '<th style="padding:6px 8px;text-align:left;">Enfant lié</th>' : '') + '<th style="padding:6px 8px;text-align:left;">Identifiant</th><th style="padding:6px 8px;text-align:left;">Mot de passe</th></tr></thead>'
             + '<tbody>' + crees.map(r => `<tr style="border-top:1px solid #F2ECDE;"><td style="padding:6px 8px;font-family:inherit;">${esc(r.prenom)} ${esc(r.nom)}</td>${estParents ? `<td style="padding:6px 8px;font-family:inherit;">${esc(r.prenom_enfant || '')} ${esc(r.nom_enfant || '')} <span style="color:#6B5D42;">(${esc(r.classe_enfant || '—')})</span></td>` : ''}<td style="padding:6px 8px;">${r.code_unique}</td><td style="padding:6px 8px;">${r.mot_de_passe_temporaire}</td></tr>`).join('')
             + '</tbody></table></div>'
-            + '<button onclick="imprimerFichesIdentifiants(window._dernierImportComptes)" style="margin-top:14px;background:#fff;color:#2F6B3F;border:1.5px solid #2F6B3F;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Imprimer les fiches</button>'
+            + '<button onclick="imprimerFichesIdentifiants(window._dernierImportComptes, window._nomFichierImportGenerique)" style="margin-top:14px;background:#fff;color:#2F6B3F;border:1.5px solid #2F6B3F;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Imprimer les fiches</button>'
             + '<button onclick="closeImportGenerique(); ' + cfg.reloadFn + '();" style="margin-top:8px;background:linear-gradient(135deg,#2F6B3F,#1F4A2C);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;width:100%;">Fermer</button>';
           btn.style.display = 'none';
         } else {

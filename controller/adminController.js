@@ -77,6 +77,59 @@ exports.resetMotDePasse = async (req, res) => {
     }
 };
 
+// ⚠️ Version en lot de resetMotDePasse — l'ancienne approche cote
+// frontend (une requete HTTP par compte, en boucle sequentielle) mettait
+// plusieurs minutes pour 420 eleves sans aucun retour visuel, et
+// l'impression des fiches ne se declenchait qu'a la toute fin : si
+// l'utilisateur quittait la page avant, rien ne s'imprimait jamais.
+// Ici tout se fait en UNE seule requete HTTP, par petits groupes
+// paralleles (5 a la fois, aligne sur le nombre max de connexions
+// simultanees vers la base — voir config/db.js) plutot qu'un par un.
+exports.resetMotDePasseLot = async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || !ids.length) {
+            return res.status(400).json({ success: false, message: 'Liste de comptes requise' });
+        }
+        const bcrypt = require('bcryptjs');
+        const resultats = [];
+        // ⚠️ Plus grand que le pool DB (5, voir config/db.js) volontairement :
+        // le calcul bcrypt (le plus lent des deux) est CPU, pas DB — les
+        // requêtes SQL en trop attendent simplement leur tour dans la file
+        // interne du pool sans erreur. Ça chevauche mieux CPU et attente
+        // réseau qu'un lot strictement limité à 5.
+        const TAILLE_LOT = 15;
+        for (let i = 0; i < ids.length; i += TAILLE_LOT) {
+            const lot = ids.slice(i, i + TAILLE_LOT);
+            const traites = await Promise.all(lot.map(async (id) => {
+                try {
+                    const compte = await db.query(
+                        `SELECT id_user, nom, prenom, code_unique, role_actuel FROM authentification.comptes WHERE id_user = $1`,
+                        [id]
+                    );
+                    if (!compte.rows.length) return null;
+                    const motDePasseTemp = genTempPassword();
+                    const hash = await bcrypt.hash(motDePasseTemp, 10);
+                    await db.query(`UPDATE authentification.comptes SET mot_de_passe = $1 WHERE id_user = $2`, [hash, id]);
+                    const c = compte.rows[0];
+                    return {
+                        id_user: c.id_user, code_unique: c.code_unique, nom: c.nom, prenom: c.prenom,
+                        role_actuel: c.role_actuel, mot_de_passe_temporaire: motDePasseTemp,
+                    };
+                } catch (e) {
+                    console.error('resetMotDePasseLot (compte', id, '):', e.message);
+                    return null;
+                }
+            }));
+            resultats.push(...traites.filter(Boolean));
+        }
+        res.json({ success: true, total: ids.length, nb_ok: resultats.length, resultats });
+    } catch (e) {
+        console.error('resetMotDePasseLot:', e.message);
+        res.status(500).json({ success: false, message: 'Erreur: ' + e.message });
+    }
+};
+
 // Retourne des statistiques pour le dashboard d'administration
 exports.getStats = async (req, res) => {
     // Contrôle simple de rôle (attendre que le token fournisse 'role')
@@ -2558,6 +2611,12 @@ exports.importParentsExcel = async (req, res) => {
             const nom = getColExcel(ligne, ['nom']);
             const prenom = getColExcel(ligne, ['prenom', 'prénom']);
             const matriculeEnfant = getColExcel(ligne, ['matriculeenfant', 'matricule enfant', 'matricule_enfant', 'matricule']);
+            // ✅ Optionnel — voir MatriculeParent ci-dessous : permet de lier
+            // un 2e/3e enfant à un parent déjà créé (même compte, plusieurs
+            // enfants visibles), au lieu de créer un compte en double à
+            // chaque enfant. Avant ce champ, un parent avec 3 enfants dans
+            // l'école se retrouvait avec 3 comptes/mots de passe séparés.
+            const matriculeParent = getColExcel(ligne, ['matriculeparent', 'matricule parent', 'matricule_parent']) || null;
             const email = getColExcel(ligne, ['email', 'e-mail']) || null;
             const telephone = getColExcel(ligne, ['telephone', 'téléphone', 'tel']) || null;
             const profession = getColExcel(ligne, ['profession']) || null;
@@ -2587,14 +2646,45 @@ exports.importParentsExcel = async (req, res) => {
                 classe_enfant: eleve.rows[0].classe_enfant,
             };
 
+            // Si MatriculeParent est renseigné, on cherche ce parent
+            // existant plutôt que d'en créer un nouveau.
+            let parentExistant = null;
+            if (matriculeParent) {
+                const p = await db.query(
+                    `SELECT id_user, code_unique FROM authentification.comptes WHERE code_unique = $1 AND role_actuel = 'PARENT'`,
+                    [matriculeParent]
+                );
+                if (!p.rows.length) {
+                    resultats.push({ ligne: i + 2, nom, prenom, statut: 'ERREUR', message: `Aucun parent trouvé avec le matricule ${matriculeParent}` });
+                    continue;
+                }
+                parentExistant = p.rows[0];
+            }
+
             if (dryRun) {
-                compteur++;
-                const codePrevisionnel = _rendreGabarit(gabarits.parent, { annee: gabarits.annee, numero: compteur });
-                resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, ...infoEnfant, code_previsionnel: codePrevisionnel, statut: 'OK' });
+                if (parentExistant) {
+                    resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, ...infoEnfant, code_previsionnel: parentExistant.code_unique, statut: 'OK', note: 'Enfant supplémentaire ajouté au parent existant, pas de nouveau compte' });
+                } else {
+                    compteur++;
+                    const codePrevisionnel = _rendreGabarit(gabarits.parent, { annee: gabarits.annee, numero: compteur });
+                    resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, ...infoEnfant, code_previsionnel: codePrevisionnel, statut: 'OK' });
+                }
                 continue;
             }
 
             try {
+                if (parentExistant) {
+                    // Enfant supplémentaire pour un parent déjà existant —
+                    // juste une nouvelle liaison, aucun nouveau compte.
+                    await db.query(
+                        `INSERT INTO vie_scolaire.relations_parents_eleves (id_parent, id_eleve, lien_parente) VALUES ($1,$2,$3)`,
+                        [parentExistant.id_user, idEleve, lienParente]
+                    );
+                    await db.query(`UPDATE authentification.comptes SET est_actif = true WHERE id_user = $1`, [idEleve]);
+                    resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, ...infoEnfant, code_unique: parentExistant.code_unique, statut: 'LIE', note: 'Enfant ajouté au parent existant — pas de nouveau mot de passe' });
+                    continue;
+                }
+
                 const motDePasseTemp = genTempPassword();
                 const hash = await bcrypt.hash(motDePasseTemp, 10);
                 // Voir createParent ci-dessus : compte créé inactif puis activé
