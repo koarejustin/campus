@@ -5539,6 +5539,15 @@
     function afficherNouveauMotDePasse(d) {
       let m = document.getElementById('m-nouveau-mdp');
       if (m) m.remove();
+      // ⚠️ Stockées ici plutôt qu'injectées directement dans l'attribut
+      // onclick ci-dessous : les guillemets produits par JSON.stringify()
+      // cassaient l'attribut HTML onclick="..." (lui-même délimité par des
+      // guillemets), donc le clic ne déclenchait rien.
+      window._ficheUniqueAImprimer = [{
+        prenom: d.prenom, nom: d.nom, classe: d.classe || '',
+        code_unique: d.code_unique, mot_de_passe_temporaire: d.mot_de_passe_temporaire,
+      }];
+      window._ficheUniqueNomFichier = (d.prenom || '') + '_' + (d.nom || '');
       m = document.createElement('div');
       m.id = 'm-nouveau-mdp';
       m.className = 'dir-modal-overlay';
@@ -5557,7 +5566,7 @@
         + '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.95rem;font-weight:900;color:#2F6B3F;">' + esc(d.mot_de_passe_temporaire) + '</div>'
         + '</div>'
         + '<div style="font-size:.7rem;color:#6B5D42;margin-bottom:14px;">Note-le maintenant — il ne sera plus jamais affiché. Communique-le à la personne concernée.</div>'
-        + '<button onclick="imprimerFichesIdentifiants([{prenom:' + JSON.stringify(d.prenom) + ',nom:' + JSON.stringify(d.nom) + ',classe:' + JSON.stringify(d.classe || '') + ',code_unique:' + JSON.stringify(d.code_unique) + ',mot_de_passe_temporaire:' + JSON.stringify(d.mot_de_passe_temporaire) + '}], ' + JSON.stringify((d.prenom || '') + '_' + (d.nom || '')) + ')" style="width:100%;background:#fff;color:#2F6B3F;border:1.5px solid #2F6B3F;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;">Imprimer la fiche</button>'
+        + '<button onclick="imprimerFichesIdentifiants(window._ficheUniqueAImprimer, window._ficheUniqueNomFichier)" style="width:100%;background:#fff;color:#2F6B3F;border:1.5px solid #2F6B3F;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;">Imprimer la fiche</button>'
         + '<button onclick="document.getElementById(\'m-nouveau-mdp\').remove()" style="width:100%;background:linear-gradient(135deg,#2F6B3F,#1F4A2C);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">Fermer</button>'
         + '</div>';
       document.body.appendChild(m);
