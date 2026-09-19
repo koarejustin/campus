@@ -219,15 +219,45 @@ exports.modifierMonIdentite = async (req, res) => {
     try {
         const userId = req.user?.id;
         if (!userId) return res.status(401).json({ success: false, message: 'Non authentifié' });
-        const { nom, prenom, email } = req.body;
+        const { nom, prenom, email, code_unique } = req.body;
         if (!nom || !prenom) {
             return res.status(400).json({ success: false, message: 'Nom et prénom requis' });
         }
-        await db.query(
-            `UPDATE authentification.comptes SET nom = $1, prenom = $2, email = $3 WHERE id_user = $4`,
-            [nom.toUpperCase().trim(), prenom.trim(), email || null, userId]
-        );
-        res.json({ success: true, message: 'Identité mise à jour' });
+
+        // ✅ Seul le rôle DIRECTION peut aussi changer son propre matricule
+        // (code_unique) — le compte Direction recréé par le reset complet
+        // porte un matricule générique construit depuis le gabarit
+        // configuré (voir resetService.js), que la vraie personne peut
+        // vouloir personnaliser. Aucune table ne référence code_unique en
+        // clé étrangère (seul id_user compte pour les relations), donc le
+        // changer ne casse rien ailleurs.
+        let nouveauCode = null;
+        if (req.user.role === 'DIRECTION' && code_unique) {
+            nouveauCode = String(code_unique).trim();
+            if (!nouveauCode) {
+                return res.status(400).json({ success: false, message: 'Matricule requis' });
+            }
+            const existe = await db.query(
+                `SELECT 1 FROM authentification.comptes WHERE code_unique = $1 AND id_user != $2`,
+                [nouveauCode, userId]
+            );
+            if (existe.rows.length) {
+                return res.status(409).json({ success: false, message: 'Ce matricule est déjà utilisé par un autre compte' });
+            }
+        }
+
+        if (nouveauCode) {
+            await db.query(
+                `UPDATE authentification.comptes SET nom = $1, prenom = $2, email = $3, code_unique = $4 WHERE id_user = $5`,
+                [nom.toUpperCase().trim(), prenom.trim(), email || null, nouveauCode, userId]
+            );
+        } else {
+            await db.query(
+                `UPDATE authentification.comptes SET nom = $1, prenom = $2, email = $3 WHERE id_user = $4`,
+                [nom.toUpperCase().trim(), prenom.trim(), email || null, userId]
+            );
+        }
+        res.json({ success: true, message: 'Identité mise à jour', code_unique: nouveauCode || undefined });
     } catch (err) {
         console.error('modifierMonIdentite:', err.message);
         res.status(500).json({ success: false, message: 'Erreur serveur' });

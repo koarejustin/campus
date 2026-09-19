@@ -6307,6 +6307,10 @@
         + '<input id="idn-nom" type="text" value="' + esc(SESS.nom || '') + '" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
         + '<div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Email</label>'
         + '<input id="idn-email" type="email" value="' + esc(SESS.email || '') + '" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>'
+        + (ROLE === 'DIRECTION' ? (
+          '<div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Matricule</label>'
+          + '<input id="idn-matricule" type="text" value="' + esc(SESS.code_unique || '') + '" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;"></div>'
+        ) : '')
         + '<div id="idn-msg" style="display:none;font-size:.75rem;padding:8px;border-radius:7px;"></div>'
         + '<button onclick="submitEditIdentite()" style="background:linear-gradient(135deg,#2F6B3F,#1F4A2C);color:#fff;border:none;border-radius:10px;padding:11px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:inherit;">Enregistrer</button>'
         + '</div></div>';
@@ -6318,18 +6322,20 @@
       const prenom = document.getElementById('idn-prenom')?.value?.trim();
       const nom = document.getElementById('idn-nom')?.value?.trim();
       const email = document.getElementById('idn-email')?.value?.trim();
+      const matricule = document.getElementById('idn-matricule')?.value?.trim();
       const msgEl = document.getElementById('idn-msg');
       if (!nom || !prenom) { toast('Nom et prénom requis', 'err'); return; }
+      if (ROLE === 'DIRECTION' && !matricule) { toast('Matricule requis', 'err'); return; }
       if (msgEl) { msgEl.style.display = 'block'; msgEl.textContent = 'Enregistrement...'; msgEl.style.color = '#5A4D36'; }
       try {
-        const d = await api('/auth/mon-identite', {
-          method: 'PUT',
-          body: JSON.stringify({ nom, prenom, email: email || null })
-        });
+        const body = { nom, prenom, email: email || null };
+        if (ROLE === 'DIRECTION') body.code_unique = matricule;
+        const d = await api('/auth/mon-identite', { method: 'PUT', body: JSON.stringify(body) });
         if (d.success) {
           SESS.nom = nom.toUpperCase();
           SESS.prenom = prenom;
           SESS.email = email || null;
+          if (d.code_unique) SESS.code_unique = d.code_unique;
           localStorage.setItem('user_session', JSON.stringify(SESS));
           applyRole();
           document.getElementById('m-edit-identite')?.remove();
