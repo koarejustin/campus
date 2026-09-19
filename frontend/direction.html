@@ -4454,17 +4454,10 @@
           $('params-adresse').value = d.config.adresse || '';
           $('params-tel').value = d.config.telephone || '';
           $('params-email').value = d.config.email_contact || '';
-          // ✅ Champs laissés vides (placeholder = format actuel, en gris,
-          // pas une vraie valeur) — évite d'afficher un format "imposé" à
-          // l'écran ; s'ils n'y touchent pas et enregistrent, le format déjà
-          // en place est gardé tel quel côté serveur (voir updateConfig).
-          $('params-mat-eleve').placeholder = d.config.matricule_gabarit_eleve || '';
-          $('params-mat-prof').placeholder = d.config.matricule_gabarit_prof || '';
-          $('params-mat-parent').placeholder = d.config.matricule_gabarit_parent || '';
-          $('params-mat-alumni').placeholder = d.config.matricule_gabarit_alumni || '';
-          $('params-mat-surveillant').placeholder = d.config.matricule_gabarit_surveillant || '';
-          $('params-mat-direction').placeholder = d.config.matricule_gabarit_direction || '';
-          $('params-mat-annee').placeholder = d.config.matricule_annee || '';
+          // ✅ Champs laissés totalement vides, sans placeholder — s'ils
+          // n'y touchent pas et enregistrent, le format déjà en place est
+          // gardé tel quel côté serveur (voir updateConfig), même si rien
+          // ne s'affiche ici.
           if (d.config.logo_url) {
             $('params-logo-preview').src = d.config.logo_url;
             $('params-logo-preview').classList.remove('hidden');
