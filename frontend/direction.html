@@ -4101,36 +4101,24 @@
       </div>
 
       <div class="card" style="width:100%;box-sizing:border-box;margin-top:16px;">
-        <div style="font-size:.9rem;font-weight:800;color:#1E2818;margin-bottom:4px;">Format des matricules</div>
-        <div style="font-size:.72rem;color:#6B5D42;margin-bottom:4px;">Format entièrement libre par rôle — écris ce que tu veux, avec ces 2 emplacements possibles :</div>
-        <div style="font-size:.72rem;color:#6B5D42;margin-bottom:14px;">
-          <span style="font-family:monospace;background:#F2ECDE;padding:1px 5px;border-radius:4px;">{NUMERO:4}</span> = numéro sur 4 chiffres (obligatoire, sinon tous les matricules seraient identiques) ·
-          <span style="font-family:monospace;background:#F2ECDE;padding:1px 5px;border-radius:4px;">{ANNEE}</span> = année ci-dessous (facultatif)
-        </div>
+        <div style="font-size:.9rem;font-weight:800;color:#1E2818;margin-bottom:14px;">Format des matricules</div>
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px 16px;">
           <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Élèves</label>
-            <input id="params-mat-eleve" type="text" maxlength="60" oninput="apercuMatricule('eleve')" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;">
-            <div id="params-mat-eleve-apercu" style="font-size:.68rem;color:#2F6B3F;margin-top:3px;"></div></div>
+            <input id="params-mat-eleve" type="text" maxlength="60" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;"></div>
           <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Professeurs</label>
-            <input id="params-mat-prof" type="text" maxlength="60" oninput="apercuMatricule('prof')" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;">
-            <div id="params-mat-prof-apercu" style="font-size:.68rem;color:#2F6B3F;margin-top:3px;"></div></div>
+            <input id="params-mat-prof" type="text" maxlength="60" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;"></div>
           <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Parents</label>
-            <input id="params-mat-parent" type="text" maxlength="60" oninput="apercuMatricule('parent')" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;">
-            <div id="params-mat-parent-apercu" style="font-size:.68rem;color:#2F6B3F;margin-top:3px;"></div></div>
+            <input id="params-mat-parent" type="text" maxlength="60" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;"></div>
           <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Anciens élèves</label>
-            <input id="params-mat-alumni" type="text" maxlength="60" oninput="apercuMatricule('alumni')" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;">
-            <div id="params-mat-alumni-apercu" style="font-size:.68rem;color:#2F6B3F;margin-top:3px;"></div></div>
+            <input id="params-mat-alumni" type="text" maxlength="60" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;"></div>
           <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Surveillants</label>
-            <input id="params-mat-surveillant" type="text" maxlength="60" oninput="apercuMatricule('surveillant')" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;">
-            <div id="params-mat-surveillant-apercu" style="font-size:.68rem;color:#2F6B3F;margin-top:3px;"></div></div>
+            <input id="params-mat-surveillant" type="text" maxlength="60" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;"></div>
           <div><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Direction</label>
-            <input id="params-mat-direction" type="text" maxlength="60" oninput="apercuMatricule('direction')" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;">
-            <div id="params-mat-direction-apercu" style="font-size:.68rem;color:#2F6B3F;margin-top:3px;"></div></div>
-          <div style="grid-column:1 / -1;"><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Année (utilisée si {ANNEE} figure dans un format ci-dessus)</label>
-            <input id="params-mat-annee" type="text" maxlength="10" oninput="apercuMatriculeTous()" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
+            <input id="params-mat-direction" type="text" maxlength="60" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:monospace;box-sizing:border-box;"></div>
+          <div style="grid-column:1 / -1;"><label style="font-size:.72rem;font-weight:700;color:#5A4D36;display:block;margin-bottom:3px;">Année</label>
+            <input id="params-mat-annee" type="text" maxlength="10" style="width:100%;padding:9px 12px;border:1.5px solid #DCD3B8;border-radius:9px;font-size:.82rem;font-family:inherit;box-sizing:border-box;"></div>
         </div>
-        <div style="font-size:.65rem;color:#A93226;margin:10px 0;">⚠️ Ne change que les prochains comptes créés — les matricules déjà attribués ne sont jamais modifiés.</div>
-        <button class="btn-p" style="width:100%;padding:11px;font-size:.82rem;font-weight:800;justify-content:center;" onclick="saveParametres()">Enregistrer</button>
+        <button class="btn-p" style="width:100%;padding:11px;font-size:.82rem;font-weight:800;justify-content:center;margin-top:14px;" onclick="saveParametres()">Enregistrer</button>
       </div>
 
       <div class="card" style="width:100%;box-sizing:border-box;margin-top:16px;">
@@ -4469,14 +4457,17 @@
           $('params-adresse').value = d.config.adresse || '';
           $('params-tel').value = d.config.telephone || '';
           $('params-email').value = d.config.email_contact || '';
-          $('params-mat-eleve').value = d.config.matricule_gabarit_eleve || 'CN-{ANNEE}-{NUMERO:4}';
-          $('params-mat-prof').value = d.config.matricule_gabarit_prof || 'PROF-{ANNEE}-{NUMERO:3}';
-          $('params-mat-parent').value = d.config.matricule_gabarit_parent || 'PAR-{ANNEE}-{NUMERO:4}';
-          $('params-mat-alumni').value = d.config.matricule_gabarit_alumni || 'ALUM-{ANNEE}-{NUMERO:3}';
-          $('params-mat-surveillant').value = d.config.matricule_gabarit_surveillant || 'SURV-{ANNEE}-{NUMERO:3}';
-          $('params-mat-direction').value = d.config.matricule_gabarit_direction || 'DIR-{ANNEE}-{NUMERO:3}';
-          $('params-mat-annee').value = d.config.matricule_annee || '2026';
-          apercuMatriculeTous();
+          // ✅ Champs laissés vides (placeholder = format actuel, en gris,
+          // pas une vraie valeur) — évite d'afficher un format "imposé" à
+          // l'écran ; s'ils n'y touchent pas et enregistrent, le format déjà
+          // en place est gardé tel quel côté serveur (voir updateConfig).
+          $('params-mat-eleve').placeholder = d.config.matricule_gabarit_eleve || '';
+          $('params-mat-prof').placeholder = d.config.matricule_gabarit_prof || '';
+          $('params-mat-parent').placeholder = d.config.matricule_gabarit_parent || '';
+          $('params-mat-alumni').placeholder = d.config.matricule_gabarit_alumni || '';
+          $('params-mat-surveillant').placeholder = d.config.matricule_gabarit_surveillant || '';
+          $('params-mat-direction').placeholder = d.config.matricule_gabarit_direction || '';
+          $('params-mat-annee').placeholder = d.config.matricule_annee || '';
           if (d.config.logo_url) {
             $('params-logo-preview').src = d.config.logo_url;
             $('params-logo-preview').classList.remove('hidden');
@@ -4515,34 +4506,6 @@
       reader.readAsDataURL(f);
     }
 
-    // ✅ Aperçu en direct du format de matricule — même logique que
-    // _rendreGabarit() côté serveur (controller/adminController.js),
-    // avec un numéro d'exemple (1) puisque le vrai numéro dépend du
-    // nombre de comptes déjà créés pour ce rôle.
-    function _rendreGabaritApercu(gabarit, annee) {
-      if (!gabarit) return '';
-      return gabarit
-        .replace(/\{NUMERO:(\d+)\}/g, (_, largeur) => String(1).padStart(parseInt(largeur), '0'))
-        .replace(/\{NUMERO\}/g, '1')
-        .replace(/\{ANNEE\}/g, annee || '');
-    }
-    function apercuMatricule(role) {
-      const input = $('params-mat-' + role);
-      const apercuEl = $('params-mat-' + role + '-apercu');
-      if (!input || !apercuEl) return;
-      const gabarit = input.value.trim();
-      if (!gabarit) { apercuEl.textContent = ''; return; }
-      if (!/\{NUMERO(:\d+)?\}/.test(gabarit)) {
-        apercuEl.textContent = '⚠️ doit contenir {NUMERO} ou {NUMERO:N}';
-        apercuEl.style.color = '#A93226';
-        return;
-      }
-      apercuEl.style.color = '#2F6B3F';
-      apercuEl.textContent = 'Exemple : ' + _rendreGabaritApercu(gabarit, $('params-mat-annee').value.trim());
-    }
-    function apercuMatriculeTous() {
-      ['eleve', 'prof', 'parent', 'alumni', 'surveillant', 'direction'].forEach(apercuMatricule);
-    }
 
     async function saveParametres() {
       const msgEl = $('params-msg');
