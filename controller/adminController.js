@@ -1274,29 +1274,44 @@ exports.messageProf = async (req, res) => {
     }
 };
 
-// ✅ Préfixes/année de matricule configurables par école depuis Direction
-// → Paramètres (gestion.configuration), au lieu d'être codés en dur —
-// avant : "CN-2026-XXXX" etc. répétés 14 fois dans ce fichier, aucun
-// moyen de personnaliser par école ni de changer l'année sans éditer le
-// code. Valeurs par défaut = exactement ce qui était codé en dur avant,
+// ✅ Format de matricule totalement libre par école, configurable
+// depuis Direction → Paramètres (gestion.configuration) au lieu
+// d'être codé en dur. Un "gabarit" est un texte librement composé
+// par l'école avec deux emplacements possibles :
+//   {ANNEE}        → remplacé par l'année configurée
+//   {NUMERO:N}     → numéro séquentiel complété à N chiffres
+//   {NUMERO}       → numéro séquentiel sans complément
+// Le reste du texte (préfixe, suffixe, séparateurs ou non...) est
+// gardé tel quel — permet de reproduire n'importe quel format vu sur
+// un vrai bulletin (ex: "LPC0034SJF" : pas de tiret, pas d'année,
+// suffixe après le numéro), pas seulement "PREFIXE-ANNEE-NUMERO".
+// Valeurs par défaut = équivalentes à l'ancien système codé en dur,
 // donc rien ne change tant que la Direction ne modifie rien.
-async function _getPrefixesMatricule() {
+async function _getGabaritsMatricule() {
     const r = await db.query(`
-        SELECT matricule_prefixe_eleve, matricule_prefixe_prof, matricule_prefixe_parent,
-               matricule_prefixe_alumni, matricule_prefixe_surveillant, matricule_prefixe_direction,
+        SELECT matricule_gabarit_eleve, matricule_gabarit_prof, matricule_gabarit_parent,
+               matricule_gabarit_alumni, matricule_gabarit_surveillant, matricule_gabarit_direction,
                matricule_annee
         FROM gestion.configuration LIMIT 1
     `);
     const c = r.rows[0] || {};
     return {
-        eleve: c.matricule_prefixe_eleve || 'CN',
-        prof: c.matricule_prefixe_prof || 'PROF',
-        parent: c.matricule_prefixe_parent || 'PAR',
-        alumni: c.matricule_prefixe_alumni || 'ALUM',
-        surveillant: c.matricule_prefixe_surveillant || 'SURV',
-        direction: c.matricule_prefixe_direction || 'DIR',
+        eleve: c.matricule_gabarit_eleve || 'CN-{ANNEE}-{NUMERO:4}',
+        prof: c.matricule_gabarit_prof || 'PROF-{ANNEE}-{NUMERO:3}',
+        parent: c.matricule_gabarit_parent || 'PAR-{ANNEE}-{NUMERO:4}',
+        alumni: c.matricule_gabarit_alumni || 'ALUM-{ANNEE}-{NUMERO:3}',
+        surveillant: c.matricule_gabarit_surveillant || 'SURV-{ANNEE}-{NUMERO:3}',
+        direction: c.matricule_gabarit_direction || 'DIR-{ANNEE}-{NUMERO:3}',
         annee: c.matricule_annee || '2026',
     };
+}
+
+// Applique un gabarit à un numéro donné — voir _getGabaritsMatricule.
+function _rendreGabarit(gabarit, { annee, numero }) {
+    return gabarit
+        .replace(/\{NUMERO:(\d+)\}/g, (_, largeur) => String(numero).padStart(parseInt(largeur, 10), '0'))
+        .replace(/\{NUMERO\}/g, String(numero))
+        .replace(/\{ANNEE\}/g, annee);
 }
 
 // ═══════════════════════════════════════════
@@ -1313,7 +1328,7 @@ exports.createEleve = async (req, res) => {
         }
 
         const bcrypt = require('bcryptjs');
-        const prefixes = await _getPrefixesMatricule();
+        const gabarits = await _getGabaritsMatricule();
 
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ELEVE'"
@@ -1330,7 +1345,7 @@ exports.createEleve = async (req, res) => {
         // est donc créé inactif ; il s'active automatiquement dès qu'un
         // parent lui est lié (voir createParent / importParentsExcel).
         const { code, resultat: r } = await insererAvecCodeUnique(
-            () => `${prefixes.eleve}-${prefixes.annee}-` + String(2000 + (++nb)).padStart(4, '0'),
+            () => _rendreGabarit(gabarits.eleve, { annee: gabarits.annee, numero: 2000 + (++nb) }),
             (code) => db.query(`
                 INSERT INTO authentification.comptes
                 (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
@@ -1448,7 +1463,7 @@ exports.createProfesseur = async (req, res) => {
             return res.status(400).json({ message: 'Prenom, nom et specialite requis' });
         }
         const bcrypt = require('bcryptjs');
-        const prefixes = await _getPrefixesMatricule();
+        const gabarits = await _getGabaritsMatricule();
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='PROFESSEUR'"
         );
@@ -1457,7 +1472,7 @@ exports.createProfesseur = async (req, res) => {
         const hash = await bcrypt.hash(motDePasseTemp, 10);
 
         const { code, resultat: r } = await insererAvecCodeUnique(
-            () => `${prefixes.prof}-${prefixes.annee}-` + String((++nb) + 10).padStart(3, '0'),
+            () => _rendreGabarit(gabarits.prof, { annee: gabarits.annee, numero: (++nb) + 10 }),
             (code) => db.query(`
                 INSERT INTO authentification.comptes
                 (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
@@ -1517,7 +1532,7 @@ exports.createSurveillant = async (req, res) => {
             return res.status(400).json({ message: 'Prénom et nom requis' });
         }
         const bcrypt = require('bcryptjs');
-        const prefixes = await _getPrefixesMatricule();
+        const gabarits = await _getGabaritsMatricule();
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='SURVEILLANT'"
         );
@@ -1526,7 +1541,7 @@ exports.createSurveillant = async (req, res) => {
         const hash = await bcrypt.hash(motDePasseTemp, 10);
 
         const { code, resultat: r } = await insererAvecCodeUnique(
-            () => `${prefixes.surveillant}-${prefixes.annee}-` + String(++nb).padStart(3, '0'),
+            () => _rendreGabarit(gabarits.surveillant, { annee: gabarits.annee, numero: ++nb }),
             (code) => db.query(`
                 INSERT INTO authentification.comptes
                 (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
@@ -1571,7 +1586,7 @@ exports.importSurveillantsExcel = async (req, res) => {
         if (!rows.length) return res.status(400).json({ message: 'Le fichier est vide ou illisible.' });
 
         const bcrypt = require('bcryptjs');
-        const prefixes = await _getPrefixesMatricule();
+        const gabarits = await _getGabaritsMatricule();
         const countR = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='SURVEILLANT'");
         let compteur = parseInt(countR.rows[0].count) || 0;
 
@@ -1591,7 +1606,7 @@ exports.importSurveillantsExcel = async (req, res) => {
 
             if (dryRun) {
                 compteur++;
-                const codePrevisionnel = `${prefixes.surveillant}-${prefixes.annee}-` + String(compteur).padStart(3, '0');
+                const codePrevisionnel = _rendreGabarit(gabarits.surveillant, { annee: gabarits.annee, numero: compteur });
                 resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, poste, code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
@@ -1600,7 +1615,7 @@ exports.importSurveillantsExcel = async (req, res) => {
                 const motDePasseTemp = genTempPassword();
                 const hash = await bcrypt.hash(motDePasseTemp, 10);
                 const { code, resultat: r } = await insererAvecCodeUnique(
-                    () => { compteur++; return `${prefixes.surveillant}-${prefixes.annee}-` + String(compteur).padStart(3, '0'); },
+                    () => { compteur++; return _rendreGabarit(gabarits.surveillant, { annee: gabarits.annee, numero: compteur }); },
                     (code) => db.query(`
                         INSERT INTO authentification.comptes
                         (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
@@ -1640,7 +1655,7 @@ exports.createAlumni = async (req, res) => {
             return res.status(400).json({ message: 'Prénom et nom requis' });
         }
         const bcrypt = require('bcryptjs');
-        const prefixes = await _getPrefixesMatricule();
+        const gabarits = await _getGabaritsMatricule();
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ALUMNI'"
         );
@@ -1649,7 +1664,7 @@ exports.createAlumni = async (req, res) => {
         const hash = await bcrypt.hash(motDePasseTemp, 10);
 
         const { code, resultat: r } = await insererAvecCodeUnique(
-            () => `${prefixes.alumni}-${prefixes.annee}-` + String(++nb).padStart(3, '0'),
+            () => _rendreGabarit(gabarits.alumni, { annee: gabarits.annee, numero: ++nb }),
             (code) => db.query(`
                 INSERT INTO authentification.comptes
                 (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
@@ -1702,7 +1717,7 @@ exports.createParent = async (req, res) => {
         const idEleve = eleve.rows[0].id_user;
 
         const bcrypt = require('bcryptjs');
-        const prefixes = await _getPrefixesMatricule();
+        const gabarits = await _getGabaritsMatricule();
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='PARENT'"
         );
@@ -1717,7 +1732,7 @@ exports.createParent = async (req, res) => {
         // d'abord, on lie l'enfant, puis on active — le déclencheur retrouve
         // alors bien la relation et laisse passer l'activation.
         const { code, resultat: r } = await insererAvecCodeUnique(
-            () => `${prefixes.parent}-${prefixes.annee}-` + String(++nb).padStart(4, '0'),
+            () => _rendreGabarit(gabarits.parent, { annee: gabarits.annee, numero: ++nb }),
             (code) => db.query(`
                 INSERT INTO authentification.comptes
                 (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
@@ -2227,7 +2242,7 @@ exports.importElevesExcel = async (req, res) => {
         }
 
         const bcrypt = require('bcryptjs');
-        const prefixes = await _getPrefixesMatricule();
+        const gabarits = await _getGabaritsMatricule();
         const countR = await db.query(
             "SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ELEVE'"
         );
@@ -2283,7 +2298,7 @@ exports.importElevesExcel = async (req, res) => {
 
             if (dryRun) {
                 compteur++;
-                const codePrevisionnel = `${prefixes.eleve}-${prefixes.annee}-` + String(2000 + compteur).padStart(4, '0');
+                const codePrevisionnel = _rendreGabarit(gabarits.eleve, { annee: gabarits.annee, numero: 2000 + compteur });
                 resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, classe, email, telephone, sexe, date_naissance: dateNaissance, lieu_naissance: lieuNaissance, code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
@@ -2295,7 +2310,7 @@ exports.importElevesExcel = async (req, res) => {
                 // actif sans parent lié. S'active automatiquement dès qu'un
                 // import de parents (voir importParentsExcel) le lie à un parent.
                 const { code, resultat: r } = await insererAvecCodeUnique(
-                    () => { compteur++; return `${prefixes.eleve}-${prefixes.annee}-` + String(2000 + compteur).padStart(4, '0'); },
+                    () => { compteur++; return _rendreGabarit(gabarits.eleve, { annee: gabarits.annee, numero: 2000 + compteur }); },
                     (code) => db.query(`
                         INSERT INTO authentification.comptes
                         (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
@@ -2362,7 +2377,7 @@ exports.importProfesseursExcel = async (req, res) => {
         if (!rows.length) return res.status(400).json({ message: 'Le fichier est vide ou illisible.' });
 
         const bcrypt = require('bcryptjs');
-        const prefixes = await _getPrefixesMatricule();
+        const gabarits = await _getGabaritsMatricule();
         const countR = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='PROFESSEUR'");
         let compteur = parseInt(countR.rows[0].count) || 0;
 
@@ -2388,7 +2403,7 @@ exports.importProfesseursExcel = async (req, res) => {
 
             if (dryRun) {
                 compteur++;
-                const codePrevisionnel = `${prefixes.prof}-${prefixes.annee}-` + String(compteur + 10).padStart(3, '0');
+                const codePrevisionnel = _rendreGabarit(gabarits.prof, { annee: gabarits.annee, numero: compteur + 10 });
                 resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, specialite, email, telephone, classes: classesTxt || '', matieres: matieresTxt || '', code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
@@ -2397,7 +2412,7 @@ exports.importProfesseursExcel = async (req, res) => {
                 const motDePasseTemp = genTempPassword();
                 const hash = await bcrypt.hash(motDePasseTemp, 10);
                 const { code, resultat: r } = await insererAvecCodeUnique(
-                    () => { compteur++; return `${prefixes.prof}-${prefixes.annee}-` + String(compteur + 10).padStart(3, '0'); },
+                    () => { compteur++; return _rendreGabarit(gabarits.prof, { annee: gabarits.annee, numero: compteur + 10 }); },
                     (code) => db.query(`
                         INSERT INTO authentification.comptes
                         (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
@@ -2450,7 +2465,7 @@ exports.importAlumniExcel = async (req, res) => {
         if (!rows.length) return res.status(400).json({ message: 'Le fichier est vide ou illisible.' });
 
         const bcrypt = require('bcryptjs');
-        const prefixes = await _getPrefixesMatricule();
+        const gabarits = await _getGabaritsMatricule();
         const countR = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='ALUMNI'");
         let compteur = parseInt(countR.rows[0].count) || 0;
 
@@ -2471,7 +2486,7 @@ exports.importAlumniExcel = async (req, res) => {
 
             if (dryRun) {
                 compteur++;
-                const codePrevisionnel = `${prefixes.alumni}-${prefixes.annee}-` + String(compteur).padStart(3, '0');
+                const codePrevisionnel = _rendreGabarit(gabarits.alumni, { annee: gabarits.annee, numero: compteur });
                 resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
@@ -2480,7 +2495,7 @@ exports.importAlumniExcel = async (req, res) => {
                 const motDePasseTemp = genTempPassword();
                 const hash = await bcrypt.hash(motDePasseTemp, 10);
                 const { code, resultat: r } = await insererAvecCodeUnique(
-                    () => { compteur++; return `${prefixes.alumni}-${prefixes.annee}-` + String(compteur).padStart(3, '0'); },
+                    () => { compteur++; return _rendreGabarit(gabarits.alumni, { annee: gabarits.annee, numero: compteur }); },
                     (code) => db.query(`
                         INSERT INTO authentification.comptes
                         (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
@@ -2533,7 +2548,7 @@ exports.importParentsExcel = async (req, res) => {
         if (!rows.length) return res.status(400).json({ message: 'Le fichier est vide ou illisible.' });
 
         const bcrypt = require('bcryptjs');
-        const prefixes = await _getPrefixesMatricule();
+        const gabarits = await _getGabaritsMatricule();
         const countR = await db.query("SELECT COUNT(*) FROM authentification.comptes WHERE role_actuel='PARENT'");
         let compteur = parseInt(countR.rows[0].count) || 0;
 
@@ -2574,7 +2589,7 @@ exports.importParentsExcel = async (req, res) => {
 
             if (dryRun) {
                 compteur++;
-                const codePrevisionnel = `${prefixes.parent}-${prefixes.annee}-` + String(compteur).padStart(4, '0');
+                const codePrevisionnel = _rendreGabarit(gabarits.parent, { annee: gabarits.annee, numero: compteur });
                 resultats.push({ ligne: i + 2, nom: nom.toUpperCase(), prenom, email, telephone, ...infoEnfant, code_previsionnel: codePrevisionnel, statut: 'OK' });
                 continue;
             }
@@ -2586,7 +2601,7 @@ exports.importParentsExcel = async (req, res) => {
                 // après la liaison, à cause du déclencheur BD qui refuse tout
                 // parent actif sans enfant lié.
                 const { code, resultat: r } = await insererAvecCodeUnique(
-                    () => { compteur++; return `${prefixes.parent}-${prefixes.annee}-` + String(compteur).padStart(4, '0'); },
+                    () => { compteur++; return _rendreGabarit(gabarits.parent, { annee: gabarits.annee, numero: compteur }); },
                     (code) => db.query(`
                         INSERT INTO authentification.comptes
                         (code_unique, nom, prenom, email, telephone, mot_de_passe, role_actuel, est_actif)
@@ -2811,16 +2826,31 @@ exports.importEmploiDuTempsExcel = async (req, res) => {
 exports.updateConfig = async (req, res) => {
     try {
         const { nom_etablissement, slogan, adresse, telephone, email_contact } = req.body;
-        // ✅ Préfixes/année de matricule — voir _getPrefixesMatricule() plus
+        // ✅ Gabarits/année de matricule — voir _getGabaritsMatricule() plus
         // haut. Modifiables ici par n'importe quelle école, sans toucher au
         // code. Vide/absent = COALESCE garde la valeur déjà en base (donc
         // les valeurs par défaut posées par la migration ne sont jamais
         // écrasées par erreur si ces champs ne sont pas envoyés).
         const {
-            matricule_prefixe_eleve, matricule_prefixe_prof, matricule_prefixe_parent,
-            matricule_prefixe_alumni, matricule_prefixe_surveillant, matricule_prefixe_direction,
+            matricule_gabarit_eleve, matricule_gabarit_prof, matricule_gabarit_parent,
+            matricule_gabarit_alumni, matricule_gabarit_surveillant, matricule_gabarit_direction,
             matricule_annee,
         } = req.body;
+
+        // ⚠️ Un gabarit sans {NUMERO}/{NUMERO:N} générerait le même texte à
+        // chaque compte créé — insererAvecCodeUnique retenterait indéfiniment
+        // sur la même valeur en boucle (conflit d'unicité jamais résolu).
+        // Mieux vaut refuser l'enregistrement que de bloquer toute création
+        // de compte pour ce rôle ensuite.
+        const gabaritsAVerifier = {
+            'Élèves': matricule_gabarit_eleve, 'Professeurs': matricule_gabarit_prof, 'Parents': matricule_gabarit_parent,
+            'Anciens élèves': matricule_gabarit_alumni, 'Surveillants': matricule_gabarit_surveillant, 'Direction': matricule_gabarit_direction,
+        };
+        for (const [role, gabarit] of Object.entries(gabaritsAVerifier)) {
+            if (gabarit && !/\{NUMERO(:\d+)?\}/.test(gabarit)) {
+                return res.status(400).json({ success: false, message: `Le format "${role}" doit contenir {NUMERO} ou {NUMERO:N} pour rester unique à chaque compte créé.` });
+            }
+        }
 
         let logo_url = null;
         if (req.file) {
@@ -2839,20 +2869,20 @@ exports.updateConfig = async (req, res) => {
                     telephone = COALESCE($4, telephone),
                     email_contact = COALESCE($5, email_contact),
                     logo_url = COALESCE($6, logo_url),
-                    matricule_prefixe_eleve = COALESCE(NULLIF($7, ''), matricule_prefixe_eleve),
-                    matricule_prefixe_prof = COALESCE(NULLIF($8, ''), matricule_prefixe_prof),
-                    matricule_prefixe_parent = COALESCE(NULLIF($9, ''), matricule_prefixe_parent),
-                    matricule_prefixe_alumni = COALESCE(NULLIF($10, ''), matricule_prefixe_alumni),
-                    matricule_prefixe_surveillant = COALESCE(NULLIF($11, ''), matricule_prefixe_surveillant),
-                    matricule_prefixe_direction = COALESCE(NULLIF($12, ''), matricule_prefixe_direction),
+                    matricule_gabarit_eleve = COALESCE(NULLIF($7, ''), matricule_gabarit_eleve),
+                    matricule_gabarit_prof = COALESCE(NULLIF($8, ''), matricule_gabarit_prof),
+                    matricule_gabarit_parent = COALESCE(NULLIF($9, ''), matricule_gabarit_parent),
+                    matricule_gabarit_alumni = COALESCE(NULLIF($10, ''), matricule_gabarit_alumni),
+                    matricule_gabarit_surveillant = COALESCE(NULLIF($11, ''), matricule_gabarit_surveillant),
+                    matricule_gabarit_direction = COALESCE(NULLIF($12, ''), matricule_gabarit_direction),
                     matricule_annee = COALESCE(NULLIF($13, ''), matricule_annee),
                     updated_at = NOW()
                 WHERE id_config = $14
                 RETURNING *
             `, [
                 nom_etablissement || null, slogan || null, adresse || null, telephone || null, email_contact || null, logo_url,
-                matricule_prefixe_eleve || '', matricule_prefixe_prof || '', matricule_prefixe_parent || '',
-                matricule_prefixe_alumni || '', matricule_prefixe_surveillant || '', matricule_prefixe_direction || '',
+                matricule_gabarit_eleve || '', matricule_gabarit_prof || '', matricule_gabarit_parent || '',
+                matricule_gabarit_alumni || '', matricule_gabarit_surveillant || '', matricule_gabarit_direction || '',
                 matricule_annee || '', existe.rows[0].id_config,
             ]);
         } else {

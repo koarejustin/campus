@@ -144,19 +144,41 @@ CASCADE;
 -- juste après le premier login, comme pour n'importe quel compte
 -- importé. Pas besoin de modifier ce fichier avant de le relancer,
 -- même pour une autre école.
--- ✅ Matricule construit depuis gestion.configuration (préfixe +
--- année configurables par école, voir 27_prefixes_matricules_
--- configurables.sql) plutôt que "DIR-2027-001" codé en dur — avec
--- repli sur DIR/2026 si la table est vide (ne devrait jamais arriver,
--- gestion.configuration n'est jamais vidée par ce script).
+-- ✅ Matricule construit depuis le gabarit configurable par école
+-- (gestion.configuration.matricule_gabarit_direction — voir
+-- 28_gabarits_matricules_libres.sql) plutôt que "DIR-2027-001" codé
+-- en dur — {ANNEE} et {NUMERO:N}/{NUMERO} remplacés ici en PL/pgSQL
+-- (même logique que _rendreGabarit() côté Node, voir
+-- adminController.js). Le numéro est toujours 1 : un seul compte
+-- Direction recréé par ce script. Repli sur "DIR-{ANNEE}-{NUMERO:3}"
+-- + année 2026 si gestion.configuration est vide (ne devrait jamais
+-- arriver, cette table n'est jamais vidée par ce script).
 -- ================================================================
-INSERT INTO authentification.comptes
-    (code_unique, nom, prenom, email, role_actuel, mot_de_passe, est_actif)
-VALUES (
-    COALESCE((SELECT matricule_prefixe_direction FROM gestion.configuration LIMIT 1), 'DIR')
-        || '-' || COALESCE((SELECT matricule_annee FROM gestion.configuration LIMIT 1), '2026') || '-001',
-    'DIRECTION', 'Administrateur', NULL, 'DIRECTION', 'NON_ACTIVE', true
-);
+DO $$
+DECLARE
+    gabarit TEXT;
+    annee_val TEXT;
+    largeur TEXT;
+    code TEXT;
+BEGIN
+    SELECT matricule_gabarit_direction, matricule_annee
+        INTO gabarit, annee_val
+        FROM gestion.configuration LIMIT 1;
+    gabarit := COALESCE(gabarit, 'DIR-{ANNEE}-{NUMERO:3}');
+    annee_val := COALESCE(annee_val, '2026');
+
+    largeur := (regexp_match(gabarit, '\{NUMERO:(\d+)\}'))[1];
+    IF largeur IS NOT NULL THEN
+        code := replace(gabarit, '{NUMERO:' || largeur || '}', lpad('1', largeur::int, '0'));
+    ELSE
+        code := replace(gabarit, '{NUMERO}', '1');
+    END IF;
+    code := replace(code, '{ANNEE}', annee_val);
+
+    INSERT INTO authentification.comptes
+        (code_unique, nom, prenom, email, role_actuel, mot_de_passe, est_actif)
+    VALUES (code, 'DIRECTION', 'Administrateur', NULL, 'DIRECTION', 'NON_ACTIVE', true);
+END $$;
 
 COMMIT;
 
